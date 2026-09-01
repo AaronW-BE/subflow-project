@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Applied by SplashScreen.installSplashScreen() once the first frame is ready. -->
+    <style name="Theme.SubFlow" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/canvas_ground</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+    </style>
+
+    <!-- Launch theme: paints the brand mark on the canvas ground so there is no
+         white flash before Compose draws. -->
+    <style name="Theme.SubFlow.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_ground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.SubFlow</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

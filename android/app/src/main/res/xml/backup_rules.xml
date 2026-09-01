@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and below.
+     Only the listed paths are backed up; everything else - including the auth
+     session (subflow_auth_prefs) and the cached Pro flag - is excluded by
+     omission, so a restored device re-verifies entitlement against Google Play
+     instead of trusting a copied flag. -->
+<full-backup-content>
+    <include domain="database" path="subflow_local.db" />
+    <include domain="sharedpref" path="subflow_user_preferences.xml" />
+</full-backup-content>

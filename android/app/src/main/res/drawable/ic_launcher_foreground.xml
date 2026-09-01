@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Mark only. The adaptive-icon mask supplies the container shape;
+         drawing a squircle here would nest one shape inside another. -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5.60"
+        android:strokeLineCap="round"
+        android:pathData="M51.39,29.14 A25.00,25.00 0 0,1 77.18,63.37" />
+    <path
+        android:strokeColor="#66D4CF"
+        android:strokeWidth="5.60"
+        android:strokeLineCap="round"
+        android:pathData="M75.20,67.25 A25.00,25.00 0 0,1 43.83,76.84" />
+    <path
+        android:strokeColor="#FF9500"
+        android:strokeWidth="5.60"
+        android:strokeLineCap="round"
+        android:pathData="M40.02,74.73 A25.00,25.00 0 0,1 29.38,49.66" />
+    <path
+        android:strokeColor="#FF6B60"
+        android:strokeWidth="5.60"
+        android:strokeLineCap="round"
+        android:pathData="M30.51,45.45 A25.00,25.00 0 0,1 47.11,29.97" />
+    <group
+        android:pivotX="53.00"
+        android:pivotY="52.50"
+        android:scaleX="0.5319"
+        android:scaleY="0.5319"
+        android:translateX="1.00"
+        android:translateY="1.50">
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M65,42 C65,37 60,34 54,34 C47,34 43,37 43,42 C43,47 47,49 53,51 L56,52 C64,55 68,59 68,65 C68,72 62,76 54,76 C45,76 40,71 39,64 L46,63 C47,68 50,70 54,70 C58,70 61,68 61,65 C61,61 58,59 52,57 L49,56 C42,53 37,49 37,42 C37,35 43,29 54,29 C63,29 68,34 69,41 Z" />
+    </group>
+</vector>

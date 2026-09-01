@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+. Same policy as backup_rules.xml: an explicit allowlist, so the
+     auth session and the cached entitlement never leave the device. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="database" path="subflow_local.db" />
+        <include domain="sharedpref" path="subflow_user_preferences.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="database" path="subflow_local.db" />
+        <include domain="sharedpref" path="subflow_user_preferences.xml" />
+    </device-transfer>
+</data-extraction-rules>

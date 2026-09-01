@@ -1,0 +1,42 @@
+# ---------------------------------------------------------------- secrets
+# Never commit. The keystore and its password cannot be rotated once an app
+# is published under them, and the .jks is the only copy of the upload key.
+keystore.properties
+*.jks
+*.keystore
+local.properties
+.env
+.env.*
+
+# ------------------------------------------------------------ build output
+# android/.gitignore anchors /build to the android/ directory, so it misses
+# android/app/build (216 MB). This pattern catches build dirs at any depth.
+build/
+.gradle/
+.kotlin/
+.cxx/
+.externalNativeBuild/
+/captures/
+
+# Go server binary
+backend/subflow-server.exe
+*.exe
+
+# Local server database and its WAL sidecars - runtime state, not source.
+*.db
+*.db-shm
+*.db-wal
+
+# ------------------------------------------------------------------- node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# ----------------------------------------------------------------- editors
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

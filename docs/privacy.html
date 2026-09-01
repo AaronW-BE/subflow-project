@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SubFlow — Privacy Policy</title>
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#fff; --ink:#1c1c1e; --muted:#6c6c70;
+    --rule:rgba(60,60,67,.18); --accent:#5856d6;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#000; --card:#141416; --ink:#fff; --muted:#9e9ea5;
+          --rule:rgba(84,84,88,.6); --accent:#7d7bff;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  main{max-width:720px;margin:0 auto;padding:40px 20px 80px}
+  .card{background:var(--card);border-radius:16px;padding:32px 28px;
+    border:1px solid var(--rule)}
+  h1{font-size:28px;line-height:1.25;margin:0 0 4px;letter-spacing:-.02em}
+  h2{font-size:19px;margin:36px 0 10px;letter-spacing:-.01em}
+  h3{font-size:16px;margin:24px 0 8px;color:var(--accent)}
+  .date{color:var(--muted);font-size:14px;margin:0 0 8px}
+  hr{border:0;border-top:1px solid var(--rule);margin:28px 0}
+  a{color:var(--accent)}
+  code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:13.5px}
+  ul{padding-left:20px}
+  li{margin:5px 0}
+  .wrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-weight:600}
+  .lede{background:var(--bg);border-radius:12px;padding:16px 18px;margin:18px 0}
+  footer{color:var(--muted);font-size:13.5px;margin-top:32px;font-style:italic}
+</style>
+</head>
+<body>
+<main>
+<div class="card">
+
+<h1>SubFlow — Privacy Policy</h1>
+<p class="date">Last updated: 28 August 2026</p>
+
+<p>SubFlow (“the app”) is a subscription tracker published by Bin Tech (“we”, “us”).
+This policy explains what the app does and does not do with your information.</p>
+<p>Contact for privacy questions: <a href="mailto:zmtzwb@gmail.com">zmtzwb@gmail.com</a></p>
+
+<div class="lede">
+<h2 style="margin-top:0">Short version</h2>
+<p>SubFlow is local-first. The subscriptions you enter — their names, amounts,
+billing cycles and renewal dates — are stored <strong>only on your device</strong>.
+We do not have a copy of them, and we cannot read them.</p>
+<p style="margin-bottom:0">The only information that leaves your device is what the
+Google Mobile Ads SDK collects in order to show ads to users on the free tier.</p>
+</div>
+
+<h2>What stays on your device</h2>
+<p>All of the following is written to a local database (<code>subflow_local.db</code>)
+and to local preferences, and is never uploaded to us:</p>
+<ul>
+  <li>Subscription names, amounts, currencies, billing cycles, categories, colours,
+      notes, first-bill and renewal dates</li>
+  <li>Your display currency, language, theme, haptics and reminder preferences</li>
+  <li>Your Pro entitlement state</li>
+</ul>
+<p>Android’s own backup service may include this local data in your personal Google
+account backup if you have device backup enabled. That backup belongs to you and is
+governed by Google’s terms, not ours. The app deliberately <strong>excludes</strong>
+its authentication preferences from backup.</p>
+<p>You can erase everything at any time: <strong>Settings → erase all data</strong>.
+You can also export your data to a JSON file you control, and re-import it.</p>
+
+<h2>What leaves your device</h2>
+
+<h3>Advertising (free tier only)</h3>
+<p>The app displays banner ads using the <strong>Google Mobile Ads SDK (AdMob)</strong>.
+That SDK collects and shares with Google:</p>
+<div class="wrap">
+<table>
+  <tr><th>Data type</th><th>Purpose</th></tr>
+  <tr><td>Device or other identifiers (including the Android advertising ID)</td>
+      <td>Advertising, analytics, fraud prevention and security</td></tr>
+  <tr><td>App interactions</td>
+      <td>Advertising, analytics, fraud prevention and security</td></tr>
+</table>
+</div>
+<p>This data is transmitted over an encrypted connection. It is not used to build a
+profile of your finances — the ad SDK has no access to your subscription data.</p>
+<p>Google’s handling of this data is described at
+<a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+<p><strong>Users in the EEA, UK and Switzerland</strong> are shown a consent form on
+first launch (Google’s User Messaging Platform). Ads are only requested after consent
+is resolved. You can reopen that form at any time from
+<strong>Settings → Ad privacy options</strong>.</p>
+<p><strong>Purchasing Pro removes ads entirely</strong>, and with them this data collection.</p>
+
+<h3>Purchases</h3>
+<p>Purchases are processed by <strong>Google Play Billing</strong>. We never see or
+receive your payment card, bank details, or billing address — Google handles the
+transaction and tells the app only whether an entitlement is active.</p>
+<p>To keep your purchase anonymous, the app sends Play a randomly generated,
+non-reversible install identifier that contains no personal information.</p>
+
+<h2>What we do not do</h2>
+<ul>
+  <li>We do <strong>not</strong> collect your name, email address, phone number or contacts.</li>
+  <li>We do <strong>not</strong> ask for or store bank credentials or account numbers.
+      SubFlow is manual-entry and preset-based by design; it does not connect to your bank.</li>
+  <li>We do <strong>not</strong> collect your location.</li>
+  <li>We do <strong>not</strong> access your photos, files, calendar, microphone or camera.</li>
+  <li>We do <strong>not</strong> sell your personal information.</li>
+</ul>
+
+<h2>Notifications</h2>
+<p>If you allow notifications, the app schedules renewal reminders
+<strong>locally on your device</strong> using Android’s WorkManager. Nothing is sent
+to a server to produce them, and no push service is involved.</p>
+
+<h2>Children</h2>
+<p>SubFlow is intended for users aged 18 and over. It is not directed at children and
+we do not knowingly collect data from them.</p>
+
+<h2>Your rights</h2>
+<p>Because we hold no personal data about you on our servers, there is no account to
+close and no server-side record for us to delete. Everything the app holds is on your
+device and under your control.</p>
+<p>To reset the advertising identifier used by AdMob, use
+<strong>Android Settings → Privacy → Ads</strong>.</p>
+<p>If you have a question or a request about your data, email
+<a href="mailto:zmtzwb@gmail.com">zmtzwb@gmail.com</a> and we will respond within 30 days.</p>
+
+<h2>Changes</h2>
+<p>If the app’s data practices change — in particular if optional account sign-in or
+cloud sync is enabled in a future version — this policy and the Google Play Data
+Safety section will be updated <strong>before</strong> that version is released.</p>
+
+<hr>
+<footer>SubFlow is not a bank, broker, lender, insurer or financial adviser, and
+nothing in the app constitutes financial advice.</footer>
+
+</div>
+</main>
+</body>
+</html>
