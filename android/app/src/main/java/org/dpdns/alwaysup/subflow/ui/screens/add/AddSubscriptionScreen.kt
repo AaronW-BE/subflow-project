@@ -345,10 +345,27 @@ fun AddSubscriptionScreen(
                                                 selectedPresetId = preset.id
                                                 name = preset.name
                                                 category = preset.category
-                                                amountText = trimAmount(preset.defaultAmountUSD)
-                                                currency = "USD"
                                                 cycle = preset.defaultCycle
                                                 selectedColorHex = preset.brandColor
+                                                // The catalogue only carries a
+                                                // US list price, and services
+                                                // price regionally - Netflix is
+                                                // not 15.49 of anything outside
+                                                // the US. Filling the field
+                                                // only when the user is already
+                                                // in USD keeps the preset
+                                                // useful without asserting a
+                                                // price we do not know.
+                                                //
+                                                // This used to also force
+                                                // currency = "USD", silently
+                                                // undoing the home currency: a
+                                                // CNY user tapped Netflix and
+                                                // watched the preview turn from
+                                                // 0.00 into $15.49.
+                                                if (currency == "USD") {
+                                                    amountText = trimAmount(preset.defaultAmountUSD)
+                                                }
                                             }
                                         )
                                     }
@@ -663,39 +680,44 @@ fun AddSubscriptionScreen(
     }
 
     if (showCurrencySheet) {
-        PickerSheet(
+        SubFlowPickerSheet(
             title = stringResource(R.string.field_currency),
+            items = SupportedCurrencies,
+            key = { it.code },
+            searchHint = stringResource(R.string.search_currency_hint),
+            matches = { curr, q ->
+                curr.code.contains(q, ignoreCase = true) ||
+                    curr.name.contains(q, ignoreCase = true)
+            },
             onDismiss = { showCurrencySheet = false }
-        ) {
-            SupportedCurrencies.forEach { curr ->
-                PickerRow(
-                    title = "${curr.name} (${curr.code})",
-                    subtitle = curr.symbol,
-                    selected = curr.code == currency,
-                    onClick = {
-                        currency = curr.code
-                        showCurrencySheet = false
-                    }
-                )
-            }
+        ) { curr ->
+            SubFlowPickerRow(
+                title = "${curr.name} (${curr.code})",
+                subtitle = curr.symbol,
+                selected = curr.code == currency,
+                onClick = {
+                    currency = curr.code
+                    showCurrencySheet = false
+                }
+            )
         }
     }
 
     if (showCategorySheet) {
-        PickerSheet(
+        SubFlowPickerSheet(
             title = stringResource(R.string.field_category),
+            items = CATEGORIES,
+            key = { it },
             onDismiss = { showCategorySheet = false }
-        ) {
-            CATEGORIES.forEach { cat ->
-                PickerRow(
-                    title = localizedCategory(cat),
-                    selected = cat.equals(category, ignoreCase = true),
-                    onClick = {
-                        category = cat
-                        showCategorySheet = false
-                    }
-                )
-            }
+        ) { cat ->
+            SubFlowPickerRow(
+                title = localizedCategory(cat),
+                selected = cat.equals(category, ignoreCase = true),
+                onClick = {
+                    category = cat
+                    showCategorySheet = false
+                }
+            )
         }
     }
 
@@ -869,72 +891,6 @@ private fun ReminderLeadPicker(
                     }
                 }
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PickerSheet(
-    title: String,
-    onDismiss: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        containerColor = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 36.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            content()
-        }
-    }
-}
-
-@Composable
-private fun PickerRow(
-    title: String,
-    subtitle: String? = null,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .heightIn(min = 48.dp)
-            .padding(vertical = 10.dp, horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 12.sp
-                )
-            }
-        }
-        if (selected) {
-            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         }
     }
 }

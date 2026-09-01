@@ -21,6 +21,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -768,4 +776,173 @@ fun AdMobAdaptiveBanner(
             }
         }
     )
+}
+
+// ------------------------------------------------------------ picker sheets
+
+/**
+ * The bottom-sheet picker behind currency, category, theme and language.
+ *
+ * This used to be two byte-identical private copies, one in SettingsScreen and
+ * one in AddSubscriptionScreen, which is why the same bug shipped in both: the
+ * content was a plain [Column], and a Column inside a ModalBottomSheet does not
+ * scroll. Anything past the sheet's height was unreachable except by guessing
+ * that the sheet itself could be dragged taller. With ten currencies a tester
+ * saw five and reported the list as cut off; with forty it would have been
+ * hopeless.
+ *
+ * Two things fix it. The list is a [LazyColumn], so it scrolls on its own. And
+ * the sheet opens fully expanded rather than at the half-height default, so the
+ * list starts out as tall as it can be instead of showing half of itself.
+ *
+ * @param matches supply to enable the search field. It is only rendered once
+ *   the list is long enough for scanning it to be the slower option.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T> SubFlowPickerSheet(
+    title: String,
+    items: List<T>,
+    key: (T) -> Any,
+    onDismiss: () -> Unit,
+    searchHint: String = "",
+    matches: ((T, String) -> Boolean)? = null,
+    row: @Composable (T) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var query by rememberSaveable { mutableStateOf("") }
+
+    val showSearch = matches != null && items.size > SEARCH_THRESHOLD
+    val visible = remember(items, query, showSearch) {
+        val q = query.trim()
+        if (!showSearch || q.isEmpty()) items else items.filter { matches!!(it, q) }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 12.dp)
+        )
+
+        if (showSearch) {
+            PickerSearchField(
+                query = query,
+                onQueryChange = { query = it },
+                hint = searchHint,
+                modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp)
+            )
+        }
+
+        // weight(fill = false) lets a short list stay short while a long one is
+        // capped at the space the sheet actually has, which is what gives the
+        // LazyColumn a bounded height to scroll inside.
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp)
+        ) {
+            items(visible, key = { key(it) }) { row(it) }
+        }
+
+        // The gesture bar overlaps the sheet, so the final row needs to clear it.
+        Spacer(modifier = Modifier.navigationBarsPadding())
+    }
+}
+
+private const val SEARCH_THRESHOLD = 12
+
+@Composable
+private fun PickerSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    hint: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            BasicTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                singleLine = true,
+                textStyle = TextStyle(
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .weight(1f)
+                    .semantics { contentDescription = hint },
+                decorationBox = { inner ->
+                    if (query.isEmpty()) {
+                        Text(
+                            text = hint,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            fontSize = 15.sp
+                        )
+                    }
+                    inner()
+                }
+            )
+        }
+    }
+}
+
+/** One selectable row inside a [SubFlowPickerSheet]. */
+@Composable
+fun SubFlowPickerRow(
+    title: String,
+    subtitle: String? = null,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .heightIn(min = 48.dp)
+            .padding(vertical = 10.dp, horizontal = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 12.sp
+                )
+            }
+        }
+        if (selected) {
+            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        }
+    }
 }

@@ -22,6 +22,7 @@
     <string name="add_subscription">Añadir suscripción</string>
     <string name="upgrade_to_pro">Pasar a Pro</string>
     <string name="clear_search">Borrar búsqueda</string>
+    <string name="search_currency_hint">Buscar moneda o código</string>
     <string name="search">Buscar</string>
     <string name="empty_title">Aún no hay suscripciones</string>
     <string name="empty_body">Añade los servicios que pagas y SubFlow mantendrá los totales y las fechas de renovación en un solo sitio.</string>

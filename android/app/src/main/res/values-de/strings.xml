@@ -22,6 +22,7 @@
     <string name="add_subscription">Abo hinzufügen</string>
     <string name="upgrade_to_pro">Auf Pro upgraden</string>
     <string name="clear_search">Suche löschen</string>
+    <string name="search_currency_hint">Währung oder Code suchen</string>
     <string name="search">Suchen</string>
     <string name="empty_title">Noch keine Abos</string>
     <string name="empty_body">Trage die Dienste ein, für die du zahlst. SubFlow hält Summen und Verlängerungstermine an einem Ort zusammen.</string>

@@ -8,7 +8,20 @@ import (
 	"time"
 )
 
-// RateService manages live foreign exchange rates.
+// ratesEditedAt is when the table below was last edited by hand.
+//
+// It is deliberately not time.Now(). There is no live feed behind this service
+// - the map is a compile-time constant - and stamping it with the process start
+// time made a table that had not moved in months report itself as updated
+// seconds ago, on both the admin console and every client that reads /rates.
+//
+// The figures are approximate reference rates, good enough to total a
+// subscription list and not good enough to settle a payment. Wiring a real
+// provider means replacing this whole block and setting UpdatedAt from the
+// provider's own quote time, not from the clock.
+var ratesEditedAt = time.Date(2026, 9, 2, 0, 0, 0, 0, time.UTC)
+
+// RateService manages foreign exchange rates.
 type RateService struct {
 	mu    sync.RWMutex
 	rates model.CurrencyRates
@@ -19,19 +32,48 @@ func NewRateService() *RateService {
 		rates: model.CurrencyRates{
 			BaseCurrency: "USD",
 			Rates: map[string]float64{
-				"USD": 1.0,
+				"USD": 1,
 				"EUR": 0.92,
 				"GBP": 0.78,
-				"JPY": 155.30,
+				"JPY": 155.3,
+				"CHF": 0.9,
 				"CAD": 1.36,
 				"AUD": 1.51,
-				"CHF": 0.90,
+				"NZD": 1.64,
 				"CNY": 7.23,
+				"HKD": 7.81,
+				"TWD": 32.3,
+				"SGD": 1.35,
+				"KRW": 1370,
 				"INR": 83.45,
+				"IDR": 16200,
+				"THB": 36.5,
+				"MYR": 4.7,
+				"PHP": 58,
+				"VND": 25400,
 				"BRL": 5.45,
-				"KRW": 1370.0,
+				"MXN": 18.5,
+				"CLP": 950,
+				"COP": 4100,
+				"ZAR": 18.6,
+				"NGN": 1550,
+				"EGP": 48.5,
+				"TRY": 34,
+				"ILS": 3.7,
+				"AED": 3.67,
+				"SAR": 3.75,
+				"PLN": 4,
+				"SEK": 10.6,
+				"NOK": 10.8,
+				"DKK": 6.87,
+				"CZK": 23.2,
+				"HUF": 355,
+				"RON": 4.57,
+				"UAH": 41.5,
+				"PKR": 278,
+				"BDT": 120,
 			},
-			UpdatedAt: time.Now(),
+			UpdatedAt: ratesEditedAt,
 		},
 	}
 	return s

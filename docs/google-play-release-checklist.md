@@ -1664,3 +1664,93 @@ Ad ids and the debug-leakage checks are unchanged from the previous bundle: app
 id `…~7430440986` in the manifest, banner `…/6280065326` in the dex, and zero
 occurrences of the debug UMP hash, the Google test publisher, the old wrong
 banner unit, or the emulator loopback URL.
+
+## Tester feedback round 1 — 2026-09-02
+
+A tester on a real install reported three things. All three were checked against
+the source and then reproduced on the PJX110 (1080x2376, 480dpi, viewport
+360x792dp) before anything was changed.
+
+> Installed yours I think different countries could have different subscription
+> and there's no option to tweak the price. In the currency selector the last one
+> position KRW is cut and not showing correctly, also it's better to have the
+> rest currencies
+
+| # | Report | Verdict |
+| --- | --- | --- |
+| 1 | "no option to tweak the price" | Wording wrong, underlying bug real |
+| 2 | KRW cut off | Confirmed, worse than described |
+| 3 | Too few currencies | Confirmed, plus an app/server mismatch |
+
+### 1. The preset silently overwrote the home currency
+
+The price field was always editable — it is a `BasicTextField` with a decimal
+keyboard and a currency chip beside it. What was broken sat one step earlier:
+tapping a preset ran `currency = "USD"` unconditionally, undoing the
+locale-derived home currency, and filled `defaultAmountUSD`, a US list price.
+
+Reproduced: with the home currency set to CNY the live preview read `¥0.00`;
+tapping Netflix turned it into **`$15.49`**.
+
+The catalogue has no regional pricing — `defaultAmountUSD` is the only price
+column — so the fix does not try to invent one. The currency is left alone, and
+the price is filled only when the user is already in USD. A non-USD user now
+gets the name, category, colour and cycle from the preset and an empty price
+field, which is worse than a correct local price and better than a confident
+wrong one. Proper regional pricing needs a schema change and is not done.
+
+### 2. The picker sheets did not scroll
+
+`ModalBottomSheet` containing a plain `Column`. A Column does not scroll, and
+the sheet opens half-height by default, so the currency list showed **5 of 10**
+entries — the last visible row's subtitle ended at y=2309 on a 2376px screen.
+
+An earlier note in this session claimed KRW was completely unreachable. That was
+wrong: dragging the sheet upward expands it and all ten fit. The list itself
+still never scrolled, so the gesture only worked by being interpreted as a sheet
+drag. At full height the content ended ~30px from the bottom edge, meaning any
+additional currency — i.e. item 3 below — would have clipped it for real.
+
+The two sheet implementations were byte-identical private copies, one per
+screen, which is exactly why one bug shipped twice. They are now a single
+`SubFlowPickerSheet` in `AppleComponents.kt`: a `LazyColumn`, opened with
+`skipPartiallyExpanded = true`, with a search field that appears past 12 items
+and a navigation-bar spacer.
+
+### 3. Currency list widened from 10 to 40
+
+The app had 10 and the server 11 — CHF was being served and could not be
+selected. Both are now 40, generated from one table so they cannot drift.
+
+This mattered more than it looks: `CurrencyConverter.convert()` returns the
+amount **unchanged** for a currency missing from its rate table, so a currency
+added to the picker without a matching rate would have silently counted ¥100 as
+$100 in the dashboard total.
+
+Also fixed while in there: `RateService` stamped `UpdatedAt: time.Now()` on a
+compile-time constant map, so a table that had never moved reported itself as
+updated seconds ago on every client and on the admin console.
+
+### Verified on device after the fix
+
+| Check | Result |
+| --- | --- |
+| Rows visible when the sheet opens | 5 → 11, full height |
+| Scroll to entry 40 (BDT) | Reaches it, clear of the bottom edge |
+| Search `krw` | 40 filtered to South Korean Won (KRW) alone |
+| Netflix preset with KRW home currency | `₩0` stays `₩0`, name still filled |
+| Spotify preset with USD (regression) | Still autofills `$11.99` |
+| Zero-decimal formatting | `₩0`, not `₩0.00` |
+| Server `/rates` | 40 entries, CHF present, honest `updated_at` |
+
+Note on the harness: `adb shell input text` goes through the device's Pinyin
+IME, which holds latin text as an uncommitted composition. Typing needs a
+`KEYCODE_ENTER` to commit or the field stays empty while the keyboard shows
+candidates — this is a test artifact, not app behaviour.
+
+### Known-bad data, tracked separately
+
+The 40 rates in this commit were written from memory. Checked afterwards against
+live data, **25 of the 40 are off by more than 5%**, the worst being TRY at
+−29.6%, COP +28.4% and INR −12.3%. They are no worse than the 10 they replace
+and they are not good enough to ship. Wiring a real feed is the next task.

@@ -48,6 +48,8 @@ import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
 import org.dpdns.alwaysup.subflow.ui.components.AppleRowSeparator
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
+import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerRow
+import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -522,58 +524,65 @@ fun SettingsScreen(
     }
 
     if (showCurrencySheet) {
-        SettingsPickerSheet(
+        SubFlowPickerSheet(
             title = stringResource(R.string.primary_currency),
+            items = SupportedCurrencies,
+            key = { it.code },
+            searchHint = stringResource(R.string.search_currency_hint),
+            // Match on code as well as name: someone looking for the won knows
+            // "KRW" long before they know it is filed under "South Korean".
+            matches = { curr, q ->
+                curr.code.contains(q, ignoreCase = true) ||
+                    curr.name.contains(q, ignoreCase = true)
+            },
             onDismiss = { showCurrencySheet = false }
-        ) {
-            SupportedCurrencies.forEach { curr ->
-                SettingsPickerRow(
-                    title = "${curr.name} (${curr.code})",
-                    subtitle = curr.symbol,
-                    selected = curr.code == currentCurrency,
-                    onClick = {
-                        preferencesManager.setCurrency(curr.code)
-                        showCurrencySheet = false
-                    }
-                )
-            }
+        ) { curr ->
+            SubFlowPickerRow(
+                title = "${curr.name} (${curr.code})",
+                subtitle = curr.symbol,
+                selected = curr.code == currentCurrency,
+                onClick = {
+                    preferencesManager.setCurrency(curr.code)
+                    showCurrencySheet = false
+                }
+            )
         }
     }
 
     if (showThemeSheet) {
-        SettingsPickerSheet(
+        SubFlowPickerSheet(
             title = stringResource(R.string.appearance),
+            items = ThemeMode.entries,
+            key = { it.key },
             onDismiss = { showThemeSheet = false }
-        ) {
-            ThemeMode.entries.forEach { mode ->
-                SettingsPickerRow(
-                    title = stringResource(mode.labelRes),
-                    selected = mode == currentThemeMode,
-                    onClick = {
-                        preferencesManager.setThemeMode(mode)
-                        showThemeSheet = false
-                    }
-                )
-            }
+        ) { mode ->
+            SubFlowPickerRow(
+                title = stringResource(mode.labelRes),
+                selected = mode == currentThemeMode,
+                onClick = {
+                    preferencesManager.setThemeMode(mode)
+                    showThemeSheet = false
+                }
+            )
         }
     }
 
     if (showLanguageSheet) {
-        SettingsPickerSheet(
+        SubFlowPickerSheet(
             title = stringResource(R.string.language),
+            items = SupportedLanguages,
+            key = { it.code },
             onDismiss = { showLanguageSheet = false }
-        ) {
-            SupportedLanguages.forEach { lang ->
-                SettingsPickerRow(
-                    title = lang.nativeName,
-                    subtitle = lang.displayName,
-                    selected = lang.code == currentLang,
-                    onClick = {
-                        preferencesManager.setLanguage(lang.code)
-                        showLanguageSheet = false
-                    }
-                )
-            }
+        ) { lang ->
+            SubFlowPickerRow(
+                title = lang.nativeName,
+                subtitle = lang.displayName,
+                selected = lang.code == currentLang,
+                onClick = {
+                    preferencesManager.setLanguage(lang.code)
+                    showLanguageSheet = false
+                }
+            )
         }
     }
 
@@ -720,72 +729,6 @@ private fun AccountCard(
                     fontWeight = FontWeight.SemiBold
                 )
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SettingsPickerSheet(
-    title: String,
-    onDismiss: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        containerColor = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 36.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            content()
-        }
-    }
-}
-
-@Composable
-private fun SettingsPickerRow(
-    title: String,
-    subtitle: String? = null,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .heightIn(min = 48.dp)
-            .padding(vertical = 10.dp, horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-            )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 12.sp
-                )
-            }
-        }
-        if (selected) {
-            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
         }
     }
 }
