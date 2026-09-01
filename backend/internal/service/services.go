@@ -76,7 +76,8 @@ func (s *PresetService) SavePreset(p *model.PresetService) error {
 	return s.db.SavePreset(p)
 }
 
-func (s *PresetService) DeletePreset(id string) error {
+// DeletePreset reports false when no preset had that id.
+func (s *PresetService) DeletePreset(id string) (bool, error) {
 	return s.db.DeletePreset(id)
 }
 

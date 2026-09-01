@@ -23,6 +23,20 @@ const (
 	ProTierLifetime ProTier = "lifetime"
 )
 
+// IsGrantableProTier reports whether a tier can be handed out by the admin API.
+//
+// The tier is written straight into the users table and is what the app reads
+// back to decide what a Pro account gets, so a typo used to persist silently
+// and produce an account that is is_pro with a tier nothing recognises.
+func IsGrantableProTier(t ProTier) bool {
+	switch t {
+	case ProTierMonthly, ProTierAnnual, ProTierLifetime:
+		return true
+	default:
+		return false
+	}
+}
+
 // User represents an application user.
 type User struct {
 	ID           string     `json:"id"`
@@ -136,9 +150,15 @@ type ServicePopularity struct {
 	IconURL    string  `json:"icon_url"`
 }
 
+// TrendPoint is one day of the dashboard's activity chart.
+//
+// It carries only quantities that are actually recorded. An earlier version
+// also reported cumulative subscriptions and a per-day MRR, but neither is
+// derivable: the subscriptions table has no created_at (only updated_at, which
+// is last-modified), and there is no historical revenue table. Those two fields
+// were being back-computed from today's totals and displayed as if measured.
 type TrendPoint struct {
-	Date           string  `json:"date"`
-	NewUsers       int     `json:"new_users"`
-	CumulativeSubs int     `json:"cumulative_subs"`
-	MRR            float64 `json:"mrr"`
+	Date         string `json:"date"`
+	NewUsers     int    `json:"new_users"`
+	NewPurchases int    `json:"new_purchases"`
 }

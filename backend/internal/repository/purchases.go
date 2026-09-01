@@ -130,3 +130,14 @@ func (db *DB) PurchasesSince(cutoff time.Time) (int, error) {
 	).Scan(&n)
 	return n, err
 }
+
+// CountPurchases is the total ledger size, so the console can page through it
+// honestly instead of showing the first 50 rows as if they were all of them.
+func (db *DB) CountPurchases() (int, error) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+
+	var n int
+	err := db.conn.QueryRow("SELECT COUNT(*) FROM purchases").Scan(&n)
+	return n, err
+}

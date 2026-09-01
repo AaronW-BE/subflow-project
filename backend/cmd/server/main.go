@@ -36,8 +36,8 @@ func main() {
 	presetService := service.NewPresetService(db)
 	rateService := service.NewRateService()
 	syncService := service.NewSyncService(db)
-	adminService := service.NewAdminService(db)
 	billingService := service.NewBillingService(db)
+	adminService := service.NewAdminService(db, billingService)
 
 	// The admin API can change entitlements, so it is token gated. A random
 	// token is generated when ADMIN_TOKEN is unset so a dev instance is still
@@ -48,9 +48,12 @@ func main() {
 		log.Printf("ADMIN_TOKEN not set. Generated session token for the Admin Console: %s", adminToken)
 	}
 
-	// Seed sample demo data for admin visibility
-	if err := adminService.SeedDemoData(); err != nil {
+	// Seed sample demo data for admin visibility. This is a no-op once the
+	// database has real users in it.
+	if n, err := adminService.SeedDemoData(); err != nil {
 		log.Printf("Notice: demo data seeding: %v", err)
+	} else if n > 0 {
+		log.Printf("Seeded %d demo users into a fresh database.", n)
 	}
 
 	// 3. Setup Gin Engine

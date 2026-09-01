@@ -15,11 +15,26 @@ const (
 	SKULifetime = "subflow_inapp_lifetime"
 )
 
-// Approximate USD list prices, used only to estimate MRR on the dashboard.
-// Real per-country revenue comes from the Play Console payout reports.
+// US list prices, used only to estimate revenue on the admin dashboard. Real
+// per-country revenue comes from the Play Console payout reports, which also
+// net out Play's cut and tax.
+//
+// These are the prices the paywall was observed rendering against production
+// Play on 2026-08-31 (see docs/google-play-release-checklist.md). The values
+// they replace - $2.99/mo and $19.99/yr - were the figures from ADR 0002, i.e.
+// what the pricing was expected to be before the Console products were created.
+// They never matched the shipped products, so every MRR figure the console
+// showed was overstated by 1.5x on monthly and 2x on annual.
+const (
+	priceMonthlyUSD  = 1.99
+	priceAnnualUSD   = 9.99
+	priceLifetimeUSD = 24.99
+)
+
+// skuMonthlyValueUSD is each SKU's contribution to monthly recurring revenue.
 var skuMonthlyValueUSD = map[string]float64{
-	SKUMonthly:  2.99,
-	SKUAnnual:   19.99 / 12.0,
+	SKUMonthly:  priceMonthlyUSD,
+	SKUAnnual:   priceAnnualUSD / 12.0,
 	SKULifetime: 0, // one-time, excluded from recurring revenue
 }
 
@@ -108,13 +123,37 @@ func (s *BillingService) ListPurchases(limit, offset int) ([]model.Purchase, err
 	return s.db.ListPurchases(limit, offset)
 }
 
+// PurchasePage is one page of the ledger plus the size of the whole ledger.
+type PurchasePage struct {
+	Purchases []model.Purchase `json:"purchases"`
+	Total     int              `json:"total"`
+	Limit     int              `json:"limit"`
+	Offset    int              `json:"offset"`
+}
+
+func (s *BillingService) ListPurchasePage(limit, offset int) (*PurchasePage, error) {
+	purchases, err := s.ListPurchases(limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	total, err := s.db.CountPurchases()
+	if err != nil {
+		return nil, err
+	}
+	return &PurchasePage{Purchases: purchases, Total: total, Limit: limit, Offset: offset}, nil
+}
+
 // RevenueSummary reports recurring revenue derived from the purchase ledger.
 type RevenueSummary struct {
 	PurchasesByTier map[string]int `json:"purchases_by_tier"`
 	EstimatedMRR    float64        `json:"estimated_mrr"`
 	EstimatedARR    float64        `json:"estimated_arr"`
 	LifetimeSales   int            `json:"lifetime_sales"`
-	Last30Days      int            `json:"purchases_last_30_days"`
+	// LifetimeGross is what those one-time sales are worth at list price.
+	// The count alone was the only lifetime figure on the dashboard, which
+	// made the tier look like it contributed nothing.
+	LifetimeGross float64 `json:"lifetime_gross"`
+	Last30Days    int     `json:"purchases_last_30_days"`
 }
 
 func (s *BillingService) RevenueSummary() (*RevenueSummary, error) {
@@ -128,6 +167,7 @@ func (s *BillingService) RevenueSummary() (*RevenueSummary, error) {
 	summary.EstimatedMRR += float64(counts[string(model.ProTierAnnual)]) * skuMonthlyValueUSD[SKUAnnual]
 	summary.EstimatedARR = summary.EstimatedMRR * 12
 	summary.LifetimeSales = counts[string(model.ProTierLifetime)]
+	summary.LifetimeGross = float64(summary.LifetimeSales) * priceLifetimeUSD
 
 	if n, err := s.db.PurchasesSince(time.Now().AddDate(0, 0, -30)); err == nil {
 		summary.Last30Days = n

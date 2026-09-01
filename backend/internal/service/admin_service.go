@@ -10,22 +10,68 @@ import (
 )
 
 type AdminService struct {
-	db *repository.DB
+	db      *repository.DB
+	billing *BillingService
 }
 
-func NewAdminService(db *repository.DB) *AdminService {
-	return &AdminService{db: db}
+func NewAdminService(db *repository.DB, billing *BillingService) *AdminService {
+	return &AdminService{db: db, billing: billing}
 }
 
+// GetKPIs assembles the dashboard figures.
+//
+// The repository leaves MRR and ARR at zero because it cannot see Play's list
+// prices. They are filled in here from the purchase ledger, which is the same
+// source the Revenue tab uses - previously the two tabs derived revenue
+// differently and disagreed with each other on the same screen.
 func (s *AdminService) GetKPIs() (*model.AdminKPI, error) {
-	return s.db.GetAdminKPI()
+	kpi, err := s.db.GetAdminKPI()
+	if err != nil {
+		return nil, err
+	}
+
+	revenue, err := s.billing.RevenueSummary()
+	if err != nil {
+		// A broken ledger should not blank the whole dashboard; the rest of
+		// the KPIs are independent of it and still worth showing.
+		return kpi, nil
+	}
+	kpi.EstimatedMRR = revenue.EstimatedMRR
+	kpi.EstimatedARR = revenue.EstimatedARR
+	return kpi, nil
 }
 
-func (s *AdminService) ListUsers(limit, offset int) ([]model.User, error) {
+// UserPage is one page of the user table plus the size of the whole table, so
+// the console can tell the operator how much it is not showing.
+type UserPage struct {
+	Users  []model.User `json:"users"`
+	Total  int          `json:"total"`
+	Limit  int          `json:"limit"`
+	Offset int          `json:"offset"`
+}
+
+func (s *AdminService) ListUsers(limit, offset int) (*UserPage, error) {
 	if limit <= 0 || limit > 100 {
 		limit = 50
 	}
-	return s.db.ListAllUsers(limit, offset)
+	if offset < 0 {
+		offset = 0
+	}
+
+	users, err := s.db.ListAllUsers(limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	if users == nil {
+		users = []model.User{}
+	}
+
+	total, err := s.db.CountUsers()
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserPage{Users: users, Total: total, Limit: limit, Offset: offset}, nil
 }
 
 func (s *AdminService) SetUserProStatus(userID string, isPro bool, tier model.ProTier) error {
@@ -48,10 +94,18 @@ func (s *AdminService) SetUserProStatus(userID string, isPro bool, tier model.Pr
 }
 
 // SeedDemoData seeds mock users and activity if the database is newly created.
-func (s *AdminService) SeedDemoData() error {
+//
+// It returns the number of demo users written, so the console can distinguish
+// "seeded" from "declined because this database already has users" - both used
+// to come back as a bare nil, and the operator was told it had worked either
+// way.
+func (s *AdminService) SeedDemoData() (int, error) {
 	kpi, err := s.db.GetAdminKPI()
-	if err != nil || kpi.TotalUsers > 3 {
-		return nil // already populated
+	if err != nil {
+		return 0, err
+	}
+	if kpi.TotalUsers > 3 {
+		return 0, nil // already populated
 	}
 
 	mockUsers := []struct {
@@ -129,5 +183,5 @@ func (s *AdminService) SeedDemoData() error {
 		}
 	}
 
-	return nil
+	return len(mockUsers), nil
 }

@@ -80,12 +80,19 @@ cd backend && go run ./cmd/server
 Set `JWT_SECRET` for anything long-lived. It signs session tokens, so whoever
 holds it can forge a login for any user.
 
-The admin console lives in `backend/web` (Vite + React) and is embedded into the
-Go binary under `internal/static/dist`.
+The admin console is served at `/admin/` and gated by `ADMIN_TOKEN`. It lives in
+`backend/web` (Vite + React) and is embedded into the Go binary under
+`internal/static/dist`, so a rebuilt console needs `npm run build` before
+`go build` — see [backend/web/README.md](backend/web/README.md).
 
 ## What is not in the repository
 
 `.gitignore` excludes the upload keystore and its passwords, `local.properties`,
-all build output, `node_modules`, the compiled Go binary, and the local SQLite
+build output, `node_modules`, the compiled Go binary, and the local SQLite
 database with its WAL sidecars. Losing or leaking the upload key cannot be
 reversed, so it is kept out on purpose rather than by habit.
+
+The one deliberate exception is `backend/internal/static/dist` — the built admin
+console. `//go:embed` treats a pattern that matches nothing as a compile error,
+so without it checked in the Go server cannot be built at all without first
+installing Node and running the Vite build.

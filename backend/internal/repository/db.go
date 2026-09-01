@@ -357,11 +357,22 @@ func (db *DB) SavePreset(p *model.PresetService) error {
 	return err
 }
 
-func (db *DB) DeletePreset(id string) error {
+// DeletePreset removes a preset and reports whether a row actually matched.
+// A DELETE that hits nothing is not an SQL error, so without the row count the
+// caller cannot tell a deletion from a typo in the id.
+func (db *DB) DeletePreset(id string) (bool, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
-	_, err := db.conn.Exec("DELETE FROM presets WHERE id = ?", id)
-	return err
+
+	res, err := db.conn.Exec("DELETE FROM presets WHERE id = ?", id)
+	if err != nil {
+		return false, err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
 }
 
 // Admin KPI Queries
@@ -383,26 +394,23 @@ func (db *DB) GetAdminKPI() (*model.AdminKPI, error) {
 		kpi.ProConversionRate = float64(kpi.ProSubscribers) / float64(kpi.TotalUsers) * 100.0
 	}
 
-	// DAU / MAU (simulated or based on last_active_at)
+	// DAU / MAU straight from last_active_at.
+	//
+	// These used to fall back to TotalUsers*0.45 and *0.85 whenever DAU came
+	// back as zero, which made a dead day indistinguishable from a busy one on
+	// the dashboard. Zero is a real answer and the console now shows it.
 	now := time.Now()
-	oneDayAgo := now.Add(-24 * time.Hour)
-	thirtyDaysAgo := now.Add(-30 * 24 * time.Hour)
-	_ = db.conn.QueryRow("SELECT COUNT(*) FROM users WHERE last_active_at >= ?", oneDayAgo).Scan(&kpi.ActiveUsersDAU)
-	_ = db.conn.QueryRow("SELECT COUNT(*) FROM users WHERE last_active_at >= ?", thirtyDaysAgo).Scan(&kpi.ActiveUsersMAU)
-	if kpi.ActiveUsersDAU == 0 && kpi.TotalUsers > 0 {
-		kpi.ActiveUsersDAU = int(float64(kpi.TotalUsers)*0.45) + 1
-		kpi.ActiveUsersMAU = int(float64(kpi.TotalUsers)*0.85) + 1
-	}
+	_ = db.conn.QueryRow(
+		"SELECT COUNT(*) FROM users WHERE last_active_at >= ?", now.Add(-24*time.Hour),
+	).Scan(&kpi.ActiveUsersDAU)
+	_ = db.conn.QueryRow(
+		"SELECT COUNT(*) FROM users WHERE last_active_at >= ?", now.Add(-30*24*time.Hour),
+	).Scan(&kpi.ActiveUsersMAU)
 
 	// 2. Active subscriptions tracked
 	_ = db.conn.QueryRow("SELECT COUNT(*) FROM subscriptions WHERE is_deleted = 0 AND is_active = 1").Scan(&kpi.TotalTrackedSubs)
 
-	// 3. Estimated MRR ($2.99 monthly or $1.66 from annual)
-	// Base MRR formula: ProSubscribers * avg $2.49/mo
-	kpi.EstimatedMRR = float64(kpi.ProSubscribers) * 2.49
-	kpi.EstimatedARR = kpi.EstimatedMRR * 12.0
-
-	// 4. Category distribution
+	// 3. Category distribution
 	catRows, err := db.conn.Query("SELECT category, COUNT(*) FROM subscriptions WHERE is_deleted = 0 GROUP BY category")
 	if err == nil {
 		defer catRows.Close()
@@ -415,7 +423,7 @@ func (db *DB) GetAdminKPI() (*model.AdminKPI, error) {
 		}
 	}
 
-	// 5. Top tracked services
+	// 4. Top tracked services
 	topRows, err := db.conn.Query(`SELECT name, icon_url, COUNT(*) as c 
 		FROM subscriptions 
 		WHERE is_deleted = 0 
@@ -435,19 +443,60 @@ func (db *DB) GetAdminKPI() (*model.AdminKPI, error) {
 		}
 	}
 
-	// 6. User Growth Trend (Last 7 days mock or real)
+	// 5. Seven-day activity, counted per calendar day. Both series are real
+	// rows; a day with no signups reports 0 rather than a synthesised figure.
+	since := now.AddDate(0, 0, -6)
+	newUsersByDay := db.countByLocalDay("SELECT created_at FROM users WHERE created_at >= ?", since)
+	purchasesByDay := db.countByLocalDay("SELECT reported_at FROM purchases WHERE reported_at >= ?", since)
 	for i := 6; i >= 0; i-- {
 		d := now.AddDate(0, 0, -i)
-		dateStr := d.Format("Jan 02")
 		kpi.UserGrowthTrend = append(kpi.UserGrowthTrend, model.TrendPoint{
-			Date:           dateStr,
-			NewUsers:       int(float64(kpi.TotalUsers)*0.08) + (i * 3),
-			CumulativeSubs: kpi.TotalTrackedSubs - (i * 12),
-			MRR:            kpi.EstimatedMRR - float64(i*15),
+			Date:         d.Format("Jan 02"),
+			NewUsers:     newUsersByDay[d.Format("2006-01-02")],
+			NewPurchases: purchasesByDay[d.Format("2006-01-02")],
 		})
 	}
 
+	// EstimatedMRR / EstimatedARR are filled in by AdminService from the
+	// purchase ledger. They are deliberately left at zero here: this layer
+	// cannot see Play's list prices, and the ProSubscribers * 2.49 guess this
+	// replaces counted admin-granted entitlements as though they were revenue.
+
 	return kpi, nil
+}
+
+// countByLocalDay runs a query returning a single timestamp column and tallies
+// the rows per calendar day, keyed "2006-01-02".
+//
+// Grouping happens in Go rather than with SQLite's date() because database/sql
+// writes these timestamps as UTC, and bucketing them in UTC would push an
+// evening signup onto the following day for any operator east of Greenwich.
+func (db *DB) countByLocalDay(query string, since time.Time) map[string]int {
+	counts := map[string]int{}
+	rows, err := db.conn.Query(query, since)
+	if err != nil {
+		return counts
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var t time.Time
+		if err := rows.Scan(&t); err != nil {
+			continue
+		}
+		counts[t.Local().Format("2006-01-02")]++
+	}
+	return counts
+}
+
+// CountUsers is the total row count, so the console can say "showing 50 of N"
+// instead of presenting one page as if it were the whole table.
+func (db *DB) CountUsers() (int, error) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+
+	var n int
+	err := db.conn.QueryRow("SELECT COUNT(*) FROM users").Scan(&n)
+	return n, err
 }
 
 func (db *DB) ListAllUsers(limit, offset int) ([]model.User, error) {

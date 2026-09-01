@@ -118,15 +118,30 @@ func (h *Handler) reportPurchase(c *gin.Context) {
 }
 
 func (h *Handler) listPurchases(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	limit, offset := pageParams(c)
 
-	purchases, err := h.billingService.ListPurchases(limit, offset)
+	page, err := h.billingService.ListPurchasePage(limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"count": len(purchases), "purchases": purchases})
+	c.JSON(http.StatusOK, page)
+}
+
+// pageParams reads limit/offset, rejecting junk rather than silently paging
+// from zero. strconv.Atoi("abc") returns 0, and the old code discarded that
+// error, so ?limit=abc quietly meant "no rows" and ?offset=-5 hit SQLite with
+// a negative offset.
+func pageParams(c *gin.Context) (limit, offset int) {
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil || limit <= 0 || limit > 100 {
+		limit = 50
+	}
+	offset, err = strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+	return limit, offset
 }
 
 func (h *Handler) getRevenue(c *gin.Context) {
@@ -238,21 +253,14 @@ func (h *Handler) getAdminKPI(c *gin.Context) {
 }
 
 func (h *Handler) listUsers(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "50")
-	offsetStr := c.DefaultQuery("offset", "0")
-	limit, _ := strconv.Atoi(limitStr)
-	offset, _ := strconv.Atoi(offsetStr)
+	limit, offset := pageParams(c)
 
-	users, err := h.adminService.ListUsers(limit, offset)
+	page, err := h.adminService.ListUsers(limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"limit":  limit,
-		"offset": offset,
-		"users":  users,
-	})
+	c.JSON(http.StatusOK, page)
 }
 
 func (h *Handler) setUserPro(c *gin.Context) {
@@ -263,6 +271,13 @@ func (h *Handler) setUserPro(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid pro update payload"})
+		return
+	}
+
+	if req.IsPro && !model.IsGrantableProTier(req.Tier) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Unknown pro tier: " + string(req.Tier),
+		})
 		return
 	}
 
@@ -291,17 +306,33 @@ func (h *Handler) savePreset(c *gin.Context) {
 
 func (h *Handler) deletePreset(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.presetService.DeletePreset(id); err != nil {
+	deleted, err := h.presetService.DeletePreset(id)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete preset: " + err.Error()})
+		return
+	}
+	if !deleted {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No preset with id " + id})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Preset deleted successfully"})
 }
 
 func (h *Handler) seedDemoData(c *gin.Context) {
-	if err := h.adminService.SeedDemoData(); err != nil {
+	seeded, err := h.adminService.SeedDemoData()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to seed demo data: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Demo data populated successfully"})
+	if seeded == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"seeded":  0,
+			"message": "Skipped: this database already has real users, so no demo data was written",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"seeded":  seeded,
+		"message": "Demo data populated successfully",
+	})
 }

@@ -27,11 +27,29 @@ backend/subflow-server.exe
 *.db-shm
 *.db-wal
 
+# Server logs. backend/web/.gitignore has a *.log rule, but it only applies
+# inside that directory - backend/server.log was not covered by anything.
+*.log
+
 # ------------------------------------------------------------------- node
 node_modules/
 dist/
 dist-ssr/
 *.local
+
+# ...except the admin console build that the Go binary embeds.
+#
+# internal/static/static.go declares `//go:embed all:dist/*`, and an embed
+# pattern that matches nothing is a compile error - not a warning. With the
+# blanket dist/ rule above, `go build ./cmd/server` failed on a fresh clone
+# with "pattern all:dist/*: no matching files found", so the server could not
+# be built at all without first installing npm and running the Vite build.
+#
+# Committing build output is normally wrong. Here the alternative is worse:
+# every Go-only change would need a working Node toolchain just to compile.
+# Rebuild it with `npm run build` in backend/web, which syncs dist/ here.
+!backend/internal/static/dist/
+!backend/internal/static/dist/**
 
 # ----------------------------------------------------------------- editors
 .idea/
