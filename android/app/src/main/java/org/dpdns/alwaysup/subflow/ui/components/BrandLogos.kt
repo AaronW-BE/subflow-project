@@ -56,7 +56,6 @@ object BrandLogos {
         "headspace" to R.drawable.brand_headspace,
         "hulu" to R.drawable.brand_hulu,
         "icloud" to R.drawable.brand_icloud,
-        "max" to R.drawable.brand_max,
         "nintendo_online" to R.drawable.brand_nintendo_online,
         "nordvpn" to R.drawable.brand_nordvpn,
         "notion" to R.drawable.brand_notion,
@@ -84,7 +83,6 @@ object BrandLogos {
             "youtubepremium" to R.drawable.brand_youtube,
             "gymmembership" to R.drawable.brand_gym,
             "disneyplus" to R.drawable.brand_disney,
-            "hbomax" to R.drawable.brand_max,
             "appletvplus" to R.drawable.brand_appletv,
             "appletv" to R.drawable.brand_appletv,
             "chatgptplus" to R.drawable.brand_chatgpt,
@@ -157,6 +155,7 @@ object BrandLogos {
     private val colourMarks: Map<String, Int> = mapOf(
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
+        "max" to R.drawable.brand_colour_max,
         "microsoft365" to R.drawable.brand_colour_microsoft365,
         "netflix" to R.drawable.brand_colour_netflix,
         "primevideo" to R.drawable.brand_colour_primevideo,
@@ -164,11 +163,38 @@ object BrandLogos {
 
     /** A full-colour bitmap mark, drawn edge to edge with no tint. */
     @DrawableRes
+    /**
+     * Names that resolve to a full-colour mark whose preset id does not spell
+     * them.
+     *
+     * Subscriptions store a name, not an id, so a row saved as "HBO Max" has to
+     * find the mark filed under the preset id "max" — and it will not, because
+     * "hbomax" does not start with "max". Getting this wrong is silent: the row
+     * simply keeps a letter tile forever.
+     */
+    private val colourMarksByName: Map<String, Int> = mapOf(
+        "hbomax" to R.drawable.brand_colour_max,
+        "max" to R.drawable.brand_colour_max,
+        "amazonprimevideo" to R.drawable.brand_colour_primevideo,
+        "primevideo" to R.drawable.brand_colour_primevideo,
+        "duolingo" to R.drawable.brand_colour_duolingo,
+        "duolingosuper" to R.drawable.brand_colour_duolingo,
+        "googleone" to R.drawable.brand_colour_google_one,
+        "microsoft365" to R.drawable.brand_colour_microsoft365,
+        "office365" to R.drawable.brand_colour_microsoft365,
+        "netflix" to R.drawable.brand_colour_netflix,
+    )
+
     fun colourMarkFor(presetId: String?, name: String?): Int? {
         presetId?.lowercase()?.let { colourMarks[it]?.let { res -> return res } }
         val key = normalise(name ?: return null)
-        return colourMarks.entries
-            .firstOrNull { key.startsWith(it.key.replace("_", "")) }
+        if (key.isEmpty()) return null
+        colourMarksByName[key]?.let { return it }
+        // Longest alias first, so "primevideo" is preferred over "max" for a
+        // name that happens to contain both.
+        return colourMarksByName.entries
+            .sortedByDescending { it.key.length }
+            .firstOrNull { key.startsWith(it.key) }
             ?.value
     }
 

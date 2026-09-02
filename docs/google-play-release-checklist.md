@@ -2454,3 +2454,26 @@ Verified: Duolingo re-converts byte-identically in path data, colours and fill
 rules; Netflix renders as the source does; both correct on device. In the
 release APK all five full-colour marks survive shrinking, the superseded
 monochrome N is gone, and the APK stays 4.3 MB.
+
+### HBO Max, and a lookup that would have failed silently
+
+HBO Max was showing the previous "max" branding on purple. The current icon is
+the chrome "HBO max" wordmark on near-black, and unlike Duolingo or Netflix it
+cannot be a vector: the metallic gradient on the type is the whole design, and
+flattening it to solid fills would lose the mark rather than simplify it. It is
+a 4.3 KB WebP from the App Store, matching what was supplied.
+
+**The lookup nearly broke, quietly.** Subscriptions store a name, not a preset
+id, and the full-colour lookup matched by prefix: a row saved as "HBO Max"
+normalises to `hbomax`, which does not start with the preset id `max`, so it
+would have fallen back to a letter tile — on the one subscription in this
+device's real data that is due today. Colour marks now have an explicit
+name-alias map, matched exact-first then longest-prefix, so `primevideo` cannot
+lose to `max` on a name containing both.
+
+This is the second time a name-versus-id mismatch has hidden here; the first was
+the monochrome marks, which needed the same alias map for the same reason. Any
+new mark keyed by an id that does not spell its product name needs an alias.
+
+Verified on the release build against real saved rows — the path that only the
+name can exercise: HBO Max shows the chrome icon, Netflix the black-and-red N.
