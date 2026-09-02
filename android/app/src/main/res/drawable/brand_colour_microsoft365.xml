@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Microsoft 365 brand mark, full colour.
+
+     Bundled rather than fetched: requesting a logo from the brand's own
+     server would disclose which subscriptions the user tracks.
+
+     The symbol only. The published SVG is the four squares plus the
+     "Microsoft 365" wordmark, 1319 units wide against 213 tall, and fitted
+     whole into a square badge the words become an unreadable smear.
+
+     Square coordinates and colours are read from that file, not retyped,
+     so the geometry is Microsoft's. They are <rect> elements, which is why
+     an earlier path-only look at the file found only grey text and
+     concluded there was no symbol in it.
+
+     The white ground is ours: the symbol is transparent, and a badge drawn
+     edge to edge with transparency would show the card behind it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="300"
+    android:viewportHeight="300">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M0,0 H300 V300 H0 Z" />
+    <path
+        android:fillColor="#FFF25022"
+        android:pathData="M57.0000,57.0017 h88.3824 v88.3820 h-88.3824 Z" />
+    <path
+        android:fillColor="#FF7FBA00"
+        android:pathData="M154.5844,57.0000 h88.3811 v88.3811 h-88.3811 Z" />
+    <path
+        android:fillColor="#FF00A4EF"
+        android:pathData="M57.0000,154.6193 h88.3811 v88.3807 h-88.3811 Z" />
+    <path
+        android:fillColor="#FFFFB900"
+        android:pathData="M154.5844,154.6193 h88.3811 v88.3807 h-88.3811 Z" />
+</vector>

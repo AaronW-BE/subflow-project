@@ -2381,3 +2381,37 @@ unchanged at 4.3 MB.
 Remaining gap: Microsoft 365, which still has no obtainable symbol and keeps a
 letter tile. Supplying an SVG the way Duolingo's was supplied is now the fastest
 route for anything like it.
+
+### Microsoft 365 — the symbol was in the file all along
+
+The last gap is closed, and it was my earlier analysis that was wrong, not the
+source. I had concluded the published SVG "is the grey wordmark with no symbol".
+It is not: the four squares are `<rect>` elements, and my extraction only looked
+at `<path>`. A path-only reading of that file finds nothing but grey text, which
+is exactly what it reported.
+
+`tools/extract_m365_symbol.py` reads the squares' coordinates and colours from
+the file rather than retyping them, so the geometry is Microsoft's:
+
+| Colour | Position | Size |
+| --- | --- | --- |
+| `#f25022` | 0, 0 | 101.46² |
+| `#7fba00` | 112.02, 0 | 101.46² |
+| `#00a4ef` | 0, 112.06 | 101.46² |
+| `#ffb900` | 112.02, 112.06 | 101.46² |
+
+Symbol only. The full file is 1319 units wide against 213 tall — squeezing the
+"Microsoft 365" wordmark into a square badge would repeat the Amazon Prime
+mistake. Unlike Google One's artwork the symbol has no background of its own, so
+a white ground is added; drawn edge to edge with transparency it would show the
+card through it and break the tile shape. 1,641 bytes.
+
+Every preset now has a mark it deserves, except Medium, which keeps a letter
+tile because a white "M" on black already is its icon.
+
+**The general lesson from this whole run of logo work:** every wrong logo traced
+back to trusting an inference instead of rendering the thing and looking at it.
+The arc-flag corruption, the over-applied inversion, the "no symbol in this
+file" conclusion — all three were confident readings that a side-by-side render
+would have disproved in seconds. The tools in `tools/` exist so that check is
+cheap.

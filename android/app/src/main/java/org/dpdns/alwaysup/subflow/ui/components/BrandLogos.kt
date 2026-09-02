@@ -150,14 +150,15 @@ object BrandLogos {
      * Deliberately a short list either way. These carry the brand's own artwork
      * rather than simple-icons' redrawing of it.
      *
-     * Microsoft 365 has no entry: it has no App Store app under that name, and
-     * the published SVG is the grey wordmark with no symbol. It keeps its
-     * letter tile. Medium keeps its letter tile too, because a white "M" on
-     * black already is its icon.
+     * Microsoft 365's squares were nearly missed: the published SVG holds them
+     * as <rect> elements, so a path-only look at the file finds nothing but the
+     * grey wordmark and concludes there is no symbol in it. Medium still keeps
+     * a letter tile, because a white "M" on black already is its icon.
      */
     private val colourMarks: Map<String, Int> = mapOf(
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
+        "microsoft365" to R.drawable.brand_colour_microsoft365,
         "primevideo" to R.drawable.brand_colour_primevideo,
     )
 
