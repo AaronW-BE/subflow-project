@@ -2079,3 +2079,55 @@ case, but it is bundled artwork in a commercial APK and Play has an
 impersonation policy. Nothing here implies endorsement, and no brand-authored
 bitmap is redistributed — the glyphs are simple-icons' own paths. Flagging it
 rather than deciding it.
+
+### App prefers the backend's rates — 2026-09-02
+
+The app now asks the SubFlow backend for rates first and falls back to the
+public endpoint. The deciding factor is whether the server has its own key.
+
+`/rates` gained a `keyed` boolean. Without it the app could not tell a server
+that is adding something from one that is relaying the very endpoint the app
+can already reach — going through an unkeyed server buys nothing and adds a hop
+that can be down.
+
+Resolution order:
+
+| Situation | Source |
+| --- | --- |
+| `BACKEND_ENABLED=false` (the shipped release) | Direct, `open.er-api.com` |
+| Backend reachable and `keyed: true` | Backend `/rates` |
+| Backend reachable, `keyed: false` | Direct |
+| Backend unreachable, or its answer fails validation | Direct |
+
+A backend answer is validated as strictly as a provider one — USD base,
+`USD == 1.0`, every selectable currency present — and nothing is cached on
+rejection, so a misconfigured server cannot displace good rates already held.
+
+Debugging this on real hardware needed a build change: the debug `API_BASE_URL`
+was hard-coded to `10.0.2.2`, the emulator's view of the host, which a physical
+device cannot resolve. It is now overridable:
+
+```
+adb reverse tcp:8085 tcp:8085
+./gradlew :app:assembleDebug -Psubflow.debugApiBaseUrl=http://127.0.0.1:8085/api/v1/
+```
+
+Verified on device, one build, server restarted between runs:
+
+| Server | logcat |
+| --- | --- |
+| `keyed: true` | `GET http://127.0.0.1:8085/api/v1/rates` → 200. **Zero** requests to open.er-api.com |
+| `keyed: false` | backend 200, rejected, then `GET https://open.er-api.com/v6/latest/USD` → 200 |
+
+The second row is the whole feature: the app consulted the backend, decided it
+had nothing to offer, and went direct without the user seeing anything.
+
+### Settings footer
+
+Attribution moved from under the currency row to the foot of Settings, centred
+above the version, which is where this kind of credit is looked for.
+
+The version no longer shows the build number — `SubFlow Version 1.0.0` rather
+than `1.0.0 (2)`. The build number is an artefact of the Play upload process and
+means nothing to the reader. It is still attached to support emails, where it
+identifies the exact build and does mean something.

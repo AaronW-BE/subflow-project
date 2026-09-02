@@ -230,12 +230,7 @@ fun SettingsScreen(
                         iconTint = MaterialTheme.colorScheme.secondary,
                         onClick = { showCurrencySheet = true }
                     )
-                    // ExchangeRate-API's terms require visible attribution
-                    // wherever their rates are used, and every converted total
-                    // in this app is derived from them. This row sits directly
-                    // under the currency setting so it is next to the thing it
-                    // credits rather than buried in an about screen.
-                    RateAttributionRow(onOpenUrl = onOpenUrl)
+
                     AppleListRow(
                         title = stringResource(R.string.appearance),
                         valueText = stringResource(currentThemeMode.labelRes),
@@ -510,14 +505,22 @@ fun SettingsScreen(
             }
         }
 
+        item(key = "rate_attribution") {
+            // The rate feed's terms require visible attribution wherever the
+            // rates are used, and every converted total in the app derives from
+            // them. It sits at the foot of Settings with the version, which is
+            // where this kind of credit is conventionally looked for.
+            RateAttributionRow(onOpenUrl = onOpenUrl)
+        }
+
         item(key = "version") {
             Text(
+                // Version name only. The build number is an artefact of the
+                // Play upload process and means nothing to the person reading
+                // it; it is still attached to support emails, where it does.
                 text = stringResource(
                     R.string.app_version_full,
-                    stringResource(
-                        R.string.app_version,
-                        "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-                    )
+                    stringResource(R.string.app_version, BuildConfig.VERSION_NAME)
                 ),
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
@@ -761,17 +764,20 @@ private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onOpenUrl(RATE_PROVIDER_URL) }
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = stringResource(R.string.rates_attribution),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center
         )
         Text(
             text = subtitle,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center
         )
     }
 }

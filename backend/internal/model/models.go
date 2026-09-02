@@ -123,6 +123,12 @@ type CurrencyRates struct {
 	// release to correct the wording.
 	Provider    string `json:"provider,omitempty"`
 	ProviderURL string `json:"provider_url,omitempty"`
+	// Keyed reports whether these rates came from this server's own keyed
+	// account. Clients use it to decide whether routing through us is worth
+	// it: an unkeyed server is just relaying the same public endpoint the
+	// client could call itself, with an extra hop and an extra thing to be
+	// down.
+	Keyed bool `json:"keyed"`
 }
 
 // SyncRequest represents client mutations to sync.

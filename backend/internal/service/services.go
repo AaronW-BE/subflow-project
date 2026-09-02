@@ -178,6 +178,7 @@ func (s *RateService) apply(snap *rateSnapshot) {
 		UpdatedAt:    snap.QuotedAt,
 		Provider:     rateProviderName,
 		ProviderURL:  rateProviderLink,
+		Keyed:        s.apiKey != "",
 	}
 	s.live = true
 	s.next = snap.NextUpdate

@@ -7,7 +7,9 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
+import org.dpdns.alwaysup.subflow.BuildConfig
 import org.dpdns.alwaysup.subflow.data.remote.ExchangeRateApi
+import org.dpdns.alwaysup.subflow.data.remote.SubFlowApiService
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 
 /**
@@ -26,6 +28,7 @@ class ExchangeRateRepository(context: Context) {
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val api = ExchangeRateApi.create()
+    private val backendApi = SubFlowApiService.create()
     private val gson = Gson()
 
     /** Loads the cache into the converter. Call before the first conversion. */
@@ -64,6 +67,12 @@ class ExchangeRateRepository(context: Context) {
             nextUpdate <= 0L || System.currentTimeMillis() >= nextUpdate
 
         if (!due) return@withContext true
+
+        // Prefer our own backend, but only when it is actually adding
+        // something. A server with no EXCHANGE_RATE_API_KEY is relaying the
+        // very endpoint below, so going through it buys nothing and adds a hop
+        // that can fail.
+        if (fetchFromBackend()) return@withContext true
 
         try {
             val res = api.latestUsd()
@@ -112,11 +121,64 @@ class ExchangeRateRepository(context: Context) {
         }
     }
 
+    /**
+     * Tries the SubFlow backend's /rates.
+     *
+     * Returns false for every reason not to use it - not configured,
+     * unreachable, or unkeyed - and the caller then goes direct. Nothing is
+     * cached on a rejection, so a half-answer from a misconfigured server
+     * cannot displace good rates already in hand.
+     */
+    private suspend fun fetchFromBackend(): Boolean {
+        if (!BuildConfig.BACKEND_ENABLED) return false
+        return try {
+            val res = backendApi.getRates()
+            val body = res.body()
+            val rates = body?.rates
+
+            when {
+                !res.isSuccessful || rates.isNullOrEmpty() -> false
+                // Unkeyed: the server is just proxying the public endpoint.
+                !body.keyed -> false
+                !body.baseCurrency.equals("USD", ignoreCase = true) -> false
+                rates["USD"] != 1.0 -> false
+                SupportedCurrencies.any { rates[it.code] == null } -> false
+                else -> {
+                    val quotedAt = body.updatedAt?.let(::parseIsoInstant) ?: 0L
+                    prefs.edit()
+                        .putString(KEY_RATES, gson.toJson(rates))
+                        .putLong(KEY_QUOTED_AT, quotedAt)
+                        // The backend refreshes on the provider's schedule, so
+                        // check back daily rather than trying to mirror it.
+                        .putLong(KEY_NEXT_UPDATE, System.currentTimeMillis() + BACKEND_RECHECK_MS)
+                        .apply()
+
+                    CurrencyConverter.updateFromUsdBase(
+                        rates = rates,
+                        quotedAtEpochMillis = quotedAt,
+                        provider = body.provider.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_NAME },
+                        providerUrl = body.providerUrl.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_URL }
+                    )
+                    true
+                }
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "Backend rates unavailable, falling back: ${e.message}")
+            false
+        }
+    }
+
+    /** ISO-8601 to epoch millis, 0 when unparseable. */
+    private fun parseIsoInstant(value: String): Long = runCatching {
+        java.time.Instant.parse(value).toEpochMilli()
+    }.getOrDefault(0L)
+
     private companion object {
         const val TAG = "SubFlowRates"
         const val PREFS_NAME = "subflow_exchange_rates"
         const val KEY_RATES = "rates_json"
         const val KEY_QUOTED_AT = "quoted_at_millis"
         const val KEY_NEXT_UPDATE = "next_update_millis"
+        const val BACKEND_RECHECK_MS = 24L * 60 * 60 * 1000
     }
 }

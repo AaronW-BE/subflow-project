@@ -90,7 +90,15 @@ data class CurrencyRatesResponse(
     @SerializedName("updated_at") val updatedAt: String? = null,
     /** Attribution the feed's terms require wherever the rates are shown. */
     val provider: String? = null,
-    @SerializedName("provider_url") val providerUrl: String? = null
+    @SerializedName("provider_url") val providerUrl: String? = null,
+    /**
+     * Whether the server fetched these with its own API key.
+     *
+     * False means it is relaying the same public endpoint this app can reach
+     * directly, so there is nothing to gain by going through it and one more
+     * thing that can be down.
+     */
+    val keyed: Boolean = false
 )
 
 data class SyncRequestDto(

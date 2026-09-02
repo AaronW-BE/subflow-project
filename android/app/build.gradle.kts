@@ -110,7 +110,16 @@ android {
             isMinifyEnabled = false
 
             // 10.0.2.2 is the host loopback as seen from the Android emulator.
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8085/api/v1/\"")
+            // A physical device cannot resolve it, so debugging against the
+            // backend on real hardware needs an override:
+            //
+            //   adb reverse tcp:8085 tcp:8085
+            //   ./gradlew :app:assembleDebug             //       -Psubflow.debugApiBaseUrl=http://127.0.0.1:8085/api/v1/
+            //
+            // 127.0.0.1 is already allowed cleartext by network_security_config.
+            val debugApiBase = (properties["subflow.debugApiBaseUrl"]
+                ?: "http://10.0.2.2:8085/api/v1/").toString()
+            buildConfigField("String", "API_BASE_URL", "\"$debugApiBase\"")
             buildConfigField("boolean", "BACKEND_ENABLED", "true")
             // Google's official AdMob test IDs - never serve live ads in debug.
             buildConfigField("String", "ADMOB_BANNER_UNIT_ID", "\"ca-app-pub-3940256099942544/6300978111\"")
