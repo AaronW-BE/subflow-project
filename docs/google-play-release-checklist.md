@@ -2415,3 +2415,42 @@ The arc-flag corruption, the over-applied inversion, the "no symbol in this
 file" conclusion — all three were confident readings that a side-by-side render
 would have disproved in seconds. The tools in `tools/` exist so that check is
 cheap.
+
+### Netflix, and the converter growing up — 2026-09-02
+
+Netflix was the hardest supplied logo so far, and it pushed
+`tools/colour_vector.py` from "handles Duolingo" to something general.
+
+The file needed three things the converter did not do:
+
+- **Fills as CSS classes.** `.st0{fill:#b1060f}` in a `<style>` block rather
+  than `fill=` attributes. An attribute-only reader paints every path black —
+  and would have done so silently.
+- **Nested group transforms**, `translate` then `translate` + `scale`, two deep.
+- **A non-square viewBox**, 122.8 x 222. Mapped straight onto a square drawable
+  Android stretches it; it is centred in a square viewport instead.
+
+One path is filled with a radial gradient. Android can express gradients but not
+a `gradientTransform` matrix without baking it, so that path is skipped and the
+skip is reported rather than silently dropped. Rendering with and without showed
+the gradient is a depth effect invisible at badge size.
+
+`--inset` was added at the same time: the N filled the tile edge to edge and
+looked cramped against the rounded corners. Microsoft 365 had needed the same
+thing, hardcoded in its own script; it is a proper option now.
+
+Netflix sits on black, which is its real icon. The old monochrome N sat on a red
+tile — red on red, barely legible, and it had been that way since the marks were
+first added without anyone noticing.
+
+**A regression was caught doing this.** Rewriting the converter for CSS support
+dropped the group-inherited `fill-rule`, taking Duolingo from seven `evenOdd`
+paths to two — which would have filled the owl's eyes solid. The check that
+caught it was re-converting Duolingo and diffing against the committed drawable,
+and it is worth keeping as the habit: after touching the converter, re-run every
+logo it has already produced and compare.
+
+Verified: Duolingo re-converts byte-identically in path data, colours and fill
+rules; Netflix renders as the source does; both correct on device. In the
+release APK all five full-colour marks survive shrinking, the superseded
+monochrome N is gone, and the APK stays 4.3 MB.

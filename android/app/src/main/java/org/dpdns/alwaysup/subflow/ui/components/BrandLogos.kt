@@ -57,7 +57,6 @@ object BrandLogos {
         "hulu" to R.drawable.brand_hulu,
         "icloud" to R.drawable.brand_icloud,
         "max" to R.drawable.brand_max,
-        "netflix" to R.drawable.brand_netflix,
         "nintendo_online" to R.drawable.brand_nintendo_online,
         "nordvpn" to R.drawable.brand_nordvpn,
         "notion" to R.drawable.brand_notion,
@@ -159,6 +158,7 @@ object BrandLogos {
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
         "microsoft365" to R.drawable.brand_colour_microsoft365,
+        "netflix" to R.drawable.brand_colour_netflix,
         "primevideo" to R.drawable.brand_colour_primevideo,
     )
 

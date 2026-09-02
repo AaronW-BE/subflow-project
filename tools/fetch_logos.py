@@ -17,7 +17,9 @@ from normalise_arcs import normalise
 # usually because the brand is not in the set or the mark is a wordmark rather
 # than a symbol. Those keep the existing initial-letter tile.
 SLUGS = {
-    "netflix": "netflix",
+    # Superseded by the supplied full-colour logo; Netflix on a red tile
+    # was red-on-red and barely read. See brand_colour_netflix.xml.
+    "netflix": None,
     "spotify": "spotify",
     "youtube": "youtube",
     # simple-icons carries no Disney mark. Its wordmark is a single colour, so
