@@ -32,9 +32,9 @@ import org.dpdns.alwaysup.subflow.R
  * can carry full-colour artwork. PlayStation Plus and Nintendo Switch Online do
  * use the platform mark, because their own logos are built from it.
  *
- * Disney+ is absent from simple-icons entirely. Its wordmark is a single
- * colour, so it is fitted from the published SVG instead — see
- * brand_disney.xml.
+ * Disney+ is absent from simple-icons entirely, and its own artwork is a
+ * gradient rather than flat colour, so it is a full-colour mark instead — see
+ * [colourMarks].
  */
 object BrandLogos {
 
@@ -48,7 +48,6 @@ object BrandLogos {
         "chatgpt" to R.drawable.brand_chatgpt,
         "claude" to R.drawable.brand_claude,
         "crunchyroll" to R.drawable.brand_crunchyroll,
-        "disney" to R.drawable.brand_disney,
         "dropbox" to R.drawable.brand_dropbox,
         "figma" to R.drawable.brand_figma,
         "github_copilot" to R.drawable.brand_github_copilot,
@@ -82,7 +81,6 @@ object BrandLogos {
         mapOf(
             "youtubepremium" to R.drawable.brand_youtube,
             "gymmembership" to R.drawable.brand_gym,
-            "disneyplus" to R.drawable.brand_disney,
             "appletvplus" to R.drawable.brand_appletv,
             "appletv" to R.drawable.brand_appletv,
             "chatgptplus" to R.drawable.brand_chatgpt,
@@ -147,12 +145,18 @@ object BrandLogos {
      * Deliberately a short list either way. These carry the brand's own artwork
      * rather than simple-icons' redrawing of it.
      *
-     * Microsoft 365's squares were nearly missed: the published SVG holds them
+     * Disney+ is the other bitmap. Its background is a gradient centred off one
+ * corner, not the flat colour a vector could carry as a plain rectangle, and
+ * the wordmark is script rather than geometry. Approximating either would ship
+ * a logo that is nearly right, which is worse than the brand's own artwork.
+ *
+ * Microsoft 365's squares were nearly missed: the published SVG holds them
      * as <rect> elements, so a path-only look at the file finds nothing but the
      * grey wordmark and concludes there is no symbol in it. Medium still keeps
      * a letter tile, because a white "M" on black already is its icon.
      */
     private val colourMarks: Map<String, Int> = mapOf(
+        "disney" to R.drawable.brand_colour_disneyplus,
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
         "max" to R.drawable.brand_colour_max,
@@ -173,6 +177,8 @@ object BrandLogos {
      * simply keeps a letter tile forever.
      */
     private val colourMarksByName: Map<String, Int> = mapOf(
+        "disneyplus" to R.drawable.brand_colour_disneyplus,
+        "disney" to R.drawable.brand_colour_disneyplus,
         "hbomax" to R.drawable.brand_colour_max,
         "max" to R.drawable.brand_colour_max,
         "amazonprimevideo" to R.drawable.brand_colour_primevideo,

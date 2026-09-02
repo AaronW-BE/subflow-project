@@ -2508,3 +2508,37 @@ Full-colour marks now: Netflix 2.9 KB, HBO Max 3.0 KB, Duolingo 4.6 KB and
 Microsoft 365 1.6 KB as vectors; Google One 1.4 KB and Prime Video 4.6 KB as
 WebP, where a gradient or photographic artwork rules a vector out. APK unchanged
 at 4.3 MB.
+
+### Disney+, and the case for not vectorising
+
+Disney+ was the one mark fitted from a published SVG rather than taken from
+simple-icons, because its wordmark is a single colour and looked like the easy
+case. On the brand tile `#113CCF` that gave a white script on flat blue, which
+is not the icon anyone recognises. It is now the official app icon: a 4.5 KB
+WebP at 192 px, quality 90, the same settings as the other two bitmap marks.
+
+**It stays a bitmap on purpose.** The background is a gradient centred off the
+bottom-left corner — sampled, the corners read `#053244`, `#042B3E`, `#59D8E5`
+and `#09ABB8` — and the wordmark is script, not geometry. Android can express a
+radial gradient, but matching that one would be guesswork, and the script has no
+SVG behind it here. A logo that is nearly right is worse than the brand's own
+artwork; the rule stays "vector where the artwork allows it, a bitmap only where
+it does not".
+
+Quality was chosen against the curve rather than picked: 80 gives 3.2 KB at
+39.6 dB, 88 gives 4.2 KB at 40.9 dB, and 92 costs 700 more bytes for 0.4 dB. 90
+sits where the curve flattens and matches the existing marks.
+
+App Store and Play artwork were compared before either was used; they are the
+same image, and both match what was supplied. No inset and no tile colour — the
+badge's full-colour path already draws edge to edge inside the rounded-corner
+clip, which is what "完全贴合" asks for.
+
+The superseded `brand_disney.xml` is deleted rather than left in place. It was
+unreachable: the colour lookup runs first on the same preset id and name, so the
+monochrome vector could never have been chosen again. An earlier entry above
+records `brand_disney` as present in the release APK — that was true then.
+
+Verified on device: gradient, arc and script all render, full bleed, no
+letterboxing. In the release APK three WebP marks are present where there were
+two, and the APK is 4.27 MB.
