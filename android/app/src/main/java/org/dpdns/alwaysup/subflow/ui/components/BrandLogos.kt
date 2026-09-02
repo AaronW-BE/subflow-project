@@ -50,7 +50,6 @@ object BrandLogos {
         "crunchyroll" to R.drawable.brand_crunchyroll,
         "disney" to R.drawable.brand_disney,
         "dropbox" to R.drawable.brand_dropbox,
-        "duolingo" to R.drawable.brand_duolingo,
         "figma" to R.drawable.brand_figma,
         "github_copilot" to R.drawable.brand_github_copilot,
         "gym" to R.drawable.brand_gym,
@@ -99,7 +98,6 @@ object BrandLogos {
             "psplus" to R.drawable.brand_psplus,
             "xboxgamepass" to R.drawable.brand_xbox_gamepass,
             "nintendoswitchonline" to R.drawable.brand_nintendo_online,
-            "duolingosuper" to R.drawable.brand_duolingo,
             "thenewyorktimes" to R.drawable.brand_nytimes,
             "newyorktimes" to R.drawable.brand_nytimes,
             "nytimes" to R.drawable.brand_nytimes,
@@ -135,18 +133,22 @@ object BrandLogos {
     }
 
     /**
-     * Full-colour marks, as bitmaps, for logos that cannot be a white glyph.
+     * Full-colour marks, for logos that cannot survive being a white glyph.
      *
      * Google One's logo is a four-colour ribbon; reduced to a silhouette it is
      * an unreadable blob, and the "G" it fell back to is Google's corporate
      * mark rather than this product's. This is the official app icon, bundled
      * for the same privacy reason as every other mark here.
      *
-     * Deliberately a short list. Bitmaps do not scale like the vectors, they
-     * carry the brand's own artwork rather than simple-icons' redrawing of it,
-     * and an app icon can change with a seasonal promotion — Duolingo's was a
-     * novelty variant on the day this was written, which is exactly why the
-     * whole catalogue was not switched to app icons.
+     * Vector where the artwork allows it, a bitmap only where it does not.
+     * Duolingo is the vector case and is worth reading as the argument for
+     * preferring one: both app stores were serving a seasonal novelty icon, so
+     * scraping either would have frozen a promotion into the app. A vector of
+     * the standard mark cannot go stale that way, stays crisp at any size, and
+     * costs 4.6 KB.
+     *
+     * Deliberately a short list either way. These carry the brand's own artwork
+     * rather than simple-icons' redrawing of it.
      *
      * Microsoft 365 has no entry: it has no App Store app under that name, and
      * the published SVG is the grey wordmark with no symbol. It keeps its
@@ -154,6 +156,7 @@ object BrandLogos {
      * black already is its icon.
      */
     private val colourMarks: Map<String, Int> = mapOf(
+        "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
         "primevideo" to R.drawable.brand_colour_primevideo,
     )

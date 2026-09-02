@@ -2350,3 +2350,34 @@ over the screen during this round, including an install prompt for an unrelated
 APK from "Unknown source from computer". Nothing was installed — the prompt was
 dismissed without tapping Install. Verification taps now check
 `mCurrentFocus` before firing.
+
+### Duolingo, with the logo supplied — 2026-09-02
+
+The previous round left Duolingo unresolved because every source I could reach
+was serving a seasonal novelty icon. Supplying the standard mark directly closed
+it, and the result argues for how the remaining gaps should be filled.
+
+It is converted to a **multi-colour vector drawable**, not a bitmap: 4.6 KB,
+crisp at any size, and — the point that mattered here — a vector of the standard
+mark cannot go stale the way a scraped store icon can.
+
+`tools/colour_vector.py` handles two things a naive conversion gets wrong:
+
+- **fill-rule is inherited.** This file sets `fill-rule="evenodd"` on a wrapping
+  `<g>`, and seven of the nine paths need it. Without it the owl's eyes fill
+  solid and the face becomes a green blob.
+- **the viewBox does not start at 0.** It is `-.016 0 250.024 250.024`, so the
+  drawable declares the source viewport and translates, leaving path data
+  byte-identical to the source rather than rescaling coordinates by hand.
+
+Verified by rendering the converted drawable against the supplied SVG side by
+side — indistinguishable — and then on device.
+
+Round complete: Duolingo shows the real Duo owl, Prime Video its official icon,
+Gym membership a dumbbell. In the release APK all four new marks survive
+resource shrinking, the superseded monochrome owl is gone, and the APK is
+unchanged at 4.3 MB.
+
+Remaining gap: Microsoft 365, which still has no obtainable symbol and keeps a
+letter tile. Supplying an SVG the way Duolingo's was supplied is now the fastest
+route for anything like it.
