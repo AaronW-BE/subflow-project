@@ -21,8 +21,20 @@ import org.dpdns.alwaysup.subflow.R
  * beside them.
  *
  * A preset with no entry here keeps its initial-letter tile. That is a
- * supported outcome, not a gap to be filled: simple-icons carries no Disney
- * mark, so Disney+ renders a "D".
+ * supported outcome, not a gap to be filled.
+ *
+ * A mark is only used when it identifies the product itself. Google One and
+ * Microsoft 365 briefly showed Google's "G" and the old Office icon — the
+ * parent company and a sibling product. Both are recognisable and both are
+ * wrong, which is worse than showing nothing, because a wrong mark still reads
+ * as an answer. Their real logos are multi-colour and do not survive being
+ * reduced to a white silhouette, so they keep the letter tile until the badge
+ * can carry full-colour artwork. PlayStation Plus and Nintendo Switch Online do
+ * use the platform mark, because their own logos are built from it.
+ *
+ * Disney+ is absent from simple-icons entirely. Its wordmark is a single
+ * colour, so it is fitted from the published SVG instead — see
+ * brand_disney.xml.
  */
 object BrandLogos {
 
@@ -36,17 +48,16 @@ object BrandLogos {
         "chatgpt" to R.drawable.brand_chatgpt,
         "claude" to R.drawable.brand_claude,
         "crunchyroll" to R.drawable.brand_crunchyroll,
+        "disney" to R.drawable.brand_disney,
         "dropbox" to R.drawable.brand_dropbox,
         "duolingo" to R.drawable.brand_duolingo,
         "figma" to R.drawable.brand_figma,
         "github_copilot" to R.drawable.brand_github_copilot,
-        "google_one" to R.drawable.brand_google_one,
         "headspace" to R.drawable.brand_headspace,
         "hulu" to R.drawable.brand_hulu,
         "icloud" to R.drawable.brand_icloud,
         "max" to R.drawable.brand_max,
         "medium" to R.drawable.brand_medium,
-        "microsoft365" to R.drawable.brand_microsoft365,
         "netflix" to R.drawable.brand_netflix,
         "nintendo_online" to R.drawable.brand_nintendo_online,
         "nordvpn" to R.drawable.brand_nordvpn,
@@ -74,6 +85,7 @@ object BrandLogos {
         .associate { (id, res) -> id.replace("_", "") to res } +
         mapOf(
             "youtubepremium" to R.drawable.brand_youtube,
+            "disneyplus" to R.drawable.brand_disney,
             "hbomax" to R.drawable.brand_max,
             "appletvplus" to R.drawable.brand_appletv,
             "appletv" to R.drawable.brand_appletv,
@@ -81,10 +93,7 @@ object BrandLogos {
             "claudepro" to R.drawable.brand_claude,
             "githubcopilot" to R.drawable.brand_github_copilot,
             "adobecreativecloud" to R.drawable.brand_adobe_cc,
-            "microsoft365" to R.drawable.brand_microsoft365,
-            "office365" to R.drawable.brand_microsoft365,
             "icloudplus" to R.drawable.brand_icloud,
-            "googleone" to R.drawable.brand_google_one,
             "amazonprime" to R.drawable.brand_amazon_prime,
             "primevideo" to R.drawable.brand_primevideo,
             "playstationplus" to R.drawable.brand_psplus,

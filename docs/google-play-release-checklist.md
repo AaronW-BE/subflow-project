@@ -2131,3 +2131,43 @@ The version no longer shows the build number — `SubFlow Version 1.0.0` rather
 than `1.0.0 (2)`. The build number is an artefact of the Play upload process and
 means nothing to the reader. It is still attached to support emails, where it
 identifies the exact build and does mean something.
+
+### Brand logo corrections — 2026-09-02
+
+A tester flagged that some marks were wrong. Auditing them by driving the phone
+meant 32 taps and a lot of scrolling on a device that kept surfacing the owner's
+notifications, so the bundled drawables were rendered into a contact sheet on
+the build machine instead (`tools/` has the scripts). Five were wrong, all of
+them mine:
+
+| Preset | Was showing | Why wrong |
+| --- | --- | --- |
+| Disney+ | letter "D" | simple-icons has no Disney mark |
+| Google One | Google's "G" | the parent company, not the product |
+| Microsoft 365 | old Office icon | a sibling product's previous mark |
+| PlayStation Plus | PlayStation shield | platform mark — kept, see below |
+| Nintendo Switch Online | Switch mark | platform mark — kept, see below |
+
+**Disney+ is fixed properly.** Its wordmark is a single colour, so it works as a
+white silhouette like every other mark. It is not in simple-icons, so it is
+fitted from the published SVG. The source viewBox is 1041x565 rather than
+24x24, and rather than rescale the coordinates the drawable declares the source
+viewport and centres it with a group transform — rewriting path numbers by hand
+is how a logo ends up subtly wrong.
+
+**Google One and Microsoft 365 now show letter tiles.** Their real logos are
+multi-colour (3 and 5 fills respectively, checked in the published SVGs) and do
+not survive being reduced to a white silhouette. A recognisable but wrong mark
+is worse than no mark, because it still reads as an answer.
+
+**PlayStation Plus and Nintendo Switch Online keep the platform mark**, because
+unlike the two above, their own logos are built from it.
+
+Verified: Disney+ renders its wordmark on device, Microsoft 365 renders "M".
+In the release APK, 31 `brand_*` drawables survive R8 and resource shrinking,
+`brand_disney` is present, and the two removed ones appear zero times.
+
+Getting official marks for the remaining gaps means the badge carrying
+full-colour artwork on a neutral tile rather than a white glyph on brand colour
+— a visual change to every row, and a heavier trademark position than
+simple-icons' own paths. Not done.
