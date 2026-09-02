@@ -107,6 +107,36 @@ object BrandLogos {
             "applemusic" to R.drawable.brand_applemusic,
         )
 
+    /**
+     * Marks that simple-icons draws as a whole app icon — the rounded container
+     * *and* the symbol, as one filled shape — rather than as a bare glyph.
+     *
+     * These invert when painted white on a coloured tile: the container becomes
+     * a white square and the symbol is knocked out of it in the brand colour,
+     * which is the opposite of the real icon. Apple Music rendered as a white
+     * square with a red note in it instead of a red square with a white note.
+     *
+     * The badge paints these the other way round — brand colour on a light tile
+     * — which reproduces the icon as designed.
+     *
+     * This is a list rather than a heuristic on purpose. "Does this path fill
+     * most of its viewBox" also matches legitimate full-bleed glyphs like the
+     * Netflix N, and getting it wrong silently inverts a logo that was fine.
+     */
+    private val containerMarks = setOf(
+        "1password", "applemusic", "duolingo", "medium", "nintendo_online",
+    )
+
+    /**
+     * Whether [presetId] or [name] resolves to a mark that must be inverted.
+     */
+    fun isContainerMark(presetId: String?, name: String?): Boolean {
+        presetId?.lowercase()?.let { if (it in containerMarks) return true }
+        val key = normalise(name ?: return false)
+        return containerMarks.any { key == it.replace("_", "") || key.startsWith(it.replace("_", "")) } ||
+            key == "applemusic" || key == "nintendoswitchonline" || key == "duolingosuper"
+    }
+
     /** The mark for a preset id, or null when there is none. */
     @DrawableRes
     fun forPresetId(presetId: String?): Int? =

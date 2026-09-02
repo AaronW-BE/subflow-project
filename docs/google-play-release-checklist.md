@@ -2171,3 +2171,39 @@ Getting official marks for the remaining gaps means the badge carrying
 full-colour artwork on a neutral tile rather than a white glyph on brand colour
 — a visual change to every row, and a heavier trademark position than
 simple-icons' own paths. Not done.
+
+### Apple Music, and a whole class of inverted marks — 2026-09-02
+
+The tester was right again. The cause was not a wrong mark this time but a
+wrong assumption about what simple-icons ships.
+
+Some of its icons are the **whole app icon** — the rounded container and the
+symbol as one filled shape — rather than a bare glyph. Painted white on a
+coloured tile those invert: the container becomes a solid white square and the
+symbol is knocked out of it in the brand colour. Apple Music rendered as a white
+square with a red note, which is the exact negative of the real icon.
+
+Five are affected: `applemusic`, `1password`, `duolingo`, `medium`,
+`nintendo_online`. The badge now paints these the other way round — brand colour
+on a light tile, at full tile size rather than inset — which reproduces each
+icon as designed.
+
+It is an explicit list, not a heuristic. "Does this path fill most of its
+viewBox" also matches legitimate full-bleed glyphs like the Netflix N, and a
+false positive silently inverts a logo that was fine.
+
+The audit method mattered as much as the fix. The first attempt rendered the
+drawables with a hand-rolled path sampler, which approximated curves by their
+endpoints and produced shapes mangled enough to be useless — it could not have
+found this. The drawables are now rendered as real SVG in a browser, on their
+actual brand colours, which showed all 31 at once and made the inverted ones
+obvious. Driving the phone would have been worse than slow: blind coordinate
+taps twice opened the device owner's private messages.
+
+Verified by rendering the bundled drawables against the simple-icons sources:
+byte-identical, so the conversion was never the problem, and inverted they match
+the real icons. Medium's mark is simple-icons' own cropped wordmark — the
+partial "e" is their artwork, not damage from the conversion.
+
+Not re-verified on device: the phone disconnected before this build could be
+installed.

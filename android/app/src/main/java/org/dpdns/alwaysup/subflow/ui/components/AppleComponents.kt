@@ -12,6 +12,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -334,6 +335,11 @@ fun BrandIconBadge(
     val brandMark = remember(presetId, name) {
         BrandLogos.forPresetId(presetId) ?: BrandLogos.forName(name)
     }
+    // Some marks are whole app icons rather than bare glyphs, so they have to
+    // be painted the other way round. See BrandLogos.containerMarks.
+    val inverted = remember(presetId, name, brandMark) {
+        brandMark != null && BrandLogos.isContainerMark(presetId, name)
+    }
     // Only a file this app wrote is rendered. iconUrl also carries the
     // catalogue's remote brand URLs, and loading one of those would tell that
     // brand which subscriptions the user tracks - the exact thing bundling the
@@ -346,7 +352,23 @@ fun BrandIconBadge(
             .clip(RoundedCornerShape(cornerRadius))
             // A user's own artwork fills the tile edge to edge; it is their
             // image, not a glyph to be framed in our colour.
-            .then(if (custom == null) Modifier.background(gradient) else Modifier)
+            .then(
+                when {
+                    custom != null -> Modifier
+                    // A light tile so the brand-coloured mark reads. The
+                    // hairline keeps it from vanishing into a white card in
+                    // light mode, where tile and background are both near-white.
+                    inverted -> Modifier
+                        .background(Color.White)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f),
+                            shape = RoundedCornerShape(cornerRadius)
+                        )
+
+                    else -> Modifier.background(gradient)
+                }
+            )
             // The mark is decoration; the row already announces the name.
             .clearAndSetSemantics { },
         contentAlignment = Alignment.Center
@@ -362,10 +384,10 @@ fun BrandIconBadge(
             brandMark != null -> Icon(
                 painter = painterResource(brandMark),
                 contentDescription = null,
-                tint = Color.White,
-                // Inset so the glyph does not touch the rounded corners. The
-                // simple-icons artboard already bleeds to its own edges.
-                modifier = Modifier.size(size * 0.56f)
+                tint = if (inverted) tileColor else Color.White,
+                // An app-icon mark is meant to fill its tile; a bare glyph sits
+                // inset so it does not touch the rounded corners.
+                modifier = Modifier.size(if (inverted) size else size * 0.56f)
             )
 
             else -> Text(
