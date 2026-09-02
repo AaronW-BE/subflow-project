@@ -15,10 +15,14 @@ export function RatesView({
   base,
   rates,
   updatedAt,
+  provider,
+  providerUrl,
 }: {
   base: string;
   rates: Record<string, number>;
   updatedAt: string | null;
+  provider: string;
+  providerUrl: string;
 }) {
   const entries = Object.entries(rates).sort(([a], [b]) => a.localeCompare(b));
 
@@ -27,11 +31,19 @@ export function RatesView({
       <SectionHeading
         title={`Base currency: ${base}`}
         subtitle={
-          updatedAt
-            ? `Held in memory by the Go process and served to clients for conversion. Loaded ${new Date(updatedAt).toLocaleString()}; this is a static table, not a live feed.`
-            : 'Held in memory by the Go process and served to clients for conversion.'
+          provider
+            ? `Refreshed daily from ${provider} and served to clients for conversion. Quoted ${updatedAt ? new Date(updatedAt).toLocaleString() : 'unknown'} — that is the provider's own quote time, not when this server fetched it.`
+            : 'Built-in fallback table — no provider data has been fetched yet. These values are approximate and known to be stale.'
         }
       />
+
+      {!provider && (
+        <div className="mb-5 px-4 py-3 rounded-xl border border-[#FFE2B8] bg-[#FFF8EC] text-[#8A5A00] text-sm leading-relaxed">
+          Serving the compile-time fallback table. Measured against live data,
+          25 of its 40 rates are off by more than 5%. Check the server log for
+          the reason the refresh has not succeeded.
+        </div>
+      )}
 
       {entries.length === 0 ? (
         <Skeleton rows={2} />
@@ -52,6 +64,21 @@ export function RatesView({
             </div>
           ))}
         </div>
+      )}
+
+      {provider && providerUrl && (
+        <p className="mt-6 pt-4 border-t border-[#E5E5EA] text-xs text-[#8E8E93]">
+          {/* The feed's terms require this credit wherever the rates appear. */}
+          Rates By{' '}
+          <a
+            href={providerUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-[#5856D6] font-medium hover:underline"
+          >
+            {provider}
+          </a>
+        </p>
       )}
     </Card>
   );

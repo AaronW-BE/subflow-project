@@ -23,6 +23,8 @@
     <string name="upgrade_to_pro">升级 Pro</string>
     <string name="clear_search">清除搜索</string>
     <string name="search_currency_hint">搜索货币或代码</string>
+    <string name="rates_updated_on">更新于 %1$s</string>
+    <string name="rates_offline_snapshot">离线快照</string>
     <string name="search">搜索</string>
     <string name="empty_title">还没有订阅记录</string>
     <string name="empty_body">把你正在付费的服务加进来，SubFlow 会帮你把金额和续费日期集中管理。</string>

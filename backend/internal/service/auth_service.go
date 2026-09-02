@@ -56,9 +56,9 @@ type GoogleTokenInfo struct {
 }
 
 type Claims struct {
-	UserID  string `json:"user_id"`
-	Email   string `json:"email"`
-	IsPro   bool   `json:"is_pro"`
+	UserID string `json:"user_id"`
+	Email  string `json:"email"`
+	IsPro  bool   `json:"is_pro"`
 	jwt.RegisteredClaims
 }
 

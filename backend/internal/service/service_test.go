@@ -50,7 +50,7 @@ func TestBackendCoreFlows(t *testing.T) {
 	}
 
 	// 4. Test Rates Conversion
-	rateSvc := service.NewRateService()
+	rateSvc := service.NewRateService(db)
 	converted, err := rateSvc.Convert(100.0, "USD", "EUR")
 	if err != nil {
 		t.Fatalf("Convert failed: %v", err)

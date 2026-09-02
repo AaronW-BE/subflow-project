@@ -85,10 +85,14 @@ export const fetchRates = () =>
     base_currency: string;
     rates: Record<string, number> | null;
     updated_at: string;
+    provider?: string;
+    provider_url?: string;
   }>('/api/v1/rates').then(r => ({
     base: r.base_currency || 'USD',
     rates: r.rates ?? {},
     updatedAt: r.updated_at,
+    provider: r.provider ?? '',
+    providerUrl: r.provider_url ?? '',
   }));
 
 export const fetchUsers = (limit: number, offset: number) =>

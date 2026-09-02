@@ -1754,3 +1754,143 @@ The 40 rates in this commit were written from memory. Checked afterwards against
 live data, **25 of the 40 are off by more than 5%**, the worst being TRY at
 −29.6%, COP +28.4% and INR −12.3%. They are no worse than the 10 they replace
 and they are not good enough to ship. Wiring a real feed is the next task.
+
+## Live exchange rates — 2026-09-02
+
+The 40 rates shipped in the previous commit were written from memory. Measured
+against live data, 25 of them were off by more than 5% and TRY by 29.6%. This
+replaces them with a feed.
+
+### Choosing a provider
+
+Three free no-key options were tested by actually calling them, not by reading
+about them.
+
+| Service | Currencies | Covers our 40 | Verdict |
+| --- | --- | --- | --- |
+| **open.er-api.com** (Exchange Rate API) | 166 | **40 / 40** | Chosen |
+| Frankfurter (ECB) | 30 | 29 / 40 | Missing TWD, AED, SAR, VND, PKR, BDT, NGN, EGP, UAH, CLP, COP |
+| fxapi.app | — | — | Would not connect (`http=000`) |
+
+Frankfurter's site advertises "84 central banks, 201 currencies"; its
+`/v1/currencies` endpoint actually returns 30. It republishes the ECB reference
+table. The claim and the endpoint disagree, and the endpoint is what matters.
+
+Reachability here is via a local proxy, so `remote_ip` is always `127.0.0.1` and
+proves nothing. Both services were judged on the JSON they returned — an earlier
+round of this project mistook a censored black hole for a working host by
+trusting a status code, and that lesson applies directly.
+
+### Terms, read rather than assumed
+
+The integration was challenged on two points and both were checked against the
+pages themselves.
+
+**Attribution is required.** `/docs/free`, under the heading "Attribution":
+"We require attribution on the pages you're using these rates with the link
+below: `<a href="https://www.exchangerate-api.com">Rates By Exchange Rate API</a>`".
+The wording is now used verbatim, and is deliberately **not translated** into the
+other five locales — the required text is that exact English phrase.
+
+**No key, for this endpoint.** The provider runs three tiers: Open (no key,
+attribution required), Free (key required, no attribution) and Pro. We use Open,
+at `open.er-api.com` — a different host from the keyed tiers. Verified by calling
+it with no key or auth header and getting 166 real rates back. Attribution and a
+key are alternatives, so switching to the keyed Free tier would let the
+attribution be dropped.
+
+**Redistribution is not permitted.** The LICENSE section: "this license does not
+permit re-distribution of our data ... not in any product or service that offers
+programmatic or automatic access to exchange rate data", and the caching policy:
+"caching is for customer end-use only".
+
+That ruled out what had originally been built. Their snapshot had been baked into
+the app's compile-time `fallbackRatesToUSD`, which ships inside the APK to every
+user — distribution, not caching. The offline table is now assembled from sources
+that permit reuse:
+
+| Source | Count | Notes |
+| --- | --- | --- |
+| ECB euro reference rates | 29 | Published by the ECB for reuse |
+| Official hard pegs | 2 | AED 3.6725, SAR 3.75 |
+| Our own approximations | 9 | TWD VND CLP COP NGN EGP UAH PKR BDT |
+
+The nine remain rough. They are corrected on the first successful fetch, so the
+exposure is a first launch with no network.
+
+### Why BACKEND_ENABLED was not simply switched on
+
+The release build had `BACKEND_ENABLED = false`, so it never called `/rates` and
+shipped the built-in table permanently. Turning that flag on would have been the
+one-line fix and was rejected: it also gates `AuthRepository` sign-in, preset
+fetching and **cloud sync**, so it would have started uploading the user's
+subscription list — the thing ADR 0001 exists to prevent — and would have
+required deploying and maintaining a server.
+
+Rates got their own path instead: `ExchangeRateApi` + `ExchangeRateRepository`
+call the provider directly, independent of that flag. Each install is then the
+provider's own end user rather than a client of a server re-serving their data,
+which also settles the redistribution question for the app.
+
+The server keeps its own refresher for the admin console, with the same
+validation and a SQLite-cached last-good quote.
+
+### Rejecting bad data, on both sides
+
+A fetch is only allowed to replace the table if the base is USD, `USD == 1.0`,
+and every selectable currency is present. The completeness check matters because
+`CurrencyConverter.convert()` returns the amount **unchanged** for an unknown
+currency — a partial table would convert those at 1:1 silently rather than fail.
+
+The server's required set is fixed at construction. A first attempt derived it
+from whatever was currently served, which ratchets: after one good fetch it would
+have been all 166, and the provider dropping a single obscure currency would then
+have rejected every subsequent table.
+
+Failures never regress the served rates. Verified by killing the provider:
+
+```
+FX: restored 166 cached rates quoted 2026-09-01T00:02:31Z
+FX: refresh failed (...connectex: No connection could be made...);
+    keeping the current table, retrying in 5m0s
+```
+
+`/rates` still answered with the cached TRY of 48.27, not the built-in 34.
+
+### Privacy policy updated — it had become untrue
+
+The policy said "**The only** information that leaves your device is what the
+Google Mobile Ads SDK collects". A daily rate request makes that false, and an
+inaccurate disclosure on a shipping app is a Play problem, so both
+`docs/privacy-policy.md` and `docs/privacy.html` gained a section: at most once a
+day, no account or advertising ID or device identifier or subscription data in
+the request, only the IP is inherently visible, result cached locally.
+
+### Verified on device (PJX110, debug build, clean install)
+
+| Check | Result |
+| --- | --- |
+| First launch | `--> GET https://open.er-api.com/v6/latest/USD` → `<-- 200` |
+| Cache written | `quoted_at 2026-09-02 00:02:31Z`, `next_update 2026-09-03 00:07:41Z` (24.1h apart) |
+| Second launch | **0** requests — the cached schedule suppresses it |
+| Settings row | `Rates By Exchange Rate API` / `Updated Sep 2` |
+| End-to-end total | 100,000 COP → **$31.13** |
+
+The last row is the one that proves the rates are actually in use. COP is where
+the old table was most wrong: live 3212.46 against a fallback of 4100, so the
+same subscription would have read $24.39 on the old values. `100000 / 3212.4559 =
+31.13`.
+
+Release-build checks, because the DTO is Gson-reflected and R8 renames fields:
+`ExchangeRateResponse` survives unobfuscated in `mapping.txt`, and
+`open.er-api.com`, `v6/latest/USD`, `time_next_update_unix` and `base_code` are
+all present in `classes.dex`, with `Rates By Exchange Rate API` in
+`resources.arsc`. An initial sweep reported all of these missing; the controls
+`ca-app-pub-` and `subflow_sub_monthly` were missing too, which showed the
+`strings` invocation was broken rather than the APK.
+
+### Still open
+
+`/rates` on the server is public and unauthenticated, and re-serves provider data
+programmatically. It reads as an internal endpoint for our own app rather than a
+product, but documenting or publicising it as an API would change that.

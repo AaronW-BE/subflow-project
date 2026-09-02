@@ -108,45 +108,63 @@ object CurrencyFormatter {
 }
 
 object CurrencyConverter {
-    // Fallback rates to 1.0 USD, used offline and until the server responds.
+    // Offline table, used until /rates answers - and in the shipped release
+    // build, which has BACKEND_ENABLED = false, it is the only table there is.
+    //
+    // Deliberately NOT a snapshot of the live provider. ExchangeRate-API's
+    // terms permit caching for "customer end-use only" and state the licence
+    // "does not permit re-distribution of our data"; baking their quote into an
+    // APK handed to every user is distribution, not caching. Nothing from that
+    // feed appears below.
+    //
+    // Provenance, as of 2026-09-01:
+    //   29 from the ECB euro reference rates, which the ECB publishes for reuse
+    //    2 official hard pegs (AED 3.6725, SAR 3.75)
+    //    9 our own approximations - TWD, VND, CLP, COP, NGN, EGP, UAH, PKR,
+    //      BDT - covered by neither. These are rough, and they are the reason
+    //      this table is a floor rather than a source of truth.
+    //
+    // Every one of these is replaced by the live feed the moment /rates
+    // answers. A currency missing from the table converts at 1:1 (see
+    // convert()), so the table must stay complete even where it is imprecise.
     private val fallbackRatesToUSD = mapOf(
         "USD" to 1.0,
-        "EUR" to 1.08696,
-        "GBP" to 1.28205,
-        "JPY" to 0.00643915,
-        "CHF" to 1.11111,
-        "CAD" to 0.735294,
-        "AUD" to 0.662252,
-        "NZD" to 0.609756,
-        "CNY" to 0.138313,
-        "HKD" to 0.128041,
+        "EUR" to 1.159,
+        "GBP" to 1.35311,
+        "JPY" to 0.00624376,
+        "CHF" to 1.23376,
+        "CAD" to 0.720046,
+        "AUD" to 0.714133,
+        "NZD" to 0.589102,
+        "CNY" to 0.148759,
+        "HKD" to 0.127535,
         "TWD" to 0.0309598,
-        "SGD" to 0.740741,
-        "KRW" to 0.000729927,
-        "INR" to 0.0119832,
-        "IDR" to 6.17284e-05,
-        "THB" to 0.0273973,
-        "MYR" to 0.212766,
-        "PHP" to 0.0172414,
+        "SGD" to 0.785299,
+        "KRW" to 0.000727479,
+        "INR" to 0.0105319,
+        "IDR" to 5.63539e-05,
+        "THB" to 0.0300616,
+        "MYR" to 0.247555,
+        "PHP" to 0.0160182,
         "VND" to 3.93701e-05,
-        "BRL" to 0.183486,
-        "MXN" to 0.0540541,
+        "BRL" to 0.192348,
+        "MXN" to 0.0588204,
         "CLP" to 0.00105263,
         "COP" to 0.000243902,
-        "ZAR" to 0.0537634,
+        "ZAR" to 0.0618973,
         "NGN" to 0.000645161,
         "EGP" to 0.0206186,
-        "TRY" to 0.0294118,
-        "ILS" to 0.27027,
-        "AED" to 0.27248,
+        "TRY" to 0.0207151,
+        "ILS" to 0.33173,
+        "AED" to 0.272294,
         "SAR" to 0.266667,
-        "PLN" to 0.25,
-        "SEK" to 0.0943396,
-        "NOK" to 0.0925926,
-        "DKK" to 0.14556,
-        "CZK" to 0.0431034,
-        "HUF" to 0.0028169,
-        "RON" to 0.218818,
+        "PLN" to 0.267587,
+        "SEK" to 0.104279,
+        "NOK" to 0.107132,
+        "DKK" to 0.155053,
+        "CZK" to 0.0479731,
+        "HUF" to 0.00316056,
+        "RON" to 0.220483,
         "UAH" to 0.0240964,
         "PKR" to 0.00359712,
         "BDT" to 0.00833333
@@ -155,8 +173,27 @@ object CurrencyConverter {
     @Volatile
     private var ratesToUSD: Map<String, Double> = fallbackRatesToUSD
 
+    /**
+     * When the rates in use were quoted by the provider.
+     *
+     * This is the provider's own timestamp, not when the device fetched them.
+     * Stamping it with System.currentTimeMillis() would report a table cached
+     * for a week as if it were seconds old - the same mistake the server was
+     * making with its own clock.
+     *
+     * Zero means the built-in snapshot is in use and nothing has been fetched.
+     */
     @Volatile
-    var lastUpdatedEpochMillis: Long = 0L
+    var quotedAtEpochMillis: Long = 0L
+        private set
+
+    /** Attribution for the rates currently in use, if they came from a feed. */
+    @Volatile
+    var providerName: String = ""
+        private set
+
+    @Volatile
+    var providerUrl: String = ""
         private set
 
     /**
@@ -164,7 +201,12 @@ object CurrencyConverter {
      * units-per-USD (the shape the /rates endpoint returns), so they are
      * inverted here into the USD-value-per-unit form used for conversion.
      */
-    fun updateFromUsdBase(rates: Map<String, Double>) {
+    fun updateFromUsdBase(
+        rates: Map<String, Double>,
+        quotedAtEpochMillis: Long = 0L,
+        provider: String = "",
+        providerUrl: String = ""
+    ) {
         if (rates.isEmpty()) return
         val converted = buildMap {
             put("USD", 1.0)
@@ -173,7 +215,9 @@ object CurrencyConverter {
             }
         }
         ratesToUSD = fallbackRatesToUSD + converted
-        lastUpdatedEpochMillis = System.currentTimeMillis()
+        this.quotedAtEpochMillis = quotedAtEpochMillis
+        this.providerName = provider
+        this.providerUrl = providerUrl
     }
 
     fun convert(amount: Double, fromCurrency: String, toCurrency: String): Double {

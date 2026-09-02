@@ -23,6 +23,8 @@
     <string name="upgrade_to_pro">Passer à Pro</string>
     <string name="clear_search">Effacer la recherche</string>
     <string name="search_currency_hint">Rechercher une devise ou un code</string>
+    <string name="rates_updated_on">Mis à jour %1$s</string>
+    <string name="rates_offline_snapshot">Instantané hors ligne</string>
     <string name="search">Rechercher</string>
     <string name="empty_title">Aucun abonnement</string>
     <string name="empty_body">Ajoutez les services que vous payez : SubFlow réunit les montants et les dates de renouvellement au même endroit.</string>

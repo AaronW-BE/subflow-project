@@ -109,15 +109,25 @@ func (s *AdminService) SeedDemoData() (int, error) {
 	}
 
 	mockUsers := []struct {
-		Email   string
-		Name    string
-		IsPro   bool
-		Tier    model.ProTier
-		Subs    []struct{ Name, Cat string; Amt float64; Cyc model.BillingCycle; Color string }
+		Email string
+		Name  string
+		IsPro bool
+		Tier  model.ProTier
+		Subs  []struct {
+			Name, Cat string
+			Amt       float64
+			Cyc       model.BillingCycle
+			Color     string
+		}
 	}{
 		{
 			Email: "sarah.connor@gmail.com", Name: "Sarah Connor", IsPro: true, Tier: model.ProTierAnnual,
-			Subs: []struct{ Name, Cat string; Amt float64; Cyc model.BillingCycle; Color string }{
+			Subs: []struct {
+				Name, Cat string
+				Amt       float64
+				Cyc       model.BillingCycle
+				Color     string
+			}{
 				{"Netflix", "Entertainment", 15.49, model.CycleMonthly, "#E50914"},
 				{"Spotify", "Entertainment", 10.99, model.CycleMonthly, "#1DB954"},
 				{"iCloud+ 2TB", "Cloud", 9.99, model.CycleMonthly, "#007AFF"},
@@ -128,7 +138,12 @@ func (s *AdminService) SeedDemoData() (int, error) {
 		},
 		{
 			Email: "david.miller@apple.com", Name: "David Miller", IsPro: true, Tier: model.ProTierLifetime,
-			Subs: []struct{ Name, Cat string; Amt float64; Cyc model.BillingCycle; Color string }{
+			Subs: []struct {
+				Name, Cat string
+				Amt       float64
+				Cyc       model.BillingCycle
+				Color     string
+			}{
 				{"Apple One Premier", "Entertainment", 37.95, model.CycleMonthly, "#1C1C1E"},
 				{"GitHub Copilot", "Productivity", 10.00, model.CycleMonthly, "#24292F"},
 				{"Notion Team", "Productivity", 16.00, model.CycleMonthly, "#000000"},
@@ -137,7 +152,12 @@ func (s *AdminService) SeedDemoData() (int, error) {
 		},
 		{
 			Email: "elena.rostova@berlin.de", Name: "Elena Rostova", IsPro: false, Tier: model.ProTierFree,
-			Subs: []struct{ Name, Cat string; Amt float64; Cyc model.BillingCycle; Color string }{
+			Subs: []struct {
+				Name, Cat string
+				Amt       float64
+				Cyc       model.BillingCycle
+				Color     string
+			}{
 				{"Spotify", "Entertainment", 10.99, model.CycleMonthly, "#1DB954"},
 				{"Duolingo", "Utilities", 6.99, model.CycleMonthly, "#58CC02"},
 			},

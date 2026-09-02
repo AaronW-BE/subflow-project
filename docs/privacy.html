@@ -53,8 +53,9 @@ This policy explains what the app does and does not do with your information.</p
 <p>SubFlow is local-first. The subscriptions you enter — their names, amounts,
 billing cycles and renewal dates — are stored <strong>only on your device</strong>.
 We do not have a copy of them, and we cannot read them.</p>
-<p style="margin-bottom:0">The only information that leaves your device is what the
-Google Mobile Ads SDK collects in order to show ads to users on the free tier.</p>
+<p style="margin-bottom:0">Two things leave your device: what the Google Mobile
+Ads SDK collects in order to show ads to users on the free tier, and a daily
+request for exchange rates that carries none of your data.</p>
 </div>
 
 <h2>What stays on your device</h2>
@@ -96,6 +97,19 @@ first launch (Google’s User Messaging Platform). Ads are only requested after 
 is resolved. You can reopen that form at any time from
 <strong>Settings → Ad privacy options</strong>.</p>
 <p><strong>Purchasing Pro removes ads entirely</strong>, and with them this data collection.</p>
+
+<h3>Exchange rates</h3>
+<p>To convert between currencies the app fetches a published rate table from
+<strong>Exchange Rate API</strong> (<code>open.er-api.com</code>), at most once a
+day and only when the cached table has expired.</p>
+<p>The request carries <strong>no data about you</strong>: no account, no
+advertising ID, no device identifier, and nothing about the subscriptions you
+track. It is an unauthenticated request for a public table that is identical for
+every user. As with any network request, the operator of that service can see the
+IP address it came from.</p>
+<p>The rates are cached on your device, so the app works offline and does not
+request them again until the provider publishes a new table. Their terms are at
+<a href="https://www.exchangerate-api.com/terms">exchangerate-api.com/terms</a>.</p>
 
 <h3>Purchases</h3>
 <p>Purchases are processed by <strong>Google Play Billing</strong>. We never see or

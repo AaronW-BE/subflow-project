@@ -36,6 +36,10 @@ func InitDB(dataSourceName string) (*DB, error) {
 		return nil, fmt.Errorf("purchase migration failed: %w", err)
 	}
 
+	if err := db.migrateRates(); err != nil {
+		return nil, fmt.Errorf("rate cache migration failed: %w", err)
+	}
+
 	if err := db.seedPresets(); err != nil {
 		log.Printf("Warning: failed to seed presets: %v", err)
 	}

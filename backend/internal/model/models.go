@@ -113,7 +113,16 @@ type PresetService struct {
 type CurrencyRates struct {
 	BaseCurrency string             `json:"base_currency"` // USD
 	Rates        map[string]float64 `json:"rates"`
-	UpdatedAt    time.Time          `json:"updated_at"`
+	// UpdatedAt is the provider's own quote time, not when we fetched it and
+	// not the process start time.
+	UpdatedAt time.Time `json:"updated_at"`
+	// Provider and ProviderURL travel with the rates because the feed's terms
+	// require visible attribution wherever they are displayed. Shipping it in
+	// the payload means a client cannot show the rates without also having
+	// been handed the credit, and swapping providers does not need an app
+	// release to correct the wording.
+	Provider    string `json:"provider,omitempty"`
+	ProviderURL string `json:"provider_url,omitempty"`
 }
 
 // SyncRequest represents client mutations to sync.

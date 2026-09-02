@@ -10,7 +10,6 @@ import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.SubFlowBackupContainer
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -25,6 +24,14 @@ class SubscriptionRepository(
 ) {
     private val dao = SubFlowDatabase.getDatabase(context).subscriptionDao()
     private val prefs = context.getSharedPreferences("subflow_prefs", Context.MODE_PRIVATE)
+    private val exchangeRates = ExchangeRateRepository(context)
+
+    init {
+        // Load the cached quote before anything renders a total. Without this
+        // the first frame after a cold launch would use the built-in table and
+        // then visibly correct itself once the network answered.
+        exchangeRates.primeFromCache()
+    }
 
     val activeSubscriptions: Flow<List<Subscription>> = dao.observeActiveSubscriptions()
         .map { list -> list.map { it.toDomain() } }
@@ -100,22 +107,17 @@ class SubscriptionRepository(
     }
 
     /**
-     * Refreshes exchange rates. Pro-only in the UI, but the fetch is harmless
-     * for everyone and keeps the cache warm for a later upgrade.
+     * Refreshes exchange rates, in every build type.
+     *
+     * This deliberately does not check BACKEND_ENABLED. That flag also gates
+     * sign-in and cloud sync, so requiring it would have meant the choice was
+     * "stale rates" or "start uploading the user's subscription list" - see
+     * ExchangeRateRepository for why rates get their own path.
+     *
+     * At most one request per provider publication, and a failure leaves the
+     * previously loaded rates alone.
      */
-    suspend fun refreshExchangeRates(): Boolean = if (!BuildConfig.BACKEND_ENABLED) {
-        false
-    } else try {
-        val res = api.getRates()
-        val rates = res.body()?.rates
-        if (res.isSuccessful && !rates.isNullOrEmpty()) {
-            CurrencyConverter.updateFromUsdBase(rates)
-            true
-        } else false
-    } catch (e: Exception) {
-        Log.d(TAG, "Rate refresh skipped: ${e.message}")
-        false
-    }
+    suspend fun refreshExchangeRates(): Boolean = exchangeRates.refreshIfStale()
 
     suspend fun syncWithServer(token: String?): Result<Int> {
         if (!BuildConfig.BACKEND_ENABLED) {

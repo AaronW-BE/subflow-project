@@ -85,7 +85,12 @@ data class PresetsResponse(
 
 data class CurrencyRatesResponse(
     @SerializedName("base_currency") val baseCurrency: String,
-    val rates: Map<String, Double>
+    val rates: Map<String, Double>,
+    /** Provider's quote time, ISO-8601. Not when this device fetched it. */
+    @SerializedName("updated_at") val updatedAt: String? = null,
+    /** Attribution the feed's terms require wherever the rates are shown. */
+    val provider: String? = null,
+    @SerializedName("provider_url") val providerUrl: String? = null
 )
 
 data class SyncRequestDto(

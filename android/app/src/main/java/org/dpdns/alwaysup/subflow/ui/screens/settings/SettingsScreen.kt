@@ -1,6 +1,7 @@
 package org.dpdns.alwaysup.subflow.ui.screens.settings
 
 import android.content.Context
+import android.text.format.DateUtils
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -48,6 +49,7 @@ import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
 import org.dpdns.alwaysup.subflow.ui.components.AppleRowSeparator
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerRow
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
@@ -228,6 +230,12 @@ fun SettingsScreen(
                         iconTint = MaterialTheme.colorScheme.secondary,
                         onClick = { showCurrencySheet = true }
                     )
+                    // ExchangeRate-API's terms require visible attribution
+                    // wherever their rates are used, and every converted total
+                    // in this app is derived from them. This row sits directly
+                    // under the currency setting so it is next to the thing it
+                    // credits rather than buried in an about screen.
+                    RateAttributionRow(onOpenUrl = onOpenUrl)
                     AppleListRow(
                         title = stringResource(R.string.appearance),
                         valueText = stringResource(currentThemeMode.labelRes),
@@ -733,7 +741,45 @@ private fun AccountCard(
     }
 }
 
+@Composable
+private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
+    val quotedAt = CurrencyConverter.quotedAtEpochMillis
+    val subtitle = if (quotedAt > 0L) {
+        stringResource(
+            R.string.rates_updated_on,
+            DateUtils.formatDateTime(
+                LocalContext.current,
+                quotedAt,
+                DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH
+            )
+        )
+    } else {
+        stringResource(R.string.rates_offline_snapshot)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onOpenUrl(RATE_PROVIDER_URL) }
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.rates_attribution),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 // -------------------------------------------------------------------- intents
+
+/** Required by the exchange rate feed's terms of use. */
+const val RATE_PROVIDER_URL = "https://www.exchangerate-api.com"
 
 const val PRIVACY_URL = "https://subflow.alwaysup.dpdns.org/privacy.html"
 const val TERMS_URL = "https://subflow.alwaysup.dpdns.org/terms.html"

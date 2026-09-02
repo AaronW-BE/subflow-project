@@ -23,6 +23,11 @@
     <string name="upgrade_to_pro">Upgrade to Pro</string>
     <string name="clear_search">Clear search</string>
     <string name="search_currency_hint">Search currency or code</string>
+    <!-- Verbatim wording required by the exchange rate feed's terms.
+         Not translated: the required text is this exact English phrase. -->
+    <string name="rates_attribution">Rates By Exchange Rate API</string>
+    <string name="rates_updated_on">Updated %1$s</string>
+    <string name="rates_offline_snapshot">Offline snapshot</string>
     <string name="search">Search</string>
     <string name="empty_title">No subscriptions yet</string>
     <string name="empty_body">Add the services you pay for and SubFlow keeps the totals and renewal dates in one place.</string>

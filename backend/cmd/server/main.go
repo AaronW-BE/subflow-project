@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"log"
@@ -34,7 +35,7 @@ func main() {
 	// 2. Initialize Services
 	authService := service.NewAuthService(db)
 	presetService := service.NewPresetService(db)
-	rateService := service.NewRateService()
+	rateService := service.NewRateService(db)
 	syncService := service.NewSyncService(db)
 	billingService := service.NewBillingService(db)
 	adminService := service.NewAdminService(db, billingService)
@@ -55,6 +56,13 @@ func main() {
 	} else if n > 0 {
 		log.Printf("Seeded %d demo users into a fresh database.", n)
 	}
+
+	// Keep the FX table current. This runs for the life of the process; every
+	// failure leaves the previous rates in place, so a provider outage cannot
+	// move anyone's totals.
+	rateCtx, stopRates := context.WithCancel(context.Background())
+	defer stopRates()
+	rateService.StartRefreshing(rateCtx)
 
 	// 3. Setup Gin Engine
 	gin.SetMode(gin.ReleaseMode)

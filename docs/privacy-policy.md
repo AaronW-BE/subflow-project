@@ -15,8 +15,9 @@ SubFlow is local-first. The subscriptions you enter — their names, amounts,
 billing cycles and renewal dates — are stored **only on your device**. We do not
 have a copy of them, and we cannot read them.
 
-The only information that leaves your device is what the Google Mobile Ads SDK
-collects in order to show ads to users on the free tier.
+Two things leave your device: what the Google Mobile Ads SDK collects in order
+to show ads to users on the free tier, and a daily request for exchange rates
+that carries none of your data.
 
 ---
 
@@ -64,6 +65,22 @@ resolved. You can reopen that form at any time from **Settings → 广告隐私�
 Ad privacy options**.
 
 **Purchasing Pro removes ads entirely**, and with them this data collection.
+
+### Exchange rates
+
+To convert between currencies the app fetches a published rate table from
+**Exchange Rate API** (`open.er-api.com`), at most once a day and only when the
+cached table has expired.
+
+The request carries **no data about you**: no account, no advertising ID, no
+device identifier, and nothing about the subscriptions you track. It is an
+unauthenticated request for a public table that is identical for every user. As
+with any network request, the operator of that service can see the IP address it
+came from.
+
+The rates are cached on your device, so the app works offline and does not
+request them again until the provider publishes a new table. Their terms are at
+<https://www.exchangerate-api.com/terms>.
 
 ### Purchases
 

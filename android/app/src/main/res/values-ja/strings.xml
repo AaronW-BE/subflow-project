@@ -23,6 +23,8 @@
     <string name="upgrade_to_pro">Pro にアップグレード</string>
     <string name="clear_search">検索をクリア</string>
     <string name="search_currency_hint">通貨またはコードを検索</string>
+    <string name="rates_updated_on">%1$s 更新</string>
+    <string name="rates_offline_snapshot">オフラインのスナップショット</string>
     <string name="search">検索</string>
     <string name="empty_title">まだ登録がありません</string>
     <string name="empty_body">支払っているサービスを登録すると、金額と更新日を SubFlow がまとめて管理します。</string>

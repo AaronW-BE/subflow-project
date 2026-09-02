@@ -1,34 +1,72 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+	"sort"
 	"subflow/backend/internal/model"
 	"subflow/backend/internal/repository"
 	"sync"
 	"time"
 )
 
-// ratesEditedAt is when the table below was last edited by hand.
+// fallbackEditedAt dates the hand-written table below.
 //
-// It is deliberately not time.Now(). There is no live feed behind this service
-// - the map is a compile-time constant - and stamping it with the process start
-// time made a table that had not moved in months report itself as updated
-// seconds ago, on both the admin console and every client that reads /rates.
+// That table is now only a cold start: it is what /rates answers with in the
+// window between the process booting and the first successful fetch, on a first
+// ever run with nothing cached. Every other path serves provider data.
 //
-// The figures are approximate reference rates, good enough to total a
-// subscription list and not good enough to settle a payment. Wiring a real
-// provider means replacing this whole block and setting UpdatedAt from the
-// provider's own quote time, not from the clock.
-var ratesEditedAt = time.Date(2026, 9, 2, 0, 0, 0, 0, time.UTC)
+// It is deliberately not time.Now(). Stamping a compile-time constant with the
+// process start time made a table that had never moved report itself as updated
+// seconds ago, to every client and to the admin console.
+//
+// The figures are approximate and known to be stale - measured against live
+// data on 2026-09-02, 25 of the 40 were off by more than 5%, the worst being
+// TRY at -29.6%. Good enough to render a total for a few seconds at boot,
+// nowhere near good enough to ship as the steady state.
+var fallbackEditedAt = time.Date(2026, 9, 2, 0, 0, 0, 0, time.UTC)
 
-// RateService manages foreign exchange rates.
+// RateService serves foreign exchange rates, refreshed from a live provider.
+//
+// Reads never block on the network. A background loop replaces the table in
+// place, and every failure leaves the previous values standing - a provider
+// outage must not silently move anyone's totals.
 type RateService struct {
 	mu    sync.RWMutex
 	rates model.CurrencyRates
+	live  bool      // true once provider data has replaced the fallback table
+	next  time.Time // when the provider says it will publish again
+
+	store  RateSnapshotStore
+	client *http.Client
+
+	// providerURL is a field rather than the constant so tests can point it at
+	// a stub server.
+	providerURL string
+
+	// required is the set a fetch must cover to be accepted: the currencies the
+	// app can select, fixed at construction. Deriving it from whatever is
+	// currently served would ratchet upward - after one good fetch it would be
+	// all 166 the provider returns, and dropping a single obscure one would
+	// then reject the whole table.
+	required []string
 }
 
-func NewRateService() *RateService {
+// RateSnapshotStore persists the last good quote across restarts. It is an
+// interface so the refresh logic can be tested without a database.
+type RateSnapshotStore interface {
+	SaveRateSnapshot(payload string) error
+	LoadRateSnapshot() (payload string, fetchedAt time.Time, ok bool, err error)
+}
+
+func NewRateService(store RateSnapshotStore) *RateService {
 	s := &RateService{
+		store:       store,
+		client:      &http.Client{Timeout: 20 * time.Second},
+		providerURL: rateProviderURL,
 		rates: model.CurrencyRates{
 			BaseCurrency: "USD",
 			Rates: map[string]float64{
@@ -73,10 +111,138 @@ func NewRateService() *RateService {
 				"PKR": 278,
 				"BDT": 120,
 			},
-			UpdatedAt: ratesEditedAt,
+			UpdatedAt:   fallbackEditedAt,
+			Provider:    "built-in fallback table",
+			ProviderURL: "",
 		},
 	}
+	for code := range s.rates.Rates {
+		s.required = append(s.required, code)
+	}
+	sort.Strings(s.required) // deterministic error messages
+
+	s.restoreCached()
 	return s
+}
+
+// restoreCached loads the last good quote so a restart does not regress to the
+// fallback table while waiting on the first fetch.
+func (s *RateService) restoreCached() {
+	if s.store == nil {
+		return
+	}
+	payload, fetchedAt, ok, err := s.store.LoadRateSnapshot()
+	if err != nil {
+		log.Printf("FX: could not read the cached quote: %v", err)
+		return
+	}
+	if !ok {
+		return
+	}
+
+	var snap rateSnapshot
+	if err := json.Unmarshal([]byte(payload), &snap); err != nil {
+		log.Printf("FX: cached quote is unreadable, ignoring it: %v", err)
+		return
+	}
+	s.apply(&snap)
+	log.Printf("FX: restored %d cached rates quoted %s (cached %s)",
+		len(snap.Rates), snap.QuotedAt.Format(time.RFC3339), fetchedAt.Format(time.RFC3339))
+}
+
+// apply swaps in a new table. The caller must not hold the lock.
+func (s *RateService) apply(snap *rateSnapshot) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.rates = model.CurrencyRates{
+		BaseCurrency: "USD",
+		Rates:        snap.Rates,
+		UpdatedAt:    snap.QuotedAt,
+		Provider:     rateProviderName,
+		ProviderURL:  rateProviderLink,
+	}
+	s.live = true
+	s.next = snap.NextUpdate
+}
+
+// IsLive reports whether the served table came from the provider rather than
+// the compile-time fallback. The admin console shows this, because "these
+// numbers are hand-written and wrong" is worth saying out loud.
+func (s *RateService) IsLive() bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.live
+}
+
+// Refresh fetches once and swaps the table in on success.
+func (s *RateService) Refresh(ctx context.Context) error {
+	snap, err := fetchRates(ctx, s.client, s.providerURL, s.required)
+	if err != nil {
+		return err
+	}
+	s.apply(snap)
+
+	if s.store != nil {
+		if payload, err := json.Marshal(snap); err != nil {
+			log.Printf("FX: could not encode the quote for caching: %v", err)
+		} else if err := s.store.SaveRateSnapshot(string(payload)); err != nil {
+			log.Printf("FX: could not cache the quote: %v", err)
+		}
+	}
+	return nil
+}
+
+// StartRefreshing runs the refresh loop until ctx is cancelled.
+//
+// The provider publishes once a day and tells us when it will publish next, so
+// the loop sleeps until then rather than polling on a timer of our own
+// choosing. Failures retry on a short backoff; the previously served table
+// stays in place throughout.
+func (s *RateService) StartRefreshing(ctx context.Context) {
+	go func() {
+		const (
+			minRetry = 5 * time.Minute
+			maxRetry = 2 * time.Hour
+			skew     = 5 * time.Minute // let the provider actually publish
+		)
+		retry := minRetry
+
+		for {
+			err := s.Refresh(ctx)
+			var wait time.Duration
+			if err != nil {
+				log.Printf("FX: refresh failed (%v); keeping the current table, retrying in %s", err, retry)
+				wait = retry
+				if retry *= 2; retry > maxRetry {
+					retry = maxRetry
+				}
+			} else {
+				retry = minRetry
+				s.mu.RLock()
+				quoted := s.rates.UpdatedAt
+				s.mu.RUnlock()
+				log.Printf("FX: refreshed from %s, quoted %s", rateProviderName, quoted.Format(time.RFC3339))
+
+				wait = time.Until(s.nextUpdate().Add(skew))
+				if wait < time.Hour {
+					// No usable next-update hint, or it is already past.
+					wait = 6 * time.Hour
+				}
+			}
+
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(wait):
+			}
+		}
+	}()
+}
+
+func (s *RateService) nextUpdate() time.Time {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.next
 }
 
 func (s *RateService) GetRates() model.CurrencyRates {

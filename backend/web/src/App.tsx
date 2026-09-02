@@ -63,10 +63,18 @@ export function App() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [purchasesTotal, setPurchasesTotal] = useState(0);
   const [revenue, setRevenue] = useState<Revenue | null>(null);
-  const [rates, setRates] = useState<{ base: string; rates: Record<string, number>; updatedAt: string | null }>({
+  const [rates, setRates] = useState<{
+    base: string;
+    rates: Record<string, number>;
+    updatedAt: string | null;
+    provider: string;
+    providerUrl: string;
+  }>({
     base: 'USD',
     rates: {},
     updatedAt: null,
+    provider: '',
+    providerUrl: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -453,6 +461,8 @@ export function App() {
             base={rates.base}
             rates={rates.rates}
             updatedAt={rates.updatedAt}
+            provider={rates.provider}
+            providerUrl={rates.providerUrl}
           />
         )}
       </main>
