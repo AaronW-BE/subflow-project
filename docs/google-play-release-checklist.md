@@ -2284,3 +2284,37 @@ that first.
 Verified on device: Amazon Prime shows the a+smile, Duolingo a white owl on
 green, Nintendo Switch Online white Joy-Cons on red, 1Password a white keyhole
 on blue, Medium a white "M", and Apple Music is unchanged and still correct.
+
+### One full-colour mark, not thirty — 2026-09-02
+
+The question was whether to use PNG originals instead of vectors. Two findings
+changed the answer.
+
+**Format: WebP, not PNG.** Measured at 192px, the size a 64dp badge needs on a
+3x screen: 30 icons cost 628 KB as PNG and 109 KB as WebP. Same images, six
+times smaller. PNG has no advantage here.
+
+**Scope: one icon, not thirty.** Switching the whole catalogue to App Store
+artwork looked attractive until the comparison was rendered:
+
+- Duolingo's App Store icon was a seasonal novelty variant on the day this was
+  written. Bundling it would freeze a temporary promotion into the app.
+- Searching "amazon prime video" returns Prime Video, which is a different
+  product from the Amazon Prime membership the preset tracks. Name matching
+  needs per-brand verification, thirty times.
+- It is the brand's own icon artwork rather than simple-icons' redrawing, which
+  is a heavier trademark position.
+
+So the vectors stay, and full-colour bitmaps are the exception:
+
+| Preset | Outcome |
+| --- | --- |
+| Google One | Official app icon, WebP, **1,362 bytes**. Its four-colour ribbon cannot be a silhouette, and the "G" it fell back to was Google's corporate mark, not this product's. |
+| Microsoft 365 | Letter tile. No App Store app under that name, and the published SVG is the grey wordmark with no symbol at all. |
+| Medium | Letter tile. A white "M" on black already *is* its icon. |
+
+The badge gained a full-colour path: the artwork carries its own background, so
+it renders edge to edge with no tile colour and no tint.
+
+Verified on device and in the release APK, where the WebP survives resource
+shrinking and the APK stays at 4.3 MB.

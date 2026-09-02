@@ -134,6 +134,39 @@ object BrandLogos {
         return containerMarks.any { key.startsWith(it.replace("_", "")) }
     }
 
+    /**
+     * Full-colour marks, as bitmaps, for logos that cannot be a white glyph.
+     *
+     * Google One's logo is a four-colour ribbon; reduced to a silhouette it is
+     * an unreadable blob, and the "G" it fell back to is Google's corporate
+     * mark rather than this product's. This is the official app icon, bundled
+     * for the same privacy reason as every other mark here.
+     *
+     * Deliberately a short list. Bitmaps do not scale like the vectors, they
+     * carry the brand's own artwork rather than simple-icons' redrawing of it,
+     * and an app icon can change with a seasonal promotion — Duolingo's was a
+     * novelty variant on the day this was written, which is exactly why the
+     * whole catalogue was not switched to app icons.
+     *
+     * Microsoft 365 has no entry: it has no App Store app under that name, and
+     * the published SVG is the grey wordmark with no symbol. It keeps its
+     * letter tile. Medium keeps its letter tile too, because a white "M" on
+     * black already is its icon.
+     */
+    private val colourMarks: Map<String, Int> = mapOf(
+        "google_one" to R.drawable.brand_colour_google_one,
+    )
+
+    /** A full-colour bitmap mark, drawn edge to edge with no tint. */
+    @DrawableRes
+    fun colourMarkFor(presetId: String?, name: String?): Int? {
+        presetId?.lowercase()?.let { colourMarks[it]?.let { res -> return res } }
+        val key = normalise(name ?: return null)
+        return colourMarks.entries
+            .firstOrNull { key.startsWith(it.key.replace("_", "")) }
+            ?.value
+    }
+
     /** The mark for a preset id, or null when there is none. */
     @DrawableRes
     fun forPresetId(presetId: String?): Int? =

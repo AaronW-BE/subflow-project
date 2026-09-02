@@ -11,6 +11,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -332,8 +333,14 @@ fun BrandIconBadge(
         Brush.linearGradient(listOf(tileColor, tileColor.copy(alpha = 0.82f)))
     }
 
-    val brandMark = remember(presetId, name) {
-        BrandLogos.forPresetId(presetId) ?: BrandLogos.forName(name)
+    // A full-colour bitmap mark wins: it is the brand's own icon, complete with
+    // its background, so it needs neither the tile colour nor a tint.
+    val colourMark = remember(presetId, name) {
+        BrandLogos.colourMarkFor(presetId, name)
+    }
+    val brandMark = remember(presetId, name, colourMark) {
+        if (colourMark != null) null
+        else BrandLogos.forPresetId(presetId) ?: BrandLogos.forName(name)
     }
     // Some marks are whole app icons rather than bare glyphs, so they have to
     // be painted the other way round. See BrandLogos.containerMarks.
@@ -355,6 +362,8 @@ fun BrandIconBadge(
             .then(
                 when {
                     custom != null -> Modifier
+                    // The artwork carries its own background.
+                    colourMark != null -> Modifier
                     // A light tile so the brand-coloured mark reads. The
                     // hairline keeps it from vanishing into a white card in
                     // light mode, where tile and background are both near-white.
@@ -376,6 +385,13 @@ fun BrandIconBadge(
         when {
             custom != null -> AsyncImage(
                 model = custom,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            colourMark != null -> Image(
+                painter = painterResource(colourMark),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
