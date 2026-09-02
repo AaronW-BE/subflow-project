@@ -2207,3 +2207,49 @@ partial "e" is their artwork, not damage from the conversion.
 
 Not re-verified on device: the phone disconnected before this build could be
 installed.
+
+### The real Apple Music bug: Android cannot parse compact arc flags
+
+The inversion fix above was correct but incomplete — Apple Music still rendered
+as a mangled diagonal on device while rendering perfectly in a browser. That
+split is the whole clue, and it took embarrassingly long to read: identical path
+data, two renderers, two results, so the fault is in the parser, not the data.
+
+An SVG elliptical arc takes seven parameters:
+
+```
+rx ry x-axis-rotation large-arc-flag sweep-flag x y
+```
+
+The two flags are single digits, and SVG lets them run together with each other
+and with the coordinate that follows. simple-icons is minified, so it emits:
+
+```
+a9.23 9.23 0 00-.24-2.19
+```
+
+meaning flags `0` and `0`, then (-0.24, -2.19). Android's VectorDrawable path
+parser tokenises numbers greedily: it reads `00` as a single value, every
+later parameter shifts by one, and the rest of the subpath becomes noise.
+Browsers implement the SVG grammar and get it right — which is exactly why the
+side-by-side comparison earlier showed source and bundled as identical and
+"proved" the conversion was fine. It was. The conversion was never the problem.
+
+Five marks were affected: `applemusic`, `github_copilot`, `hulu`, `nordvpn`,
+`primevideo`. Only Apple Music was obviously broken; the others were subtly
+wrong in ways nobody would have reported.
+
+`tools/normalise_arcs.py` expands the flags with explicit separators. The
+numbers are untouched — only the whitespace between them changes — and it is
+unit-tested against packed flags, flags packed against the coordinate, already
+separated input, multiple groups after one command letter, and non-arc data.
+Both generators now run it, and regenerating from scratch reproduces the
+committed drawables exactly (30 of 30), so this cannot come back.
+
+| Check | Result |
+| --- | --- |
+| Apple Music on device | Clean red tile, white note — the real icon |
+| Prime Video, Hulu | Clean wordmarks |
+| Whole grid | No regressions |
+| Numbers preserved | Token counts rise only on the three files with packed flags (359→371, 113→117, 41→44) — the flags Android had been swallowing |
+| Release build | Succeeds |

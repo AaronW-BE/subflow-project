@@ -11,6 +11,8 @@ import re
 import subprocess
 import sys
 
+from normalise_arcs import normalise
+
 # preset id -> simple-icons slug. None means simple-icons has no glyph for it,
 # usually because the brand is not in the set or the mark is a wordmark rather
 # than a symbol. Those keep the existing initial-letter tile.
@@ -86,7 +88,7 @@ def to_vector(svg, name):
         return None
     body = "\n".join(
         '    <path\n        android:fillColor="#FFFFFFFF"\n'
-        '        android:pathData="%s" />' % p.replace("&", "&amp;")
+        '        android:pathData="%s" />' % normalise(p).replace("&", "&amp;")
         for p in paths
     )
     return (

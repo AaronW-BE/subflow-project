@@ -12,6 +12,8 @@ import io
 import re
 import sys
 
+from normalise_arcs import normalise
+
 SRC, NAME, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
 
 svg = io.open(SRC, encoding='utf-8', errors='replace').read()
@@ -35,7 +37,7 @@ ty = MARGIN + (avail - vh * scale) / 2.0 - miny * scale
 
 body = "\n".join(
     '        <path\n            android:fillColor="#FFFFFFFF"\n'
-    '            android:pathData="%s" />' % p.replace('&', '&amp;').strip()
+    '            android:pathData="%s" />' % normalise(p.strip()).replace('&', '&amp;')
     for p in paths
 )
 
