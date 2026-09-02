@@ -9,7 +9,8 @@ colours and fill the badge edge to edge.
 Vector rather than a bitmap: same fidelity at any size, a fraction of the bytes,
 and it cannot go stale the way a scraped store icon can.
 
-    colour_vector.py SOURCE.svg NAME OUT.xml [--background #RRGGBB] [--inset F]
+    colour_vector.py SOURCE.svg NAME OUT.xml
+        [--background #RRGGBB] [--inset F] [--fill #RRGGBB]
 
 Handles what real logo exports do that a naive converter gets wrong:
 
@@ -19,6 +20,11 @@ Handles what real logo exports do that a naive converter gets wrong:
   * fills arrive as CSS classes rather than attributes. Netflix's file carries
     `.st0{fill:#b1060f}` in a <style> block, so an attribute-only reader paints
     every path black.
+  * shapes are not all <path>. Illustrator keeps circles, polygons and rects as
+    themselves — the dot over HBO Max's "O" is a <circle>, and a path-only
+    reader drops it without saying so.
+  * an SVG may declare no fill at all, meaning black. `--fill` says what the
+    artwork should be instead, for a mark that has to sit on a dark tile.
   * groups nest and carry transforms. Netflix's are translate + scale, two deep.
   * a viewBox need not start at 0,0 or be square. Squeezing a 122x222 logo into
     a square drawable stretches it, so it is centred instead.
@@ -103,7 +109,50 @@ def android_group(transform):
     return " ".join(parts) if parts else None
 
 
-def convert(svg, name, background=None, inset=1.0):
+def shape_to_path(kind, tag):
+    """Turns the non-<path> SVG shapes into path data.
+
+    Illustrator exports circles, polygons and rects as themselves rather than
+    flattening them, so a path-only reader silently drops parts of a logo. HBO
+    Max's file keeps the dot over the "O" as a <circle> and the HBO block as a
+    <polygon>; without this the mark comes out as three quarters of itself.
+    """
+    def num(name, default=0.0):
+        m = re.search(r'\b%s="([-\d.eE]+)"' % name, tag)
+        return float(m.group(1)) if m else default
+
+    if kind in ('circle', 'ellipse'):
+        cx, cy = num('cx'), num('cy')
+        rx = num('r') or num('rx')
+        ry = num('r') or num('ry')
+        if rx <= 0 or ry <= 0:
+            return None
+        # Two half-arcs: a single 360-degree arc draws nothing.
+        return ('M%g,%g a%g,%g 0 1 0 %g,0 a%g,%g 0 1 0 %g,0 Z'
+                % (cx - rx, cy, rx, ry, 2 * rx, rx, ry, -2 * rx))
+
+    if kind in ('polygon', 'polyline'):
+        raw = re.search(r'points="([^"]+)"', tag)
+        if not raw:
+            return None
+        nums = [float(v) for v in
+                re.findall(r'-?[\d.]+(?:[eE][-+]?\d+)?', raw.group(1))]
+        if len(nums) < 6:
+            return None
+        pairs = list(zip(nums[0::2], nums[1::2]))
+        d = 'M%g,%g ' % pairs[0] + " ".join('L%g,%g' % pt for pt in pairs[1:])
+        return d + (' Z' if kind == 'polygon' else '')
+
+    if kind == 'rect':
+        x, y, w, h = num('x'), num('y'), num('width'), num('height')
+        if w <= 0 or h <= 0:
+            return None
+        return 'M%g,%g h%g v%g h%g Z' % (x, y, w, h, -w)
+
+    return None
+
+
+def convert(svg, name, background=None, inset=1.0, default_fill=None):
     classes = parse_style_classes(svg)
 
     vb = re.search(r'viewBox="\s*([-\d.eE]+)[,\s]+([-\d.eE]+)[,\s]+'
@@ -124,7 +173,8 @@ def convert(svg, name, background=None, inset=1.0):
     def pad():
         return '    ' + '    ' * depth
 
-    for token in re.finditer(r'<(/?)(g|path)\b([^>]*?)/?>', svg):
+    shapes = 'path|circle|ellipse|polygon|polyline|rect'
+    for token in re.finditer(r'<(/?)(g|%s)\b([^>]*?)/?>' % shapes, svg):
         closing, kind, rest = token.group(1), token.group(2), token.group(3)
 
         if kind == 'g':
@@ -148,10 +198,13 @@ def convert(svg, name, background=None, inset=1.0):
                 depth += 1
             continue
 
-        d = attr(rest, 'd')
+        d = attr(rest, 'd') if kind == 'path' else shape_to_path(kind, rest)
         if not d:
             continue
-        fill = normalise_colour(resolve(rest, classes, 'fill'))
+
+        # An SVG that declares no fill paints black, which is invisible on a
+        # dark tile. default_fill says what the artwork should actually be.
+        fill = normalise_colour(resolve(rest, classes, 'fill')) or default_fill
         if fill == 'GRADIENT':
             skipped.append(attr(rest, 'id') or '(unnamed)')
             continue
@@ -249,7 +302,10 @@ def main():
 
     svg = io.open(src, encoding='utf-8', errors='replace').read()
     xml, skipped, canvas = convert(
-        svg, name, read_flag('--background'), float(read_flag('--inset', '1.0')))
+        svg, name,
+        read_flag('--background'),
+        float(read_flag('--inset', '1.0')),
+        normalise_colour(read_flag('--fill')))
     io.open(out, 'w', encoding='utf-8', newline='\n').write(xml)
 
     print("%s: square viewport %g, %d bytes" % (name, canvas, len(xml)))

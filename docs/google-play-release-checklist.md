@@ -2477,3 +2477,34 @@ new mark keyed by an id that does not spell its product name needs an alias.
 
 Verified on the release build against real saved rows — the path that only the
 name can exercise: HBO Max shows the chrome icon, Netflix the black-and-red N.
+
+### HBO Max as a vector, and two more converter gaps
+
+The 2025 logo supplied as SVG replaces the App Store bitmap from an hour ago:
+3.0 KB against 4.3 KB, and crisp rather than resampled. It exposed two more
+things the converter did not do.
+
+**Shapes are not all `<path>`.** Illustrator keeps circles, polygons and rects
+as themselves. This file holds the dot over the "O" as a `<circle>` and the HBO
+block as a `<polygon>`, so the path-only reader would have produced two thirds
+of the logo — and said nothing about it. `shape_to_path` now converts circle,
+ellipse, polygon, polyline and rect. The circle becomes two half-arcs, because a
+single 360-degree arc draws nothing.
+
+**An SVG may declare no fill at all,** which means black, which is invisible on
+a dark tile. `--fill` says what the artwork should be instead.
+
+The background is `#0D1017`, sampled from the official artwork rather than
+guessed — bands away from the wordmark read `#0B0E15` to `#121923`, and the
+corner samples that first looked grey were the vignette.
+
+Both existing vector logos were re-converted and diffed against their committed
+drawables before this was accepted: Duolingo and Netflix both identical in path
+data, colours and fill rules. That check has now caught one real regression and
+confirmed three changes, and is cheap enough to keep running on every converter
+edit.
+
+Full-colour marks now: Netflix 2.9 KB, HBO Max 3.0 KB, Duolingo 4.6 KB and
+Microsoft 365 1.6 KB as vectors; Google One 1.4 KB and Prime Video 4.6 KB as
+WebP, where a gradient or photographic artwork rules a vector out. APK unchanged
+at 4.3 MB.
