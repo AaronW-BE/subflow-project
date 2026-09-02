@@ -35,7 +35,10 @@ func main() {
 	// 2. Initialize Services
 	authService := service.NewAuthService(db)
 	presetService := service.NewPresetService(db)
-	rateService := service.NewRateService(db)
+	// Optional. Unset uses the open, keyless exchange rate endpoint, which
+	// works without an account but requires attribution wherever the rates are
+	// displayed. Environment only - never a file in the repo.
+	rateService := service.NewRateService(db, os.Getenv("EXCHANGE_RATE_API_KEY"))
 	syncService := service.NewSyncService(db)
 	billingService := service.NewBillingService(db)
 	adminService := service.NewAdminService(db, billingService)

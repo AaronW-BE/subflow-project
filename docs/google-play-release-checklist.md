@@ -1894,3 +1894,46 @@ all present in `classes.dex`, with `Rates By Exchange Rate API` in
 `/rates` on the server is public and unauthenticated, and re-serves provider data
 programmatically. It reads as an internal endpoint for our own app rather than a
 product, but documenting or publicising it as an API would change that.
+
+### Keyed rate endpoint — 2026-09-02
+
+`EXCHANGE_RATE_API_KEY` now selects the keyed tier. Unset keeps the open,
+keyless endpoint, which is still the default and needs no account.
+
+The two endpoints are not interchangeable. They differ in host, in path, and in
+the name of the rate map — the open one says `rates`, the keyed one says
+`conversion_rates`. Both field names are decoded and whichever arrived is used,
+so one code path serves either.
+
+The key sits in the URL path, which makes it a credential-leak hazard rather
+than just a config value: `net/http` embeds the full request URL in every
+`*url.Error`, and those are logged on each retry. Errors are scrubbed before
+they reach the log, and there is a test that fails if the key ever appears in
+one.
+
+Verified against the live service with a deliberately invalid key: the log reads
+
+```
+FX: using the keyed endpoint (EXCHANGE_RATE_API_KEY is set).
+FX: refresh failed (provider rejected the API key (HTTP 403) - check
+    EXCHANGE_RATE_API_KEY; retrying will not fix it); keeping the current table
+```
+
+and the key appears nowhere in the log file. The first attempt reported only
+`provider returned HTTP 403`, because the real service answers a bad key with a
+bare 403 rather than the documented `{"result":"error","error-type":"invalid-key"}`
+body — so the JSON error path never ran and the operator was left guessing.
+Status codes are now explained, but only when a key is actually configured; a
+keyless 403 must not blame a key that does not exist.
+
+Keyless regression, same build: `FX: refreshed from Exchange Rate API, quoted
+2026-09-02T00:02:31Z`.
+
+**What the key does not change:** the Android app fetches directly from the
+keyless endpoint, because the release build has no backend to route through.
+Attribution in the app is therefore still required. The key removes the
+obligation only for the admin console, and gives the server a real quota instead
+of a shared rate-limited pool. Since the server fetches once a day either way,
+that is currently the whole practical benefit. Routing the app through the
+server would change this, and needs a deployed backend plus BACKEND_ENABLED —
+which also switches on cloud sync.

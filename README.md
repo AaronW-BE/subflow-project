@@ -76,9 +76,20 @@ cd backend && go run ./cmd/server
 | `ADMIN_TOKEN` | random per boot, logged |
 | `DB_PATH` | `subflow.db` in the working directory |
 | `PORT` | `8085` |
+| `EXCHANGE_RATE_API_KEY` | unset — uses the open, keyless rate endpoint |
 
 Set `JWT_SECRET` for anything long-lived. It signs session tokens, so whoever
 holds it can forge a login for any user.
+
+`EXCHANGE_RATE_API_KEY` is optional. Left unset, the server uses
+ExchangeRate-API's open endpoint, which needs no account but requires visible
+attribution wherever the rates are shown. Setting it switches to the keyed
+endpoint, which drops that requirement. The key is read from the environment
+only and never belongs in a file in this repository — it appears in the request
+path, so it is scrubbed from anything the server logs.
+
+Note that the **Android app fetches rates directly from the keyless endpoint**
+and is unaffected by this variable, so the in-app attribution stays regardless.
 
 The admin console is served at `/admin/` and gated by `ADMIN_TOKEN`. It lives in
 `backend/web` (Vite + React) and is embedded into the Go binary under

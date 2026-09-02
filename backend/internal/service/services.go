@@ -47,6 +47,11 @@ type RateService struct {
 	// a stub server.
 	providerURL string
 
+	// apiKey selects the keyed endpoint when set. Held only to redact it out
+	// of anything logged - it is a path segment of providerURL, so every
+	// transport error carries it.
+	apiKey string
+
 	// required is the set a fetch must cover to be accepted: the currencies the
 	// app can select, fixed at construction. Deriving it from whatever is
 	// currently served would ratchet upward - after one good fetch it would be
@@ -62,11 +67,18 @@ type RateSnapshotStore interface {
 	LoadRateSnapshot() (payload string, fetchedAt time.Time, ok bool, err error)
 }
 
-func NewRateService(store RateSnapshotStore) *RateService {
+// NewRateService builds the rate service.
+//
+// apiKey is optional. Empty selects the open, keyless endpoint, which is the
+// documented supported configuration and needs no account; a key selects the
+// keyed tier. It is never written to a config file in the repo - see
+// EXCHANGE_RATE_API_KEY in cmd/server.
+func NewRateService(store RateSnapshotStore, apiKey string) *RateService {
 	s := &RateService{
 		store:       store,
 		client:      &http.Client{Timeout: 20 * time.Second},
-		providerURL: rateProviderURL,
+		apiKey:      apiKey,
+		providerURL: providerURLFor(apiKey),
 		rates: model.CurrencyRates{
 			BaseCurrency: "USD",
 			Rates: map[string]float64{
@@ -120,6 +132,12 @@ func NewRateService(store RateSnapshotStore) *RateService {
 		s.required = append(s.required, code)
 	}
 	sort.Strings(s.required) // deterministic error messages
+
+	if apiKey != "" {
+		log.Println("FX: using the keyed endpoint (EXCHANGE_RATE_API_KEY is set).")
+	} else {
+		log.Println("FX: using the open keyless endpoint; attribution is required wherever these rates are shown.")
+	}
 
 	s.restoreCached()
 	return s
@@ -176,7 +194,7 @@ func (s *RateService) IsLive() bool {
 
 // Refresh fetches once and swaps the table in on success.
 func (s *RateService) Refresh(ctx context.Context) error {
-	snap, err := fetchRates(ctx, s.client, s.providerURL, s.required)
+	snap, err := fetchRates(ctx, s.client, s.providerURL, s.apiKey, s.required)
 	if err != nil {
 		return err
 	}
