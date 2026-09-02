@@ -22,6 +22,8 @@
     <string name="add_subscription">添加订阅</string>
     <string name="upgrade_to_pro">升级 Pro</string>
     <string name="clear_search">清除搜索</string>
+    <string name="choose_custom_logo">选择图标</string>
+    <string name="remove_custom_logo">移除图标</string>
     <string name="search_currency_hint">搜索货币或代码</string>
     <string name="rates_updated_on">更新于 %1$s</string>
     <string name="rates_offline_snapshot">离线快照</string>

@@ -2000,3 +2000,82 @@ Verified end to end, not just in unit tests:
 The last row is the one that matters: the file's admin token stops working the
 moment the environment supplies one, which is what "the environment wins" has to
 mean in practice.
+
+## Brand logos and custom icons — 2026-09-02
+
+Subscriptions rendered an initial-letter tile. They now render the real brand
+mark, and users can supply their own image for anything the catalogue does not
+cover.
+
+### The runtime-fetch approach was rejected
+
+The server's preset catalogue already carries `icon_url` values pointing at each
+brand's own servers — `assets.nflxext.com`, `open.spotifycdn.com`,
+`chatgpt.com/favicon.ico`. Loading those is the obvious implementation and it
+leaks the thing this app exists to protect: a request to Netflix's CDN for the
+Netflix logo tells Netflix this device tracks Netflix, and across a dozen rows
+that distributes the user's financial profile to the companies they pay. It
+contradicts ADR 0001 and the privacy policy line stating that what the user
+enters stays on the device.
+
+Marks are therefore bundled. `BrandIconBadge` renders only `file://` URIs the
+app itself wrote; the catalogue's remote URLs are ignored by construction, so no
+call site can reintroduce the leak.
+
+### Why simple-icons rather than favicons
+
+Favicon services were measured before choosing. Google's caps at 64x64 for
+Netflix regardless of the requested size; DuckDuckGo returns 48x48 for Netflix,
+32x32 for Spotify and 96x96 for Disney+. A 46dp badge on this 3x device needs
+138px, so those would have been visibly soft and inconsistent between brands.
+Clearbit was unreachable from here entirely.
+
+simple-icons ships single-path monochrome SVGs. Converted to Android vector
+drawables they stay crisp at any size, total 53.5 KB for 32 marks, and drawn
+white on the existing brand-coloured tile they sit exactly where the initial
+letter used to — the badge's layout does not change at all.
+
+32 of 33 presets resolved. simple-icons carries no Disney mark, so Disney+ keeps
+its "D" tile; the fallback is a supported outcome rather than a gap.
+
+### Matching by name, not just preset id
+
+Subscriptions store a name; the preset id only exists while the add screen is
+open. A lookup keyed on id alone would have left every row already in someone's
+vault with a letter tile forever. `BrandLogos.forName` normalises case, spaces,
+punctuation and "+"/"plus", then falls back to a prefix match so a row renamed
+"Netflix (family)" still resolves.
+
+### Custom logos
+
+Picked with `PickVisualMedia`, so no storage permission and the app sees only
+the chosen image. The file is copied into private storage rather than
+referenced: the picker's `content://` grant dies with the process, so storing
+that string would give a logo that works until the next launch and then renders
+nothing. Images are downsampled to 256px on decode — a 12MP photo decoded at
+full size to draw at 44dp is an OutOfMemoryError on a low-end device.
+
+Selecting a preset clears a custom logo, otherwise the previous image would
+cover the new brand's mark.
+
+### Verified on device (PJX110)
+
+| Check | Result |
+| --- | --- |
+| Preset grid, debug | Netflix, Spotify, YouTube, HBO Max, Apple TV+, OpenAI, Figma, Slack all render their marks |
+| Disney+ fallback | Renders "D", indistinguishable in style from the rest |
+| Custom logo picked | Fills the tile edge to edge, remove control appears |
+| Stored file | `files/subscription_logos/sub_fa3ae78a-f.png`, 1528 bytes, `-rw-------`, downscaled from 3057 |
+| Persists after save | Dashboard row shows the custom image |
+| **Release build, real data** | HBO Max, ChatGPT Plus, Apple TV+ and Netflix all render — and those rows predate the feature, so this is the name-matching path, not preset ids |
+| R8 + resource shrinking | All 32 `brand_*` drawables present in `resources.arsc` |
+| APK size | 4.2 MB to 4.3 MB |
+
+### Worth a decision before release
+
+The marks are trademarks. Using them to identify the actual service being
+tracked is what every subscription tracker does and is the ordinary nominative
+case, but it is bundled artwork in a commercial APK and Play has an
+impersonation policy. Nothing here implies endorsement, and no brand-authored
+bitmap is redistributed — the glyphs are simple-icons' own paths. Flagging it
+rather than deciding it.

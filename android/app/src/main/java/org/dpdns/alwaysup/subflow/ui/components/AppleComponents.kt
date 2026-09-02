@@ -45,6 +45,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.Role
@@ -65,6 +68,7 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import org.dpdns.alwaysup.subflow.BuildConfig
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.data.ads.LocalAdsConsent
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.theme.AppleIndigo
@@ -310,7 +314,11 @@ fun BrandIconBadge(
     brandColorHex: String,
     modifier: Modifier = Modifier,
     size: Dp = 46.dp,
-    cornerRadius: Dp = 13.dp
+    cornerRadius: Dp = 13.dp,
+    /** A user-supplied image for this subscription, if they picked one. */
+    iconUri: String? = null,
+    /** Preset id, when the caller knows it; a more reliable key than the name. */
+    presetId: String? = null
 ) {
     val parsedColor = remember(brandColorHex) { parseHexColor(brandColorHex) }
     // Several real brands are near-black (Notion, Apple TV+, GitHub) and a few
@@ -323,23 +331,52 @@ fun BrandIconBadge(
         Brush.linearGradient(listOf(tileColor, tileColor.copy(alpha = 0.82f)))
     }
 
+    val brandMark = remember(presetId, name) {
+        BrandLogos.forPresetId(presetId) ?: BrandLogos.forName(name)
+    }
+    // Only a file this app wrote is rendered. iconUrl also carries the
+    // catalogue's remote brand URLs, and loading one of those would tell that
+    // brand which subscriptions the user tracks - the exact thing bundling the
+    // marks avoids. Guarding here covers every call site at once.
+    val custom = iconUri?.takeIf { CustomLogoStore.isStoredLogo(it) }
+
     Box(
         modifier = modifier
             .size(size)
             .clip(RoundedCornerShape(cornerRadius))
-            .background(gradient)
-            // The initial is decoration; the row already announces the name.
+            // A user's own artwork fills the tile edge to edge; it is their
+            // image, not a glyph to be framed in our colour.
+            .then(if (custom == null) Modifier.background(gradient) else Modifier)
+            // The mark is decoration; the row already announces the name.
             .clearAndSetSemantics { },
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = name.trim().take(1).uppercase().ifBlank { "?" },
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = (size.value * 0.44).sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White
+        when {
+            custom != null -> AsyncImage(
+                model = custom,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
-        )
+
+            brandMark != null -> Icon(
+                painter = painterResource(brandMark),
+                contentDescription = null,
+                tint = Color.White,
+                // Inset so the glyph does not touch the rounded corners. The
+                // simple-icons artboard already bleeds to its own edges.
+                modifier = Modifier.size(size * 0.56f)
+            )
+
+            else -> Text(
+                text = name.trim().take(1).uppercase().ifBlank { "?" },
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = (size.value * 0.44).sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White
+                )
+            )
+        }
     }
 }
 

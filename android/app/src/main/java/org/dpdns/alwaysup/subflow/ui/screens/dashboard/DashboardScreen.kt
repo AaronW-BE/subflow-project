@@ -990,7 +990,8 @@ private fun SubscriptionRow(
                 name = sub.name,
                 brandColorHex = sub.colorHex,
                 size = 44.dp,
-                cornerRadius = 12.dp
+                cornerRadius = 12.dp,
+                iconUri = sub.iconUrl
             )
 
             Spacer(modifier = Modifier.width(12.dp))

@@ -128,7 +128,8 @@ fun SubscriptionDetailScreen(
                             name = subscription.name,
                             brandColorHex = subscription.colorHex,
                             size = 64.dp,
-                            cornerRadius = 18.dp
+                            cornerRadius = 18.dp,
+                            iconUri = subscription.iconUrl
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))

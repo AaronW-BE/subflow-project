@@ -22,6 +22,8 @@
     <string name="add_subscription">Add subscription</string>
     <string name="upgrade_to_pro">Upgrade to Pro</string>
     <string name="clear_search">Clear search</string>
+    <string name="choose_custom_logo">Choose a logo</string>
+    <string name="remove_custom_logo">Remove logo</string>
     <string name="search_currency_hint">Search currency or code</string>
     <!-- Verbatim wording required by the exchange rate feed's terms.
          Not translated: the required text is this exact English phrase. -->

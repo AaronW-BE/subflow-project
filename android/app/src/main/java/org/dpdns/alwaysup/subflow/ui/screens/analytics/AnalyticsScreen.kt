@@ -528,7 +528,8 @@ private fun TopCommitmentRow(
                 name = sub.name,
                 brandColorHex = sub.colorHex,
                 size = 38.dp,
-                cornerRadius = 11.dp
+                cornerRadius = 11.dp,
+                iconUri = sub.iconUrl
             )
 
             Spacer(modifier = Modifier.width(12.dp))

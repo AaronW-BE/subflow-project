@@ -22,6 +22,8 @@
     <string name="add_subscription">サブスクを追加</string>
     <string name="upgrade_to_pro">Pro にアップグレード</string>
     <string name="clear_search">検索をクリア</string>
+    <string name="choose_custom_logo">ロゴを選択</string>
+    <string name="remove_custom_logo">ロゴを削除</string>
     <string name="search_currency_hint">通貨またはコードを検索</string>
     <string name="rates_updated_on">%1$s 更新</string>
     <string name="rates_offline_snapshot">オフラインのスナップショット</string>

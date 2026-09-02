@@ -2,6 +2,9 @@ package org.dpdns.alwaysup.subflow.ui.screens.add
 
 import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,6 +49,7 @@ import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.ui.components.*
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.localizedCategory
@@ -92,8 +96,26 @@ fun AddSubscriptionScreen(
     }
     var selectedColorHex by rememberSaveable { mutableStateOf(existingSubscription?.colorHex ?: "#5856D6") }
     var notes by rememberSaveable { mutableStateOf(existingSubscription?.notes ?: "") }
+
+    // The id is settled when the screen opens rather than at save time,
+    // because a custom logo is written to a file named after it and the user
+    // can pick one before saving.
+    val subscriptionId = rememberSaveable {
+        existingSubscription?.id ?: ("sub_" + UUID.randomUUID().toString().take(10))
+    }
+    var iconUrl by rememberSaveable { mutableStateOf(existingSubscription?.iconUrl.orEmpty()) }
     var firstBillDate by rememberSaveable {
         mutableStateOf(existingSubscription?.firstBillDate ?: LocalDate.now().toString())
+    }
+
+    // PickVisualMedia is the modern picker: no storage permission, and the app
+    // only ever sees the one image the user chose.
+    val logoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { picked ->
+        if (picked != null) {
+            CustomLogoStore.save(context, subscriptionId, picked)?.let { iconUrl = it }
+        }
     }
 
     var showCurrencySheet by remember { mutableStateOf(false) }
@@ -103,6 +125,8 @@ fun AddSubscriptionScreen(
 
     val serviceNameLabel = stringResource(R.string.service_name)
     val priceLabel = stringResource(R.string.field_price)
+    val chooseLogoLabel = stringResource(R.string.choose_custom_logo)
+    val removeLogoLabel = stringResource(R.string.remove_custom_logo)
 
     val nextRenewal = remember(firstBillDate, cycle) {
         DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
@@ -182,7 +206,7 @@ fun AddSubscriptionScreen(
                         haptics.confirm()
                         onSaveSubscription(
                             Subscription(
-                                id = existingSubscription?.id ?: ("sub_" + UUID.randomUUID().toString().take(10)),
+                                id = subscriptionId,
                                 name = name.trim(),
                                 category = category,
                                 amount = previewAmount,
@@ -192,7 +216,7 @@ fun AddSubscriptionScreen(
                                 nextBillDate = nextRenewal,
                                 reminderDaysBefore = reminderDays,
                                 colorHex = selectedColorHex,
-                                iconUrl = existingSubscription?.iconUrl.orEmpty(),
+                                iconUrl = iconUrl,
                                 notes = notes.trim()
                             )
                         )
@@ -229,12 +253,56 @@ fun AddSubscriptionScreen(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            BrandIconBadge(
-                                name = name.ifBlank { "?" },
-                                brandColorHex = selectedColorHex,
-                                size = 48.dp,
-                                cornerRadius = 14.dp
-                            )
+                            // The preview badge doubles as the logo control:
+                            // it is already showing exactly what will be saved,
+                            // so it is the obvious thing to tap to change it.
+                            Box {
+                                BrandIconBadge(
+                                    name = name.ifBlank { "?" },
+                                    brandColorHex = selectedColorHex,
+                                    size = 48.dp,
+                                    cornerRadius = 14.dp,
+                                    iconUri = iconUrl,
+                                    presetId = selectedPresetId,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .clickable {
+                                            haptics.tick()
+                                            logoPicker.launch(
+                                                PickVisualMediaRequest(
+                                                    ActivityResultContracts.PickVisualMedia.ImageOnly
+                                                )
+                                            )
+                                        }
+                                        .semantics {
+                                            contentDescription = chooseLogoLabel
+                                        }
+                                )
+                                if (iconUrl.isNotBlank()) {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.surface,
+                                        shadowElevation = 2.dp,
+                                        onClick = {
+                                            haptics.tick()
+                                            CustomLogoStore.delete(context, subscriptionId)
+                                            iconUrl = ""
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = 6.dp, y = (-6).dp)
+                                            .size(22.dp)
+                                            .semantics { contentDescription = removeLogoLabel }
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(5.dp)
+                                        )
+                                    }
+                                }
+                            }
                             Spacer(modifier = Modifier.width(14.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
@@ -347,6 +415,13 @@ fun AddSubscriptionScreen(
                                                 category = preset.category
                                                 cycle = preset.defaultCycle
                                                 selectedColorHex = preset.brandColor
+                                                // Otherwise a logo picked for
+                                                // the previous choice would
+                                                // hide the new brand's mark.
+                                                if (iconUrl.isNotBlank()) {
+                                                    CustomLogoStore.delete(context, subscriptionId)
+                                                    iconUrl = ""
+                                                }
                                                 // The catalogue only carries a
                                                 // US list price, and services
                                                 // price regionally - Netflix is
@@ -816,7 +891,8 @@ private fun PresetTile(
                 name = preset.name,
                 brandColorHex = preset.brandColor,
                 size = 36.dp,
-                cornerRadius = 10.dp
+                cornerRadius = 10.dp,
+                presetId = preset.id
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(

@@ -22,6 +22,8 @@
     <string name="add_subscription">Añadir suscripción</string>
     <string name="upgrade_to_pro">Pasar a Pro</string>
     <string name="clear_search">Borrar búsqueda</string>
+    <string name="choose_custom_logo">Elegir un logotipo</string>
+    <string name="remove_custom_logo">Quitar logotipo</string>
     <string name="search_currency_hint">Buscar moneda o código</string>
     <string name="rates_updated_on">Actualizado %1$s</string>
     <string name="rates_offline_snapshot">Instantánea sin conexión</string>
