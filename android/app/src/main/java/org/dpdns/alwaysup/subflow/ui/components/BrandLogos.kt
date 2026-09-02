@@ -53,6 +53,7 @@ object BrandLogos {
         "duolingo" to R.drawable.brand_duolingo,
         "figma" to R.drawable.brand_figma,
         "github_copilot" to R.drawable.brand_github_copilot,
+        "gym" to R.drawable.brand_gym,
         "headspace" to R.drawable.brand_headspace,
         "hulu" to R.drawable.brand_hulu,
         "icloud" to R.drawable.brand_icloud,
@@ -62,7 +63,6 @@ object BrandLogos {
         "nordvpn" to R.drawable.brand_nordvpn,
         "notion" to R.drawable.brand_notion,
         "nytimes" to R.drawable.brand_nytimes,
-        "primevideo" to R.drawable.brand_primevideo,
         "psplus" to R.drawable.brand_psplus,
         "slack" to R.drawable.brand_slack,
         "spotify" to R.drawable.brand_spotify,
@@ -84,6 +84,7 @@ object BrandLogos {
         .associate { (id, res) -> id.replace("_", "") to res } +
         mapOf(
             "youtubepremium" to R.drawable.brand_youtube,
+            "gymmembership" to R.drawable.brand_gym,
             "disneyplus" to R.drawable.brand_disney,
             "hbomax" to R.drawable.brand_max,
             "appletvplus" to R.drawable.brand_appletv,
@@ -94,8 +95,7 @@ object BrandLogos {
             "adobecreativecloud" to R.drawable.brand_adobe_cc,
             "icloudplus" to R.drawable.brand_icloud,
             "amazonprime" to R.drawable.brand_amazon_prime,
-            "primevideo" to R.drawable.brand_primevideo,
-            "playstationplus" to R.drawable.brand_psplus,
+                "playstationplus" to R.drawable.brand_psplus,
             "psplus" to R.drawable.brand_psplus,
             "xboxgamepass" to R.drawable.brand_xbox_gamepass,
             "nintendoswitchonline" to R.drawable.brand_nintendo_online,
@@ -155,6 +155,7 @@ object BrandLogos {
      */
     private val colourMarks: Map<String, Int> = mapOf(
         "google_one" to R.drawable.brand_colour_google_one,
+        "primevideo" to R.drawable.brand_colour_primevideo,
     )
 
     /** A full-colour bitmap mark, drawn edge to edge with no tint. */

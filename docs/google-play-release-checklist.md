@@ -2318,3 +2318,35 @@ it renders edge to edge with no tile colour and no tint.
 
 Verified on device and in the release APK, where the WebP survives resource
 shrinking and the APK stays at 4.3 MB.
+
+### Prime Video and the gym glyph; Duolingo blocked — 2026-09-02
+
+**Prime Video** now uses its official app icon. The monochrome "prime video"
+wordmark had the Amazon Prime problem: two stacked words squeezed into a badge,
+legible only if you already knew what it said. 4,620 bytes as WebP.
+
+**Gym membership** is the one preset that is not a brand — no website, no logo
+to be right or wrong about. It showed a bare "G", which said nothing. It now
+shows a dumbbell from Google's Material Symbols (Apache-2.0), which is the
+honest answer for a category rather than a company.
+
+**Duolingo could not be fixed.** Both stores currently ship the same seasonal
+novelty icon — a melting owl — not the standard Duo. Checked all three plausible
+sources:
+
+| Source | What it has |
+| --- | --- |
+| App Store artwork | The seasonal melting owl |
+| Google Play `og:image` | The same seasonal melting owl |
+| Wikimedia | Only the "duolingo" wordmark, viewBox 1000x234 — the wide-wordmark trap again |
+
+Shipping the seasonal icon would freeze a promotion into the app permanently, so
+the monochrome owl stays for now. It is closer to the standard icon than the
+melting one is. Worth revisiting once the promotion ends, since the Play icon
+will then be the standard Duo.
+
+Device note: the phone had another app (`vip.fastgo.gamebox`) throwing dialogs
+over the screen during this round, including an install prompt for an unrelated
+APK from "Unknown source from computer". Nothing was installed — the prompt was
+dismissed without tapping Install. Verification taps now check
+`mCurrentFocus` before firing.
