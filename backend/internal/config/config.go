@@ -3,45 +3,55 @@
 package config
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"strconv"
+	"strings"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 // DefaultPath is looked for in the working directory when no path is given.
 // Its absence is not an error — the environment alone is a supported setup.
-const DefaultPath = "subflow.config.json"
+const DefaultPath = "subflow.config.toml"
 
 // PathEnvVar names the file, for setups that cannot pass a flag.
 const PathEnvVar = "SUBFLOW_CONFIG"
 
 // Config is the full set of server settings.
 //
+// TOML rather than JSON, for two reasons that both matter for a file a human
+// edits by hand and that holds secrets. It has comments, so the template can
+// explain what each key does instead of smuggling the explanation into the
+// value. And its strings are unambiguous: in YAML an admin_token of `no` or
+// `0123` would be decoded as a bool or a number, whereas TOML requires the
+// quotes. go-toml is already compiled into this binary via gin, so it costs
+// nothing the server was not already carrying.
+//
 // Secrets live here, which is why LoadedFrom is reported and the values never
 // are: anything that prints a Config would otherwise put the JWT secret and the
 // admin token into a log.
 type Config struct {
-	Port   string `json:"port"`
-	DBPath string `json:"db_path"`
+	Port   string `toml:"port"`
+	DBPath string `toml:"db_path"`
 
 	// JWTSecret signs session tokens. Whoever holds it can forge a login for
 	// any user. Empty means a random per-boot value is generated instead.
-	JWTSecret string `json:"jwt_secret"`
+	JWTSecret string `toml:"jwt_secret"`
 
 	// AdminToken guards the /admin API. Empty means one is generated and
 	// printed at startup.
-	AdminToken string `json:"admin_token"`
+	AdminToken string `toml:"admin_token"`
 
 	// ExchangeRateAPIKey selects the keyed FX endpoint. Empty uses the open,
 	// keyless one, which requires attribution wherever the rates are shown.
-	ExchangeRateAPIKey string `json:"exchange_rate_api_key"`
+	ExchangeRateAPIKey string `toml:"exchange_rate_api_key"`
 
 	// LoadedFrom is the config file actually read, or "" when none was.
-	LoadedFrom string `json:"-"`
+	LoadedFrom string `toml:"-"`
 }
 
 // Defaults are what an unconfigured server runs on.
@@ -91,7 +101,7 @@ func Load(path string) (Config, error) {
 	return cfg, nil
 }
 
-// applyFile overlays a JSON file onto cfg, leaving absent keys untouched.
+// applyFile overlays a TOML file onto cfg, leaving absent keys untouched.
 func applyFile(cfg *Config, path string) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -101,13 +111,21 @@ func applyFile(cfg *Config, path string) error {
 
 	// A config file is small; a huge one is a mistake or an attack, and
 	// decoding it unbounded is how a server runs out of memory at startup.
-	dec := json.NewDecoder(io.LimitReader(f, 1<<20))
-	// Reject unknown keys rather than ignoring them. A typo in a secret's name
+	//
+	// Unknown keys are rejected rather than ignored: a typo in a secret's name
 	// otherwise looks exactly like a working config until something fails to
 	// authenticate.
-	dec.DisallowUnknownFields()
+	dec := toml.NewDecoder(io.LimitReader(f, 1<<20)).DisallowUnknownFields()
 
 	if err := dec.Decode(cfg); err != nil {
+		var strict *toml.StrictMissingError
+		if errors.As(err, &strict) {
+			// StrictMissingError.String() is a multi-line excerpt of the file
+			// with the offending lines underlined. That is good in a terminal
+			// and poor in a log, where one event should be one line, so the
+			// key names and line numbers are pulled out instead.
+			return fmt.Errorf("%s: unknown key(s): %s", path, describeUnknownKeys(strict))
+		}
 		return fmt.Errorf("%s: %w", path, err)
 	}
 	return nil
@@ -153,4 +171,22 @@ func presence(v string) string {
 		return "unset"
 	}
 	return "set"
+}
+
+// describeUnknownKeys renders rejected keys as "name (line N)", comma separated.
+func describeUnknownKeys(strict *toml.StrictMissingError) string {
+	described := make([]string, 0, len(strict.Errors))
+	for i := range strict.Errors {
+		decodeErr := &strict.Errors[i]
+		name := strings.Join(decodeErr.Key(), ".")
+		if name == "" {
+			name = "<unnamed>"
+		}
+		if row, _ := decodeErr.Position(); row > 0 {
+			described = append(described, fmt.Sprintf("%s (line %d)", name, row))
+			continue
+		}
+		described = append(described, name)
+	}
+	return strings.Join(described, ", ")
 }

@@ -1,0 +1,50 @@
+# SubFlow server configuration.
+#
+# Copy to subflow.config.toml and edit. That filename is git-ignored, because
+# the three secrets below are enough to impersonate any user and to grant
+# anybody a Pro entitlement.
+#
+#   cp subflow.config.example.toml subflow.config.toml
+#   ./subflow-server -config subflow.config.toml
+#
+# Every key here can also be set as an environment variable, and the
+# environment WINS. That way a deployment can override one value without
+# rewriting this file, and a leaked credential can be rotated without editing
+# anything on disk.
+#
+# Unknown keys are rejected at startup rather than ignored, so a typo fails
+# loudly instead of looking like a working config.
+
+# Env: PORT
+port = "8085"
+
+# Env: DB_PATH — SQLite file, created on first run. Relative to the working
+# directory unless absolute.
+db_path = "subflow.db"
+
+# Env: JWT_SECRET
+#
+# Signs every session token. Anyone holding this can forge a login for any
+# user, so treat it like a password and do not reuse it between environments.
+# Leave empty and the server generates a random one per boot, which is safe but
+# invalidates every session on restart.
+#
+#   openssl rand -hex 32
+jwt_secret = ""
+
+# Env: ADMIN_TOKEN
+#
+# Guards /api/v1/admin, which can grant or revoke Pro on any account and edit
+# the preset catalogue. Empty means a random token is generated and printed to
+# the log at startup.
+admin_token = ""
+
+# Env: EXCHANGE_RATE_API_KEY
+#
+# Optional. Empty uses ExchangeRate-API's open endpoint, which needs no account
+# but requires visible attribution wherever the rates are displayed. Setting a
+# key switches to the keyed endpoint and drops that requirement.
+#
+# This does not affect the Android app: it fetches rates directly from the
+# keyless endpoint, so its attribution stays either way.
+exchange_rate_api_key = ""

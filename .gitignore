@@ -10,9 +10,9 @@ local.properties
 
 # Server configuration. It holds the JWT signing secret, the admin token and
 # the exchange rate API key, so only the example template is tracked.
-subflow.config.json
-*.config.json
-!*.config.example.json
+subflow.config.toml
+*.config.toml
+!*.config.example.toml
 
 # ------------------------------------------------------------ build output
 # android/.gitignore anchors /build to the android/ directory, so it misses

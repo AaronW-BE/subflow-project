@@ -70,18 +70,18 @@ cd android && ./gradlew bundleRelease
 cd backend && go run ./cmd/server
 ```
 
-Settings come from a JSON file, the environment, or both. **The environment
+Settings come from a TOML file, the environment, or both. **The environment
 wins**, so a deployment can override one value without rewriting a file it may
 not be able to edit, and a leaked credential can be rotated without touching
 disk.
 
 ```bash
-cp backend/subflow.config.example.json backend/subflow.config.json
-cd backend && go run ./cmd/server -config subflow.config.json
+cp backend/subflow.config.example.toml backend/subflow.config.toml
+cd backend && go run ./cmd/server -config subflow.config.toml
 ```
 
 Without `-config`, the server reads `$SUBFLOW_CONFIG`, then
-`subflow.config.json` in the working directory if it happens to exist. A file
+`subflow.config.toml` in the working directory if it happens to exist. A file
 named explicitly but missing is a startup error — a typo in `-config` should not
 silently start a server with none of the settings you meant to pass. Unknown
 keys are rejected for the same reason: `jwt_secrets` would otherwise look like a
@@ -107,8 +107,8 @@ it is scrubbed from anything the server logs.
 Note that the **Android app fetches rates directly from the keyless endpoint**
 and is unaffected by this setting, so the in-app attribution stays regardless.
 
-`subflow.config.json` holds all three secrets and is git-ignored; only
-`subflow.config.example.json` is tracked. The startup log reports which settings
+`subflow.config.toml` holds all three secrets and is git-ignored; only
+`subflow.config.example.toml` is tracked. The startup log reports which settings
 are present, never their values.
 
 The admin console is served at `/admin/` and gated by `ADMIN_TOKEN`. It lives in
@@ -119,7 +119,7 @@ The admin console is served at `/admin/` and gated by `ADMIN_TOKEN`. It lives in
 ## What is not in the repository
 
 `.gitignore` excludes the upload keystore and its passwords, `local.properties`,
-`subflow.config.json` and its secrets, build output, `node_modules`, the
+`subflow.config.toml` and its secrets, build output, `node_modules`, the
 compiled Go binary, and the local SQLite database with its WAL sidecars. Losing or leaking the upload key cannot be
 reversed, so it is kept out on purpose rather than by habit.
 

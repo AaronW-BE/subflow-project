@@ -21,7 +21,7 @@ func clearEnv(t *testing.T) {
 
 func writeConfig(t *testing.T, body string) string {
 	t.Helper()
-	path := filepath.Join(t.TempDir(), "subflow.config.json")
+	path := filepath.Join(t.TempDir(), "subflow.config.toml")
 	if err := os.WriteFile(path, []byte(body), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -47,13 +47,14 @@ func TestDefaultsWhenNothingIsConfigured(t *testing.T) {
 
 func TestFileIsRead(t *testing.T) {
 	clearEnv(t)
-	path := writeConfig(t, `{
-		"port": "9001",
-		"db_path": "/data/subflow.db",
-		"jwt_secret": "from-file",
-		"admin_token": "admin-from-file",
-		"exchange_rate_api_key": "key-from-file"
-	}`)
+	path := writeConfig(t, `
+		# a comment, which is the whole reason this is not JSON
+		port = "9001"
+		db_path = "/data/subflow.db"
+		jwt_secret = "from-file"
+		admin_token = "admin-from-file"
+		exchange_rate_api_key = "key-from-file"
+	`)
 
 	cfg, err := Load(path)
 	if err != nil {
@@ -76,7 +77,11 @@ func TestFileIsRead(t *testing.T) {
 // editing anything on disk.
 func TestEnvironmentOverridesFile(t *testing.T) {
 	clearEnv(t)
-	path := writeConfig(t, `{"port":"9001","jwt_secret":"from-file","admin_token":"file-admin"}`)
+	path := writeConfig(t, `
+		port = "9001"
+		jwt_secret = "from-file"
+		admin_token = "file-admin"
+	`)
 
 	t.Setenv("PORT", "7777")
 	t.Setenv("JWT_SECRET", "from-env")
@@ -101,7 +106,7 @@ func TestEnvironmentOverridesFile(t *testing.T) {
 // exports PORT= would silently blank a configured port.
 func TestEmptyEnvDoesNotOverride(t *testing.T) {
 	clearEnv(t)
-	path := writeConfig(t, `{"port":"9001"}`)
+	path := writeConfig(t, `port = "9001"`)
 	t.Setenv("PORT", "")
 
 	cfg, err := Load(path)
@@ -114,11 +119,11 @@ func TestEmptyEnvDoesNotOverride(t *testing.T) {
 }
 
 // A file named explicitly and missing is an error; a file merely looked for is
-// not. Silently ignoring --config=typo.json would start a server with none of
+// not. Silently ignoring --config=typo.toml would start a server with none of
 // the settings the operator believed they had passed.
 func TestMissingExplicitFileIsAnError(t *testing.T) {
 	clearEnv(t)
-	missing := filepath.Join(t.TempDir(), "nope.json")
+	missing := filepath.Join(t.TempDir(), "nope.toml")
 
 	if _, err := Load(missing); err == nil {
 		t.Error("expected an error for an explicitly named file that does not exist")
@@ -134,7 +139,7 @@ func TestMissingExplicitFileIsAnError(t *testing.T) {
 // up until something fails to authenticate.
 func TestUnknownKeysAreRejected(t *testing.T) {
 	clearEnv(t)
-	path := writeConfig(t, `{"jwt_secrets":"typo"}`)
+	path := writeConfig(t, `jwt_secrets = "typo"`)
 
 	_, err := Load(path)
 	if err == nil {
@@ -147,7 +152,7 @@ func TestUnknownKeysAreRejected(t *testing.T) {
 
 func TestInvalidPortIsRejected(t *testing.T) {
 	clearEnv(t)
-	path := writeConfig(t, `{"port":"http"}`)
+	path := writeConfig(t, `port = "http"`)
 
 	if _, err := Load(path); err == nil {
 		t.Error("expected a non-numeric port to be rejected at startup")
@@ -161,7 +166,7 @@ func TestDescribeHidesSecretValues(t *testing.T) {
 		JWTSecret:          "super-secret-signing-key",
 		AdminToken:         "super-secret-admin-token",
 		ExchangeRateAPIKey: "super-secret-api-key",
-		LoadedFrom:         "subflow.config.json",
+		LoadedFrom:         "subflow.config.toml",
 	}
 	got := cfg.Describe()
 
@@ -180,5 +185,41 @@ func TestDescribeReportsUnsetSecrets(t *testing.T) {
 	if !strings.Contains(got, "jwt_secret unset") ||
 		!strings.Contains(got, "environment and defaults only") {
 		t.Errorf("unexpected description: %s", got)
+	}
+}
+
+// TOML is quote-explicit, so a token that merely looks like a bool or a number
+// stays a string. The same value in YAML would decode as false, and an
+// admin_token of 0123 would become the integer 123 - a config format that
+// silently retypes secrets is a bad fit for a file full of them.
+func TestSecretsThatLookLikeOtherTypesStayStrings(t *testing.T) {
+	clearEnv(t)
+	path := writeConfig(t, `
+		admin_token = "no"
+		jwt_secret = "0123"
+	`)
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+	if cfg.AdminToken != "no" {
+		t.Errorf("AdminToken = %q, want the literal string \"no\"", cfg.AdminToken)
+	}
+	if cfg.JWTSecret != "0123" {
+		t.Errorf("JWTSecret = %q, want the leading zero preserved", cfg.JWTSecret)
+	}
+}
+
+// Malformed TOML must stop the server, not start it with defaults.
+func TestMalformedFileIsAnError(t *testing.T) {
+	clearEnv(t)
+	path := writeConfig(t, `
+port = "8085"
+this is not toml
+`)
+
+	if _, err := Load(path); err == nil {
+		t.Error("expected malformed TOML to be rejected")
 	}
 }

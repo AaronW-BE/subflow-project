@@ -1940,9 +1940,22 @@ which also switches on cloud sync.
 
 ### Configuration file — 2026-09-02
 
-Server settings now come from a JSON file, the environment, or both:
-`-config <path>`, else `$SUBFLOW_CONFIG`, else `subflow.config.json` in the
+Server settings now come from a TOML file, the environment, or both:
+`-config <path>`, else `$SUBFLOW_CONFIG`, else `subflow.config.toml` in the
 working directory if present.
+
+TOML rather than JSON, which the first version of this used. JSON has no
+comments, so the template had to smuggle its documentation into the values
+(`"jwt_secret": "CHANGE-ME - signs session tokens..."`) — a workaround that is
+itself the argument against the format. The justification for JSON had been that
+it needs no dependency, and that turned out to be false: `go mod why` shows both
+`pelletier/go-toml/v2` and `goccy/go-yaml` are already compiled into this binary
+through gin's request binding, so either costs nothing new.
+
+TOML over YAML because this file holds secrets and TOML's strings are
+quote-explicit. In YAML an `admin_token` of `no` decodes as a boolean and `0123`
+as the integer 123; a format that silently retypes credentials is a poor fit for
+a file made mostly of them. There is a test pinning that behaviour.
 
 **The environment overrides the file.** A deployment can then change one setting
 without rewriting a file it may not be able to edit, and a leaked credential can
@@ -1967,9 +1980,14 @@ Choices worth recording, each guarding a way this fails quietly:
   secrets out of the source was that they stopped being readable; a banner
   echoing them would undo that.
 
-`subflow.config.json` and `*.config.json` are git-ignored with an exception for
-`*.config.example.json`, verified by copying the template into place and
+`subflow.config.toml` and `*.config.toml` are git-ignored with an exception for
+`*.config.example.toml`, verified by copying the template into place and
 confirming git ignores it.
+
+Unknown keys are reported as one line naming the key and its line number
+(`unknown key(s): admin_tokens (line 40)`). go-toml's own message is a
+seven-line annotated excerpt of the file, which reads well in a terminal and
+badly in a log where one event should be one line.
 
 Verified end to end, not just in unit tests:
 
