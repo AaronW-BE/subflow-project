@@ -2253,3 +2253,34 @@ committed drawables exactly (30 of 30), so this cannot come back.
 | Whole grid | No regressions |
 | Numbers preserved | Token counts rise only on the three files with packed flags (359→371, 113→117, 41→44) — the flags Android had been swallowing |
 | Release build | Succeeds |
+
+### Four more wrong marks, three of them my own doing — 2026-09-02
+
+The tester reported Amazon Prime, Duolingo, Medium and Nintendo Switch Online.
+Three of those four were broken by the inversion commit above.
+
+**The inversion list was over-applied.** Only Apple Music is genuinely an
+app-icon container. 1Password, Duolingo, Medium and Nintendo Switch Online read
+correctly as plain white glyphs, and inverting them broke four working icons to
+fix one. They were misclassified from a rendering that was itself corrupted by
+the arc-flag parsing bug — the evidence for the classification was bad, and the
+classification went in anyway. The list is now `setOf("applemusic")`.
+
+**Amazon Prime** was never inverted; it was simply unreadable. simple-icons'
+`amazonprime` is the two-word "amazon prime" wordmark, which shrinks to
+illegible in a 44dp square. Replaced with Amazon's own a+smile, which is compact,
+legible and still identifies the service.
+
+**Medium** falls back to a letter tile. simple-icons' artwork is a container
+with the wordmark cropped mid-"e" — that is their own artwork, not conversion
+damage, and nothing renders it cleanly at badge size. A white "M" on Medium's
+black is closer to the real icon than a cropped word.
+
+The method that finally worked was rendering each mark in **both** treatments
+side by side and comparing, rather than reasoning about which treatment ought to
+be right. Two of my three previous logo commits would have been avoided by doing
+that first.
+
+Verified on device: Amazon Prime shows the a+smile, Duolingo a white owl on
+green, Nintendo Switch Online white Joy-Cons on red, 1Password a white keyhole
+on blue, Medium a white "M", and Apple Music is unchanged and still correct.

@@ -57,7 +57,6 @@ object BrandLogos {
         "hulu" to R.drawable.brand_hulu,
         "icloud" to R.drawable.brand_icloud,
         "max" to R.drawable.brand_max,
-        "medium" to R.drawable.brand_medium,
         "netflix" to R.drawable.brand_netflix,
         "nintendo_online" to R.drawable.brand_nintendo_online,
         "nordvpn" to R.drawable.brand_nordvpn,
@@ -108,24 +107,23 @@ object BrandLogos {
         )
 
     /**
-     * Marks that simple-icons draws as a whole app icon — the rounded container
-     * *and* the symbol, as one filled shape — rather than as a bare glyph.
+     * Marks simple-icons draws as a whole app icon — the rounded container
+     * *and* the symbol as one filled shape — rather than as a bare glyph.
      *
-     * These invert when painted white on a coloured tile: the container becomes
-     * a white square and the symbol is knocked out of it in the brand colour,
-     * which is the opposite of the real icon. Apple Music rendered as a white
-     * square with a red note in it instead of a red square with a white note.
+     * Painted white on a coloured tile these invert: the container becomes a
+     * white square and the symbol is knocked out of it in the brand colour,
+     * the opposite of the real icon. The badge paints them the other way round.
      *
-     * The badge paints these the other way round — brand colour on a light tile
-     * — which reproduces the icon as designed.
+     * Apple Music is the only one. An earlier version listed 1Password,
+     * Duolingo, Medium and Nintendo Switch Online too, which was wrong — those
+     * read correctly as plain white glyphs, and inverting them broke four
+     * working icons to fix one. They were misjudged from a rendering that was
+     * itself corrupted by the arc-flag parsing bug; see tools/normalise_arcs.py.
      *
-     * This is a list rather than a heuristic on purpose. "Does this path fill
-     * most of its viewBox" also matches legitimate full-bleed glyphs like the
-     * Netflix N, and getting it wrong silently inverts a logo that was fine.
+     * A list rather than a heuristic on purpose. "Fills most of its viewBox"
+     * also matches legitimate full-bleed glyphs like the Netflix N.
      */
-    private val containerMarks = setOf(
-        "1password", "applemusic", "duolingo", "medium", "nintendo_online",
-    )
+    private val containerMarks = setOf("applemusic")
 
     /**
      * Whether [presetId] or [name] resolves to a mark that must be inverted.
@@ -133,8 +131,7 @@ object BrandLogos {
     fun isContainerMark(presetId: String?, name: String?): Boolean {
         presetId?.lowercase()?.let { if (it in containerMarks) return true }
         val key = normalise(name ?: return false)
-        return containerMarks.any { key == it.replace("_", "") || key.startsWith(it.replace("_", "")) } ||
-            key == "applemusic" || key == "nintendoswitchonline" || key == "duolingosuper"
+        return containerMarks.any { key.startsWith(it.replace("_", "")) }
     }
 
     /** The mark for a preset id, or null when there is none. */
