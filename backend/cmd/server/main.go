@@ -4,11 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"flag"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"subflow/backend/internal/api"
+	"subflow/backend/internal/config"
 	"subflow/backend/internal/middleware"
 	"subflow/backend/internal/repository"
 	"subflow/backend/internal/service"
@@ -18,13 +19,21 @@ import (
 )
 
 func main() {
+	configPath := flag.String("config", "",
+		"path to a JSON config file (default: $SUBFLOW_CONFIG, else "+config.DefaultPath+" if present)")
+	flag.Parse()
+
 	log.Println("Starting SubFlow Backend & Embedded Admin Console v1.0.0...")
 
-	// 1. Initialize SQLite Database
-	dbPath := os.Getenv("DB_PATH")
-	if dbPath == "" {
-		dbPath = "subflow.db"
+	cfg, err := config.Load(*configPath)
+	if err != nil {
+		log.Fatalf("Fatal: %v", err)
 	}
+	// Reports which settings are present, never their values.
+	log.Println(cfg.Describe())
+
+	// 1. Initialize SQLite Database
+	dbPath := cfg.DBPath
 	db, err := repository.InitDB(dbPath)
 	if err != nil {
 		log.Fatalf("Fatal: Failed to initialize SQLite database: %v", err)
@@ -33,12 +42,12 @@ func main() {
 	log.Printf("SQLite database connected: %s", dbPath)
 
 	// 2. Initialize Services
-	authService := service.NewAuthService(db)
+	authService := service.NewAuthService(db, cfg.JWTSecret)
 	presetService := service.NewPresetService(db)
 	// Optional. Unset uses the open, keyless exchange rate endpoint, which
 	// works without an account but requires attribution wherever the rates are
-	// displayed. Environment only - never a file in the repo.
-	rateService := service.NewRateService(db, os.Getenv("EXCHANGE_RATE_API_KEY"))
+	// displayed.
+	rateService := service.NewRateService(db, cfg.ExchangeRateAPIKey)
 	syncService := service.NewSyncService(db)
 	billingService := service.NewBillingService(db)
 	adminService := service.NewAdminService(db, billingService)
@@ -46,7 +55,7 @@ func main() {
 	// The admin API can change entitlements, so it is token gated. A random
 	// token is generated when ADMIN_TOKEN is unset so a dev instance is still
 	// usable while never being open by default.
-	adminToken := os.Getenv("ADMIN_TOKEN")
+	adminToken := cfg.AdminToken
 	if adminToken == "" {
 		adminToken = randomToken()
 		log.Printf("ADMIN_TOKEN not set. Generated session token for the Admin Console: %s", adminToken)
@@ -104,10 +113,7 @@ func main() {
 		c.Redirect(http.StatusTemporaryRedirect, "/admin/")
 	})
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8085"
-	}
+	port := cfg.Port
 
 	log.Printf("SubFlow Server ready on http://localhost:%s", port)
 	log.Printf("API Root: http://localhost:%s/api/v1/health", port)

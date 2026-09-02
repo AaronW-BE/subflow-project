@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"subflow/backend/internal/model"
 	"subflow/backend/internal/repository"
 	"time"
@@ -17,33 +16,34 @@ import (
 	"github.com/google/uuid"
 )
 
-// jwtSecret signs every session token, so anyone holding it can forge a login
-// for any user. It used to be a string literal in this file - which meant the
-// key was readable by anyone with the source. It now follows the same rule as
-// ADMIN_TOKEN in cmd/server/main.go: take it from the environment, and fall
-// back to a random per-boot value so a dev instance still runs while never
-// shipping a usable key. A random fallback invalidates existing sessions on
-// restart, which is the correct behaviour for a server started without config.
-var jwtSecret = loadJWTSecret()
-
-func loadJWTSecret() []byte {
-	if v := os.Getenv("JWT_SECRET"); v != "" {
-		return []byte(v)
-	}
-	buf := make([]byte, 32)
-	if _, err := rand.Read(buf); err != nil {
-		log.Fatalf("JWT_SECRET is unset and no secure random is available: %v", err)
-	}
-	log.Println("JWT_SECRET not set. Using a random per-boot secret; sessions will not survive a restart.")
-	return []byte(hex.EncodeToString(buf))
-}
-
 type AuthService struct {
 	db *repository.DB
+	// jwtSecret signs every session token, so anyone holding it can forge a
+	// login for any user. It was once a string literal in this file, readable
+	// by anyone with the source.
+	//
+	// It is a field rather than a package var because a package var is
+	// initialised before main() runs, which made it impossible to source from
+	// anything but the environment - a config file is read too late to matter.
+	jwtSecret []byte
 }
 
-func NewAuthService(db *repository.DB) *AuthService {
-	return &AuthService{db: db}
+// NewAuthService builds the auth service.
+//
+// An empty secret falls back to a random per-boot value, so a server started
+// without configuration still runs while never using a guessable key. That
+// invalidates existing sessions on every restart, which is the correct
+// behaviour for a server nobody configured.
+func NewAuthService(db *repository.DB, jwtSecret string) *AuthService {
+	if jwtSecret == "" {
+		buf := make([]byte, 32)
+		if _, err := rand.Read(buf); err != nil {
+			log.Fatalf("JWT_SECRET is unset and no secure random is available: %v", err)
+		}
+		log.Println("JWT_SECRET not set. Using a random per-boot secret; sessions will not survive a restart.")
+		jwtSecret = hex.EncodeToString(buf)
+	}
+	return &AuthService{db: db, jwtSecret: []byte(jwtSecret)}
 }
 
 type GoogleTokenInfo struct {
@@ -76,7 +76,7 @@ func (s *AuthService) GenerateJWT(user *model.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(s.jwtSecret)
 }
 
 // ValidateJWT verifies and parses the JWT token.
@@ -85,7 +85,7 @@ func (s *AuthService) ValidateJWT(tokenStr string) (*Claims, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return jwtSecret, nil
+		return s.jwtSecret, nil
 	})
 	if err != nil {
 		return nil, err

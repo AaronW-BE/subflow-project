@@ -1,0 +1,9 @@
+{
+  "port": "8085",
+  "db_path": "subflow.db",
+
+  "jwt_secret": "CHANGE-ME - signs session tokens; anyone holding it can forge a login for any user",
+  "admin_token": "CHANGE-ME - guards the /admin API, which can grant Pro to any account",
+
+  "exchange_rate_api_key": ""
+}

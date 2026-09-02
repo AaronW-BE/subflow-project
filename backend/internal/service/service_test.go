@@ -31,7 +31,7 @@ func TestBackendCoreFlows(t *testing.T) {
 	}
 
 	// 2. Test Guest Authentication & JWT
-	authSvc := service.NewAuthService(db)
+	authSvc := service.NewAuthService(db, "test-secret")
 	user, token, err := authSvc.AuthenticateAsGuest("")
 	if err != nil {
 		t.Fatalf("AuthenticateAsGuest failed: %v", err)
@@ -137,7 +137,7 @@ func TestRevenueMatchesPlayListPrices(t *testing.T) {
 	}
 	defer db.Close()
 
-	authSvc := service.NewAuthService(db)
+	authSvc := service.NewAuthService(db, "test-secret")
 	user, _, err := authSvc.AuthenticateAsGuest("")
 	if err != nil {
 		t.Fatalf("AuthenticateAsGuest failed: %v", err)
@@ -224,7 +224,7 @@ func TestListUsersReportsTotal(t *testing.T) {
 	}
 	defer db.Close()
 
-	authSvc := service.NewAuthService(db)
+	authSvc := service.NewAuthService(db, "test-secret")
 	for i := 0; i < 5; i++ {
 		if _, _, err := authSvc.AuthenticateAsGuest(""); err != nil {
 			t.Fatalf("AuthenticateAsGuest failed: %v", err)

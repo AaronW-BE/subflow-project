@@ -1937,3 +1937,48 @@ of a shared rate-limited pool. Since the server fetches once a day either way,
 that is currently the whole practical benefit. Routing the app through the
 server would change this, and needs a deployed backend plus BACKEND_ENABLED —
 which also switches on cloud sync.
+
+### Configuration file — 2026-09-02
+
+Server settings now come from a JSON file, the environment, or both:
+`-config <path>`, else `$SUBFLOW_CONFIG`, else `subflow.config.json` in the
+working directory if present.
+
+**The environment overrides the file.** A deployment can then change one setting
+without rewriting a file it may not be able to edit, and a leaked credential can
+be rotated without touching disk.
+
+Adding this required removing a package-level initialiser. `jwtSecret` was a
+package var in `auth_service.go` calling `os.Getenv` at init time, which runs
+before `main()` — no config file could ever have reached it. The secret is now a
+field on `AuthService`, passed in, with the same random-per-boot fallback when
+unset.
+
+Choices worth recording, each guarding a way this fails quietly:
+
+- **A missing file named explicitly is a fatal error**, while a file merely
+  looked for is not. A typo in `-config` would otherwise start a perfectly
+  healthy server with none of the settings the operator believed they had passed.
+- **Unknown keys are rejected** (`DisallowUnknownFields`). `jwt_secrets` looks
+  like a working config until something fails to authenticate.
+- **An empty environment variable is not an override.** A shell exporting
+  `PORT=` would otherwise blank a configured port.
+- **The startup banner reports presence, not values.** The point of moving
+  secrets out of the source was that they stopped being readable; a banner
+  echoing them would undo that.
+
+`subflow.config.json` and `*.config.json` are git-ignored with an exception for
+`*.config.example.json`, verified by copying the template into place and
+confirming git ignores it.
+
+Verified end to end, not just in unit tests:
+
+| Check | Result |
+| --- | --- |
+| File drives port / db_path / admin_token | 8204 served, `cfg.db` created, file token → 200, wrong token → 401 |
+| Secret values in the log | Neither the JWT secret nor the admin token appears |
+| `PORT`/`ADMIN_TOKEN` env with the same file | 8205 served, 8204 not listening; env token → 200, **file token → 401** |
+
+The last row is the one that matters: the file's admin token stops working the
+moment the environment supplies one, which is what "the environment wins" has to
+mean in practice.
