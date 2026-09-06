@@ -16,10 +16,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
@@ -36,6 +38,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -84,7 +87,6 @@ fun AddSubscriptionScreen(
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
     val isEditing = existingSubscription != null
 
-    var searchQuery by rememberSaveable { mutableStateOf("") }
     var selectedPresetId by rememberSaveable { mutableStateOf<String?>(null) }
 
     var name by rememberSaveable { mutableStateOf(existingSubscription?.name ?: "") }
@@ -126,6 +128,7 @@ fun AddSubscriptionScreen(
         }
     }
 
+    var showServiceSheet by remember { mutableStateOf(false) }
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showCategorySheet by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
@@ -197,19 +200,44 @@ fun AddSubscriptionScreen(
         }
     }
 
+    // Applying a preset touches six pieces of state, and it is reached both
+    // from the picker sheet and from the row that summarises it.
+    fun applyPreset(preset: PresetService) {
+        selectedPresetId = preset.id
+        name = preset.name
+        category = preset.category
+        cycle = preset.defaultCycle
+        selectedColorHex = preset.brandColor
+        // Otherwise a logo picked for the previous choice would hide the new
+        // brand's mark.
+        if (iconUrl.isNotBlank()) {
+            CustomLogoStore.delete(context, subscriptionId)
+            iconUrl = ""
+        }
+        // The catalogue only carries a US list price, and services price
+        // regionally - Netflix is not 15.49 of anything outside the US.
+        // Filling the field only when the user is already in USD keeps the
+        // preset useful without asserting a price we do not know.
+        //
+        // This used to also force currency = "USD", silently undoing the home
+        // currency: a CNY user tapped Netflix and watched the preview turn
+        // from 0.00 into $15.49.
+        if (currency == "USD") {
+            amountText = trimAmount(preset.defaultAmountUSD)
+            amountIsPresetUSD = true
+        } else if (amountIsPresetUSD) {
+            // Carrying the last brand's US price over to this one is worse
+            // than an empty field: it looks entered.
+            amountText = ""
+            amountIsPresetUSD = false
+        }
+    }
+
     fun attemptCancel() {
         if (hasChanges) showDiscardDialog = true else onCancel()
     }
 
     BackHandler { attemptCancel() }
-
-    val filteredPresets = remember(presets, searchQuery) {
-        val q = searchQuery.trim()
-        if (q.isBlank()) presets
-        else presets.filter {
-            it.name.contains(q, ignoreCase = true) || it.category.contains(q, ignoreCase = true)
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -374,117 +402,6 @@ fun AddSubscriptionScreen(
                 }
             }
 
-            if (!isEditing) {
-                item(key = "presets") {
-                    Column {
-                        SectionHeader(text = stringResource(R.string.popular_presets))
-
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp)),
-                            placeholder = {
-                                Text(stringResource(R.string.search_presets), fontSize = 13.sp)
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            },
-                            trailingIcon = {
-                                if (searchQuery.isNotEmpty()) {
-                                    IconButton(onClick = { searchQuery = "" }) {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            contentDescription = stringResource(R.string.clear_search),
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                }
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Three-up grid, laid out manually because a nested
-                        // LazyVerticalGrid inside a LazyColumn cannot measure.
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            for (rowItems in filteredPresets.chunked(3)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    for (preset in rowItems) {
-                                        PresetTile(
-                                            preset = preset,
-                                            selected = selectedPresetId == preset.id,
-                                            modifier = Modifier.weight(1f),
-                                            onClick = {
-                                                haptics.tick()
-                                                selectedPresetId = preset.id
-                                                name = preset.name
-                                                category = preset.category
-                                                cycle = preset.defaultCycle
-                                                selectedColorHex = preset.brandColor
-                                                // Otherwise a logo picked for
-                                                // the previous choice would
-                                                // hide the new brand's mark.
-                                                if (iconUrl.isNotBlank()) {
-                                                    CustomLogoStore.delete(context, subscriptionId)
-                                                    iconUrl = ""
-                                                }
-                                                // The catalogue only carries a
-                                                // US list price, and services
-                                                // price regionally - Netflix is
-                                                // not 15.49 of anything outside
-                                                // the US. Filling the field
-                                                // only when the user is already
-                                                // in USD keeps the preset
-                                                // useful without asserting a
-                                                // price we do not know.
-                                                //
-                                                // This used to also force
-                                                // currency = "USD", silently
-                                                // undoing the home currency: a
-                                                // CNY user tapped Netflix and
-                                                // watched the preview turn from
-                                                // 0.00 into $15.49.
-                                                if (currency == "USD") {
-                                                    amountText = trimAmount(preset.defaultAmountUSD)
-                                                    amountIsPresetUSD = true
-                                                } else if (amountIsPresetUSD) {
-                                                    // Carrying the last brand's
-                                                    // US price over to this one
-                                                    // is worse than an empty
-                                                    // field: it looks entered.
-                                                    amountText = ""
-                                                    amountIsPresetUSD = false
-                                                }
-                                            }
-                                        )
-                                    }
-                                    repeat(3 - rowItems.size) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             item(key = "color") {
                 Column {
                     SectionHeader(text = stringResource(R.string.brand_accent_color))
@@ -538,6 +455,70 @@ fun AddSubscriptionScreen(
                 Column {
                     SectionHeader(text = stringResource(R.string.subscription_details))
                     AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+                        // Service. Only on a new subscription: changing the
+                        // preset rewrites the name, price, colour and cycle,
+                        // which is what you want while creating one and not
+                        // what you want while correcting one.
+                        if (!isEditing) {
+                            val selectedPreset = presets.firstOrNull { it.id == selectedPresetId }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        haptics.tick()
+                                        showServiceSheet = true
+                                    }
+                                    .heightIn(min = 56.dp)
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.field_service),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.width(110.dp)
+                                )
+                                if (selectedPreset != null) {
+                                    BrandIconBadge(
+                                        name = selectedPreset.name,
+                                        brandColorHex = selectedPreset.brandColor,
+                                        size = 28.dp,
+                                        cornerRadius = 8.dp,
+                                        presetId = selectedPreset.id
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                }
+                                // A typed name with no preset behind it is a
+                                // custom service, and saying "Choose a service"
+                                // over the top of one claims nothing has been
+                                // chosen.
+                                val serviceLabel = when {
+                                    selectedPreset != null -> selectedPreset.name
+                                    name.isNotBlank() -> stringResource(R.string.custom_service)
+                                    else -> stringResource(R.string.choose_service)
+                                }
+                                Text(
+                                    text = serviceLabel,
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                                    color = if (selectedPreset != null || name.isNotBlank()) {
+                                        MaterialTheme.colorScheme.onSurface
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                    modifier = Modifier.size(13.dp)
+                                )
+                            }
+                            RowDivider()
+                        }
+
                         // Name
                         FormFieldRow(label = stringResource(R.string.field_name)) {
                             BasicTextField(
@@ -788,6 +769,84 @@ fun AddSubscriptionScreen(
         }
     }
 
+    if (showServiceSheet) {
+        // null is the "none of these" row. It is carried inside the list, and
+        // matches every query, so a search that finds nothing still leaves the
+        // one row that helps - which is the moment the user most needs it.
+        val options: List<PresetService?> = listOf(null) + presets
+        SubFlowPickerSheet(
+            title = stringResource(R.string.field_service),
+            items = options,
+            key = { it?.id ?: CUSTOM_SERVICE_KEY },
+            searchHint = stringResource(R.string.search_presets),
+            matches = { preset, query ->
+                preset == null ||
+                    preset.name.contains(query, ignoreCase = true) ||
+                    preset.category.contains(query, ignoreCase = true)
+            },
+            onDismiss = { showServiceSheet = false }
+        ) { preset ->
+            if (preset == null) {
+                ServiceSheetRow(
+                    title = stringResource(R.string.custom_service),
+                    subtitle = stringResource(R.string.custom_service_hint),
+                    selected = selectedPresetId == null,
+                    badge = {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    },
+                    onClick = {
+                        haptics.tick()
+                        // Only clear what the preset had put there. Someone who
+                        // typed their own name, opened the sheet to look, and
+                        // picked this should keep what they typed.
+                        if (selectedPresetId != null) {
+                            selectedPresetId = null
+                            name = ""
+                            if (amountIsPresetUSD) {
+                                amountText = ""
+                                amountIsPresetUSD = false
+                            }
+                        }
+                        showServiceSheet = false
+                    }
+                )
+            } else {
+                ServiceSheetRow(
+                    title = preset.name,
+                    subtitle = localizedCategory(preset.category),
+                    selected = selectedPresetId == preset.id,
+                    badge = {
+                        BrandIconBadge(
+                            name = preset.name,
+                            brandColorHex = preset.brandColor,
+                            size = 36.dp,
+                            cornerRadius = 10.dp,
+                            presetId = preset.id
+                        )
+                    },
+                    onClick = {
+                        haptics.tick()
+                        applyPreset(preset)
+                        showServiceSheet = false
+                    }
+                )
+            }
+        }
+    }
+
     if (showCurrencySheet) {
         SubFlowPickerSheet(
             title = stringResource(R.string.field_currency),
@@ -903,52 +962,6 @@ private fun RowDivider() {
 }
 
 @Composable
-private fun PresetTile(
-    preset: PresetService,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            )
-            .padding(vertical = 12.dp, horizontal = 6.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            BrandIconBadge(
-                name = preset.name,
-                brandColorHex = preset.brandColor,
-                size = 36.dp,
-                cornerRadius = 10.dp,
-                presetId = preset.id
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = preset.name,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@Composable
 private fun ReminderLeadPicker(
     selectedDays: Int,
     isPro: Boolean,
@@ -1025,6 +1038,65 @@ private fun cycleShortLabel(cycle: BillingCycle): String = when (cycle) {
     BillingCycle.MONTHLY -> stringResource(R.string.cycle_short_monthly)
     BillingCycle.QUARTERLY -> stringResource(R.string.cycle_short_quarterly)
     BillingCycle.ANNUALLY -> stringResource(R.string.cycle_short_yearly)
+}
+
+/** Key for the sheet's "none of these" row; no preset can collide with it. */
+private const val CUSTOM_SERVICE_KEY = "__custom_service__"
+
+/**
+ * One service in the picker sheet: brand mark, name, category, tick.
+ *
+ * Not [SubFlowPickerRow] because that row is text only, and a list of thirty
+ * four services is far quicker to scan by logo than by reading every name.
+ */
+@Composable
+private fun ServiceSheetRow(
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    badge: @Composable () -> Unit,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .heightIn(min = 56.dp)
+            .padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        badge()
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                color = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        if (selected) {
+            Icon(
+                Icons.Default.Check,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
 }
 
 // -------------------------------------------------------------------- input

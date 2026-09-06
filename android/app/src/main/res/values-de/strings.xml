@@ -52,7 +52,10 @@
     <string name="save">Sichern</string>
     <string name="delete">Löschen</string>
     <string name="search_presets">Dienste suchen (Netflix, Spotify …)</string>
-    <string name="popular_presets">BELIEBTE DIENSTE</string>
+    <string name="field_service">Dienst</string>
+    <string name="choose_service">Dienst auswählen</string>
+    <string name="custom_service">Eigener Dienst</string>
+    <string name="custom_service_hint">Eigener Name, eigene Farbe und eigenes Logo</string>
     <string name="custom_subscription">Eigenes Abo</string>
     <string name="service_name">Name des Dienstes</string>
     <string name="category">Kategorie</string>

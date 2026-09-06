@@ -52,7 +52,10 @@
     <string name="save">保存</string>
     <string name="delete">删除</string>
     <string name="search_presets">搜索服务（Netflix、Spotify…）</string>
-    <string name="popular_presets">常用服务</string>
+    <string name="field_service">服务</string>
+    <string name="choose_service">选择服务</string>
+    <string name="custom_service">自定义服务</string>
+    <string name="custom_service_hint">自定义名称、颜色和图标</string>
     <string name="custom_subscription">自定义订阅</string>
     <string name="service_name">服务名称</string>
     <string name="category">分类</string>

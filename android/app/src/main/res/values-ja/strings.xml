@@ -52,7 +52,10 @@
     <string name="save">保存</string>
     <string name="delete">削除</string>
     <string name="search_presets">サービスを検索（Netflix、Spotify など）</string>
-    <string name="popular_presets">よく使うサービス</string>
+    <string name="field_service">サービス</string>
+    <string name="choose_service">サービスを選択</string>
+    <string name="custom_service">カスタムサービス</string>
+    <string name="custom_service_hint">独自の名前・色・ロゴ</string>
     <string name="custom_subscription">カスタム</string>
     <string name="service_name">サービス名</string>
     <string name="category">カテゴリ</string>

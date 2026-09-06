@@ -55,7 +55,10 @@
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="search_presets">Search services (Netflix, Spotify)</string>
-    <string name="popular_presets">POPULAR SERVICES</string>
+    <string name="field_service">Service</string>
+    <string name="choose_service">Choose a service</string>
+    <string name="custom_service">Custom service</string>
+    <string name="custom_service_hint">Your own name, colour and logo</string>
     <string name="custom_subscription">Custom Subscription</string>
     <string name="service_name">Service Name</string>
     <string name="category">Category</string>
