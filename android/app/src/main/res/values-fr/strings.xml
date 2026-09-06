@@ -241,7 +241,10 @@
     <string name="open_settings">Ouvrir les réglages</string>
     <string name="undo">Annuler</string>
     <string name="renewal_today">Prélevé aujourd’hui</string>
-    <string name="renewal_days_left">%d jours restants</string>
+    <plurals name="renewal_days_left">
+        <item quantity="one">%d jour restant</item>
+        <item quantity="other">%d jours restants</item>
+    </plurals>
     <string name="renewal_days_short">%d j</string>
     <string name="renewal_overdue">En retard</string>
     <string name="cycle_short_weekly">/sem.</string>

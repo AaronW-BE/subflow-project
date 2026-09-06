@@ -241,7 +241,9 @@
     <string name="open_settings">設定を開く</string>
     <string name="undo">元に戻す</string>
     <string name="renewal_today">本日請求</string>
-    <string name="renewal_days_left">あと %d 日</string>
+    <plurals name="renewal_days_left">
+        <item quantity="other">あと %d 日</item>
+    </plurals>
     <string name="renewal_days_short">%d 日</string>
     <string name="renewal_overdue">期限超過</string>
     <string name="cycle_short_weekly">/週</string>

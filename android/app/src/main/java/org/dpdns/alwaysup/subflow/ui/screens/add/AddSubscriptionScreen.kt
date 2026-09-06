@@ -34,7 +34,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -49,6 +51,7 @@ import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.ui.components.*
@@ -90,6 +93,11 @@ fun AddSubscriptionScreen(
         mutableStateOf(existingSubscription?.let { trimAmount(it.amount) } ?: "")
     }
     var currency by rememberSaveable { mutableStateOf(existingSubscription?.currency ?: primaryCurrency) }
+    // Whether the figure in the price field is the catalogue's US list price
+    // rather than something the user stands behind. It only matters when the
+    // currency stops being USD: 15.49 is Netflix's American price, and left in
+    // place under a euro sign it becomes a number this app invented.
+    var amountIsPresetUSD by rememberSaveable { mutableStateOf(false) }
     var cycle by rememberSaveable { mutableStateOf(existingSubscription?.cycle ?: BillingCycle.MONTHLY) }
     var reminderDays by rememberSaveable {
         mutableIntStateOf(existingSubscription?.reminderDaysBefore ?: 1)
@@ -132,6 +140,41 @@ fun AddSubscriptionScreen(
         DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
     }
     val previewAmount = amountText.parseAmount()
+    // The same renewal wording the saved row will use, so the preview is a
+    // preview. The exact date is not repeated here: it already has a line of
+    // its own under the First Payment Date field, and spelling it out in full
+    // is what pushed this line past the width it had and cost it the date.
+    val previewDaysLeft = remember(nextRenewal) {
+        DateCalculators.calculateDaysUntil(nextRenewal)
+    }
+    val previewRenewalText = when {
+        previewDaysLeft < 0L -> stringResource(R.string.renewal_overdue)
+        previewDaysLeft == 0L -> stringResource(R.string.renewal_today)
+        else -> pluralStringResource(
+            R.plurals.renewal_days_left,
+            previewDaysLeft.toInt(),
+            previewDaysLeft.toInt()
+        )
+    }
+    val previewUrgent = previewDaysLeft in 0..3
+    val previewCycleSpoken = when (cycle) {
+        BillingCycle.WEEKLY -> stringResource(R.string.cycle_weekly)
+        BillingCycle.MONTHLY -> stringResource(R.string.cycle_monthly)
+        BillingCycle.QUARTERLY -> stringResource(R.string.cycle_quarterly)
+        BillingCycle.ANNUALLY -> stringResource(R.string.cycle_yearly)
+    }
+    val previewCategorySpoken = localizedCategory(category)
+    val previewNameSpoken = name.ifBlank { stringResource(R.string.service_name) }
+    // "/mo" is a glyph, not a word: read out it becomes "slash m o". The
+    // spoken summary uses the full cycle name and states the price, which
+    // element-by-element reading never attaches to a service.
+    val previewSummary = listOf(
+        previewNameSpoken,
+        previewCategorySpoken,
+        previewRenewalText,
+        CurrencyFormatter.format(previewAmount, currency, locale),
+        previewCycleSpoken
+    ).joinToString(", ")
     val nameValid = name.isNotBlank()
     val amountValid = previewAmount > 0.0
     val isValid = nameValid && amountValid
@@ -304,48 +347,28 @@ fun AddSubscriptionScreen(
                                 }
                             }
                             Spacer(modifier = Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = name.ifBlank { stringResource(R.string.service_name) },
-                                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
-                                    fontWeight = FontWeight.SemiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = if (name.isBlank()) {
-                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurface
+                            // The badge beside this is a button; only the text
+                            // half is collapsed into the summary, so the logo
+                            // picker keeps its own label and action.
+                            SubscriptionRowContent(
+                                name = name.ifBlank { stringResource(R.string.service_name) },
+                                category = localizedCategory(category),
+                                renewalText = previewRenewalText,
+                                urgent = previewUrgent,
+                                amount = previewAmount,
+                                currencyCode = currency,
+                                cycleLabel = cycleShortLabel(cycle),
+                                nameColor = if (name.isBlank()) {
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clearAndSetSemantics {
+                                        contentDescription = previewSummary
                                     }
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "${localizedCategory(category)} · " +
-                                        stringResource(
-                                            R.string.renews_next_on,
-                                            DateCalculators.formatMedium(nextRenewal, locale)
-                                        ),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            Column(horizontalAlignment = Alignment.End) {
-                                TabularCurrencyText(
-                                    amount = previewAmount,
-                                    currencyCode = currency,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 17.sp
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = cycleShortLabel(cycle),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            )
                         }
                     }
                 }
@@ -440,6 +463,14 @@ fun AddSubscriptionScreen(
                                                 // 0.00 into $15.49.
                                                 if (currency == "USD") {
                                                     amountText = trimAmount(preset.defaultAmountUSD)
+                                                    amountIsPresetUSD = true
+                                                } else if (amountIsPresetUSD) {
+                                                    // Carrying the last brand's
+                                                    // US price over to this one
+                                                    // is worse than an empty
+                                                    // field: it looks entered.
+                                                    amountText = ""
+                                                    amountIsPresetUSD = false
                                                 }
                                             }
                                         )
@@ -552,7 +583,10 @@ fun AddSubscriptionScreen(
                         FormFieldRow(label = stringResource(R.string.field_price)) {
                             BasicTextField(
                                 value = amountText,
-                                onValueChange = { amountText = sanitiseAmountInput(it) },
+                                onValueChange = {
+                                    amountText = sanitiseAmountInput(it)
+                                    amountIsPresetUSD = false
+                                },
                                 textStyle = TextStyle(
                                     fontSize = 16.sp,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -771,6 +805,12 @@ fun AddSubscriptionScreen(
                 subtitle = curr.symbol,
                 selected = curr.code == currency,
                 onClick = {
+                    // A US list price does not survive the currency changing;
+                    // it would keep its digits and silently change meaning.
+                    if (amountIsPresetUSD && curr.code != "USD") {
+                        amountText = ""
+                        amountIsPresetUSD = false
+                    }
                     currency = curr.code
                     showCurrencySheet = false
                 }

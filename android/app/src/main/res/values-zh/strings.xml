@@ -241,7 +241,9 @@
     <string name="open_settings">前往设置</string>
     <string name="undo">撤销</string>
     <string name="renewal_today">今天扣费</string>
-    <string name="renewal_days_left">还有 %d 天</string>
+    <plurals name="renewal_days_left">
+        <item quantity="other">还有 %d 天</item>
+    </plurals>
     <string name="renewal_days_short">%d 天</string>
     <string name="renewal_overdue">已逾期</string>
     <string name="cycle_short_weekly">/周</string>

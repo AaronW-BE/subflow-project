@@ -244,7 +244,10 @@
     <string name="open_settings">Open settings</string>
     <string name="undo">Undo</string>
     <string name="renewal_today">Due today</string>
-    <string name="renewal_days_left">%d days left</string>
+    <plurals name="renewal_days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
     <string name="renewal_days_short">%dd</string>
     <string name="renewal_overdue">Overdue</string>
     <string name="cycle_short_weekly">/wk</string>

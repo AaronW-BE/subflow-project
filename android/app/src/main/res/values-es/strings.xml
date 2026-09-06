@@ -241,7 +241,10 @@
     <string name="open_settings">Abrir ajustes</string>
     <string name="undo">Deshacer</string>
     <string name="renewal_today">Se cobra hoy</string>
-    <string name="renewal_days_left">Quedan %d días</string>
+    <plurals name="renewal_days_left">
+        <item quantity="one">Queda %d día</item>
+        <item quantity="other">Quedan %d días</item>
+    </plurals>
     <string name="renewal_days_short">%d d</string>
     <string name="renewal_overdue">Vencida</string>
     <string name="cycle_short_weekly">/sem.</string>
