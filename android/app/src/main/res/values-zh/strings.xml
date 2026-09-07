@@ -151,7 +151,7 @@
     <string name="onboarding_3_body">无需注册账号，所有数据本地存储，是否使用云备份完全由你决定。</string>
 
     <!-- Analytics -->
-    <string name="analytics_title">洞察</string>
+    <string name="analytics_title">分析</string>
     <string name="avg_monthly">月均支出</string>
     <string name="annual_forecast">年度支出预测</string>
     <string name="category_breakdown">分类占比</string>

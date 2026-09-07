@@ -154,7 +154,7 @@
     <string name="onboarding_3_body">No account required. Everything is stored locally, and cloud backup is entirely your choice.</string>
 
     <!-- Analytics -->
-    <string name="analytics_title">Insights</string>
+    <string name="analytics_title">Analytics</string>
     <string name="avg_monthly">Monthly Average</string>
     <string name="annual_forecast">Annual Commitment Forecast</string>
     <string name="category_breakdown">By category</string>

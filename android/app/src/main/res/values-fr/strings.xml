@@ -151,7 +151,7 @@
     <string name="onboarding_3_body">Aucun compte requis. Tout est stocké localement, et la sauvegarde cloud reste votre choix.</string>
 
     <!-- Analytics -->
-    <string name="analytics_title">Aperçu</string>
+    <string name="analytics_title">Analyse</string>
     <string name="avg_monthly">Moyenne mensuelle</string>
     <string name="annual_forecast">Prévision annuelle</string>
     <string name="category_breakdown">Par catégorie</string>

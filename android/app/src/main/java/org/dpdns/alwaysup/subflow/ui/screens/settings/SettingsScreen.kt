@@ -53,6 +53,7 @@ import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerRow
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
+import org.dpdns.alwaysup.subflow.ui.theme.ScreenTitleStyle
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -131,11 +132,7 @@ fun SettingsScreen(
             ) {
                 Text(
                     text = stringResource(R.string.settings_title),
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = (-0.5).sp
-                    )
+                    style = ScreenTitleStyle
                 )
             }
         }

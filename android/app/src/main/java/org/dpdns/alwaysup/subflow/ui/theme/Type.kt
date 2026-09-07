@@ -6,6 +6,35 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+/**
+ * The screen's headline figure: the total the whole screen exists to report.
+ *
+ * Defined once because it appears twice - the dashboard's monthly total and the
+ * same total again at the top of Analytics - and the two had drifted to 40sp
+ * with -1 tracking against 36sp with none. One tap moves between them, so the
+ * number visibly changed size for no reason.
+ */
+val HeroAmountStyle = TextStyle(
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight.Black,
+    fontSize = 40.sp,
+    lineHeight = 46.sp,
+    letterSpacing = (-1).sp
+)
+
+/**
+ * A screen's large title, the one under the status bar.
+ *
+ * Already identical on all three tab screens; named so it stays that way.
+ */
+val ScreenTitleStyle = TextStyle(
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight.Black,
+    fontSize = 34.sp,
+    lineHeight = 41.sp,
+    letterSpacing = (-0.5).sp
+)
+
 val AppleTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
