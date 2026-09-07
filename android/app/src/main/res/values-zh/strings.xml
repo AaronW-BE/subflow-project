@@ -151,6 +151,12 @@
     <string name="onboarding_2_body">提醒会在扣费之前送达，让你还来得及零成本取消。</string>
     <string name="onboarding_3_title">数据只留在你自己的手机上</string>
     <string name="onboarding_3_body">无需注册账号，所有数据本地存储，是否使用云备份完全由你决定。</string>
+    <string name="onboarding_manage_title">添加、修改、删除</string>
+    <string name="onboarding_manage_add">点击 + 添加订阅</string>
+    <string name="onboarding_manage_edit">点击卡片即可编辑</string>
+    <string name="onboarding_manage_delete">向左滑动卡片，或打开后点击删除</string>
+    <string name="onboarding_replay">重新观看引导</string>
+    <string name="onboarding_replay_sub">再看一遍首次使用介绍</string>
 
     <!-- Analytics -->
     <string name="analytics_title">洞察</string>

@@ -456,6 +456,10 @@ fun SubFlowNavHost(
                         }
                         runCatching { context.startActivity(Intent.createChooser(send, null)) }
                     },
+                    onReplayOnboarding = {
+                        preferencesManager.restartOnboarding()
+                        navController.navigate(Screen.Onboarding.route)
+                    },
                     onRateApp = { openUrl(playStoreUrl(context)) }
                 )
             }

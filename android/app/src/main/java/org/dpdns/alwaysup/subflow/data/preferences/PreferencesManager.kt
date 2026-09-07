@@ -142,6 +142,22 @@ class PreferencesManager(context: Context) {
         prefs.edit().putBoolean("onboarding_complete", true).apply()
     }
 
+    /**
+     * Puts the app back to its first-run state for teaching purposes only.
+     *
+     * The contextual hint goes back with the walkthrough: someone asking to see
+     * the introduction again is asking for its hints too, and leaving the swipe
+     * hint retired would half-restore it.
+     */
+    fun restartOnboarding() {
+        _onboardingComplete.value = false
+        _swipeHintSeen.value = false
+        prefs.edit()
+            .putBoolean("onboarding_complete", false)
+            .putBoolean(KEY_SWIPE_HINT, false)
+            .apply()
+    }
+
     fun markSwipeHintSeen() {
         if (_swipeHintSeen.value) return
         _swipeHintSeen.value = true
