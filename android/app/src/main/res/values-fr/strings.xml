@@ -56,6 +56,10 @@
     <string name="search_presets">Rechercher un service (Netflix, Spotify…)</string>
     <string name="field_service">Service</string>
     <string name="choose_service">Choisir un service</string>
+    <string name="select_service_title">Choisir un service</string>
+    <string name="select_service_next">Suivant</string>
+    <string name="staged_add_flow">Ajout guidé</string>
+    <string name="staged_add_flow_sub">Choisissez le service, puis renseignez les détails</string>
     <string name="custom_service">Service personnalisé</string>
     <string name="custom_service_hint">Votre nom, couleur et logo</string>
     <string name="custom_subscription">Abonnement personnalisé</string>

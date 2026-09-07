@@ -57,6 +57,7 @@ import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
 import org.dpdns.alwaysup.subflow.domain.util.ExportUtils
 import org.dpdns.alwaysup.subflow.ui.screens.add.AddSubscriptionScreen
+import org.dpdns.alwaysup.subflow.ui.screens.add.SelectServiceScreen
 import org.dpdns.alwaysup.subflow.ui.screens.analytics.AnalyticsScreen
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.DashboardScreen
 import org.dpdns.alwaysup.subflow.ui.screens.detail.SubscriptionDetailScreen
@@ -75,7 +76,12 @@ sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
     data object Analytics : Screen("analytics")
     data object Settings : Screen("settings")
-    data object AddSubscription : Screen("add_subscription")
+    data object SelectService : Screen("select_service")
+    data object AddSubscription : Screen("add_subscription?presetId={presetId}") {
+        /** null means the user chose "custom service" on the preceding step. */
+        fun createRoute(presetId: String?) =
+            if (presetId == null) "add_subscription" else "add_subscription?presetId=$presetId"
+    }
     data object SubscriptionDetail : Screen("subscription_detail/{subId}") {
         fun createRoute(subId: String) = "subscription_detail/$subId"
     }
@@ -114,6 +120,7 @@ fun SubFlowNavHost(
     val primaryCurrency by preferencesManager.currency.collectAsState()
     val onboardingComplete by preferencesManager.onboardingComplete.collectAsState()
     val swipeHintSeen by preferencesManager.swipeHintSeen.collectAsState()
+    val stagedAddFlow by preferencesManager.stagedAddFlow.collectAsState()
     val plans by billingManager.plans.collectAsState()
     val billingConnection by billingManager.connectionState.collectAsState()
     val catalogueLoaded by billingManager.catalogueLoaded.collectAsState()
@@ -298,8 +305,10 @@ fun SubFlowNavHost(
                             SubscriptionRepository.FREE_TIER_LIMIT
                         ) {
                             navController.navigate(Screen.Paywall.route)
+                        } else if (stagedAddFlow) {
+                            navController.navigate(Screen.SelectService.route)
                         } else {
-                            navController.navigate(Screen.AddSubscription.route)
+                            navController.navigate(Screen.AddSubscription.createRoute(null))
                         }
                     },
                     onSubscriptionClick = { id ->
@@ -456,6 +465,8 @@ fun SubFlowNavHost(
                         }
                         runCatching { context.startActivity(Intent.createChooser(send, null)) }
                     },
+                    stagedAddFlow = stagedAddFlow,
+                    onStagedAddFlowChange = { preferencesManager.setStagedAddFlow(it) },
                     onReplayOnboarding = {
                         preferencesManager.restartOnboarding()
                         navController.navigate(Screen.Onboarding.route)
@@ -464,16 +475,43 @@ fun SubFlowNavHost(
                 )
             }
 
-            composable(Screen.AddSubscription.route) {
+            composable(Screen.SelectService.route) {
+                SelectServiceScreen(
+                    presets = presets,
+                    onNext = { preset ->
+                        navController.navigate(Screen.AddSubscription.createRoute(preset?.id))
+                    },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Screen.AddSubscription.route,
+                arguments = listOf(
+                    navArgument("presetId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { entry ->
+                val presetId = entry.arguments?.getString("presetId")
                 AddSubscriptionScreen(
                     presets = presets,
+                    initialPreset = presets.firstOrNull { it.id == presetId },
                     primaryCurrency = primaryCurrency,
                     isPro = isPro,
                     onSaveSubscription = { newSub ->
                         scope.launch {
                             val res = subscriptionRepository.saveSubscription(newSub, isPro)
                             if (res.isSuccess) {
-                                navController.popBackStack()
+                                // popUpTo the dashboard: with the staged flow
+                                // there are two screens to unwind, and landing
+                                // back on the service picker after saving would
+                                // look like the save had failed.
+                                navController.navigate(Screen.Dashboard.route) {
+                                    popUpTo(Screen.Dashboard.route) { inclusive = true }
+                                }
                                 showMessage(context.getString(R.string.saved_subscription, newSub.name))
                             } else if (res.exceptionOrNull() is QuotaReachedException) {
                                 navController.popBackStack()

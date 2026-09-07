@@ -77,6 +77,8 @@ fun AddSubscriptionScreen(
     primaryCurrency: String = "USD",
     isPro: Boolean = false,
     existingSubscription: Subscription? = null,
+    /** Preset chosen on a preceding step. Non-null hides the Service row. */
+    initialPreset: PresetService? = null,
     onSaveSubscription: (Subscription) -> Unit,
     onCancel: () -> Unit,
     onUpgradeClick: () -> Unit = {}
@@ -129,6 +131,14 @@ fun AddSubscriptionScreen(
     }
 
     var showServiceSheet by remember { mutableStateOf(false) }
+
+    // What step one chose, remembered so coming back from a rotation does not
+    // re-apply the preset over edits already made here.
+    var seededPresetId by rememberSaveable { mutableStateOf<String?>(null) }
+    // What the preceding step put on this screen, so that going back to change
+    // the service is not mistaken for throwing away work the user did.
+    var seededName by rememberSaveable { mutableStateOf<String?>(null) }
+    var seededAmount by rememberSaveable { mutableStateOf<String?>(null) }
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showCategorySheet by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
@@ -183,10 +193,16 @@ fun AddSubscriptionScreen(
     val isValid = nameValid && amountValid
 
     val hasChanges = remember(
-        name, category, amountText, currency, cycle, reminderDays, selectedColorHex, notes, firstBillDate
+        name, category, amountText, currency, cycle, reminderDays, selectedColorHex, notes,
+        firstBillDate, seededName, seededAmount
     ) {
         if (existingSubscription == null) {
-            name.isNotBlank() || amountText.isNotBlank() || notes.isNotBlank()
+            // On a seeded screen the preset's own name and price are not the
+            // user's work. Back is the wizard's previous step, and prompting to
+            // discard changes nobody made turns a two-step flow into a trap.
+            val ownName = name.isNotBlank() && name != seededName
+            val ownAmount = amountText.isNotBlank() && amountText != seededAmount
+            ownName || ownAmount || notes.isNotBlank()
         } else {
             name != existingSubscription.name ||
                 category != existingSubscription.category ||
@@ -231,6 +247,18 @@ fun AddSubscriptionScreen(
             amountText = ""
             amountIsPresetUSD = false
         }
+    }
+
+    // Seeding rather than pre-computing the state: applyPreset is the one
+    // place that knows a preset also carries a cycle, a colour and a price the
+    // user's currency may not want.
+    LaunchedEffect(initialPreset?.id) {
+        val preset = initialPreset ?: return@LaunchedEffect
+        if (seededPresetId == preset.id) return@LaunchedEffect
+        seededPresetId = preset.id
+        applyPreset(preset)
+        seededName = name
+        seededAmount = amountText
     }
 
     fun attemptCancel() {
@@ -402,55 +430,6 @@ fun AddSubscriptionScreen(
                 }
             }
 
-            item(key = "color") {
-                Column {
-                    SectionHeader(text = stringResource(R.string.brand_accent_color))
-                    AppleCard(modifier = Modifier.fillMaxWidth()) {
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(ApplePalette, key = { it }) { hex ->
-                                val color = parseHexColor(hex)
-                                val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
-                                val colourLabel = stringResource(R.string.cd_accent_colour, hex)
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                        .border(
-                                            width = if (isSelected) 3.dp else 0.dp,
-                                            color = if (isSelected) {
-                                                MaterialTheme.colorScheme.onSurface
-                                            } else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null
-                                        ) {
-                                            haptics.tick()
-                                            selectedColorHex = hex
-                                        }
-                                        .semantics { contentDescription = colourLabel },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             item(key = "details") {
                 Column {
                     SectionHeader(text = stringResource(R.string.subscription_details))
@@ -459,7 +438,7 @@ fun AddSubscriptionScreen(
                         // preset rewrites the name, price, colour and cycle,
                         // which is what you want while creating one and not
                         // what you want while correcting one.
-                        if (!isEditing) {
+                        if (!isEditing && initialPreset == null) {
                             val selectedPreset = presets.firstOrNull { it.id == selectedPresetId }
                             Row(
                                 modifier = Modifier
@@ -762,6 +741,55 @@ fun AddSubscriptionScreen(
                         onItemSelected = { cycle = it },
                         itemLabel = { cycleLabel(it) }
                     )
+                }
+            }
+
+            item(key = "color") {
+                Column {
+                    SectionHeader(text = stringResource(R.string.brand_accent_color))
+                    AppleCard(modifier = Modifier.fillMaxWidth()) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(ApplePalette, key = { it }) { hex ->
+                                val color = parseHexColor(hex)
+                                val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
+                                val colourLabel = stringResource(R.string.cd_accent_colour, hex)
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(color)
+                                        .border(
+                                            width = if (isSelected) 3.dp else 0.dp,
+                                            color = if (isSelected) {
+                                                MaterialTheme.colorScheme.onSurface
+                                            } else Color.Transparent,
+                                            shape = CircleShape
+                                        )
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            haptics.tick()
+                                            selectedColorHex = hex
+                                        }
+                                        .semantics { contentDescription = colourLabel },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

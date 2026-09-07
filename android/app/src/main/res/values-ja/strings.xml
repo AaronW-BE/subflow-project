@@ -56,6 +56,10 @@
     <string name="search_presets">サービスを検索（Netflix、Spotify など）</string>
     <string name="field_service">サービス</string>
     <string name="choose_service">サービスを選択</string>
+    <string name="select_service_title">サービスを選択</string>
+    <string name="select_service_next">次へ</string>
+    <string name="staged_add_flow">ステップ式の追加</string>
+    <string name="staged_add_flow_sub">先にサービスを選び、次に詳細を入力</string>
     <string name="custom_service">カスタムサービス</string>
     <string name="custom_service_hint">独自の名前・色・ロゴ</string>
     <string name="custom_subscription">カスタム</string>
