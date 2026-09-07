@@ -206,6 +206,7 @@
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre (OLED)</string>
     <string name="language">Langue</string>
+    <string name="language_system">Langue du système</string>
     <string name="cloud_backup">Sauvegarde et synchronisation</string>
     <string name="cloud_backup_sub">Touchez pour synchroniser</string>
     <string name="sign_in_google">Se connecter avec Google</string>

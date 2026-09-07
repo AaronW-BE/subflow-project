@@ -206,6 +206,7 @@
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク（OLED）</string>
     <string name="language">言語</string>
+    <string name="language_system">システムの言語</string>
     <string name="cloud_backup">クラウドバックアップと同期</string>
     <string name="cloud_backup_sub">タップして同期</string>
     <string name="sign_in_google">Google でログイン</string>

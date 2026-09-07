@@ -1,6 +1,7 @@
 package org.dpdns.alwaysup.subflow.data.preferences
 
 import android.content.Context
+import android.content.res.Resources
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,9 +61,36 @@ val SupportedCurrencies = listOf(
     CurrencyOption("BDT", "৳", "Bangladeshi Taka")
 )
 
-data class LanguageOption(val code: String, val displayName: String, val nativeName: String)
+/**
+ * The language setting's "follow the device" value.
+ *
+ * A code rather than a null so it can be stored, compared and selected like any
+ * other choice - the same shape [ThemeMode.SYSTEM] already uses.
+ */
+const val SYSTEM_LANGUAGE = "system"
+
+/**
+ * @param nativeName how the language names itself. Someone who has landed in a
+ *   language they cannot read finds their way out by recognising this, so it is
+ *   never translated.
+ * @param labelRes set only where there is no native name to show - the
+ *   follow-the-device entry, whose label has to be in the language the user is
+ *   currently reading.
+ */
+data class LanguageOption(
+    val code: String,
+    val displayName: String,
+    val nativeName: String,
+    val labelRes: Int? = null
+)
 
 val SupportedLanguages = listOf(
+    LanguageOption(
+        SYSTEM_LANGUAGE,
+        "System default",
+        "",
+        org.dpdns.alwaysup.subflow.R.string.language_system
+    ),
     LanguageOption("en", "English", "English"),
     LanguageOption("de", "German", "Deutsch"),
     LanguageOption("fr", "French", "Français"),
@@ -172,12 +200,35 @@ class PreferencesManager(context: Context) {
         const val PREFS_NAME = "subflow_user_preferences"
         private const val KEY_LEADS = "reminder_lead_days"
 
-        fun resolveInitialLanguage(context: Context): String {
-            val saved = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString("language", null)
-            if (saved != null) return saved
-            val systemLang = java.util.Locale.getDefault().language
-            return if (SupportedLanguages.any { it.code.equals(systemLang, ignoreCase = true) }) systemLang else "en"
+        /**
+         * The stored language choice, which may be [SYSTEM_LANGUAGE].
+         *
+         * Callers that need an actual language resolve it through
+         * `localeForLanguageCode`; keeping the sentinel here is what lets the
+         * app keep following the device after the setting was last read.
+         */
+        fun resolveInitialLanguage(context: Context): String =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString("language", null) ?: SYSTEM_LANGUAGE
+
+        /**
+         * The device's language, narrowed to one this app ships.
+         *
+         * Read from [Resources.getSystem], never `Locale.getDefault()`:
+         * MainActivity calls `Locale.setDefault` with the app's own locale
+         * while attaching, so from that point on the JVM default is the app
+         * language and asking it what the device is set to answers with our
+         * own last answer.
+         */
+        fun deviceLanguage(): String {
+            val locales = Resources.getSystem().configuration.locales
+            for (i in 0 until locales.size()) {
+                val tag = locales[i].language
+                SupportedLanguages.firstOrNull {
+                    it.code != SYSTEM_LANGUAGE && it.code.equals(tag, ignoreCase = true)
+                }?.let { return it.code }
+            }
+            return "en"
         }
 
         /** Read directly from prefs for use outside Compose (e.g. the notification worker). */
