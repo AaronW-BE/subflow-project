@@ -55,7 +55,10 @@
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="search_presets">Search services (Netflix, Spotify)</string>
-    <string name="popular_presets">POPULAR SERVICES</string>
+    <string name="field_service">Service</string>
+    <string name="choose_service">Choose a service</string>
+    <string name="custom_service">Custom service</string>
+    <string name="custom_service_hint">Your own name, colour and logo</string>
     <string name="custom_subscription">Custom Subscription</string>
     <string name="service_name">Service Name</string>
     <string name="category">Category</string>
@@ -244,7 +247,10 @@
     <string name="open_settings">Open settings</string>
     <string name="undo">Undo</string>
     <string name="renewal_today">Due today</string>
-    <string name="renewal_days_left">%d days left</string>
+    <plurals name="renewal_days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
     <string name="renewal_days_short">%dd</string>
     <string name="renewal_overdue">Overdue</string>
     <string name="cycle_short_weekly">/wk</string>

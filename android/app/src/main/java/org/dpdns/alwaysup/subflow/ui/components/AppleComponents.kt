@@ -467,12 +467,134 @@ fun TabularCurrencyText(
         text = CurrencyFormatter.format(amount, currencyCode, locale),
         modifier = modifier,
         maxLines = 1,
+        // Clipping a price silently changes it: "$1,299.99" cut to "$1,29"
+        // reads as a real and much smaller number. The ellipsis is the
+        // difference between "incomplete" and "wrong".
+        overflow = TextOverflow.Ellipsis,
         style = style.copy(
             fontWeight = FontWeight.Bold,
             color = color,
             fontFeatureSettings = "tnum"
         )
     )
+}
+
+/**
+ * The text half of a subscription row: name and price above, category,
+ * renewal and billing cycle below.
+ *
+ * Shared by the dashboard list and the add screen's live preview, which is the
+ * point. The preview began as a copy of this layout and drifted: it dropped the
+ * spacer between name and price so the two ran together as "Netflix On...$1,299.99",
+ * and it put the whole renewal sentence on the line the price was already using,
+ * so the date it promised was always the part that got ellipsised. A preview
+ * that does not match the row it is previewing is not a preview.
+ *
+ * Every element that can grow is weighted `fill = false` and capped at one
+ * line, so the row degrades by shortening the name — never by hiding the price
+ * or the renewal.
+ */
+@Composable
+fun SubscriptionRowContent(
+    name: String,
+    category: String,
+    renewalText: String,
+    urgent: Boolean,
+    amount: Double,
+    currencyCode: String,
+    cycleLabel: String,
+    modifier: Modifier = Modifier,
+    nameColor: Color = MaterialTheme.colorScheme.onSurface
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = nameColor,
+                modifier = Modifier.weight(1f, fill = false)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            TabularCurrencyText(
+                amount = amount,
+                currencyCode = currencyCode,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.weight(1f, fill = false)
+            ) {
+                Text(
+                    text = category,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+                Text(
+                    text = "·",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                )
+                // The renewal keeps its intrinsic width rather than being
+                // weighted: it is short by construction ("Due today", "29 days
+                // left"), and a long category should lose characters first.
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = if (urgent) {
+                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                    }
+                ) {
+                    Text(
+                        text = renewalText,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 10.5.sp,
+                            fontWeight = if (urgent) FontWeight.Bold else FontWeight.Medium
+                        ),
+                        color = if (urgent) {
+                            MaterialTheme.colorScheme.tertiary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        maxLines = 1
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            Text(
+                text = cycleLabel,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+    }
 }
 
 /** iOS grouped-table container. */

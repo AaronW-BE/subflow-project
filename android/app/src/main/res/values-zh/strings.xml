@@ -52,7 +52,10 @@
     <string name="save">保存</string>
     <string name="delete">删除</string>
     <string name="search_presets">搜索服务（Netflix、Spotify…）</string>
-    <string name="popular_presets">常用服务</string>
+    <string name="field_service">服务</string>
+    <string name="choose_service">选择服务</string>
+    <string name="custom_service">自定义服务</string>
+    <string name="custom_service_hint">自定义名称、颜色和图标</string>
     <string name="custom_subscription">自定义订阅</string>
     <string name="service_name">服务名称</string>
     <string name="category">分类</string>
@@ -241,7 +244,9 @@
     <string name="open_settings">前往设置</string>
     <string name="undo">撤销</string>
     <string name="renewal_today">今天扣费</string>
-    <string name="renewal_days_left">还有 %d 天</string>
+    <plurals name="renewal_days_left">
+        <item quantity="other">还有 %d 天</item>
+    </plurals>
     <string name="renewal_days_short">%d 天</string>
     <string name="renewal_overdue">已逾期</string>
     <string name="cycle_short_weekly">/周</string>
