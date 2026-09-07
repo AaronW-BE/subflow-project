@@ -36,6 +36,8 @@
     <string name="clear_search_action">Borrar búsqueda</string>
     <string name="deleted_item">«%s» eliminada</string>
     <string name="delete_action">Eliminar</string>
+    <string name="swipe_hint">Desliza una tarjeta a la izquierda para eliminarla</string>
+    <string name="swipe_hint_dismiss">Descartar sugerencia</string>
 
     <!-- Free quota -->
     <string name="quota_label">Plan gratuito</string>

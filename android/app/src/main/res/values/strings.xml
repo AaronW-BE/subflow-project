@@ -39,6 +39,8 @@
     <string name="clear_search_action">Clear search</string>
     <string name="deleted_item">Deleted “%s”</string>
     <string name="delete_action">Delete</string>
+    <string name="swipe_hint">Swipe a card left to delete it</string>
+    <string name="swipe_hint_dismiss">Dismiss hint</string>
 
     <!-- Free quota -->
     <string name="quota_label">Free plan</string>

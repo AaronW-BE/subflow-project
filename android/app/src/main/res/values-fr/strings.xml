@@ -36,6 +36,8 @@
     <string name="clear_search_action">Effacer la recherche</string>
     <string name="deleted_item">« %s » supprimé</string>
     <string name="delete_action">Supprimer</string>
+    <string name="swipe_hint">Balayez une carte vers la gauche pour la supprimer</string>
+    <string name="swipe_hint_dismiss">Masquer l’astuce</string>
 
     <!-- Free quota -->
     <string name="quota_label">Version gratuite</string>

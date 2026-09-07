@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -93,7 +94,9 @@ fun DashboardScreen(
     onSubscriptionClick: (String) -> Unit,
     onDeleteSubscription: (String) -> Unit,
     onRestoreSubscription: (String) -> Unit = {},
-    onPaywallClick: () -> Unit
+    onPaywallClick: () -> Unit,
+    showSwipeHint: Boolean = false,
+    onSwipeHintSeen: () -> Unit = {}
 ) {
     val haptics = rememberHaptics()
     val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
@@ -264,6 +267,12 @@ fun DashboardScreen(
                     }
                 }
 
+                if (showSwipeHint && !isLoading && filteredSubs.isNotEmpty()) {
+                    item(key = "swipe_hint") {
+                        SwipeHintCard(onDismiss = onSwipeHintSeen)
+                    }
+                }
+
                 when {
                     isLoading && activeSubs.isEmpty() -> {
                         items(4, key = { "skeleton_$it" }) { SubscriptionRowSkeleton() }
@@ -287,6 +296,7 @@ fun DashboardScreen(
                                 onDelete = {
                                     val deletedName = sub.name
                                     val deletedId = sub.id
+                                    onSwipeHintSeen()
                                     onDeleteSubscription(deletedId)
                                     scope.launch {
                                         snackbarHostState.currentSnackbarData?.dismiss()
@@ -952,6 +962,49 @@ private fun EmptyState(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
+        }
+    }
+}
+
+/**
+ * One line telling the user the rows can be swiped, shown until they dismiss
+ * it or delete something.
+ *
+ * Deliberately a row in the list rather than a tooltip or a coach mark: it
+ * takes its turn in the scroll, never covers what it describes, and a screen
+ * reader reaches it in reading order instead of having it thrown at them.
+ */
+@Composable
+private fun SwipeHintCard(onDismiss: () -> Unit) {
+    val dismissLabel = stringResource(R.string.swipe_hint_dismiss)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(start = 14.dp, end = 6.dp, top = 10.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = stringResource(R.string.swipe_hint),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        IconButton(onClick = onDismiss, modifier = Modifier.size(32.dp)) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = dismissLabel,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }

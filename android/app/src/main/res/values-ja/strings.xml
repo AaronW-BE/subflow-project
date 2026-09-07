@@ -36,6 +36,8 @@
     <string name="clear_search_action">検索をクリア</string>
     <string name="deleted_item">「%s」を削除しました</string>
     <string name="delete_action">削除</string>
+    <string name="swipe_hint">カードを左にスワイプすると削除できます</string>
+    <string name="swipe_hint_dismiss">ヒントを閉じる</string>
 
     <!-- Free quota -->
     <string name="quota_label">無料プラン</string>

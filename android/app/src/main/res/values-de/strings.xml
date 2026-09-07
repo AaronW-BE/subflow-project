@@ -36,6 +36,8 @@
     <string name="clear_search_action">Suche löschen</string>
     <string name="deleted_item">„%s“ gelöscht</string>
     <string name="delete_action">Löschen</string>
+    <string name="swipe_hint">Wische eine Karte nach links, um sie zu löschen</string>
+    <string name="swipe_hint_dismiss">Hinweis ausblenden</string>
 
     <!-- Free quota -->
     <string name="quota_label">Kostenlose Version</string>

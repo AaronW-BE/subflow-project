@@ -36,6 +36,8 @@
     <string name="clear_search_action">清除搜索</string>
     <string name="deleted_item">已删除“%s”</string>
     <string name="delete_action">删除</string>
+    <string name="swipe_hint">向左滑动卡片即可删除</string>
+    <string name="swipe_hint_dismiss">关闭提示</string>
 
     <!-- Free quota -->
     <string name="quota_label">免费版</string>

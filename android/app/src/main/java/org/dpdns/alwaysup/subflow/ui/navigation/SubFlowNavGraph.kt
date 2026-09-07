@@ -113,6 +113,7 @@ fun SubFlowNavHost(
     val currentUser by authRepository.currentUser.collectAsState()
     val primaryCurrency by preferencesManager.currency.collectAsState()
     val onboardingComplete by preferencesManager.onboardingComplete.collectAsState()
+    val swipeHintSeen by preferencesManager.swipeHintSeen.collectAsState()
     val plans by billingManager.plans.collectAsState()
     val billingConnection by billingManager.connectionState.collectAsState()
     val catalogueLoaded by billingManager.catalogueLoaded.collectAsState()
@@ -310,7 +311,9 @@ fun SubFlowNavHost(
                     onRestoreSubscription = { id ->
                         scope.launch { subscriptionRepository.restoreSubscription(id) }
                     },
-                    onPaywallClick = { navController.navigate(Screen.Paywall.route) }
+                    onPaywallClick = { navController.navigate(Screen.Paywall.route) },
+                    showSwipeHint = !swipeHintSeen,
+                    onSwipeHintSeen = { preferencesManager.markSwipeHintSeen() }
                 )
             }
 
