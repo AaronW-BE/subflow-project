@@ -41,7 +41,6 @@ object BrandLogos {
     private val byPresetId: Map<String, Int> = mapOf(
         "1password" to R.drawable.brand_1password,
         "adobe_cc" to R.drawable.brand_adobe_cc,
-        "amazon_prime" to R.drawable.brand_amazon_prime,
         "applemusic" to R.drawable.brand_applemusic,
         "appletv" to R.drawable.brand_appletv,
         "backblaze" to R.drawable.brand_backblaze,
@@ -84,7 +83,6 @@ object BrandLogos {
             "claudepro" to R.drawable.brand_claude,
             "githubcopilot" to R.drawable.brand_github_copilot,
             "adobecreativecloud" to R.drawable.brand_adobe_cc,
-            "amazonprime" to R.drawable.brand_amazon_prime,
                 "playstationplus" to R.drawable.brand_psplus,
             "psplus" to R.drawable.brand_psplus,
             "xboxgamepass" to R.drawable.brand_xbox_gamepass,
@@ -142,22 +140,32 @@ object BrandLogos {
      * rather than simple-icons' redrawing of it.
      *
      * Disney+ is the other bitmap. Its background is a gradient centred off one
- * corner, not the flat colour a vector could carry as a plain rectangle, and
- * the wordmark is script rather than geometry. Approximating either would ship
- * a logo that is nearly right, which is worse than the brand's own artwork.
- *
- * Microsoft 365's squares were nearly missed: the published SVG holds them
+     * corner, not the flat colour a vector could carry as a plain rectangle,
+     * and the wordmark is script rather than geometry. Approximating either
+     * would ship a logo that is nearly right, which is worse than the brand's
+     * own artwork.
+     *
+     * Microsoft 365's squares were nearly missed: the published SVG holds them
      * as <rect> elements, so a path-only look at the file finds nothing but the
-     * grey wordmark and concludes there is no symbol in it. Medium still keeps
-     * a letter tile, because a white "M" on black already is its icon.
+     * grey wordmark and concludes there is no symbol in it.
+     *
+     * Medium was a letter tile for a while, on the argument that a white "M"
+     * on black already is its icon. That was right about the shape and wrong
+     * about the letter: the tile drew the M in this app's own sans face, so it
+     * read as the fallback every unknown service gets rather than as a logo.
+     * The mark carries Medium's serif M instead, lifted whole out of the
+     * wordmark - Brandfetch has no square Medium icon, only that wordmark
+     * cropped to a square through the middle of the "e".
      */
     private val colourMarks: Map<String, Int> = mapOf(
+        "amazon_prime" to R.drawable.brand_colour_amazon_prime,
         "disney" to R.drawable.brand_colour_disneyplus,
         "figma" to R.drawable.brand_colour_figma,
         "icloud" to R.drawable.brand_colour_icloud,
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
         "max" to R.drawable.brand_colour_max,
+        "medium" to R.drawable.brand_colour_medium,
         "microsoft365" to R.drawable.brand_colour_microsoft365,
         "netflix" to R.drawable.brand_colour_netflix,
         "primevideo" to R.drawable.brand_colour_primevideo,
@@ -182,6 +190,10 @@ object BrandLogos {
         "max" to R.drawable.brand_colour_max,
         "amazonprimevideo" to R.drawable.brand_colour_primevideo,
         "primevideo" to R.drawable.brand_colour_primevideo,
+        // Shorter than "amazonprimevideo", so it is the longest-alias-first
+        // sort in colourMarkFor that keeps "Amazon Prime Video" off this one.
+        "amazonprime" to R.drawable.brand_colour_amazon_prime,
+        "medium" to R.drawable.brand_colour_medium,
         "duolingo" to R.drawable.brand_colour_duolingo,
         "duolingosuper" to R.drawable.brand_colour_duolingo,
         "googleone" to R.drawable.brand_colour_google_one,

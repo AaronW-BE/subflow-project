@@ -36,6 +36,14 @@ DRAWABLE = os.path.join(
 # drawable name -> (source file, display name, extra flags)
 MARKS = {
     "duolingo": ("duolingo-seeklogo.svg", "duolingo", []),
+    # A wordmark, so it is wide: at inset 1.0 it would be 4605 wide and 2723
+    # tall in a square badge and read as a stripe. 0.86 leaves it the widest
+    # mark in the set without touching the badge's rounded corners.
+    "amazon_prime": ("amazon-prime-logo.svg", "Amazon Prime",
+                     ["--background", "#FFFFFF", "--inset", "0.86"]),
+    # The source is one glyph cut out of a wordmark; medium-M.svg says why.
+    "medium": ("medium-M.svg", "Medium",
+               ["--background", "#000000", "--inset", "0.60"]),
     "netflix": ("netflix-seeklogo.svg", "netflix",
                 ["--background", "#000000", "--inset", "0.72"]),
     "max": ("hbo-max-2025-seeklogo.svg", "hbomax",
