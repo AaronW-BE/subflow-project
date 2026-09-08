@@ -706,13 +706,25 @@ fun AddSubscriptionScreen(
                 // on the key it is already showing: prepending the brand
                 // colour pushed it off the left edge and the row still came up
                 // looking unanswered - the exact symptom being fixed. It also
-                // covers the palette colours far enough along to be off-screen.
+                // covers the palette colours far enough along to be off-screen,
+                // which was true before any of this.
                 val swatchScroll = rememberLazyListState()
                 LaunchedEffect(swatches, selectedColorHex) {
                     val index = swatches.indexOfFirst {
                         it.equals(selectedColorHex, ignoreCase = true)
                     }
-                    if (index >= 0) swatchScroll.scrollToItem(index)
+                    if (index < 0) return@LaunchedEffect
+                    // Only when it is not already on screen. Scrolling on every
+                    // pick meant tapping a swatch that was sitting right there
+                    // yanked the row half a screen sideways under the finger -
+                    // a worse fault than the one being fixed, and one this
+                    // effect introduced rather than found.
+                    val info = swatchScroll.layoutInfo
+                    val item = info.visibleItemsInfo.firstOrNull { it.index == index }
+                    val fullyVisible = item != null &&
+                        item.offset >= info.viewportStartOffset &&
+                        item.offset + item.size <= info.viewportEndOffset
+                    if (!fullyVisible) swatchScroll.animateScrollToItem(index)
                 }
                 // Whether the icon is artwork that covers the tile completely,
                 // in which case this colour cannot change it.
