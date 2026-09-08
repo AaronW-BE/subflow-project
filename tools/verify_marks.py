@@ -52,7 +52,7 @@ MARKS = {
     # matrix would show up here as changed coordinates rather than as a
     # subtly wrong colour ramp nobody notices.
     "icloud": ("icloud-Icon.svg", "iCloud",
-               ["--background", "#FFFFFF", "--inset", "0.70"]),
+               ["--background", "#FFFFFF", "--inset", "0.80"]),
 }
 
 
