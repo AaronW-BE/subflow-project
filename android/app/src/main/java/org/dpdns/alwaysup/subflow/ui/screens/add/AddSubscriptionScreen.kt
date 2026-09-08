@@ -402,55 +402,6 @@ fun AddSubscriptionScreen(
                 }
             }
 
-            item(key = "color") {
-                Column {
-                    SectionHeader(text = stringResource(R.string.brand_accent_color))
-                    AppleCard(modifier = Modifier.fillMaxWidth()) {
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(ApplePalette, key = { it }) { hex ->
-                                val color = parseHexColor(hex)
-                                val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
-                                val colourLabel = stringResource(R.string.cd_accent_colour, hex)
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                        .border(
-                                            width = if (isSelected) 3.dp else 0.dp,
-                                            color = if (isSelected) {
-                                                MaterialTheme.colorScheme.onSurface
-                                            } else Color.Transparent,
-                                            shape = CircleShape
-                                        )
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null
-                                        ) {
-                                            haptics.tick()
-                                            selectedColorHex = hex
-                                        }
-                                        .semantics { contentDescription = colourLabel },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             item(key = "details") {
                 Column {
                     SectionHeader(text = stringResource(R.string.subscription_details))
@@ -735,6 +686,55 @@ fun AddSubscriptionScreen(
                         onItemSelected = { cycle = it },
                         itemLabel = { cycleLabel(it) }
                     )
+                }
+            }
+
+            item(key = "color") {
+                Column {
+                    SectionHeader(text = stringResource(R.string.brand_accent_color))
+                    AppleCard(modifier = Modifier.fillMaxWidth()) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(ApplePalette, key = { it }) { hex ->
+                                val color = parseHexColor(hex)
+                                val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
+                                val colourLabel = stringResource(R.string.cd_accent_colour, hex)
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .background(color)
+                                        .border(
+                                            width = if (isSelected) 3.dp else 0.dp,
+                                            color = if (isSelected) {
+                                                MaterialTheme.colorScheme.onSurface
+                                            } else Color.Transparent,
+                                            shape = CircleShape
+                                        )
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            haptics.tick()
+                                            selectedColorHex = hex
+                                        }
+                                        .semantics { contentDescription = colourLabel },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (isSelected) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

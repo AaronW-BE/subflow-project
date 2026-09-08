@@ -39,6 +39,8 @@
     <string name="clear_search_action">Clear search</string>
     <string name="deleted_item">Deleted “%s”</string>
     <string name="delete_action">Delete</string>
+    <string name="swipe_hint">Swipe a card left to delete it</string>
+    <string name="swipe_hint_dismiss">Dismiss hint</string>
 
     <!-- Free quota -->
     <string name="quota_label">Free plan</string>
@@ -152,6 +154,12 @@
     <string name="onboarding_2_body">A reminder lands before the charge does, so you can cancel while it still costs nothing.</string>
     <string name="onboarding_3_title">Your data stays on your phone</string>
     <string name="onboarding_3_body">No account required. Everything is stored locally, and cloud backup is entirely your choice.</string>
+    <string name="onboarding_manage_title">Add, change, remove</string>
+    <string name="onboarding_manage_add">Tap + to add a subscription</string>
+    <string name="onboarding_manage_edit">Tap any card to edit it</string>
+    <string name="onboarding_manage_delete">Swipe a card left to delete it, or open it and tap Delete</string>
+    <string name="onboarding_replay">Show the walkthrough again</string>
+    <string name="onboarding_replay_sub">Replay the first-run introduction</string>
 
     <!-- Analytics -->
     <string name="analytics_title">Analytics</string>
