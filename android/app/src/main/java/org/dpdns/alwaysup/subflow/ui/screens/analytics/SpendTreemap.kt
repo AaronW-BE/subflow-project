@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -158,6 +159,7 @@ internal fun SpendTreemap(
     val density = LocalDensity.current
 
     BoxWithConstraints(
+        contentAlignment = AbsoluteAlignment.TopLeft,
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .then(
@@ -193,7 +195,14 @@ internal fun SpendTreemap(
 
             Box(
                 modifier = Modifier
-                    .offset(
+                    // absoluteOffset rather than offset, to match the
+                    // coordinates: squarify works in absolute pixels from the
+                    // top left, while offset() and Alignment.TopStart are both
+                    // direction-aware and would reinterpret them under RTL.
+                    // Untested there - no shipped locale is right-to-left and
+                    // the emulator would not take the forced-RTL setting - so
+                    // this is the API contract rather than an observation.
+                    .absoluteOffset(
                         x = with(density) { rect.x.toDp() },
                         y = with(density) { rect.y.toDp() }
                     )

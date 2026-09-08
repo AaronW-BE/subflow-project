@@ -795,7 +795,7 @@ internal fun buildTreemapItems(
     val head = ranked.take(maxTiles - 1)
     val tail = ranked.drop(maxTiles - 1)
     val tailTotal = tail.sumOf { it.second }
-    return head.map { (sub, amount) ->
+    val tiles = head.map { (sub, amount) ->
         TreemapItem(
             label = sub.name,
             subtitle = CurrencyFormatter.formatCompact(amount, primaryCurrency),
@@ -808,6 +808,12 @@ internal fun buildTreemapItems(
         value = tailTotal,
         color = otherColor
     )
+    // Sorted again, because the pooled tile is a sum and can outweigh several
+    // of the tiles it follows - seven at 100 and a tail of 200 is enough.
+    // squarify's packing is only as good as the descending order it is given:
+    // appended blind, that example's worst aspect ratio went from 1.6 to 2.0
+    // and one tile came out visibly elongated.
+    return tiles.sortedByDescending { it.value }
 }
 
 /**
