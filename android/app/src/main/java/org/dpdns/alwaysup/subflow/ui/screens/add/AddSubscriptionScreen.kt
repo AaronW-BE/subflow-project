@@ -77,8 +77,6 @@ fun AddSubscriptionScreen(
     primaryCurrency: String = "USD",
     isPro: Boolean = false,
     existingSubscription: Subscription? = null,
-    /** Preset chosen on a preceding step. Non-null hides the Service row. */
-    initialPreset: PresetService? = null,
     onSaveSubscription: (Subscription) -> Unit,
     onCancel: () -> Unit,
     onUpgradeClick: () -> Unit = {}
@@ -131,14 +129,6 @@ fun AddSubscriptionScreen(
     }
 
     var showServiceSheet by remember { mutableStateOf(false) }
-
-    // What step one chose, remembered so coming back from a rotation does not
-    // re-apply the preset over edits already made here.
-    var seededPresetId by rememberSaveable { mutableStateOf<String?>(null) }
-    // What the preceding step put on this screen, so that going back to change
-    // the service is not mistaken for throwing away work the user did.
-    var seededName by rememberSaveable { mutableStateOf<String?>(null) }
-    var seededAmount by rememberSaveable { mutableStateOf<String?>(null) }
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showCategorySheet by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
@@ -193,16 +183,10 @@ fun AddSubscriptionScreen(
     val isValid = nameValid && amountValid
 
     val hasChanges = remember(
-        name, category, amountText, currency, cycle, reminderDays, selectedColorHex, notes,
-        firstBillDate, seededName, seededAmount
+        name, category, amountText, currency, cycle, reminderDays, selectedColorHex, notes, firstBillDate
     ) {
         if (existingSubscription == null) {
-            // On a seeded screen the preset's own name and price are not the
-            // user's work. Back is the wizard's previous step, and prompting to
-            // discard changes nobody made turns a two-step flow into a trap.
-            val ownName = name.isNotBlank() && name != seededName
-            val ownAmount = amountText.isNotBlank() && amountText != seededAmount
-            ownName || ownAmount || notes.isNotBlank()
+            name.isNotBlank() || amountText.isNotBlank() || notes.isNotBlank()
         } else {
             name != existingSubscription.name ||
                 category != existingSubscription.category ||
@@ -247,18 +231,6 @@ fun AddSubscriptionScreen(
             amountText = ""
             amountIsPresetUSD = false
         }
-    }
-
-    // Seeding rather than pre-computing the state: applyPreset is the one
-    // place that knows a preset also carries a cycle, a colour and a price the
-    // user's currency may not want.
-    LaunchedEffect(initialPreset?.id) {
-        val preset = initialPreset ?: return@LaunchedEffect
-        if (seededPresetId == preset.id) return@LaunchedEffect
-        seededPresetId = preset.id
-        applyPreset(preset)
-        seededName = name
-        seededAmount = amountText
     }
 
     fun attemptCancel() {
@@ -438,7 +410,7 @@ fun AddSubscriptionScreen(
                         // preset rewrites the name, price, colour and cycle,
                         // which is what you want while creating one and not
                         // what you want while correcting one.
-                        if (!isEditing && initialPreset == null) {
+                        if (!isEditing) {
                             val selectedPreset = presets.firstOrNull { it.id == selectedPresetId }
                             Row(
                                 modifier = Modifier

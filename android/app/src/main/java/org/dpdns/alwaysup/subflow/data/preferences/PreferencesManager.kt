@@ -149,21 +149,6 @@ class PreferencesManager(context: Context) {
      * the introduction again is asking for its hints too, and leaving the swipe
      * hint retired would half-restore it.
      */
-    /**
-     * Whether adding a subscription is split into choose-then-edit.
-     *
-     * A switch rather than a decision because both flows are worth trying on
-     * real data before one of them is kept; the losing one goes, and so does
-     * this. Debug builds only - see SettingsScreen.
-     */
-    private val _stagedAddFlow = MutableStateFlow(prefs.getBoolean(KEY_STAGED_ADD, true))
-    val stagedAddFlow: StateFlow<Boolean> = _stagedAddFlow.asStateFlow()
-
-    fun setStagedAddFlow(enabled: Boolean) {
-        _stagedAddFlow.value = enabled
-        prefs.edit().putBoolean(KEY_STAGED_ADD, enabled).apply()
-    }
-
     fun restartOnboarding() {
         _onboardingComplete.value = false
         _swipeHintSeen.value = false
@@ -219,7 +204,6 @@ class PreferencesManager(context: Context) {
         const val PREFS_NAME = "subflow_user_preferences"
         private const val KEY_LEADS = "reminder_lead_days"
         private const val KEY_SWIPE_HINT = "swipe_hint_seen"
-        private const val KEY_STAGED_ADD = "staged_add_flow"
 
         fun resolveInitialLanguage(context: Context): String {
             val saved = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

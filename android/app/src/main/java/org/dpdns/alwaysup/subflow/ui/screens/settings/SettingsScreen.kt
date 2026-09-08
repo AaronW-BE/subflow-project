@@ -78,9 +78,7 @@ fun SettingsScreen(
     onOpenUrl: (String) -> Unit,
     onShareApp: () -> Unit,
     onRateApp: () -> Unit,
-    onReplayOnboarding: () -> Unit = {},
-    stagedAddFlow: Boolean = true,
-    onStagedAddFlowChange: (Boolean) -> Unit = {}
+    onReplayOnboarding: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentCurrency by preferencesManager.currency.collectAsState()
@@ -458,23 +456,6 @@ fun SettingsScreen(
                         iconTint = MaterialTheme.colorScheme.primary,
                         onClick = onShareApp
                     )
-                    // Debug builds only: this switch exists so both add
-                    // flows can be tried on the same data before one of them
-                    // is kept. It goes when that is decided.
-                    if (BuildConfig.DEBUG) {
-                        AppleListRow(
-                            title = stringResource(R.string.staged_add_flow),
-                            subtitle = stringResource(R.string.staged_add_flow_sub),
-                            icon = Icons.Default.Route,
-                            iconTint = MaterialTheme.colorScheme.tertiary,
-                            trailingContent = {
-                                Switch(
-                                    checked = stagedAddFlow,
-                                    onCheckedChange = onStagedAddFlowChange
-                                )
-                            }
-                        )
-                    }
                     AppleListRow(
                         title = stringResource(R.string.onboarding_replay),
                         subtitle = stringResource(R.string.onboarding_replay_sub),
