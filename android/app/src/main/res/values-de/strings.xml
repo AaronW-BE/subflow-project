@@ -71,6 +71,7 @@
     <string name="renewal_alerts">Erinnerung</string>
     <string name="remind_before_renewal">Vor der Abbuchung benachrichtigen</string>
     <string name="live_preview">LIVE-VORSCHAU</string>
+    <string name="accent_colour_own_mark">Dieser Dienst bringt sein eigenes farbiges Icon mit, die Akzentfarbe ändert es also nicht. Sie färbt den Dienst auf der Ausgabenkarte.</string>
     <string name="brand_accent_color">AKZENTFARBE</string>
     <string name="subscription_details">DETAILS</string>
     <string name="field_name">Name</string>

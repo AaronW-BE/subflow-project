@@ -71,6 +71,7 @@
     <string name="renewal_alerts">更新通知</string>
     <string name="remind_before_renewal">請求される前に知らせます</string>
     <string name="live_preview">プレビュー</string>
+    <string name="accent_colour_own_mark">このサービスはフルカラーのアイコンを持っているため、アクセントカラーではアイコンは変わりません。支出マップでの色になります。</string>
     <string name="brand_accent_color">アクセントカラー</string>
     <string name="subscription_details">詳細</string>
     <string name="field_name">名前</string>

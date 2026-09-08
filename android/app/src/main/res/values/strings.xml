@@ -74,6 +74,7 @@
     <string name="renewal_alerts">Renewal alert</string>
     <string name="remind_before_renewal">Notify before the charge lands</string>
     <string name="live_preview">LIVE PREVIEW</string>
+    <string name="accent_colour_own_mark">This service brings its own full-colour icon, so the accent will not change it. It tints the service on the spend map.</string>
     <string name="brand_accent_color">ACCENT COLOUR</string>
     <string name="subscription_details">DETAILS</string>
     <string name="field_name">Name</string>

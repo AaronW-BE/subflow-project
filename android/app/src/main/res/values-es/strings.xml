@@ -71,6 +71,7 @@
     <string name="renewal_alerts">Aviso de renovación</string>
     <string name="remind_before_renewal">Avisarte antes del cobro</string>
     <string name="live_preview">VISTA PREVIA</string>
+    <string name="accent_colour_own_mark">Este servicio trae su propio icono a todo color, así que el color de acento no lo cambiará. Colorea el servicio en el mapa de gastos.</string>
     <string name="brand_accent_color">COLOR DE ACENTO</string>
     <string name="subscription_details">DETALLES</string>
     <string name="field_name">Nombre</string>

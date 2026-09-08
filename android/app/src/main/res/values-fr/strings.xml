@@ -71,6 +71,7 @@
     <string name="renewal_alerts">Rappel de renouvellement</string>
     <string name="remind_before_renewal">Vous prévenir avant le prélèvement</string>
     <string name="live_preview">APERÇU EN DIRECT</string>
+    <string name="accent_colour_own_mark">Ce service fournit sa propre icône en couleur : la couleur d’accent ne la changera pas. Elle colore le service sur la carte des dépenses.</string>
     <string name="brand_accent_color">COULEUR D’ACCENT</string>
     <string name="subscription_details">DÉTAILS</string>
     <string name="field_name">Nom</string>

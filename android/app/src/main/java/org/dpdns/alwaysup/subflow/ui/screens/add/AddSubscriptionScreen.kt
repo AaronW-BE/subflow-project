@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -690,28 +692,82 @@ fun AddSubscriptionScreen(
             }
 
             item(key = "color") {
+                // The service's own colour, when there is one to know about.
+                // On a fresh pick that is the preset; on an edit the preset id
+                // is null, so it is recovered from the name the row was saved
+                // with.
+                val brandColour = remember(selectedPresetId, name, presets) {
+                    (presets.firstOrNull { it.id == selectedPresetId }
+                        ?: presets.firstOrNull { it.name.equals(name.trim(), ignoreCase = true) })
+                        ?.brandColor
+                }
+                val swatches = remember(brandColour) { accentSwatches(brandColour) }
+                // The selected swatch has to be brought into view, and not
+                // only for tidiness. This row is keyed, so a lazy list anchors
+                // on the key it is already showing: prepending the brand
+                // colour pushed it off the left edge and the row still came up
+                // looking unanswered - the exact symptom being fixed. It also
+                // covers the palette colours far enough along to be off-screen,
+                // which was true before any of this.
+                val swatchScroll = rememberLazyListState()
+                LaunchedEffect(swatches, selectedColorHex) {
+                    val index = swatches.indexOfFirst {
+                        it.equals(selectedColorHex, ignoreCase = true)
+                    }
+                    if (index < 0) return@LaunchedEffect
+                    // Only when it is not already on screen. Scrolling on every
+                    // pick meant tapping a swatch that was sitting right there
+                    // yanked the row half a screen sideways under the finger -
+                    // a worse fault than the one being fixed, and one this
+                    // effect introduced rather than found.
+                    val info = swatchScroll.layoutInfo
+                    val item = info.visibleItemsInfo.firstOrNull { it.index == index }
+                    val fullyVisible = item != null &&
+                        item.offset >= info.viewportStartOffset &&
+                        item.offset + item.size <= info.viewportEndOffset
+                    if (!fullyVisible) swatchScroll.animateScrollToItem(index)
+                }
+                // Whether the icon is artwork that covers the tile completely,
+                // in which case this colour cannot change it.
+                val hasFullColourMark = remember(selectedPresetId, name) {
+                    BrandLogos.colourMarkFor(selectedPresetId, name) != null
+                }
+
                 Column {
                     SectionHeader(text = stringResource(R.string.brand_accent_color))
                     AppleCard(modifier = Modifier.fillMaxWidth()) {
                         LazyRow(
+                            state = swatchScroll,
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            items(ApplePalette, key = { it }) { hex ->
+                            items(swatches, key = { it }) { hex ->
                                 val color = parseHexColor(hex)
                                 val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
                                 val colourLabel = stringResource(R.string.cd_accent_colour, hex)
+                                // The ring sits outside the swatch with a gap,
+                                // rather than on its edge. Drawn on the edge in
+                                // onSurface it vanished into any swatch of a
+                                // similar tone - Apple TV+ is #1C1C1E and the
+                                // ring is near-black in light mode, so the one
+                                // selected swatch was the one with no visible
+                                // selection. Out here it only ever has to
+                                // contrast with the card, which it always does.
+                                //
+                                // The swatch stays 36dp whether or not it is
+                                // selected, so nothing resizes as the selection
+                                // moves.
                                 Box(
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                        .border(
-                                            width = if (isSelected) 3.dp else 0.dp,
-                                            color = if (isSelected) {
-                                                MaterialTheme.colorScheme.onSurface
-                                            } else Color.Transparent,
-                                            shape = CircleShape
+                                        .size(44.dp)
+                                        .then(
+                                            if (isSelected) {
+                                                Modifier.border(
+                                                    width = 2.dp,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    shape = CircleShape
+                                                )
+                                            } else Modifier
                                         )
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
@@ -723,16 +779,46 @@ fun AddSubscriptionScreen(
                                         .semantics { contentDescription = colourLabel },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(18.dp)
-                                        )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(color),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (isSelected) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                                // Brand colours joined this row
+                                                // and some of them are bright:
+                                                // Hulu's green is luminance
+                                                // 0.59, and a white tick on it
+                                                // is barely there.
+                                                tint = if (color.luminance() > 0.5f) {
+                                                    Color.Black.copy(alpha = 0.8f)
+                                                } else Color.White,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
+                        }
+
+                        // Said once, here, rather than left for the user to
+                        // discover by tapping a swatch and seeing the preview
+                        // not move.
+                        if (hasFullColourMark) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.accent_colour_own_mark),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    lineHeight = 15.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
@@ -1099,6 +1185,28 @@ private fun sanitiseAmountInput(raw: String): String {
     } else {
         filtered
     }
+}
+
+/**
+ * The swatches to offer, with the service's own colour among them.
+ *
+ * 31 of the 34 presets have a brand colour that is not one of the ten in
+ * [ApplePalette], so the row used to come up with nothing selected after
+ * choosing a service - a field that looks unanswered, and whose every answer
+ * silently replaced the right colour with a generic one that could not be
+ * undone, because the right one was not on offer.
+ *
+ * First rather than appended: it is the value the field already holds, and a
+ * user who changes their mind should not have to hunt for the way back.
+ */
+internal fun accentSwatches(
+    brandColour: String?,
+    palette: List<String> = ApplePalette
+): List<String> {
+    val brand = brandColour?.trim().orEmpty()
+    if (brand.isEmpty()) return palette
+    if (palette.any { it.equals(brand, ignoreCase = true) }) return palette
+    return listOf(brand) + palette
 }
 
 private fun String.parseAmount(): Double = trim().toDoubleOrNull() ?: 0.0
