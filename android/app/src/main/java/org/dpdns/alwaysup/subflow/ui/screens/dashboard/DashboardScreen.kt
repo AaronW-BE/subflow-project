@@ -33,7 +33,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.WorkspacePremium
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,9 +50,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -470,33 +471,57 @@ private fun DashboardHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Only shown to free users, so there is no disabled state to
+            // design: the control is absent rather than dead once Pro is on.
             if (!isPro) {
+                // This said "PRO" in a tinted pill, which is the word and very
+                // nearly the shape this app uses for two things that are not
+                // this: ProBadge marks a feature you cannot reach yet, and the
+                // account card wears one to say you already have Pro. The only
+                // way to buy Pro was dressed as an announcement that you had
+                // it. It now says what it does and carries the chevron every
+                // other row that opens a page carries.
+                //
+                // No contentDescription: the visible text is the label now,
+                // and adding one would only give a screen reader the same
+                // sentence twice. The role is set because nothing else sets
+                // it - a tree dump showed this announcing as a view rather
+                // than as a button.
                 Surface(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(50))
                         .clickable(onClick = onPaywallClick)
-                        .semantics { contentDescription = upgradeLabel },
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                        .semantics { role = Role.Button },
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White
                 ) {
+                    // Tight on purpose, and measured rather than guessed. At
+                    // 360dp the English title wants 207dp and this row is what
+                    // is left over: at the paddings and 11sp that looked right
+                    // in isolation the title came out as "Subscriptio..." and
+                    // the pill sat against it. Every dp taken from here goes
+                    // back to the title, because the title column has the
+                    // weight, so this is also what buys the gap between them.
                     Row(
                         modifier = Modifier
                             .heightIn(min = 34.dp)
-                            .padding(horizontal = 10.dp),
+                            .padding(start = 9.dp, end = 7.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.WorkspacePremium,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(15.dp)
-                        )
                         Text(
-                            text = "PRO",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
+                            text = upgradeLabel,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 10.sp
+                            ),
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                            contentDescription = null,
+                            modifier = Modifier.size(10.dp)
                         )
                     }
                 }
