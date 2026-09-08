@@ -93,6 +93,28 @@ fun AnalyticsScreen(
         buildSpendHistory(activeSubs, primaryCurrency, locale)
     }
 
+    val forecast = remember(activeSubs, primaryCurrency, locale) {
+        buildBillingForecast(activeSubs, primaryCurrency, locale)
+    }
+    val peakMonth = remember(forecast) { forecast.maxByOrNull { it.amount } }
+    // "Even" means no month stands out enough to be worth naming. A tenth is
+    // roughly the point where a bar looks taller rather than measures taller.
+    val forecastIsEven = remember(forecast) {
+        val amounts = forecast.map { it.amount }
+        val high = amounts.maxOrNull() ?: 0.0
+        val low = amounts.minOrNull() ?: 0.0
+        high <= 0.0 || (high - low) / high < 0.10
+    }
+
+    val otherLabel = stringResource(R.string.spend_map_other)
+    // The pooled tile has no brand of its own, so it takes the theme's muted
+    // ink - passed in rather than read inside, because the builder is a plain
+    // function the tests can call.
+    val otherColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+    val treemapItems = remember(activeSubs, primaryCurrency, otherLabel, otherColor) {
+        buildTreemapItems(activeSubs, primaryCurrency, otherLabel, otherColor)
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -191,11 +213,7 @@ fun AnalyticsScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Text(
-                            text = stringResource(R.string.history_caption),
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
+                        ChartCaption(text = stringResource(R.string.history_caption))
                     }
                 }
             }
@@ -261,6 +279,79 @@ fun AnalyticsScreen(
                         totalMonthly = totalMonthly,
                         primaryCurrency = primaryCurrency
                     )
+                }
+            }
+        }
+
+        item(key = "map_header") {
+            SectionHeader(text = stringResource(R.string.spend_map).uppercase())
+        }
+
+        item(key = "map") {
+            AppleCard(modifier = Modifier.fillMaxWidth()) {
+                ProGate(isPro = isPro, onUnlock = onPaywallClick) {
+                    Column {
+                        SpendTreemap(
+                            items = treemapItems,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                // The layout can only be as square as the box
+                                // it is given: at 196dp the widest phone left
+                                // a 1.8:1 box and the two biggest tiles came
+                                // out as columns twice as tall as they were
+                                // wide. This is the shortest height that keeps
+                                // them close to square without the card
+                                // dominating the screen.
+                                .height(216.dp),
+                            summary = stringResource(
+                                R.string.spend_map_summary,
+                                CurrencyFormatter.format(totalMonthly, primaryCurrency, locale),
+                                activeSubs.size,
+                                topSubs.firstOrNull()?.name.orEmpty()
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        ChartCaption(text = stringResource(R.string.spend_map_caption))
+                    }
+                }
+            }
+        }
+
+        item(key = "forecast_header") {
+            SectionHeader(text = stringResource(R.string.billing_forecast).uppercase())
+        }
+
+        item(key = "forecast") {
+            AppleCard(modifier = Modifier.fillMaxWidth()) {
+                ProGate(isPro = isPro, onUnlock = onPaywallClick) {
+                    Column {
+                        BillingForecastChart(
+                            forecast = forecast,
+                            monthlyAverage = totalMonthly,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = if (forecastIsEven || peakMonth == null) {
+                                stringResource(
+                                    R.string.forecast_even,
+                                    CurrencyFormatter.format(totalMonthly, primaryCurrency, locale)
+                                )
+                            } else {
+                                stringResource(
+                                    R.string.forecast_peak,
+                                    peakMonth.label,
+                                    CurrencyFormatter.format(peakMonth.amount, primaryCurrency, locale)
+                                )
+                            },
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        ChartCaption(text = stringResource(R.string.forecast_average_line))
+                        Spacer(modifier = Modifier.height(2.dp))
+                        ChartCaption(text = stringResource(R.string.billing_forecast_caption))
+                    }
                 }
             }
         }
@@ -394,6 +485,16 @@ private fun ProGate(
             }
         }
     }
+}
+
+/** The grey small print under a chart, saying what it is measuring. */
+@Composable
+private fun ChartCaption(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 14.sp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    )
 }
 
 @Composable
@@ -658,6 +759,55 @@ private fun SpendTrendChart(
             }
         }
     }
+}
+
+/**
+ * The map's tiles: one per subscription, biggest first.
+ *
+ * Capped, because area is only readable while there is area. Past eight tiles
+ * the tail is slivers a few pixels wide that cannot be labelled or compared, so
+ * everything below the top seven is pooled into one honest "everything else"
+ * tile rather than drawn as noise.
+ */
+internal fun buildTreemapItems(
+    subs: List<Subscription>,
+    primaryCurrency: String,
+    otherLabel: String,
+    otherColor: Color,
+    maxTiles: Int = 8
+): List<TreemapItem> {
+    val ranked = subs
+        .map { it to CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
+        .filter { it.second > 0.0 }
+        .sortedByDescending { it.second }
+
+    if (ranked.size <= maxTiles) {
+        return ranked.map { (sub, amount) ->
+            TreemapItem(
+                label = sub.name,
+                subtitle = CurrencyFormatter.formatCompact(amount, primaryCurrency),
+                value = amount,
+                color = parseHexColor(sub.colorHex)
+            )
+        }
+    }
+
+    val head = ranked.take(maxTiles - 1)
+    val tail = ranked.drop(maxTiles - 1)
+    val tailTotal = tail.sumOf { it.second }
+    return head.map { (sub, amount) ->
+        TreemapItem(
+            label = sub.name,
+            subtitle = CurrencyFormatter.formatCompact(amount, primaryCurrency),
+            value = amount,
+            color = parseHexColor(sub.colorHex)
+        )
+    } + TreemapItem(
+        label = otherLabel,
+        subtitle = CurrencyFormatter.formatCompact(tailTotal, primaryCurrency),
+        value = tailTotal,
+        color = otherColor
+    )
 }
 
 /**
