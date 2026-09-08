@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Medium's M, lifted whole out of the wordmark.
+
+     Brandfetch has no square Medium icon: what it serves as one is the
+     wordmark cropped to a square, which cuts the "e" in half. The M is
+     the wordmark's first subpath and opens the path, so its coordinates
+     are already absolute; the d below is a byte-for-byte substring of
+     https://cdn.brandfetch.io/idIlQtGZ76/theme/dark/logo.svg and the
+     viewBox is the box that subpath occupies. Nothing is redrawn.
+
+     The wordmark ships this glyph in #242424 on white. The fill here is
+     white because the badge is Medium's own app icon - a black tile with
+     the M knocked out of it - and the letterform, not the ink, is what
+     had to come from the brand. -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="1.456 8.020 172.863 146.133">
+  <path fill="#FFFFFF" d="m174.104 9.734.215-.047V8.02H130.39L89.6 103.89 48.81 8.021H1.472v1.666l.212.047c8.018 1.81 12.09 4.509 12.09 14.242V137.93c0 9.734-4.087 12.433-12.106 14.243l-.212.047v1.671h32.118v-1.665l-.213-.048c-8.018-1.809-12.089-4.509-12.089-14.242V30.586l52.399 123.305h2.972l53.925-126.743V140.75c-.687 7.688-4.721 10.062-11.982 11.701l-.215.05v1.652h55.948v-1.652l-.215-.05c-7.269-1.639-11.4-4.013-12.087-11.701l-.037-116.774h.037c0-9.733 4.071-12.432 12.087-14.242" />
+</svg>
