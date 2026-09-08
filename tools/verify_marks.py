@@ -47,6 +47,12 @@ MARKS = {
     # badge where its neighbours sit near 70%.
     "slack": ("slack-Symbol.svg", "Slack",
               ["--background", "#FFFFFF", "--inset", "1.35"]),
+    # The only mark with a gradient. Its endpoints are the source's
+    # gradientTransform baked in, so a converter that stopped applying that
+    # matrix would show up here as changed coordinates rather than as a
+    # subtly wrong colour ramp nobody notices.
+    "icloud": ("icloud-Icon.svg", "iCloud",
+               ["--background", "#FFFFFF", "--inset", "0.70"]),
 }
 
 
@@ -59,6 +65,12 @@ def signature(path):
         "fillTypes": re.findall(r'android:fillType="([^"]+)"', s),
         "groups": re.findall(r"<group ([^>]*)>", s),
         "viewport": re.findall(r'android:viewport\w+="([^"]+)"', s),
+        # Without these a gradient mark would pass this check on its path
+        # alone, and a broken colour ramp is exactly the kind of wrongness
+        # nobody spots by glancing at a 24dp badge.
+        "gradients": re.findall(r'android:(?:start|end)[XY]="([^"]+)"', s),
+        "stops": re.findall(r'<item android:offset="([^"]+)" '
+                            r'android:color="([^"]+)" />', s),
     }
 
 

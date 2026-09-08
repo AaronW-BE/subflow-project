@@ -66,8 +66,29 @@ def attr(tag, name):
     return m.group(1) if m else None
 
 
+def parse_style(tag):
+    """The element's own style="a:b;c:d" declarations."""
+    raw = attr(tag, 'style')
+    if not raw:
+        return {}
+    props = {}
+    for decl in raw.split(';'):
+        if ':' in decl:
+            key, _, value = decl.partition(':')
+            props[key.strip()] = value.strip()
+    return props
+
+
 def resolve(tag, classes, prop):
-    """A presentation property, from the attribute or the element's class."""
+    """A presentation property, from style, the attribute, or the class.
+
+    Three mechanisms because real exports use all three. Inkscape writes
+    everything into style="", which is why an iCloud file whose only path was
+    styled that way converted to a drawable with no paths in it at all.
+    """
+    styled = parse_style(tag).get(prop)
+    if styled:
+        return styled
     direct = attr(tag, prop)
     if direct:
         return direct
@@ -108,6 +129,64 @@ def normalise_colour(value):
     if re.fullmatch(r'#[0-9a-f]{6}', value):
         return value
     return {'black': '#000000', 'white': '#ffffff'}.get(value)
+
+
+def parse_gradients(svg):
+    """Linear gradients by id, with gradientTransform already applied.
+
+    Android takes gradient endpoints in the path's own coordinate space, so the
+    matrix has to be baked here; it has no gradientTransform of its own.
+
+    Inkscape splits a gradient in two - one element holds the stops, another
+    references it with href and carries the coordinates - so the reference is
+    followed rather than assumed.
+    """
+    raw = {}
+    for block in re.findall(r'<linearGradient\b([^>]*)>([\s\S]*?)</linearGradient>'
+                            r'|<linearGradient\b([^>]*?)/>', svg):
+        head = block[0] or block[2]
+        body = block[1]
+        gid = attr(head, 'id')
+        if not gid:
+            continue
+        stops = []
+        for stop in re.findall(r'<stop\b([^>]*?)/?>', body):
+            colour = normalise_colour(resolve(stop, {}, 'stop-color'))
+            offset = attr(stop, 'offset')
+            if colour and offset is not None:
+                stops.append((float(offset), colour))
+        raw[gid] = {
+            'stops': stops,
+            'href': (attr(head, 'href') or attr(head, 'xlink:href') or '').lstrip('#'),
+            'coords': tuple(
+                float(attr(head, n)) if attr(head, n) else d
+                for n, d in (('x1', 0.0), ('y1', 0.0), ('x2', 1.0), ('y2', 0.0))
+            ),
+            'matrix': attr(head, 'gradientTransform'),
+        }
+
+    out = {}
+    for gid, g in raw.items():
+        stops = g['stops']
+        seen = set()
+        ref = g['href']
+        while not stops and ref and ref in raw and ref not in seen:
+            seen.add(ref)
+            stops = raw[ref]['stops']
+            ref = raw[ref]['href']
+        if not stops:
+            continue
+
+        x1, y1, x2, y2 = g['coords']
+        m = re.match(r'matrix\(([-\d.eE]+)[,\s]+([-\d.eE]+)[,\s]+([-\d.eE]+)'
+                     r'[,\s]+([-\d.eE]+)[,\s]+([-\d.eE]+)[,\s]+([-\d.eE]+)\)',
+                     (g['matrix'] or '').strip())
+        if m:
+            a, b, c, d, e, fm = (float(v) for v in m.groups())
+            x1, y1 = a * x1 + c * y1 + e, b * x1 + d * y1 + fm
+            x2, y2 = a * x2 + c * y2 + e, b * x2 + d * y2 + fm
+        out[gid] = {'stops': sorted(stops), 'coords': (x1, y1, x2, y2)}
+    return out
 
 
 def android_group(transform):
@@ -175,6 +254,7 @@ def shape_to_path(kind, tag):
 
 def convert(svg, name, background=None, inset=1.0, default_fill=None):
     classes = parse_style_classes(svg)
+    gradients = parse_gradients(svg)
 
     vb = re.search(r'viewBox="\s*([-\d.eE]+)[,\s]+([-\d.eE]+)[,\s]+'
                    r'([-\d.eE]+)[,\s]+([-\d.eE]+)\s*"', svg)
@@ -190,7 +270,8 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
     pad_y = ((canvas - height * inset) / 2.0 - min_y * inset) or 0.0
 
     out, skipped, depth = [], [], 0
-    invisible, transformed = [], []
+    invisible, transformed, unfilled = [], [], []
+    used_gradient = [False]
     # fill-rule is inherited, so an enclosing <g> can set it for paths that
     # never mention it. Each entry is (rule outside this <g>, group emitted?).
     rule_stack, inherited_rule = [], None
@@ -199,10 +280,17 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
         return '    ' + '    ' * depth
 
     shapes = 'path|circle|ellipse|polygon|polyline|rect'
-    for token in re.finditer(r'<(/?)(g|%s)\b([^>]*?)/?>' % shapes, svg):
+    for token in re.finditer(r'<(/?)(g|%s)\b([^>]*?)(/?)>' % shapes, svg):
         closing, kind, rest = token.group(1), token.group(2), token.group(3)
+        self_closing = token.group(4) == '/'
 
         if kind == 'g':
+            # <g ... /> opens nothing. Treated as an opening tag it never
+            # gets a </g>, so every later shape ends up nested inside its
+            # transform: an empty <g transform="translate(0,-1089)"> in an
+            # Inkscape export put the whole iCloud logo off the canvas.
+            if self_closing:
+                continue
             if closing:
                 if rule_stack:
                     inherited_rule, emitted = rule_stack.pop()
@@ -238,16 +326,54 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
 
         # An SVG that declares no fill paints black, which is invisible on a
         # dark tile. default_fill says what the artwork should actually be.
-        fill = normalise_colour(resolve(rest, classes, 'fill')) or default_fill
+        raw_fill = resolve(rest, classes, 'fill')
+        fill = normalise_colour(raw_fill) or default_fill
+
+        gradient = None
         if fill == 'GRADIENT':
-            skipped.append(attr(rest, 'id') or '(unnamed)')
-            continue
+            ref = re.match(r'url\(#([^)]+)\)', (raw_fill or '').strip())
+            gradient = gradients.get(ref.group(1)) if ref else None
+            if gradient is None:
+                # A gradient this converter cannot express - radial, or one
+                # whose stops were never found. Reported, never dropped
+                # quietly.
+                skipped.append(attr(rest, 'id') or '(unnamed)')
+                continue
+
         if not fill:
+            # No fill from style, attribute or class. Silence here is how a
+            # drawable ends up with no paths in it and no complaint.
+            unfilled.append(attr(rest, 'id') or kind)
             continue
 
         rule = (resolve(rest, classes, 'fill-rule')
                 or resolve(rest, classes, 'clip-rule')
                 or inherited_rule)
+        if gradient is not None:
+            used_gradient[0] = True
+            x1, y1, x2, y2 = gradient['coords']
+            g = [pad() + '<path']
+            if rule == 'evenodd':
+                g.append(pad() + '    android:fillType="evenOdd"')
+            g.append(pad() + '    android:pathData="%s">'
+                     % normalise(d).replace('&', '&amp;'))
+            g.append(pad() + '    <aapt:attr name="android:fillColor">')
+            g.append(pad() + '        <gradient')
+            g.append(pad() + '            android:type="linear"')
+            g.append(pad() + '            android:startX="%g"' % x1)
+            g.append(pad() + '            android:startY="%g"' % y1)
+            g.append(pad() + '            android:endX="%g"' % x2)
+            g.append(pad() + '            android:endY="%g">' % y2)
+            for offset, colour in gradient['stops']:
+                g.append(pad() + '            <item android:offset="%g"'
+                                 ' android:color="#FF%s" />'
+                         % (offset, colour[1:].upper()))
+            g.append(pad() + '        </gradient>')
+            g.append(pad() + '    </aapt:attr>')
+            g.append(pad() + '</path>')
+            out.append("\n".join(g))
+            continue
+
         parts = [pad() + '<path',
                  pad() + '    android:fillColor="#FF%s"' % fill[1:].upper()]
         if rule == 'evenodd':
@@ -290,15 +416,18 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
         '     Generated by tools/colour_vector.py. Path data is unmodified from\n'
         '     the source; rescaling coordinates by hand is how a logo ends up\n'
         '     subtly wrong. -->\n'
-        '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
+        '<vector xmlns:android="http://schemas.android.com/apk/res/android"%s\n'
         '    android:width="24dp"\n'
         '    android:height="24dp"\n'
         '    android:viewportWidth="%g"\n'
         '    android:viewportHeight="%g">\n'
         '%s\n'
-        '</vector>\n' % (name, canvas, canvas, body)
+        '</vector>\n' % (name,
+                          '\n    xmlns:aapt="http://schemas.android.com/aapt"'
+                          if used_gradient[0] else '',
+                          canvas, canvas, body)
     )
-    return xml, skipped, canvas, invisible, transformed
+    return xml, skipped, canvas, invisible, transformed, unfilled
 
 
 def read_flag(name, default=None):
@@ -335,7 +464,7 @@ def main():
     src, name, out = args[0], args[1], args[2]
 
     svg = io.open(src, encoding='utf-8', errors='replace').read()
-    xml, skipped, canvas, invisible, transformed = convert(
+    xml, skipped, canvas, invisible, transformed, unfilled = convert(
         svg, name,
         read_flag('--background'),
         float(read_flag('--inset', '1.0')),
@@ -352,6 +481,9 @@ def main():
     if transformed:
         print("  WARNING: %d drawn shape(s) carry their own transform, which is"
               " NOT applied: %s" % (len(transformed), ", ".join(transformed)))
+    if unfilled:
+        print("  WARNING: %d shape(s) had no resolvable fill and were dropped:"
+              " %s" % (len(unfilled), ", ".join(unfilled)))
 
 
 if __name__ == '__main__':

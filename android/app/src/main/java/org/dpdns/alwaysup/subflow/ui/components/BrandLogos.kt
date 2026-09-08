@@ -53,7 +53,6 @@ object BrandLogos {
         "gym" to R.drawable.brand_gym,
         "headspace" to R.drawable.brand_headspace,
         "hulu" to R.drawable.brand_hulu,
-        "icloud" to R.drawable.brand_icloud,
         "nintendo_online" to R.drawable.brand_nintendo_online,
         "nordvpn" to R.drawable.brand_nordvpn,
         "notion" to R.drawable.brand_notion,
@@ -85,7 +84,6 @@ object BrandLogos {
             "claudepro" to R.drawable.brand_claude,
             "githubcopilot" to R.drawable.brand_github_copilot,
             "adobecreativecloud" to R.drawable.brand_adobe_cc,
-            "icloudplus" to R.drawable.brand_icloud,
             "amazonprime" to R.drawable.brand_amazon_prime,
                 "playstationplus" to R.drawable.brand_psplus,
             "psplus" to R.drawable.brand_psplus,
@@ -156,6 +154,7 @@ object BrandLogos {
     private val colourMarks: Map<String, Int> = mapOf(
         "disney" to R.drawable.brand_colour_disneyplus,
         "figma" to R.drawable.brand_colour_figma,
+        "icloud" to R.drawable.brand_colour_icloud,
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
         "max" to R.drawable.brand_colour_max,
@@ -191,6 +190,8 @@ object BrandLogos {
         "netflix" to R.drawable.brand_colour_netflix,
         "figma" to R.drawable.brand_colour_figma,
         "slack" to R.drawable.brand_colour_slack,
+        "icloud" to R.drawable.brand_colour_icloud,
+        "icloudplus" to R.drawable.brand_colour_icloud,
     )
 
     fun colourMarkFor(presetId: String?, name: String?): Int? {
