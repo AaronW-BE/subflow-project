@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
@@ -690,14 +691,44 @@ fun AddSubscriptionScreen(
             }
 
             item(key = "color") {
+                // The service's own colour, when there is one to know about.
+                // On a fresh pick that is the preset; on an edit the preset id
+                // is null, so it is recovered from the name the row was saved
+                // with.
+                val brandColour = remember(selectedPresetId, name, presets) {
+                    (presets.firstOrNull { it.id == selectedPresetId }
+                        ?: presets.firstOrNull { it.name.equals(name.trim(), ignoreCase = true) })
+                        ?.brandColor
+                }
+                val swatches = remember(brandColour) { accentSwatches(brandColour) }
+                // The selected swatch has to be brought into view, and not
+                // only for tidiness. This row is keyed, so a lazy list anchors
+                // on the key it is already showing: prepending the brand
+                // colour pushed it off the left edge and the row still came up
+                // looking unanswered - the exact symptom being fixed. It also
+                // covers the palette colours far enough along to be off-screen.
+                val swatchScroll = rememberLazyListState()
+                LaunchedEffect(swatches, selectedColorHex) {
+                    val index = swatches.indexOfFirst {
+                        it.equals(selectedColorHex, ignoreCase = true)
+                    }
+                    if (index >= 0) swatchScroll.scrollToItem(index)
+                }
+                // Whether the icon is artwork that covers the tile completely,
+                // in which case this colour cannot change it.
+                val hasFullColourMark = remember(selectedPresetId, name) {
+                    BrandLogos.colourMarkFor(selectedPresetId, name) != null
+                }
+
                 Column {
                     SectionHeader(text = stringResource(R.string.brand_accent_color))
                     AppleCard(modifier = Modifier.fillMaxWidth()) {
                         LazyRow(
+                            state = swatchScroll,
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            items(ApplePalette, key = { it }) { hex ->
+                            items(swatches, key = { it }) { hex ->
                                 val color = parseHexColor(hex)
                                 val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
                                 val colourLabel = stringResource(R.string.cd_accent_colour, hex)
@@ -733,6 +764,21 @@ fun AddSubscriptionScreen(
                                     }
                                 }
                             }
+                        }
+
+                        // Said once, here, rather than left for the user to
+                        // discover by tapping a swatch and seeing the preview
+                        // not move.
+                        if (hasFullColourMark) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = stringResource(R.string.accent_colour_own_mark),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    lineHeight = 15.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
@@ -1099,6 +1145,28 @@ private fun sanitiseAmountInput(raw: String): String {
     } else {
         filtered
     }
+}
+
+/**
+ * The swatches to offer, with the service's own colour among them.
+ *
+ * 31 of the 34 presets have a brand colour that is not one of the ten in
+ * [ApplePalette], so the row used to come up with nothing selected after
+ * choosing a service - a field that looks unanswered, and whose every answer
+ * silently replaced the right colour with a generic one that could not be
+ * undone, because the right one was not on offer.
+ *
+ * First rather than appended: it is the value the field already holds, and a
+ * user who changes their mind should not have to hunt for the way back.
+ */
+internal fun accentSwatches(
+    brandColour: String?,
+    palette: List<String> = ApplePalette
+): List<String> {
+    val brand = brandColour?.trim().orEmpty()
+    if (brand.isEmpty()) return palette
+    if (palette.any { it.equals(brand, ignoreCase = true) }) return palette
+    return listOf(brand) + palette
 }
 
 private fun String.parseAmount(): Double = trim().toDoubleOrNull() ?: 0.0

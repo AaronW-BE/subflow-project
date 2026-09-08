@@ -71,6 +71,7 @@
     <string name="renewal_alerts">续费提醒</string>
     <string name="remind_before_renewal">在扣费前提醒你</string>
     <string name="live_preview">实时预览</string>
+    <string name="accent_colour_own_mark">该服务自带整块彩色标识，所以主题色不会改变图标，它只决定这个服务在支出面积图里的颜色。</string>
     <string name="brand_accent_color">主题色</string>
     <string name="subscription_details">详细信息</string>
     <string name="field_name">名称</string>
