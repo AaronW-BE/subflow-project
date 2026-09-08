@@ -79,11 +79,17 @@ internal fun buildBillingForecast(
         // Stepping one cycle at a time rather than jumping: plusMonths(1) twice
         // from Jan 31 gives Mar 28, plusMonths(2) gives Mar 31, and the rest of
         // the app takes the first road.
-        var guard = 0
-        while (date.isBefore(windowStart) && guard < MAX_STEPS) {
+        var skips = 0
+        while (date.isBefore(windowStart) && skips < MAX_STEPS) {
             date = DateCalculators.advance(date, sub.cycle)
-            guard++
+            skips++
         }
+        // A budget of its own. Sharing one with the skip above meant a first
+        // bill far enough in the past could spend the whole allowance getting
+        // to the window and then record nothing - a subscription silently
+        // missing from the forecast, which is the one failure this chart
+        // cannot afford.
+        var guard = 0
         while (!date.isAfter(windowEnd) && guard < MAX_STEPS) {
             val index = monthIndex(windowStart, date)
             if (index in 0 until months) {
