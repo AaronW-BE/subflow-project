@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -744,17 +745,29 @@ fun AddSubscriptionScreen(
                                 val color = parseHexColor(hex)
                                 val isSelected = selectedColorHex.equals(hex, ignoreCase = true)
                                 val colourLabel = stringResource(R.string.cd_accent_colour, hex)
+                                // The ring sits outside the swatch with a gap,
+                                // rather than on its edge. Drawn on the edge in
+                                // onSurface it vanished into any swatch of a
+                                // similar tone - Apple TV+ is #1C1C1E and the
+                                // ring is near-black in light mode, so the one
+                                // selected swatch was the one with no visible
+                                // selection. Out here it only ever has to
+                                // contrast with the card, which it always does.
+                                //
+                                // The swatch stays 36dp whether or not it is
+                                // selected, so nothing resizes as the selection
+                                // moves.
                                 Box(
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .background(color)
-                                        .border(
-                                            width = if (isSelected) 3.dp else 0.dp,
-                                            color = if (isSelected) {
-                                                MaterialTheme.colorScheme.onSurface
-                                            } else Color.Transparent,
-                                            shape = CircleShape
+                                        .size(44.dp)
+                                        .then(
+                                            if (isSelected) {
+                                                Modifier.border(
+                                                    width = 2.dp,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    shape = CircleShape
+                                                )
+                                            } else Modifier
                                         )
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
@@ -766,13 +779,28 @@ fun AddSubscriptionScreen(
                                         .semantics { contentDescription = colourLabel },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    if (isSelected) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = Color.White,
-                                            modifier = Modifier.size(18.dp)
-                                        )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(color),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (isSelected) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                                // Brand colours joined this row
+                                                // and some of them are bright:
+                                                // Hulu's green is luminance
+                                                // 0.59, and a white tick on it
+                                                // is barely there.
+                                                tint = if (color.luminance() > 0.5f) {
+                                                    Color.Black.copy(alpha = 0.8f)
+                                                } else Color.White,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
