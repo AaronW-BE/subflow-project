@@ -25,6 +25,9 @@ Handles what real logo exports do that a naive converter gets wrong:
     reader drops it without saying so.
   * an SVG may declare no fill at all, meaning black. `--fill` says what the
     artwork should be instead, for a mark that has to sit on a dark tile.
+  * a shape can be invisible without saying fill="none". Figma exports a
+    bounding box as <rect fill="black" fill-opacity="0">, which a reader that
+    only checks the fill colour turns into an opaque black slab over the logo.
   * groups nest and carry transforms. Netflix's are translate + scale, two deep.
   * a viewBox need not start at 0,0 or be square. Squeezing a 122x222 logo into
     a square drawable stretches it, so it is centred instead.
@@ -72,6 +75,24 @@ def resolve(tag, classes, prop):
         if name in classes and prop in classes[name]:
             return classes[name][prop]
     return None
+
+
+def is_invisible(tag, classes):
+    """Whether a shape is transparent by opacity rather than by fill.
+
+    `fill="black" fill-opacity="0"` is how Figma writes a bounding box. Read
+    for its fill alone it is a black rectangle the size of the artwork.
+    """
+    for prop in ('fill-opacity', 'opacity'):
+        raw = resolve(tag, classes, prop)
+        if raw is None:
+            continue
+        try:
+            if float(raw.strip()) == 0.0:
+                return True
+        except ValueError:
+            pass
+    return False
 
 
 def normalise_colour(value):
@@ -162,10 +183,14 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
     min_x, min_y, width, height = (float(g) for g in vb.groups())
 
     canvas = max(width, height)
-    pad_x = (canvas - width * inset) / 2.0 - min_x * inset
-    pad_y = (canvas - height * inset) / 2.0 - min_y * inset
+    # `or 0.0` kills negative zero, which %g renders as "-0". It is the same
+    # number, but a mark that differs from its own regeneration by a character
+    # cannot be regression-checked without someone deciding it does not count.
+    pad_x = ((canvas - width * inset) / 2.0 - min_x * inset) or 0.0
+    pad_y = ((canvas - height * inset) / 2.0 - min_y * inset) or 0.0
 
     out, skipped, depth = [], [], 0
+    invisible, transformed = [], []
     # fill-rule is inherited, so an enclosing <g> can set it for paths that
     # never mention it. Each entry is (rule outside this <g>, group emitted?).
     rule_stack, inherited_rule = [], None
@@ -201,6 +226,15 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
         d = attr(rest, 'd') if kind == 'path' else shape_to_path(kind, rest)
         if not d:
             continue
+
+        if is_invisible(rest, classes):
+            invisible.append(attr(rest, 'id') or kind)
+            continue
+
+        # Only <g> transforms are honoured. A transform on the shape itself
+        # would silently move it, so say so rather than emit a wrong logo.
+        if attr(rest, 'transform'):
+            transformed.append(attr(rest, 'id') or kind)
 
         # An SVG that declares no fill paints black, which is invisible on a
         # dark tile. default_fill says what the artwork should actually be.
@@ -264,7 +298,7 @@ def convert(svg, name, background=None, inset=1.0, default_fill=None):
         '%s\n'
         '</vector>\n' % (name, canvas, canvas, body)
     )
-    return xml, skipped, canvas
+    return xml, skipped, canvas, invisible, transformed
 
 
 def read_flag(name, default=None):
@@ -301,7 +335,7 @@ def main():
     src, name, out = args[0], args[1], args[2]
 
     svg = io.open(src, encoding='utf-8', errors='replace').read()
-    xml, skipped, canvas = convert(
+    xml, skipped, canvas, invisible, transformed = convert(
         svg, name,
         read_flag('--background'),
         float(read_flag('--inset', '1.0')),
@@ -312,6 +346,12 @@ def main():
     if skipped:
         print("  skipped %d gradient-filled path(s): %s"
               % (len(skipped), ", ".join(skipped)))
+    if invisible:
+        print("  skipped %d fully transparent shape(s): %s"
+              % (len(invisible), ", ".join(invisible)))
+    if transformed:
+        print("  WARNING: %d drawn shape(s) carry their own transform, which is"
+              " NOT applied: %s" % (len(transformed), ", ".join(transformed)))
 
 
 if __name__ == '__main__':

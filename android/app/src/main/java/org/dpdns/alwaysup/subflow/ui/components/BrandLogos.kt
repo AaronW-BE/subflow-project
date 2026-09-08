@@ -49,7 +49,6 @@ object BrandLogos {
         "claude" to R.drawable.brand_claude,
         "crunchyroll" to R.drawable.brand_crunchyroll,
         "dropbox" to R.drawable.brand_dropbox,
-        "figma" to R.drawable.brand_figma,
         "github_copilot" to R.drawable.brand_github_copilot,
         "gym" to R.drawable.brand_gym,
         "headspace" to R.drawable.brand_headspace,
@@ -60,7 +59,6 @@ object BrandLogos {
         "notion" to R.drawable.brand_notion,
         "nytimes" to R.drawable.brand_nytimes,
         "psplus" to R.drawable.brand_psplus,
-        "slack" to R.drawable.brand_slack,
         "spotify" to R.drawable.brand_spotify,
         "strava" to R.drawable.brand_strava,
         "xbox_gamepass" to R.drawable.brand_xbox_gamepass,
@@ -157,12 +155,14 @@ object BrandLogos {
      */
     private val colourMarks: Map<String, Int> = mapOf(
         "disney" to R.drawable.brand_colour_disneyplus,
+        "figma" to R.drawable.brand_colour_figma,
         "duolingo" to R.drawable.brand_colour_duolingo,
         "google_one" to R.drawable.brand_colour_google_one,
         "max" to R.drawable.brand_colour_max,
         "microsoft365" to R.drawable.brand_colour_microsoft365,
         "netflix" to R.drawable.brand_colour_netflix,
         "primevideo" to R.drawable.brand_colour_primevideo,
+        "slack" to R.drawable.brand_colour_slack,
     )
 
     /** A full-colour bitmap mark, drawn edge to edge with no tint. */
@@ -189,6 +189,8 @@ object BrandLogos {
         "microsoft365" to R.drawable.brand_colour_microsoft365,
         "office365" to R.drawable.brand_colour_microsoft365,
         "netflix" to R.drawable.brand_colour_netflix,
+        "figma" to R.drawable.brand_colour_figma,
+        "slack" to R.drawable.brand_colour_slack,
     )
 
     fun colourMarkFor(presetId: String?, name: String?): Int? {
