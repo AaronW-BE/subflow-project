@@ -184,11 +184,33 @@ fun DashboardScreen(
         }
     }
 
+    val addFabLabel = stringResource(R.string.add_subscription)
+
     Scaffold(
         snackbarHost = {
             SubFlowSnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 12.dp))
         },
         bottomBar = { if (!isPro) AdMobAdaptiveBanner() },
+        // The Scaffold's own slot rather than a Box overlay: it is what keeps
+        // the button above the ad banner and clear of the navigation bar
+        // without this screen having to know how tall either of them is.
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    haptics.tick()
+                    onAddClick()
+                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White,
+                modifier = Modifier.semantics { contentDescription = addFabLabel }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+        },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -205,11 +227,7 @@ fun DashboardScreen(
                     DashboardHeader(
                         dateLabel = todayFormatted,
                         isPro = isPro,
-                        onPaywallClick = onPaywallClick,
-                        onAddClick = {
-                            haptics.tick()
-                            onAddClick()
-                        }
+                        onPaywallClick = onPaywallClick
                     )
                 }
 
@@ -315,7 +333,11 @@ fun DashboardScreen(
                     }
                 }
 
-                item(key = "footer_space") { Spacer(modifier = Modifier.height(28.dp)) }
+                // Clears the floating button: 56dp of button, 16dp of the
+                // margin Scaffold gives it, and the 28dp this always had. A
+                // list that scrolls its last row under the button hides the
+                // price, which is the column the button sits over.
+                item(key = "footer_space") { Spacer(modifier = Modifier.height(100.dp)) }
             }
 
             // Collapsed bar
@@ -413,11 +435,9 @@ fun DashboardScreen(
 private fun DashboardHeader(
     dateLabel: String,
     isPro: Boolean,
-    onPaywallClick: () -> Unit,
-    onAddClick: () -> Unit
+    onPaywallClick: () -> Unit
 ) {
     val upgradeLabel = stringResource(R.string.upgrade_to_pro)
-    val addLabel = stringResource(R.string.add_subscription)
 
     Row(
         modifier = Modifier
@@ -482,26 +502,6 @@ private fun DashboardHeader(
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onAddClick
-                    )
-                    .semantics { contentDescription = addLabel },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
         }
     }
 }
