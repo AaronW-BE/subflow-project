@@ -108,11 +108,7 @@ fun AnalyticsScreen(
             ) {
                 Text(
                     text = stringResource(R.string.analytics_title),
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = (-0.5).sp
-                    )
+                    style = ScreenTitleStyle
                 )
             }
         }
@@ -162,10 +158,7 @@ fun AnalyticsScreen(
                 TabularCurrencyText(
                     amount = if (timeView == TimeView.MONTHLY) totalMonthly else totalYearly,
                     currencyCode = primaryCurrency,
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 36.sp,
-                        fontWeight = FontWeight.Black
-                    )
+                    style = HeroAmountStyle
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))

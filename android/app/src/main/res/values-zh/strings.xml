@@ -159,7 +159,7 @@
     <string name="onboarding_replay_sub">再看一遍首次使用介绍</string>
 
     <!-- Analytics -->
-    <string name="analytics_title">洞察</string>
+    <string name="analytics_title">分析</string>
     <string name="avg_monthly">月均支出</string>
     <string name="annual_forecast">年度支出预测</string>
     <string name="category_breakdown">分类占比</string>
@@ -214,6 +214,7 @@
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色（纯黑）</string>
     <string name="language">语言</string>
+    <string name="language_system">跟随系统</string>
     <string name="cloud_backup">云备份与同步</string>
     <string name="cloud_backup_sub">点按立即同步</string>
     <string name="sign_in_google">使用 Google 登录</string>

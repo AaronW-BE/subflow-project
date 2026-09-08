@@ -162,7 +162,7 @@
     <string name="onboarding_replay_sub">Replay the first-run introduction</string>
 
     <!-- Analytics -->
-    <string name="analytics_title">Insights</string>
+    <string name="analytics_title">Analytics</string>
     <string name="avg_monthly">Monthly Average</string>
     <string name="annual_forecast">Annual Commitment Forecast</string>
     <string name="category_breakdown">By category</string>
@@ -217,6 +217,7 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark (OLED)</string>
     <string name="language">Language</string>
+    <string name="language_system">System default</string>
     <string name="cloud_backup">Cloud backup and sync</string>
     <string name="cloud_backup_sub">Tap to sync now</string>
     <string name="sign_in_google">Sign in with Google</string>

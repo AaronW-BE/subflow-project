@@ -3,9 +3,16 @@ package org.dpdns.alwaysup.subflow.domain.util
 import android.content.Context
 import android.content.res.Configuration
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
+import org.dpdns.alwaysup.subflow.data.preferences.SYSTEM_LANGUAGE
 import java.util.Locale
 
-fun localeForLanguageCode(code: String): Locale = when (code.lowercase()) {
+fun localeForLanguageCode(code: String): Locale = when (
+    if (code.equals(SYSTEM_LANGUAGE, ignoreCase = true)) {
+        PreferencesManager.deviceLanguage()
+    } else {
+        code
+    }.lowercase()
+) {
     "zh" -> Locale.SIMPLIFIED_CHINESE
     "ja" -> Locale.JAPANESE
     "de" -> Locale.GERMAN

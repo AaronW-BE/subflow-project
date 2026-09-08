@@ -440,11 +440,7 @@ private fun DashboardHeader(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = stringResource(R.string.nav_subscriptions),
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 34.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = (-0.5).sp
-                ),
+                style = ScreenTitleStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -581,11 +577,7 @@ private fun HeroSpendCard(
                     TabularCurrencyText(
                         amount = displayAmount,
                         currencyCode = primaryCurrency,
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = (-1).sp
-                        )
+                        style = HeroAmountStyle
                     )
                 }
             }

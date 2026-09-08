@@ -40,6 +40,7 @@ import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
 import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
+import org.dpdns.alwaysup.subflow.data.preferences.SYSTEM_LANGUAGE
 import org.dpdns.alwaysup.subflow.data.preferences.SupportedLanguages
 import org.dpdns.alwaysup.subflow.data.preferences.ThemeMode
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
@@ -53,6 +54,7 @@ import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerRow
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
+import org.dpdns.alwaysup.subflow.ui.theme.ScreenTitleStyle
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,11 +134,7 @@ fun SettingsScreen(
             ) {
                 Text(
                     text = stringResource(R.string.settings_title),
-                    style = MaterialTheme.typography.displayLarge.copy(
-                        fontSize = 34.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = (-0.5).sp
-                    )
+                    style = ScreenTitleStyle
                 )
             }
         }
@@ -242,7 +240,7 @@ fun SettingsScreen(
                     )
                     AppleListRow(
                         title = stringResource(R.string.language),
-                        valueText = SupportedLanguages.find { it.code == currentLang }?.nativeName ?: currentLang,
+                        valueText = languageLabel(currentLang),
                         icon = Icons.Default.Public,
                         iconTint = SubFlowAccents.blue,
                         onClick = { showLanguageSheet = true }
@@ -595,8 +593,16 @@ fun SettingsScreen(
             onDismiss = { showLanguageSheet = false }
         ) { lang ->
             SubFlowPickerRow(
-                title = lang.nativeName,
-                subtitle = lang.displayName,
+                title = lang.labelRes?.let { stringResource(it) } ?: lang.nativeName,
+                // Following the device is only a useful choice if you can see
+                // what it currently resolves to.
+                subtitle = if (lang.code == SYSTEM_LANGUAGE) {
+                    SupportedLanguages
+                        .firstOrNull { it.code == PreferencesManager.deviceLanguage() }
+                        ?.nativeName
+                } else {
+                    lang.displayName
+                },
                 selected = lang.code == currentLang,
                 onClick = {
                     preferencesManager.setLanguage(lang.code)
@@ -639,6 +645,15 @@ fun SettingsScreen(
 }
 
 // -------------------------------------------------------------------- pieces
+
+/** How the language setting names itself, including the follow-the-device case. */
+@Composable
+private fun languageLabel(code: String): String {
+    val option = SupportedLanguages.firstOrNull { it.code == code }
+    return option?.labelRes?.let { stringResource(it) }
+        ?: option?.nativeName
+        ?: code
+}
 
 @Composable
 private fun AccountCard(

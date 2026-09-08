@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -698,7 +698,10 @@ fun SectionHeader(
             letterSpacing = 1.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
         ),
-        modifier = modifier.padding(start = 4.dp, top = 4.dp, bottom = 6.dp)
+        // Flush with the card below it. 4.dp put the header 20.dp from the
+        // screen edge against the card's 16.dp - aligned with nothing on any
+        // screen, which reads as a slip rather than an indent.
+        modifier = modifier.padding(top = 4.dp, bottom = 6.dp)
     )
 }
 
@@ -710,6 +713,8 @@ fun AppleListRow(
     iconTint: Color = MaterialTheme.colorScheme.primary,
     iconBackground: Color = iconTint.copy(alpha = 0.15f),
     valueText: String? = null,
+    /** Drawn immediately before [valueText] - a brand mark, say. */
+    valuePrefix: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     trailingContent: (@Composable () -> Unit)? = null,
     showDivider: Boolean = true,
@@ -778,6 +783,11 @@ fun AppleListRow(
                 }
             }
 
+            if (valuePrefix != null) {
+                valuePrefix()
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
             if (valueText != null) {
                 Text(
                     text = valueText,
@@ -793,10 +803,10 @@ fun AppleListRow(
                 trailingContent()
             } else if (onClick != null) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f * contentAlpha),
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(13.dp)
                 )
             }
         }

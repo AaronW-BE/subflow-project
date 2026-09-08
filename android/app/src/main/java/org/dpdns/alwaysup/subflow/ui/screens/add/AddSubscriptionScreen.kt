@@ -410,64 +410,37 @@ fun AddSubscriptionScreen(
                         // preset rewrites the name, price, colour and cycle,
                         // which is what you want while creating one and not
                         // what you want while correcting one.
+                        //
+                        // AppleListRow rather than a row of its own: hand-built,
+                        // it drifted to a 16sp label beside its siblings' 15sp
+                        // and a left-aligned value where every other row in the
+                        // card right-aligns against the chevron.
                         if (!isEditing) {
                             val selectedPreset = presets.firstOrNull { it.id == selectedPresetId }
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        haptics.tick()
-                                        showServiceSheet = true
-                                    }
-                                    .heightIn(min = 56.dp)
-                                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.field_service),
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.width(110.dp)
-                                )
-                                if (selectedPreset != null) {
-                                    BrandIconBadge(
-                                        name = selectedPreset.name,
-                                        brandColorHex = selectedPreset.brandColor,
-                                        size = 28.dp,
-                                        cornerRadius = 8.dp,
-                                        presetId = selectedPreset.id
-                                    )
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                }
-                                // A typed name with no preset behind it is a
-                                // custom service, and saying "Choose a service"
-                                // over the top of one claims nothing has been
-                                // chosen.
-                                val serviceLabel = when {
-                                    selectedPreset != null -> selectedPreset.name
-                                    name.isNotBlank() -> stringResource(R.string.custom_service)
-                                    else -> stringResource(R.string.choose_service)
-                                }
-                                Text(
-                                    text = serviceLabel,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                                    color = if (selectedPreset != null || name.isNotBlank()) {
-                                        MaterialTheme.colorScheme.onSurface
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    modifier = Modifier.size(13.dp)
-                                )
+                            // A typed name with no preset behind it is a custom
+                            // service; saying "Choose a service" over the top of
+                            // one claims nothing has been chosen.
+                            val serviceLabel = when {
+                                selectedPreset != null -> selectedPreset.name
+                                name.isNotBlank() -> stringResource(R.string.custom_service)
+                                else -> stringResource(R.string.choose_service)
                             }
-                            RowDivider()
+                            AppleListRow(
+                                title = stringResource(R.string.field_service),
+                                valueText = serviceLabel,
+                                valuePrefix = selectedPreset?.let { preset ->
+                                    {
+                                        BrandIconBadge(
+                                            name = preset.name,
+                                            brandColorHex = preset.brandColor,
+                                            size = 24.dp,
+                                            cornerRadius = 7.dp,
+                                            presetId = preset.id
+                                        )
+                                    }
+                                },
+                                onClick = { showServiceSheet = true }
+                            )
                         }
 
                         // Name

@@ -25,6 +25,7 @@ import org.dpdns.alwaysup.subflow.data.ads.LocalAdsConsent
 import org.dpdns.alwaysup.subflow.data.billing.BillingManager
 import org.dpdns.alwaysup.subflow.data.notifications.RenewalNotificationWorker
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
+import org.dpdns.alwaysup.subflow.data.preferences.SYSTEM_LANGUAGE
 import org.dpdns.alwaysup.subflow.data.repository.AuthRepository
 import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
 import org.dpdns.alwaysup.subflow.domain.util.localeForLanguageCode
@@ -42,7 +43,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var adsConsentManager: AdsConsentManager
 
     /** Language the activity was created with; a change forces a recreate. */
+    // What the setting said when this Activity attached, and the language that
+    // resolved to. They differ only for SYSTEM_LANGUAGE, which is exactly the
+    // case that has to be watched.
     private var attachedLanguage: String = "en"
+    private var attachedResolvedLanguage: String = "en"
 
     private var pendingSubscriptionId by mutableStateOf<String?>(null)
 
@@ -53,6 +58,11 @@ class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context) {
         val langCode = PreferencesManager.resolveInitialLanguage(newBase)
         attachedLanguage = langCode
+        attachedResolvedLanguage = if (langCode == SYSTEM_LANGUAGE) {
+            PreferencesManager.deviceLanguage()
+        } else {
+            langCode
+        }
         val locale = localeForLanguageCode(langCode)
         Locale.setDefault(locale)
 
@@ -71,6 +81,22 @@ class MainActivity : ComponentActivity() {
                 setLayoutDirection(locale)
             }
         )
+    }
+
+    /**
+     * `locale` is in the Activity's configChanges, so Android does not recreate
+     * it when the device language changes. Anything pinned to a language of its
+     * own is unaffected, but "System default" would go on showing whatever it
+     * resolved to at launch until the app was force-stopped - a setting that
+     * says it follows the device and then does not.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        if (attachedLanguage == SYSTEM_LANGUAGE &&
+            PreferencesManager.deviceLanguage() != attachedResolvedLanguage
+        ) {
+            recreate()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
