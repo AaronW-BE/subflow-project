@@ -51,6 +51,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -132,9 +134,26 @@ fun AppleCard(
     }
 }
 
+/** The radius a subscription row and anything drawn behind it both use. */
+val SubscriptionCardRadius = 20.dp
+
 /**
  * Swipe-to-delete row. The swipe only *arms* the delete; the caller shows an
  * undo snackbar, so a mis-swipe is always recoverable.
+ *
+ * Two things about the red layer underneath.
+ *
+ * It is drawn only once the row has actually moved. Both layers are the same
+ * rounded rectangle, but a rounded rectangle drawn over an identical one does
+ * not cover it: the antialiased pixels along the curve are partly transparent
+ * in both, so the red showed through as a hairline tracing all four corners of
+ * every card at rest. Radius was the suspect and radius was innocent - they
+ * were already both 20dp. Not drawing it is the only fix that leaves nothing
+ * to bleed.
+ *
+ * And it is a button, not just a gesture. Swiping is the only way to delete
+ * from this list, which leaves anyone using a screen reader - or anyone who
+ * has not discovered the gesture - with no way to do it at all.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,25 +177,50 @@ fun SwipeableSubscriptionCard(
         positionalThreshold = { distance -> distance * 0.5f }
     )
 
+    val deleteLabel = stringResource(R.string.delete_action)
+
+    // requireOffset throws until the box has been laid out once.
+    val offset = runCatching { dismissState.requireOffset() }.getOrDefault(0f)
+    val moved = offset != 0f
+
+    // Past the threshold the swipe will commit on release. Saying so before
+    // the user lets go is the difference between feedback and a surprise.
+    val armed = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
+    val backgroundColor by animateColorAsState(
+        targetValue = if (armed) {
+            MaterialTheme.colorScheme.error
+        } else {
+            MaterialTheme.colorScheme.error.copy(alpha = 0.72f)
+        },
+        label = "deleteBackgroundColor"
+    )
+    val labelScale by animateFloatAsState(
+        targetValue = if (armed) 1f else 0.88f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 500f),
+        label = "deleteLabelScale"
+    )
+
     SwipeToDismissBox(
         state = dismissState,
         enableDismissFromStartToEnd = false,
         enableDismissFromEndToStart = true,
         backgroundContent = {
+            if (!moved) return@SwipeToDismissBox
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.error)
+                    .clip(RoundedCornerShape(SubscriptionCardRadius))
+                    .background(backgroundColor)
                     .padding(horizontal = 24.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.scale(labelScale)
                 ) {
                     Text(
-                        text = stringResource(R.string.delete_action),
+                        text = deleteLabel,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
@@ -193,13 +237,20 @@ fun SwipeableSubscriptionCard(
         modifier = modifier
     ) {
         AppleCard(
+            cornerRadius = SubscriptionCardRadius,
             modifier = Modifier
                 .fillMaxWidth()
-                .then(
+                .semantics {
                     if (contentDescription != null) {
-                        Modifier.semantics { this.contentDescription = contentDescription }
-                    } else Modifier
-                ),
+                        this.contentDescription = contentDescription
+                    }
+                    customActions = listOf(
+                        CustomAccessibilityAction(deleteLabel) {
+                            onDelete()
+                            true
+                        }
+                    )
+                },
             onClick = onClick
         ) {
             content()

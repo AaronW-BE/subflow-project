@@ -36,6 +36,8 @@
     <string name="clear_search_action">検索をクリア</string>
     <string name="deleted_item">「%s」を削除しました</string>
     <string name="delete_action">削除</string>
+    <string name="swipe_hint">カードを左にスワイプすると削除できます</string>
+    <string name="swipe_hint_dismiss">ヒントを閉じる</string>
 
     <!-- Free quota -->
     <string name="quota_label">無料プラン</string>
@@ -149,6 +151,12 @@
     <string name="onboarding_2_body">請求より先に通知が届くので、まだ費用がかからないうちに解約できます。</string>
     <string name="onboarding_3_title">データは端末の中だけに</string>
     <string name="onboarding_3_body">アカウント登録は不要です。すべて端末内に保存され、クラウドバックアップを使うかどうかはご自身で選べます。</string>
+    <string name="onboarding_manage_title">追加・編集・削除</string>
+    <string name="onboarding_manage_add">+ をタップしてサブスクを追加</string>
+    <string name="onboarding_manage_edit">カードをタップして編集</string>
+    <string name="onboarding_manage_delete">カードを左にスワイプ、または開いて削除をタップ</string>
+    <string name="onboarding_replay">ガイドをもう一度見る</string>
+    <string name="onboarding_replay_sub">初回起動時の紹介を再生</string>
 
     <!-- Analytics -->
     <string name="analytics_title">分析</string>

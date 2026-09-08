@@ -10,6 +10,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.QueryStats
@@ -35,7 +41,10 @@ private data class OnboardingPage(
     val icon: ImageVector,
     val accent: Color,
     val titleRes: Int,
-    val bodyRes: Int
+    /** Prose body. Null on a page that lists steps instead. */
+    val bodyRes: Int? = null,
+    /** Step lines, each with its own icon. Shown instead of [bodyRes]. */
+    val steps: List<Pair<ImageVector, Int>> = emptyList()
 )
 
 /**
@@ -49,6 +58,21 @@ fun OnboardingScreen(
 ) {
     val pages = listOf(
         OnboardingPage(Icons.Default.QueryStats, MaterialTheme.colorScheme.primary, R.string.onboarding_1_title, R.string.onboarding_1_body),
+        // Straight after "add your subscriptions once", because that is the
+        // moment the question "how?" arrives. The app used to answer it by
+        // leaving the user to find the gesture themselves.
+        OnboardingPage(
+            icon = Icons.Default.TouchApp,
+            accent = MaterialTheme.colorScheme.primary,
+            titleRes = R.string.onboarding_manage_title,
+            steps = listOf(
+                Icons.Default.Add to R.string.onboarding_manage_add,
+                Icons.Default.Edit to R.string.onboarding_manage_edit,
+                // Names the button as well as the gesture: a swipe is no use
+                // to someone driving the app with a screen reader.
+                Icons.Default.Delete to R.string.onboarding_manage_delete
+            )
+        ),
         OnboardingPage(Icons.Default.NotificationsActive, MaterialTheme.colorScheme.tertiary, R.string.onboarding_2_title, R.string.onboarding_2_body),
         OnboardingPage(Icons.Default.Lock, MaterialTheme.colorScheme.secondary, R.string.onboarding_3_title, R.string.onboarding_3_body)
     )
@@ -97,10 +121,14 @@ fun OnboardingScreen(
                     label = "pageScale"
                 )
 
+                // verticalScroll, because at the largest accessibility font
+                // the illustration, heading and three steps are taller than the
+                // pager and the bottom of the page would simply be gone.
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 32.dp),
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 32.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -142,15 +170,51 @@ fun OnboardingScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = stringResource(page.bodyRes),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 15.sp,
-                            lineHeight = 22.sp
-                        ),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (page.bodyRes != null) {
+                        Text(
+                            text = stringResource(page.bodyRes),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 15.sp,
+                                lineHeight = 22.sp
+                            ),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    page.steps.forEach { (stepIcon, stepRes) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(page.accent.copy(alpha = 0.14f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = stepIcon,
+                                    contentDescription = null,
+                                    tint = page.accent,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Text(
+                                text = stringResource(stepRes),
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 15.sp,
+                                    lineHeight = 21.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
                 }
             }
 

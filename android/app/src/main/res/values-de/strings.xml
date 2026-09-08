@@ -36,6 +36,8 @@
     <string name="clear_search_action">Suche löschen</string>
     <string name="deleted_item">„%s“ gelöscht</string>
     <string name="delete_action">Löschen</string>
+    <string name="swipe_hint">Wische eine Karte nach links, um sie zu löschen</string>
+    <string name="swipe_hint_dismiss">Hinweis ausblenden</string>
 
     <!-- Free quota -->
     <string name="quota_label">Kostenlose Version</string>
@@ -149,6 +151,12 @@
     <string name="onboarding_2_body">Die Erinnerung kommt vor der Abbuchung – solange Kündigen noch nichts kostet.</string>
     <string name="onboarding_3_title">Deine Daten bleiben auf deinem Gerät</string>
     <string name="onboarding_3_body">Kein Konto nötig. Alles wird lokal gespeichert, und Cloud-Backup ist allein deine Entscheidung.</string>
+    <string name="onboarding_manage_title">Hinzufügen, ändern, entfernen</string>
+    <string name="onboarding_manage_add">Tippe auf +, um ein Abo hinzuzufügen</string>
+    <string name="onboarding_manage_edit">Tippe auf eine Karte, um sie zu bearbeiten</string>
+    <string name="onboarding_manage_delete">Wische eine Karte nach links oder öffne sie und tippe auf Löschen</string>
+    <string name="onboarding_replay">Einführung erneut ansehen</string>
+    <string name="onboarding_replay_sub">Die Einführung noch einmal abspielen</string>
 
     <!-- Analytics -->
     <string name="analytics_title">Auswertung</string>

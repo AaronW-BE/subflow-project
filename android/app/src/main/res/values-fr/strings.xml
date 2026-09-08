@@ -36,6 +36,8 @@
     <string name="clear_search_action">Effacer la recherche</string>
     <string name="deleted_item">« %s » supprimé</string>
     <string name="delete_action">Supprimer</string>
+    <string name="swipe_hint">Balayez une carte vers la gauche pour la supprimer</string>
+    <string name="swipe_hint_dismiss">Masquer l’astuce</string>
 
     <!-- Free quota -->
     <string name="quota_label">Version gratuite</string>
@@ -149,6 +151,12 @@
     <string name="onboarding_2_body">Le rappel arrive avant le prélèvement, quand résilier ne coûte encore rien.</string>
     <string name="onboarding_3_title">Vos données restent sur votre téléphone</string>
     <string name="onboarding_3_body">Aucun compte requis. Tout est stocké localement, et la sauvegarde cloud reste votre choix.</string>
+    <string name="onboarding_manage_title">Ajouter, modifier, supprimer</string>
+    <string name="onboarding_manage_add">Appuyez sur + pour ajouter un abonnement</string>
+    <string name="onboarding_manage_edit">Appuyez sur une carte pour la modifier</string>
+    <string name="onboarding_manage_delete">Balayez une carte vers la gauche, ou ouvrez-la et appuyez sur Supprimer</string>
+    <string name="onboarding_replay">Revoir la présentation</string>
+    <string name="onboarding_replay_sub">Rejouer la présentation initiale</string>
 
     <!-- Analytics -->
     <string name="analytics_title">Aperçu</string>

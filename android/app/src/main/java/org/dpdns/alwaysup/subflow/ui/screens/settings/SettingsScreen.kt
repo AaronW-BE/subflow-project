@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -76,7 +77,8 @@ fun SettingsScreen(
     onTestNotification: () -> Unit,
     onOpenUrl: (String) -> Unit,
     onShareApp: () -> Unit,
-    onRateApp: () -> Unit
+    onRateApp: () -> Unit,
+    onReplayOnboarding: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val currentCurrency by preferencesManager.currency.collectAsState()
@@ -453,6 +455,13 @@ fun SettingsScreen(
                         icon = Icons.Default.Share,
                         iconTint = MaterialTheme.colorScheme.primary,
                         onClick = onShareApp
+                    )
+                    AppleListRow(
+                        title = stringResource(R.string.onboarding_replay),
+                        subtitle = stringResource(R.string.onboarding_replay_sub),
+                        icon = Icons.AutoMirrored.Filled.HelpOutline,
+                        iconTint = SubFlowAccents.blue,
+                        onClick = onReplayOnboarding
                     )
                     AppleListRow(
                         title = stringResource(R.string.privacy_policy),

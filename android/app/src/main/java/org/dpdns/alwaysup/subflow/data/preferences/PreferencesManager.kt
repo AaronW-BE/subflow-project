@@ -103,6 +103,16 @@ class PreferencesManager(context: Context) {
     private val _onboardingComplete = MutableStateFlow(prefs.getBoolean("onboarding_complete", false))
     val onboardingComplete: StateFlow<Boolean> = _onboardingComplete.asStateFlow()
 
+    /**
+     * Whether the swipe-to-delete hint has been retired.
+     *
+     * Set when the user dismisses it *or* the first time they delete
+     * something - a hint that keeps explaining a gesture you have already
+     * used is just clutter.
+     */
+    private val _swipeHintSeen = MutableStateFlow(prefs.getBoolean(KEY_SWIPE_HINT, false))
+    val swipeHintSeen: StateFlow<Boolean> = _swipeHintSeen.asStateFlow()
+
     /** Days before renewal at which the daily worker notifies. Free tier is pinned to 1. */
     private val _reminderLeads = MutableStateFlow(readLeads())
     val reminderLeads: StateFlow<Set<Int>> = _reminderLeads.asStateFlow()
@@ -130,6 +140,28 @@ class PreferencesManager(context: Context) {
     fun completeOnboarding() {
         _onboardingComplete.value = true
         prefs.edit().putBoolean("onboarding_complete", true).apply()
+    }
+
+    /**
+     * Puts the app back to its first-run state for teaching purposes only.
+     *
+     * The contextual hint goes back with the walkthrough: someone asking to see
+     * the introduction again is asking for its hints too, and leaving the swipe
+     * hint retired would half-restore it.
+     */
+    fun restartOnboarding() {
+        _onboardingComplete.value = false
+        _swipeHintSeen.value = false
+        prefs.edit()
+            .putBoolean("onboarding_complete", false)
+            .putBoolean(KEY_SWIPE_HINT, false)
+            .apply()
+    }
+
+    fun markSwipeHintSeen() {
+        if (_swipeHintSeen.value) return
+        _swipeHintSeen.value = true
+        prefs.edit().putBoolean(KEY_SWIPE_HINT, true).apply()
     }
 
     fun toggleReminderLead(days: Int, enabled: Boolean) {
@@ -171,6 +203,7 @@ class PreferencesManager(context: Context) {
     companion object {
         const val PREFS_NAME = "subflow_user_preferences"
         private const val KEY_LEADS = "reminder_lead_days"
+        private const val KEY_SWIPE_HINT = "swipe_hint_seen"
 
         fun resolveInitialLanguage(context: Context): String {
             val saved = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
