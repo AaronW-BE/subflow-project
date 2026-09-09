@@ -296,6 +296,10 @@
     <string name="notif_renewal_title_today">%s renews today</string>
     <string name="notif_renewal_title">%1$s renews in %2$d days</string>
     <string name="notif_renewal_body">You will be charged %1$s on %2$s. Cancel now if you no longer use it.</string>
+    <string name="notif_trial_title_today">%s trial ends today</string>
+    <string name="notif_trial_title">%1$s trial ends in %2$d days</string>
+    <string name="notif_trial_body_converts">It becomes a paid plan on %2$s and you will be charged %1$s. Cancel before then to avoid it.</string>
+    <string name="notif_trial_body_free">The trial ends on %s. Nothing will be charged.</string>
     <string name="notif_test_title">Notifications are working</string>
     <string name="notif_test_body">SubFlow will alert you before your next renewal.</string>
     <plurals name="active_subscriptions_count">

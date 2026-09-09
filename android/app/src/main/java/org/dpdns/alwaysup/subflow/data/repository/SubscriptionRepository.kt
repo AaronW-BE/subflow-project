@@ -10,6 +10,7 @@ import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.SubFlowBackupContainer
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -48,13 +49,27 @@ class SubscriptionRepository(
 
         // Always store a renewal date that is genuinely in the future, otherwise
         // the countdown and the reminder worker both go stale.
-        val normalised = subscription.copy(
-            nextBillDate = DateCalculators.computeNextRenewalDate(
-                subscription.firstBillDate,
-                subscription.cycle
-            ),
-            updatedAt = System.currentTimeMillis()
-        )
+        //
+        // A trial is the exception, and normalising it here is what lets the
+        // rest of the app stay ignorant of trials: its next dated event is the
+        // end of the trial, and it costs nothing until then. Forcing amount to
+        // zero at the single write path is why no total, chart or breakdown has
+        // to remember to exclude trials - and why none of them can forget to.
+        val normalised = if (subscription.isTrial) {
+            subscription.copy(
+                amount = 0.0,
+                nextBillDate = subscription.trialEndDate.ifBlank { subscription.firstBillDate },
+                updatedAt = System.currentTimeMillis()
+            )
+        } else {
+            subscription.copy(
+                nextBillDate = DateCalculators.computeNextRenewalDate(
+                    subscription.firstBillDate,
+                    subscription.cycle
+                ),
+                updatedAt = System.currentTimeMillis()
+            )
+        }
         dao.insertOrUpdate(SubscriptionEntity.fromDomain(normalised))
         return Result.success(Unit)
     }
@@ -70,8 +85,11 @@ class SubscriptionRepository(
      * user returning after a month does not see a wall of "overdue" rows.
      */
     suspend fun rollForwardDueRenewals(): Int {
+        // Trials are skipped: their date is an end, not a renewal. Advancing it
+        // would replace a finished trial awaiting the user's answer with a
+        // countdown to a month that was never going to happen.
         val stale = dao.getActiveSubscriptions().filter {
-            DateCalculators.calculateDaysUntil(it.nextBillDate) < 0
+            !it.isTrial && DateCalculators.calculateDaysUntil(it.nextBillDate) < 0
         }
         stale.forEach { entity ->
             val domain = entity.toDomain()
@@ -166,15 +184,20 @@ class SubscriptionRepository(
         if (subs.isNullOrEmpty()) {
             Result.failure(IllegalArgumentException("Backup data is empty or invalid"))
         } else {
-            val entities = subs.map { sub ->
+            val entities = subs.map { raw ->
+                val sub = raw.repaired()
                 SubscriptionEntity.fromDomain(
                     sub.copy(
                         updatedAt = System.currentTimeMillis(),
                         isDeleted = false,
-                        nextBillDate = DateCalculators.computeNextRenewalDate(
-                            sub.firstBillDate.ifBlank { sub.nextBillDate },
-                            sub.cycle
-                        )
+                        nextBillDate = if (sub.isTrial) {
+                            sub.trialEndDate.ifBlank { sub.nextBillDate }
+                        } else {
+                            DateCalculators.computeNextRenewalDate(
+                                sub.firstBillDate.ifBlank { sub.nextBillDate },
+                                sub.cycle
+                            )
+                        }
                     )
                 )
             }
@@ -184,6 +207,33 @@ class SubscriptionRepository(
     } catch (e: Exception) {
         Result.failure(e)
     }
+
+    /**
+     * Fills in whatever a backup file left out.
+     *
+     * Gson builds objects without running the Kotlin constructor, so a field
+     * missing from the JSON arrives as null no matter how non-null its declared
+     * type is. Every backup written before trial support lacks the six trial
+     * fields, so without this a restore feeds nulls into NOT NULL columns and
+     * fails on the user's own data. The older fields were exposed to the same
+     * hazard all along; it was simply unreachable while the app itself wrote
+     * every field it read.
+     */
+    @Suppress("USELESS_ELVIS")
+    private fun Subscription.repaired(): Subscription = copy(
+        name = name ?: "",
+        category = category ?: "Streaming",
+        currency = currency ?: "USD",
+        cycle = cycle ?: BillingCycle.MONTHLY,
+        firstBillDate = firstBillDate ?: "",
+        nextBillDate = nextBillDate ?: "",
+        colorHex = colorHex ?: "#5856D6",
+        iconUrl = iconUrl ?: "",
+        notes = notes ?: "",
+        trialEndDate = trialEndDate ?: "",
+        postTrialCycle = postTrialCycle ?: BillingCycle.MONTHLY,
+        trialOutcome = trialOutcome ?: TrialOutcome.PENDING
+    )
 
     /**
      * Bundled catalogue. Prices are typical US list prices used only as a
@@ -250,6 +300,10 @@ class SubscriptionRepository(
 
         /** Free tier ceiling. Mirrored in ADR 0002 and on the paywall. */
         const val FREE_TIER_LIMIT = 5
-        const val BACKUP_VERSION = 1
+        /**
+         * 2 since trial fields were added. Restore ignores this number and
+         * repairs whatever is missing, so a v1 file still imports.
+         */
+        const val BACKUP_VERSION = 2
     }
 }

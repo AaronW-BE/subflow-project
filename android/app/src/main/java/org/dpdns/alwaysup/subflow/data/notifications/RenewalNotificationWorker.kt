@@ -19,6 +19,7 @@ import org.dpdns.alwaysup.subflow.data.local.SubFlowDatabase
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import org.dpdns.alwaysup.subflow.domain.util.Trials
 import org.dpdns.alwaysup.subflow.domain.util.withAppLocale
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -53,11 +54,15 @@ class RenewalNotificationWorker(
             .getSharedPreferences("subflow_auth_prefs", Context.MODE_PRIVATE)
             .getBoolean("is_pro", false)
         val leads = PreferencesManager.readLeadsStatic(context, isPro)
-        val today = LocalDate.now().toString()
+        val todayDate = LocalDate.now()
+        val today = todayDate.toString()
         val sentPrefs = context.getSharedPreferences(SENT_PREFS, Context.MODE_PRIVATE)
 
         for (sub in subs) {
             if (sub.reminderDaysBefore <= 0) continue
+            // A trial's stored date is when the trial ends, not when money
+            // moves. Announcing it as a renewal would quote a price of zero.
+            if (sub.isTrial) continue
             val daysUntil = DateCalculators.calculateDaysUntil(sub.nextBillDate)
             if (daysUntil < 0) continue
 
@@ -94,7 +99,89 @@ class RenewalNotificationWorker(
             sentPrefs.edit().putString(sentKey, today).apply()
         }
 
+        remindAboutTrials(
+            subs = subs.map { it.toDomain() },
+            leads = PreferencesManager.readTrialLeadsStatic(context),
+            today = todayDate,
+            localized = localized,
+            sentPrefs = sentPrefs
+        )
+
         return Result.success()
+    }
+
+    /**
+     * Trials get their own pass over the same daily scan.
+     *
+     * The lead times are not the renewal ones, and a trial ends exactly once,
+     * so a lead is marked spent permanently rather than for the day. That one
+     * difference is what makes a reminder survive a reboot or a time-zone
+     * change without arriving a second time, and what makes changing the end
+     * date reschedule the remaining ones without anything to cancel.
+     */
+    private fun remindAboutTrials(
+        subs: List<org.dpdns.alwaysup.subflow.domain.model.Subscription>,
+        leads: Set<Int>,
+        today: LocalDate,
+        localized: Context,
+        sentPrefs: android.content.SharedPreferences
+    ) {
+        for (sub in subs) {
+            if (!sub.isTrialPending) continue
+
+            val stateKey = Trials.stateKey(sub)
+            val firstSight = !sentPrefs.contains(stateKey)
+            val retired = sentPrefs.getStringSet(stateKey, null)
+                ?.mapNotNull { it.toIntOrNull() }
+                ?.toSet()
+                .orEmpty()
+
+            val decision = Trials.decide(
+                subscription = sub,
+                leads = leads,
+                retired = retired,
+                firstSight = firstSight,
+                today = today
+            )
+            if (!firstSight && decision.retire.isEmpty()) continue
+
+            decision.announce?.let { lead ->
+                val remaining = Trials.daysRemaining(sub, today) ?: 0L
+                val endDate = runCatching {
+                    LocalDate.parse(sub.trialEndDate)
+                        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                }.getOrDefault(sub.trialEndDate)
+
+                val title = if (remaining <= 0L) {
+                    localized.getString(R.string.notif_trial_title_today, sub.name)
+                } else {
+                    localized.getString(R.string.notif_trial_title, sub.name, remaining.toInt())
+                }
+                val body = if (sub.trialConverts) {
+                    localized.getString(
+                        R.string.notif_trial_body_converts,
+                        CurrencyFormatter.format(sub.postTrialAmount, sub.currency),
+                        endDate
+                    )
+                } else {
+                    localized.getString(R.string.notif_trial_body_free, endDate)
+                }
+
+                sendNotification(
+                    context = context,
+                    id = (sub.id + "trial" + lead).hashCode(),
+                    title = title,
+                    content = body,
+                    subscriptionId = sub.id
+                )
+            }
+
+            // Written even when nothing was announced: the presence of the key
+            // is what stops the next scan treating this trial as newly seen.
+            sentPrefs.edit()
+                .putStringSet(stateKey, (retired + decision.retire).map { it.toString() }.toSet())
+                .apply()
+        }
     }
 
     companion object {

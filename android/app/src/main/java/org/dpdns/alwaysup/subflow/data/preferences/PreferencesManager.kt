@@ -2,6 +2,7 @@ package org.dpdns.alwaysup.subflow.data.preferences
 
 import android.content.Context
 import android.content.res.Resources
+import org.dpdns.alwaysup.subflow.domain.util.Trials
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -231,6 +232,7 @@ class PreferencesManager(context: Context) {
     companion object {
         const val PREFS_NAME = "subflow_user_preferences"
         private const val KEY_LEADS = "reminder_lead_days"
+        private const val KEY_TRIAL_LEADS = "trial_reminder_lead_days"
         private const val KEY_SWIPE_HINT = "swipe_hint_seen"
 
         /**
@@ -270,6 +272,23 @@ class PreferencesManager(context: Context) {
             val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getStringSet(KEY_LEADS, null) ?: return setOf(1, 3)
             return stored.mapNotNull { it.toIntOrNull() }.toSet().ifEmpty { setOf(1) }
+        }
+
+        /**
+         * Lead times for trial reminders, in days before the trial ends.
+         *
+         * Not gated on Pro, and a separate set from [readLeadsStatic]. Missing
+         * the end of a trial is the unexpected charge this whole feature exists
+         * to prevent; charging for that warning would mean selling the user
+         * protection from a bill they only received because it was withheld.
+         *
+         * An empty stored set means the user turned all of them off, and is
+         * honoured as such rather than being backfilled with a default.
+         */
+        fun readTrialLeadsStatic(context: Context): Set<Int> {
+            val stored = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getStringSet(KEY_TRIAL_LEADS, null) ?: return Trials.DefaultLeads
+            return stored.mapNotNull { it.toIntOrNull() }.filter { it > 0 }.toSet()
         }
     }
 }

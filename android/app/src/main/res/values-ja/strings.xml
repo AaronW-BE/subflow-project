@@ -292,6 +292,10 @@
     <string name="notif_renewal_title_today">%s は本日更新されます</string>
     <string name="notif_renewal_title">%1$s は %2$d 日後に更新されます</string>
     <string name="notif_renewal_body">%2$s に %1$s が請求されます。使っていなければ今のうちに解約できます。</string>
+    <string name="notif_trial_title_today">%s の無料トライアルは本日終了します</string>
+    <string name="notif_trial_title">%1$s の無料トライアルは %2$d 日後に終了します</string>
+    <string name="notif_trial_body_converts">%2$s から有料プランに切り替わり、%1$s が請求されます。それまでに解約すれば請求されません。</string>
+    <string name="notif_trial_body_free">トライアルは %s に終了します。請求はありません。</string>
     <string name="notif_test_title">通知は正常に動作しています</string>
     <string name="notif_test_body">次回の更新前に SubFlow がお知らせします。</string>
     <plurals name="active_subscriptions_count">
