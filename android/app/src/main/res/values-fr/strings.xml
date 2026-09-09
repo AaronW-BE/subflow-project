@@ -313,4 +313,35 @@
     <string name="restore_read_failed">Impossible de lire ce fichier.</string>
     <string name="section_danger">ZONE SENSIBLE</string>
     <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">Essai</string>
+    <string name="trial_toggle">Essai gratuit</string>
+    <string name="trial_toggle_sub">Vous ne payez pas encore pour ceci</string>
+    <string name="trial_end_date">Fin de l’essai</string>
+    <string name="trial_end_date_invalid">L’essai doit se terminer après la date de début</string>
+    <string name="trial_converts">Devient payant à la fin</string>
+    <string name="trial_converts_sub">Désactivez si l’essai s’arrête simplement</string>
+    <string name="field_price_after_trial">Prix après l’essai</string>
+    <string name="trial_free_amount">Gratuit</string>
+    <string name="trial_ends_today">Se termine aujourd’hui</string>
+    <string name="trial_ended">Essai terminé</string>
+    <string name="trial_then_amount">puis %s</string>
+    <string name="trial_no_charge">Aucun prélèvement</string>
+    <string name="detail_trial_end">Fin de l’essai</string>
+    <string name="detail_trial_price">Prix après l’essai</string>
+    <string name="trial_ended_prompt">Cet essai est terminé. Que s’est-il passé ?</string>
+    <string name="trial_action_converted">Il est devenu payant</string>
+    <string name="trial_action_cancelled">Je l’ai résilié</string>
+    <string name="trial_action_extend">Prolonger l’essai</string>
+    <string name="trial_reminders_unavailable">Les notifications sont désactivées, SubFlow ne peut donc pas vous prévenir avant la fin. Le compte à rebours reste affiché ici.</string>
+    <string name="trial_alert_summary">Alerte %s jours avant la fin</string>
+    <string name="trial_alert_off">Aucune alerte avant la fin</string>
+    <string name="trial_reminder_value">%s jours avant</string>
+    <string name="settings_trial_leads_title">Alertes d’essai</string>
+    <string name="settings_trial_leads_sub">Avant la fin d’un essai gratuit. Incluses dans toutes les formules.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Essai : %d jour restant</item>
+        <item quantity="other">Essai : %d jours restants</item>
+    </plurals>
 </resources>

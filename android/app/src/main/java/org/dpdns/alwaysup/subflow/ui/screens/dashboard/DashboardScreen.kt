@@ -68,6 +68,7 @@ import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.ui.components.*
 import org.dpdns.alwaysup.subflow.ui.theme.*
@@ -1034,7 +1035,19 @@ private fun SubscriptionRow(
 ) {
     val daysLeft = DateCalculators.calculateDaysUntil(sub.nextBillDate)
     val localizedCategory = localizedCategory(sub.category)
+    // A running trial reuses every slot in this row, because what the row is
+    // for does not change: what is it, when is the next thing, what does it
+    // cost. The answers differ - the date is an ending, and the cost is still
+    // ahead - so only the words change, not the shape.
+    val isTrial = sub.isTrialPending
     val renewalText = when {
+        isTrial && daysLeft < 0L -> stringResource(R.string.trial_ended)
+        isTrial && daysLeft == 0L -> stringResource(R.string.trial_ends_today)
+        isTrial -> pluralStringResource(
+            R.plurals.trial_days_left,
+            daysLeft.toInt(),
+            daysLeft.toInt()
+        )
         daysLeft < 0L -> stringResource(R.string.renewal_overdue)
         daysLeft == 0L -> stringResource(R.string.renewal_today)
         else -> pluralStringResource(
@@ -1043,19 +1056,34 @@ private fun SubscriptionRow(
             daysLeft.toInt()
         )
     }
-    val cycleText = when (sub.cycle) {
-        BillingCycle.WEEKLY -> stringResource(R.string.cycle_short_weekly)
-        BillingCycle.MONTHLY -> stringResource(R.string.cycle_short_monthly)
-        BillingCycle.QUARTERLY -> stringResource(R.string.cycle_short_quarterly)
-        BillingCycle.ANNUALLY -> stringResource(R.string.cycle_short_yearly)
+    val cycleText = when {
+        isTrial && !sub.trialConverts -> stringResource(R.string.trial_no_charge)
+        isTrial -> stringResource(
+            R.string.trial_then_amount,
+            CurrencyFormatter.format(sub.postTrialAmount, sub.currency)
+        )
+        sub.cycle == BillingCycle.WEEKLY -> stringResource(R.string.cycle_short_weekly)
+        sub.cycle == BillingCycle.MONTHLY -> stringResource(R.string.cycle_short_monthly)
+        sub.cycle == BillingCycle.QUARTERLY -> stringResource(R.string.cycle_short_quarterly)
+        else -> stringResource(R.string.cycle_short_yearly)
     }
-    val urgent = daysLeft in 0..3
+    // An ended trial is the most urgent thing this list can show: it is a
+    // question the user still owes an answer to, and possibly a charge.
+    val urgent = if (isTrial) daysLeft <= 3L else daysLeft in 0..3
 
     SwipeableSubscriptionCard(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
         onDelete = onDelete,
-        contentDescription = "${sub.name}, $localizedCategory, $renewalText"
+        // The upcoming charge is spoken for a trial: it is the fact the row
+        // exists to carry, and element-by-element reading never attaches the
+        // "then ..." line to the service it belongs to.
+        contentDescription = listOfNotNull(
+            sub.name,
+            localizedCategory,
+            renewalText,
+            if (isTrial) cycleText else null
+        ).joinToString(", ")
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -1079,7 +1107,8 @@ private fun SubscriptionRow(
                 amount = sub.amount,
                 currencyCode = sub.currency,
                 cycleLabel = cycleText,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                freeLabel = if (isTrial) stringResource(R.string.trial_free_amount) else null
             )
         }
     }

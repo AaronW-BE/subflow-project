@@ -501,7 +501,10 @@ fun SubFlowNavHost(
                             navController.popBackStack()
                         }
                     },
-                    onOpenUrl = ::openUrl
+                    onOpenUrl = ::openUrl,
+                    onUpdate = { updated ->
+                        scope.launch { subscriptionRepository.saveSubscription(updated, isPro) }
+                    }
                 )
             }
 

@@ -146,6 +146,9 @@ class PreferencesManager(context: Context) {
     private val _reminderLeads = MutableStateFlow(readLeads())
     val reminderLeads: StateFlow<Set<Int>> = _reminderLeads.asStateFlow()
 
+    private val _trialReminderLeads = MutableStateFlow(readTrialLeads())
+    val trialReminderLeads: StateFlow<Set<Int>> = _trialReminderLeads.asStateFlow()
+
     fun setCurrency(code: String) {
         _currency.value = code
         prefs.edit().putString("primary_currency", code).apply()
@@ -201,6 +204,23 @@ class PreferencesManager(context: Context) {
         _reminderLeads.value = sanitised
         prefs.edit().putStringSet(KEY_LEADS, sanitised.map { it.toString() }.toSet()).apply()
     }
+
+    fun toggleTrialReminderLead(days: Int, enabled: Boolean) {
+        val next = _trialReminderLeads.value.toMutableSet()
+        if (enabled) next.add(days) else next.remove(days)
+        // Unlike renewals, turning all of them off is a real answer rather than
+        // a state to be corrected: a trial's countdown stays visible in the app,
+        // so silence here costs the user nothing they were not told about.
+        _trialReminderLeads.value = next
+        prefs.edit().putStringSet(KEY_TRIAL_LEADS, next.map { it.toString() }.toSet()).apply()
+    }
+
+    private fun readTrialLeads(): Set<Int> =
+        prefs.getStringSet(KEY_TRIAL_LEADS, null)
+            ?.mapNotNull { it.toIntOrNull() }
+            ?.filter { it > 0 }
+            ?.toSet()
+            ?: Trials.DefaultLeads
 
     /**
      * Lead times actually applied for the current entitlement. Free users always

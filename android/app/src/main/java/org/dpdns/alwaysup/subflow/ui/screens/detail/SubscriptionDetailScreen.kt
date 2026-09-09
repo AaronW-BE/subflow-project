@@ -1,5 +1,6 @@
 package org.dpdns.alwaysup.subflow.ui.screens.detail
 
+import android.app.DatePickerDialog
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,10 +31,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import org.dpdns.alwaysup.subflow.domain.util.Trials
 import org.dpdns.alwaysup.subflow.ui.components.AppleCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleGroupedCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
@@ -40,6 +44,8 @@ import org.dpdns.alwaysup.subflow.ui.components.BrandIconBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.ui.components.TabularCurrencyText
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.localizedCategory
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Locale
 
 @Composable
@@ -48,9 +54,12 @@ fun SubscriptionDetailScreen(
     onBack: () -> Unit,
     onEdit: (Subscription) -> Unit,
     onDelete: (String) -> Unit,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
+    /** Persists a subscription changed in place, used by the trial actions. */
+    onUpdate: (Subscription) -> Unit = {}
 ) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
 
@@ -62,11 +71,24 @@ fun SubscriptionDetailScreen(
     }
 
     val daysLeft = DateCalculators.calculateDaysUntil(subscription.nextBillDate)
-    val periodDays = remember(subscription.nextBillDate, subscription.cycle) {
-        DateCalculators.periodLengthDays(subscription.nextBillDate, subscription.cycle)
+    // For a trial the ring measures the trial itself, start to end, not a
+    // billing period that has not begun.
+    val periodDays = remember(subscription) {
+        if (subscription.isTrialPending) {
+            Trials.lengthDays(subscription) ?: 30
+        } else {
+            DateCalculators.periodLengthDays(subscription.nextBillDate, subscription.cycle)
+        }
     }
     val elapsedDays = (periodDays - daysLeft).coerceIn(0, periodDays.toLong())
     val progressPct = (elapsedDays.toFloat() / periodDays.toFloat()).coerceIn(0f, 1f)
+
+    // A trial still running, and one whose end date has passed without the
+    // user saying what happened. The second is the only state in this app that
+    // asks a question rather than reporting one.
+    val isTrial = subscription.isTrialPending
+    val trialOver = isTrial && daysLeft < 0L
+    val trialLeads = remember(context) { PreferencesManager.readTrialLeadsStatic(context) }
 
     val cyclesPaid = remember(subscription) {
         DateCalculators.cyclesElapsed(subscription.firstBillDate, subscription.cycle)
@@ -161,24 +183,53 @@ fun SubscriptionDetailScreen(
                         CountdownRing(
                             progress = progressPct,
                             daysLeft = daysLeft,
-                            urgent = urgent
+                            urgent = urgent,
+                            isTrial = isTrial
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        TabularCurrencyText(
-                            amount = subscription.amount,
-                            currencyCode = subscription.currency,
-                            style = MaterialTheme.typography.displayLarge.copy(fontSize = 28.sp)
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.detail_billed_cycle,
-                                cycleLabel(subscription.cycle)
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        if (isTrial) {
+                            // What it costs right now, which is the fact a
+                            // trial exists to state. The bill that follows is
+                            // the line underneath, never the headline.
+                            Text(
+                                text = stringResource(R.string.trial_free_amount),
+                                style = MaterialTheme.typography.displayLarge.copy(fontSize = 28.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = if (subscription.trialConverts) {
+                                    stringResource(
+                                        R.string.trial_then_amount,
+                                        CurrencyFormatter.format(
+                                            subscription.postTrialAmount,
+                                            subscription.currency,
+                                            locale
+                                        )
+                                    )
+                                } else {
+                                    stringResource(R.string.trial_no_charge)
+                                },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            TabularCurrencyText(
+                                amount = subscription.amount,
+                                currencyCode = subscription.currency,
+                                style = MaterialTheme.typography.displayLarge.copy(fontSize = 28.sp)
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.detail_billed_cycle,
+                                    cycleLabel(subscription.cycle)
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -193,30 +244,56 @@ fun SubscriptionDetailScreen(
                         title = stringResource(R.string.detail_cycle),
                         valueText = cycleLabel(subscription.cycle)
                     )
-                    AppleListRow(
-                        title = stringResource(R.string.detail_next_renewal),
-                        valueText = DateCalculators.formatMedium(subscription.nextBillDate, locale)
-                    )
+                    if (isTrial) {
+                        AppleListRow(
+                            title = stringResource(R.string.detail_trial_end),
+                            valueText = DateCalculators.formatMedium(subscription.trialEndDate, locale)
+                        )
+                        AppleListRow(
+                            title = stringResource(R.string.detail_trial_price),
+                            valueText = if (subscription.trialConverts) {
+                                CurrencyFormatter.format(
+                                    subscription.postTrialAmount,
+                                    subscription.currency,
+                                    locale
+                                )
+                            } else {
+                                stringResource(R.string.trial_no_charge)
+                            }
+                        )
+                    } else {
+                        AppleListRow(
+                            title = stringResource(R.string.detail_next_renewal),
+                            valueText = DateCalculators.formatMedium(subscription.nextBillDate, locale)
+                        )
+                    }
                     AppleListRow(
                         title = stringResource(R.string.detail_first_payment),
                         valueText = DateCalculators.formatMedium(subscription.firstBillDate, locale)
                     )
-                    AppleListRow(
-                        title = stringResource(R.string.detail_monthly_equivalent),
-                        valueText = CurrencyFormatter.format(
-                            subscription.monthlyAmount,
-                            subscription.currency,
-                            locale
+                    // Both of these are answers about a paid plan. On a
+                    // running trial they are honestly 0.00 and say nothing,
+                    // sitting under a "price after trial" row that does - two
+                    // hollow lines that make the one that matters harder to
+                    // find.
+                    if (!isTrial) {
+                        AppleListRow(
+                            title = stringResource(R.string.detail_monthly_equivalent),
+                            valueText = CurrencyFormatter.format(
+                                subscription.monthlyAmount,
+                                subscription.currency,
+                                locale
+                            )
                         )
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.detail_yearly_commitment),
-                        valueText = CurrencyFormatter.format(
-                            subscription.yearlyAmount,
-                            subscription.currency,
-                            locale
+                        AppleListRow(
+                            title = stringResource(R.string.detail_yearly_commitment),
+                            valueText = CurrencyFormatter.format(
+                                subscription.yearlyAmount,
+                                subscription.currency,
+                                locale
+                            )
                         )
-                    )
+                    }
                     // Cumulative spend is the number that actually changes behaviour.
                     AppleListRow(
                         title = stringResource(R.string.detail_paid_so_far),
@@ -224,7 +301,19 @@ fun SubscriptionDetailScreen(
                     )
                     AppleListRow(
                         title = stringResource(R.string.detail_reminder),
-                        valueText = if (subscription.reminderDaysBefore > 0) {
+                        // A trial is warned about on its own schedule, so
+                        // quoting the renewal lead here would name a day
+                        // nothing happens on.
+                        valueText = if (isTrial) {
+                            if (subscription.reminderDaysBefore > 0 && trialLeads.isNotEmpty()) {
+                                stringResource(
+                                    R.string.trial_reminder_value,
+                                    trialLeads.sortedDescending().joinToString(", ")
+                                )
+                            } else {
+                                stringResource(R.string.detail_reminder_off)
+                            }
+                        } else if (subscription.reminderDaysBefore > 0) {
                             if (subscription.reminderDaysBefore == 1) {
                                 stringResource(R.string.reminder_lead_one)
                             } else {
@@ -241,6 +330,102 @@ fun SubscriptionDetailScreen(
                             valueText = subscription.notes,
                             showDivider = false
                         )
+                    }
+                }
+            }
+
+            if (trialOver) {
+                item(key = "trial_actions") {
+                    // Three answers, because two would not include the true
+                    // one often enough: a user who was given another month has
+                    // to be able to say so, or they pick "cancelled" and the
+                    // subscription disappears from totals while still billing.
+                    val trialEnd = DateCalculators.parseOrNull(subscription.trialEndDate)
+                        ?: LocalDate.now()
+                    val extendDialog = remember(subscription.trialEndDate) {
+                        DatePickerDialog(
+                            context,
+                            { _, y, m, d ->
+                                onUpdate(
+                                    Trials.extendTo(
+                                        subscription,
+                                        LocalDate.of(y, m + 1, d).toString()
+                                    )
+                                )
+                            },
+                            trialEnd.year,
+                            trialEnd.monthValue - 1,
+                            trialEnd.dayOfMonth
+                        ).apply {
+                            datePicker.minDate = LocalDate.now()
+                                .plusDays(1)
+                                .atStartOfDay(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                        }
+                    }
+
+                    AppleCard(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = stringResource(R.string.trial_ended_prompt),
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Button(
+                                onClick = { onUpdate(Trials.convertToPaid(subscription)) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.trial_action_converted),
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = { onUpdate(Trials.cancel(subscription)) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                ),
+                                elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.trial_action_cancelled),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = { extendDialog.show() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                                ),
+                                elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.trial_action_extend),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -370,7 +555,19 @@ private fun CircleIconButton(
 }
 
 @Composable
-private fun CountdownRing(progress: Float, daysLeft: Long, urgent: Boolean) {
+private fun CountdownRing(
+    progress: Float,
+    daysLeft: Long,
+    urgent: Boolean,
+    /**
+     * Whether the date being counted down to is a trial's end.
+     *
+     * Without this the ring announced a finished trial as an overdue renewal -
+     * a charge that has already been missed - which is the opposite of what has
+     * happened and the opposite of what the buttons below it offer.
+     */
+    isTrial: Boolean = false
+) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         animationSpec = tween(durationMillis = 800),
@@ -399,14 +596,22 @@ private fun CountdownRing(progress: Float, daysLeft: Long, urgent: Boolean) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when {
                 daysLeft < 0 -> Text(
-                    text = stringResource(R.string.detail_overdue),
+                    text = if (isTrial) {
+                        stringResource(R.string.trial_ended)
+                    } else {
+                        stringResource(R.string.detail_overdue)
+                    },
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 18.dp)
                 )
                 daysLeft == 0L -> Text(
-                    text = stringResource(R.string.detail_due_today),
+                    text = if (isTrial) {
+                        stringResource(R.string.trial_ends_today)
+                    } else {
+                        stringResource(R.string.detail_due_today)
+                    },
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.tertiary,

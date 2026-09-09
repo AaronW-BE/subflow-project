@@ -313,4 +313,35 @@
     <string name="restore_read_failed">No se ha podido leer ese archivo.</string>
     <string name="section_danger">ZONA DE RIESGO</string>
     <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">Prueba</string>
+    <string name="trial_toggle">Prueba gratuita</string>
+    <string name="trial_toggle_sub">Todavía no pagas por esto</string>
+    <string name="trial_end_date">La prueba termina</string>
+    <string name="trial_end_date_invalid">La prueba debe terminar después de la fecha de inicio</string>
+    <string name="trial_converts">Pasa a ser de pago al terminar</string>
+    <string name="trial_converts_sub">Desactívalo si simplemente termina</string>
+    <string name="field_price_after_trial">Precio tras la prueba</string>
+    <string name="trial_free_amount">Gratis</string>
+    <string name="trial_ends_today">Termina hoy</string>
+    <string name="trial_ended">Prueba terminada</string>
+    <string name="trial_then_amount">luego %s</string>
+    <string name="trial_no_charge">Sin cargo</string>
+    <string name="detail_trial_end">La prueba termina</string>
+    <string name="detail_trial_price">Precio tras la prueba</string>
+    <string name="trial_ended_prompt">Esta prueba ha terminado. ¿Qué pasó?</string>
+    <string name="trial_action_converted">Pasó a ser de pago</string>
+    <string name="trial_action_cancelled">La cancelé</string>
+    <string name="trial_action_extend">Ampliar la prueba</string>
+    <string name="trial_reminders_unavailable">Las notificaciones están desactivadas, así que SubFlow no puede avisarte antes de que termine. La cuenta atrás sigue aquí.</string>
+    <string name="trial_alert_summary">Aviso %s días antes de que termine</string>
+    <string name="trial_alert_off">Sin aviso antes de que termine</string>
+    <string name="trial_reminder_value">%s días antes</string>
+    <string name="settings_trial_leads_title">Avisos de prueba</string>
+    <string name="settings_trial_leads_sub">Antes de que termine una prueba gratuita. Incluidos en todos los planes.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Prueba: queda %d día</item>
+        <item quantity="other">Prueba: quedan %d días</item>
+    </plurals>
 </resources>
