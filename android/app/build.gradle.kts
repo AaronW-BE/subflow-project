@@ -29,17 +29,21 @@ android {
         applicationId = "org.dpdns.alwaysup.subflow"
         minSdk = 26
         targetSdk = 36
-        // 1 was the first upload to the org.dpdns.alwaysup.subflow entry and is
-        // the bundle currently in review; 2 supersedes it with Play Billing 9,
-        // targetSdk 36, ads 25.4.0 and the corrected AdMob banner unit. (The
-        // 1..4 spent while this app was called com.subflow.app belong to that
-        // other Console entry and never constrained this one - Play only
-        // requires versionCode to increase within a single app.)
+        // 1 was the first upload to the org.dpdns.alwaysup.subflow entry; 2
+        // superseded it with Play Billing 9, targetSdk 36, ads 25.4.0 and the
+        // corrected AdMob banner unit. 3 is the first bundle to carry the
+        // feature work that followed - trial tracking with end-of-trial
+        // reminders, the catch-up scan that settles a reminder the daily
+        // schedule slept through, and the sync fix that stopped the client and
+        // the server disagreeing about every field name. (The 1..4 spent while
+        // this app was called com.subflow.app belong to that other Console
+        // entry and never constrained this one - Play only requires
+        // versionCode to increase within a single app.)
         //
-        // versionName stays 1.0.0: nothing has been released publicly, so this
-        // is still the 1.0.0 launch, just a corrected build of it.
-        versionCode = 2
-        versionName = "1.0.0"
+        // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
+        // looking for, not a correction to one that shipped.
+        versionCode = 3
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
