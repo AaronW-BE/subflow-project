@@ -293,6 +293,10 @@
     <string name="notif_renewal_title_today">%s verlängert sich heute</string>
     <string name="notif_renewal_title">%1$s verlängert sich in %2$d Tagen</string>
     <string name="notif_renewal_body">Am %2$s werden %1$s abgebucht. Jetzt kündigen, falls du es nicht mehr nutzt.</string>
+    <string name="notif_trial_title_today">Testphase von %s endet heute</string>
+    <string name="notif_trial_title">Testphase von %1$s endet in %2$d Tagen</string>
+    <string name="notif_trial_body_converts">Am %2$s wird daraus ein kostenpflichtiges Abo und %1$s werden abgebucht. Vorher kündigen, um das zu vermeiden.</string>
+    <string name="notif_trial_body_free">Die Testphase endet am %s. Es wird nichts abgebucht.</string>
     <string name="notif_test_title">Mitteilungen funktionieren</string>
     <string name="notif_test_body">SubFlow meldet sich vor deiner nächsten Verlängerung.</string>
     <plurals name="active_subscriptions_count">

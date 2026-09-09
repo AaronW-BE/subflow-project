@@ -293,6 +293,10 @@
     <string name="notif_renewal_title_today">%s se renouvelle aujourd’hui</string>
     <string name="notif_renewal_title">%1$s se renouvelle dans %2$d jours</string>
     <string name="notif_renewal_body">%1$s seront prélevés le %2$s. Résiliez maintenant si vous ne l’utilisez plus.</string>
+    <string name="notif_trial_title_today">L’essai de %s se termine aujourd’hui</string>
+    <string name="notif_trial_title">L’essai de %1$s se termine dans %2$d jours</string>
+    <string name="notif_trial_body_converts">Le %2$s, il devient payant et %1$s seront prélevés. Résiliez avant pour l’éviter.</string>
+    <string name="notif_trial_body_free">L’essai se termine le %s. Rien ne sera prélevé.</string>
     <string name="notif_test_title">Les notifications fonctionnent</string>
     <string name="notif_test_body">SubFlow vous préviendra avant votre prochain renouvellement.</string>
     <plurals name="active_subscriptions_count">

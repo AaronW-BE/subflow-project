@@ -292,6 +292,10 @@
     <string name="notif_renewal_title_today">%s 今天续费</string>
     <string name="notif_renewal_title">%1$s 将在 %2$d 天后续费</string>
     <string name="notif_renewal_body">将于 %2$s 扣费 %1$s。如果不再使用，现在取消还来得及。</string>
+    <string name="notif_trial_title_today">%s 试用今天结束</string>
+    <string name="notif_trial_title">%1$s 试用还有 %2$d 天结束</string>
+    <string name="notif_trial_body_converts">%2$s 起转为付费，将扣费 %1$s。在此之前取消就不会产生费用。</string>
+    <string name="notif_trial_body_free">试用将于 %s 结束，不会产生费用。</string>
     <string name="notif_test_title">通知功能正常</string>
     <string name="notif_test_body">SubFlow 会在下次续费之前提醒你。</string>
     <plurals name="active_subscriptions_count">
