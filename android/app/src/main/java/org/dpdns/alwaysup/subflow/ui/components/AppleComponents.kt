@@ -555,7 +555,16 @@ fun SubscriptionRowContent(
     currencyCode: String,
     cycleLabel: String,
     modifier: Modifier = Modifier,
-    nameColor: Color = MaterialTheme.colorScheme.onSurface
+    nameColor: Color = MaterialTheme.colorScheme.onSurface,
+    /**
+     * Shown in place of the price when the row costs nothing right now.
+     *
+     * A trial rendered through the ordinary path reads "0.00", which looks
+     * like a data-entry mistake rather than the point. The word goes where the
+     * number was so the row keeps its shape, and what it will cost later is
+     * left to [cycleLabel], which the caller already writes.
+     */
+    freeLabel: String? = null
 ) {
     Column(modifier = modifier) {
         Row(
@@ -573,14 +582,26 @@ fun SubscriptionRowContent(
                 modifier = Modifier.weight(1f, fill = false)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            TabularCurrencyText(
-                amount = amount,
-                currencyCode = currencyCode,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp
+            if (freeLabel != null) {
+                Text(
+                    text = freeLabel,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1
                 )
-            )
+            } else {
+                TabularCurrencyText(
+                    amount = amount,
+                    currencyCode = currencyCode,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 17.sp
+                    )
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(4.dp))

@@ -69,19 +69,38 @@ internal fun buildBillingForecast(
     val counts = IntArray(months)
 
     subs.forEach { sub ->
+        // A running trial bills nothing today and everything about it that
+        // belongs in a forecast is in the future: what it will charge, on which
+        // cycle, starting the day the trial ends. That first charge after a free
+        // month is the one this chart exists to put in front of someone, so a
+        // trial is walked from its end date at its post-trial price rather than
+        // from a first bill that has not happened.
+        val pendingTrial = sub.isTrialPending
+        // Nothing to forecast for a trial that simply stops.
+        if (pendingTrial && !sub.trialConverts) return@forEach
+
         // The charge, not the monthly equivalent: this chart exists to undo
         // that division.
-        val charge = CurrencyConverter.convert(sub.amount, sub.currency, primaryCurrency)
-        var date = DateCalculators.parseOrNull(sub.firstBillDate)
-            ?: DateCalculators.parseOrNull(sub.nextBillDate)
-            ?: return@forEach
+        val charge = CurrencyConverter.convert(
+            if (pendingTrial) sub.postTrialAmount else sub.amount,
+            sub.currency,
+            primaryCurrency
+        )
+        val cycle = if (pendingTrial) sub.postTrialCycle else sub.cycle
+        var date = if (pendingTrial) {
+            DateCalculators.parseOrNull(sub.trialEndDate) ?: return@forEach
+        } else {
+            DateCalculators.parseOrNull(sub.firstBillDate)
+                ?: DateCalculators.parseOrNull(sub.nextBillDate)
+                ?: return@forEach
+        }
 
         // Stepping one cycle at a time rather than jumping: plusMonths(1) twice
         // from Jan 31 gives Mar 28, plusMonths(2) gives Mar 31, and the rest of
         // the app takes the first road.
         var skips = 0
         while (date.isBefore(windowStart) && skips < MAX_STEPS) {
-            date = DateCalculators.advance(date, sub.cycle)
+            date = DateCalculators.advance(date, cycle)
             skips++
         }
         // A budget of its own. Sharing one with the skip above meant a first
@@ -96,7 +115,7 @@ internal fun buildBillingForecast(
                 totals[index] += charge
                 counts[index] += 1
             }
-            date = DateCalculators.advance(date, sub.cycle)
+            date = DateCalculators.advance(date, cycle)
             guard++
         }
     }

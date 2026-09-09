@@ -42,6 +42,18 @@ object Trials {
     }
 
     /**
+     * How long the trial runs, in days, or null when either date is unusable.
+     *
+     * The countdown ring needs a track to fill, and for a trial that track is
+     * start-to-end rather than one billing cycle.
+     */
+    fun lengthDays(subscription: Subscription): Int? {
+        val start = DateCalculators.parseOrNull(subscription.firstBillDate) ?: return null
+        val end = DateCalculators.parseOrNull(subscription.trialEndDate) ?: return null
+        return ChronoUnit.DAYS.between(start, end).toInt().takeIf { it > 0 }
+    }
+
+    /**
      * The key this trial's reminder state is stored under.
      *
      * Includes the end date, so moving the date is itself the rescheduling: the

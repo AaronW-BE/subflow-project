@@ -313,4 +313,35 @@
     <string name="restore_read_failed">Diese Datei konnte nicht gelesen werden.</string>
     <string name="section_danger">GEFAHRENZONE</string>
     <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">Test</string>
+    <string name="trial_toggle">Kostenlose Testphase</string>
+    <string name="trial_toggle_sub">Dafür zahlst du noch nichts</string>
+    <string name="trial_end_date">Testphase endet</string>
+    <string name="trial_end_date_invalid">Die Testphase muss nach dem Startdatum enden</string>
+    <string name="trial_converts">Wird danach kostenpflichtig</string>
+    <string name="trial_converts_sub">Ausschalten, wenn sie einfach endet</string>
+    <string name="field_price_after_trial">Preis nach der Testphase</string>
+    <string name="trial_free_amount">Gratis</string>
+    <string name="trial_ends_today">Endet heute</string>
+    <string name="trial_ended">Testphase beendet</string>
+    <string name="trial_then_amount">danach %s</string>
+    <string name="trial_no_charge">Keine Abbuchung</string>
+    <string name="detail_trial_end">Testphase endet</string>
+    <string name="detail_trial_price">Preis nach der Testphase</string>
+    <string name="trial_ended_prompt">Diese Testphase ist beendet. Was ist passiert?</string>
+    <string name="trial_action_converted">Wurde kostenpflichtig</string>
+    <string name="trial_action_cancelled">Ich habe gekündigt</string>
+    <string name="trial_action_extend">Testphase verlängern</string>
+    <string name="trial_reminders_unavailable">Benachrichtigungen sind aus, deshalb kann SubFlow dich vor dem Ende nicht warnen. Der Countdown bleibt hier trotzdem sichtbar.</string>
+    <string name="trial_alert_summary">Hinweis %s Tage vor dem Ende</string>
+    <string name="trial_alert_off">Kein Hinweis vor dem Ende</string>
+    <string name="trial_reminder_value">%s Tage vorher</string>
+    <string name="settings_trial_leads_title">Test-Erinnerungen</string>
+    <string name="settings_trial_leads_sub">Vor dem Ende einer kostenlosen Testphase. In jedem Tarif enthalten.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Test: noch %d Tag</item>
+        <item quantity="other">Test: noch %d Tage</item>
+    </plurals>
 </resources>

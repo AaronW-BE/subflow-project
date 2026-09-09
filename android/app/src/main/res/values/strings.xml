@@ -316,4 +316,35 @@
     <string name="restore_read_failed">Could not read that file.</string>
     <string name="section_danger">DANGER ZONE</string>
     <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">Trial</string>
+    <string name="trial_toggle">Free trial</string>
+    <string name="trial_toggle_sub">You are not paying for this yet</string>
+    <string name="trial_end_date">Trial ends</string>
+    <string name="trial_end_date_invalid">The trial has to end after the start date</string>
+    <string name="trial_converts">Becomes paid when it ends</string>
+    <string name="trial_converts_sub">Turn this off if it simply stops</string>
+    <string name="field_price_after_trial">Price after trial</string>
+    <string name="trial_free_amount">Free</string>
+    <string name="trial_ends_today">Ends today</string>
+    <string name="trial_ended">Trial ended</string>
+    <string name="trial_then_amount">then %s</string>
+    <string name="trial_no_charge">No charge</string>
+    <string name="detail_trial_end">Trial ends</string>
+    <string name="detail_trial_price">Price after trial</string>
+    <string name="trial_ended_prompt">This trial has ended. What happened?</string>
+    <string name="trial_action_converted">It became paid</string>
+    <string name="trial_action_cancelled">I cancelled it</string>
+    <string name="trial_action_extend">Extend the trial</string>
+    <string name="trial_reminders_unavailable">Notifications are turned off, so SubFlow cannot warn you before this trial ends. The countdown stays here either way.</string>
+    <string name="trial_alert_summary">Warned %s days before it ends</string>
+    <string name="trial_alert_off">No reminder before it ends</string>
+    <string name="trial_reminder_value">%s days before</string>
+    <string name="settings_trial_leads_title">Trial reminders</string>
+    <string name="settings_trial_leads_sub">Before a free trial ends. Included on every plan.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Trial: %d day left</item>
+        <item quantity="other">Trial: %d days left</item>
+    </plurals>
 </resources>

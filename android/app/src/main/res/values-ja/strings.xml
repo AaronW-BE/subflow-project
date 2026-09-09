@@ -310,4 +310,34 @@
     <string name="restore_read_failed">このファイルを読み込めませんでした。</string>
     <string name="section_danger">取り扱い注意</string>
     <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">体験</string>
+    <string name="trial_toggle">無料トライアル</string>
+    <string name="trial_toggle_sub">まだ料金は発生していません</string>
+    <string name="trial_end_date">トライアル終了日</string>
+    <string name="trial_end_date_invalid">トライアルの終了日は開始日より後にしてください</string>
+    <string name="trial_converts">終了後に有料へ移行</string>
+    <string name="trial_converts_sub">そのまま終了する場合はオフに</string>
+    <string name="field_price_after_trial">トライアル後の料金</string>
+    <string name="trial_free_amount">無料</string>
+    <string name="trial_ends_today">本日終了</string>
+    <string name="trial_ended">トライアル終了</string>
+    <string name="trial_then_amount">終了後 %s</string>
+    <string name="trial_no_charge">請求なし</string>
+    <string name="detail_trial_end">トライアル終了日</string>
+    <string name="detail_trial_price">トライアル後の料金</string>
+    <string name="trial_ended_prompt">このトライアルは終了しました。その後どうなりましたか？</string>
+    <string name="trial_action_converted">有料に移行した</string>
+    <string name="trial_action_cancelled">解約した</string>
+    <string name="trial_action_extend">トライアルを延長</string>
+    <string name="trial_reminders_unavailable">通知がオフのため、トライアル終了前にお知らせできません。残り日数はここに表示され続けます。</string>
+    <string name="trial_alert_summary">終了の %s 日前に通知</string>
+    <string name="trial_alert_off">終了前に通知しない</string>
+    <string name="trial_reminder_value">%s 日前</string>
+    <string name="settings_trial_leads_title">トライアル通知</string>
+    <string name="settings_trial_leads_sub">無料トライアル終了前のお知らせ。すべてのプランに含まれます。</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">トライアル残り %d 日</item>
+    </plurals>
 </resources>

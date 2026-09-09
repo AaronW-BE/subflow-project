@@ -36,6 +36,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import org.dpdns.alwaysup.subflow.BuildConfig
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
@@ -88,6 +90,7 @@ fun SettingsScreen(
     val currentLang by preferencesManager.language.collectAsState()
     val hapticsEnabled by preferencesManager.hapticsEnabled.collectAsState()
     val reminderLeads by preferencesManager.reminderLeads.collectAsState()
+    val trialReminderLeads by preferencesManager.trialReminderLeads.collectAsState()
 
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showThemeSheet by remember { mutableStateOf(false) }
@@ -380,6 +383,106 @@ fun SettingsScreen(
                                                 checked && !locked -> Color.White
                                                 locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                                 else -> MaterialTheme.colorScheme.onSurface
+                                            },
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    AppleRowSeparator(startInset = 62.dp)
+
+                    // Trial reminders. Same shape as the block above and
+                    // deliberately without its locks: missing the end of a
+                    // trial is the unexpected charge the feature exists to
+                    // prevent, and selling the warning would mean selling
+                    // protection from a bill we withheld it about.
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Default.Schedule,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.settings_trial_leads_title),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = stringResource(R.string.settings_trial_leads_sub),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            ReminderLead.entries.forEach { lead ->
+                                val checked = lead.days in trialReminderLeads
+                                val leadLabel = if (lead.days == 1) {
+                                    stringResource(R.string.reminder_lead_one)
+                                } else {
+                                    stringResource(R.string.reminder_lead_value, lead.days)
+                                }
+                                // toggleable rather than Surface(onClick=):
+                                // Surface applies the caller's modifier inside
+                                // its own clickable node, so semantics set
+                                // there land on a child and get merged in
+                                // beside the label - read out, the chip says
+                                // its name twice. This puts the switch role and
+                                // its on/off state on the focusable node, and
+                                // leaves the visible text as the label.
+                                Surface(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .toggleable(
+                                            value = checked,
+                                            role = Role.Switch,
+                                            onValueChange = { next ->
+                                                preferencesManager.toggleTrialReminderLead(
+                                                    lead.days,
+                                                    next
+                                                )
+                                            }
+                                        ),
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = if (checked) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    }
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .heightIn(min = 40.dp)
+                                            .padding(horizontal = 4.dp),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = leadLabel,
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                            fontWeight = if (checked) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (checked) {
+                                                Color.White
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurface
                                             },
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis

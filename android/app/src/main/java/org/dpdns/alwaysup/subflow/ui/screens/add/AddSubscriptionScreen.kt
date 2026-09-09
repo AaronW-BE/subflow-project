@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,11 +52,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.data.notifications.RenewalNotificationWorker
+import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
 import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
@@ -64,6 +68,7 @@ import org.dpdns.alwaysup.subflow.ui.screens.dashboard.localizedCategory
 import org.dpdns.alwaysup.subflow.ui.theme.*
 import org.dpdns.alwaysup.subflow.ui.util.rememberHaptics
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Locale
 import java.util.UUID
 
@@ -93,8 +98,15 @@ fun AddSubscriptionScreen(
 
     var name by rememberSaveable { mutableStateOf(existingSubscription?.name ?: "") }
     var category by rememberSaveable { mutableStateOf(existingSubscription?.category ?: "Streaming") }
+    // On a trial the price field holds what it will cost *after* the trial;
+    // the stored amount is zero, and showing that would look like the number
+    // had been lost.
     var amountText by rememberSaveable {
-        mutableStateOf(existingSubscription?.let { trimAmount(it.amount) } ?: "")
+        mutableStateOf(
+            existingSubscription?.let {
+                trimAmount(if (it.isTrial) it.postTrialAmount else it.amount)
+            } ?: ""
+        )
     }
     var currency by rememberSaveable { mutableStateOf(existingSubscription?.currency ?: primaryCurrency) }
     // Whether the figure in the price field is the catalogue's US list price
@@ -119,6 +131,19 @@ fun AddSubscriptionScreen(
     var firstBillDate by rememberSaveable {
         mutableStateOf(existingSubscription?.firstBillDate ?: LocalDate.now().toString())
     }
+    var isTrial by rememberSaveable { mutableStateOf(existingSubscription?.isTrial ?: false) }
+    // A month is what most trials are, and it is a date the user can see is
+    // wrong - unlike today, which validates and quietly means "already over".
+    var trialEndDate by rememberSaveable {
+        mutableStateOf(
+            existingSubscription?.trialEndDate?.takeIf { it.isNotBlank() }
+                ?: LocalDate.now().plusMonths(1).toString()
+        )
+    }
+    var trialConverts by rememberSaveable {
+        mutableStateOf(existingSubscription?.trialConverts ?: true)
+    }
+    val trialLeads = remember(context) { PreferencesManager.readTrialLeadsStatic(context) }
 
     // PickVisualMedia is the modern picker: no storage permission, and the app
     // only ever sees the one image the user chose.
@@ -141,8 +166,10 @@ fun AddSubscriptionScreen(
     val chooseLogoLabel = stringResource(R.string.choose_custom_logo)
     val removeLogoLabel = stringResource(R.string.remove_custom_logo)
 
-    val nextRenewal = remember(firstBillDate, cycle) {
-        DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
+    // For a trial the next dated event is its ending, which is also what gets
+    // stored, so the preview and the saved row agree.
+    val nextRenewal = remember(firstBillDate, cycle, isTrial, trialEndDate) {
+        if (isTrial) trialEndDate else DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
     }
     val previewAmount = amountText.parseAmount()
     // The same renewal wording the saved row will use, so the preview is a
@@ -153,6 +180,13 @@ fun AddSubscriptionScreen(
         DateCalculators.calculateDaysUntil(nextRenewal)
     }
     val previewRenewalText = when {
+        isTrial && previewDaysLeft < 0L -> stringResource(R.string.trial_ended)
+        isTrial && previewDaysLeft == 0L -> stringResource(R.string.trial_ends_today)
+        isTrial -> pluralStringResource(
+            R.plurals.trial_days_left,
+            previewDaysLeft.toInt(),
+            previewDaysLeft.toInt()
+        )
         previewDaysLeft < 0L -> stringResource(R.string.renewal_overdue)
         previewDaysLeft == 0L -> stringResource(R.string.renewal_today)
         else -> pluralStringResource(
@@ -161,7 +195,7 @@ fun AddSubscriptionScreen(
             previewDaysLeft.toInt()
         )
     }
-    val previewUrgent = previewDaysLeft in 0..3
+    val previewUrgent = if (isTrial) previewDaysLeft <= 3L else previewDaysLeft in 0..3
     val previewCycleSpoken = when (cycle) {
         BillingCycle.WEEKLY -> stringResource(R.string.cycle_weekly)
         BillingCycle.MONTHLY -> stringResource(R.string.cycle_monthly)
@@ -170,6 +204,18 @@ fun AddSubscriptionScreen(
     }
     val previewCategorySpoken = localizedCategory(category)
     val previewNameSpoken = name.ifBlank { stringResource(R.string.service_name) }
+    val previewFreeLabel = stringResource(R.string.trial_free_amount)
+    // What the row's right-hand column says. On a trial it is what the
+    // subscription costs *after* the trial, and reading the figure out without
+    // that word turns a warning into a bill the user believes they are paying.
+    val previewTrailing = when {
+        isTrial && !trialConverts -> stringResource(R.string.trial_no_charge)
+        isTrial -> stringResource(
+            R.string.trial_then_amount,
+            CurrencyFormatter.format(previewAmount, currency, locale)
+        )
+        else -> previewCycleSpoken
+    }
     // "/mo" is a glyph, not a word: read out it becomes "slash m o". The
     // spoken summary uses the full cycle name and states the price, which
     // element-by-element reading never attaches to a service.
@@ -177,22 +223,39 @@ fun AddSubscriptionScreen(
         previewNameSpoken,
         previewCategorySpoken,
         previewRenewalText,
-        CurrencyFormatter.format(previewAmount, currency, locale),
-        previewCycleSpoken
+        if (isTrial) previewFreeLabel else CurrencyFormatter.format(previewAmount, currency, locale),
+        previewTrailing
     ).joinToString(", ")
     val nameValid = name.isNotBlank()
-    val amountValid = previewAmount > 0.0
-    val isValid = nameValid && amountValid
+    // A trial that simply stops never has a price to state, so requiring one
+    // would be demanding a number the user does not have.
+    val amountValid = (isTrial && !trialConverts) || previewAmount > 0.0
+    val trialDatesValid = !isTrial || run {
+        val end = DateCalculators.parseOrNull(trialEndDate)
+        val start = DateCalculators.parseOrNull(firstBillDate)
+        end != null && start != null && end.isAfter(start)
+    }
+    val isValid = nameValid && amountValid && trialDatesValid
 
     val hasChanges = remember(
-        name, category, amountText, currency, cycle, reminderDays, selectedColorHex, notes, firstBillDate
+        name, category, amountText, currency, cycle, reminderDays, selectedColorHex, notes,
+        firstBillDate, isTrial, trialEndDate, trialConverts
     ) {
         if (existingSubscription == null) {
-            name.isNotBlank() || amountText.isNotBlank() || notes.isNotBlank()
+            name.isNotBlank() || amountText.isNotBlank() || notes.isNotBlank() || isTrial
         } else {
             name != existingSubscription.name ||
                 category != existingSubscription.category ||
-                previewAmount != existingSubscription.amount ||
+                isTrial != existingSubscription.isTrial ||
+                (isTrial && trialEndDate != existingSubscription.trialEndDate) ||
+                (isTrial && trialConverts != existingSubscription.trialConverts) ||
+                previewAmount != (
+                    if (existingSubscription.isTrial) {
+                        existingSubscription.postTrialAmount
+                    } else {
+                        existingSubscription.amount
+                    }
+                ) ||
                 currency != existingSubscription.currency ||
                 cycle != existingSubscription.cycle ||
                 reminderDays != existingSubscription.reminderDaysBefore ||
@@ -282,7 +345,11 @@ fun AddSubscriptionScreen(
                                 id = subscriptionId,
                                 name = name.trim(),
                                 category = category,
-                                amount = previewAmount,
+                                // A trial costs nothing today. The repository
+                                // enforces this as well; stating it here keeps
+                                // the object handed over honest rather than
+                                // relying on being corrected downstream.
+                                amount = if (isTrial) 0.0 else previewAmount,
                                 currency = currency,
                                 cycle = cycle,
                                 firstBillDate = firstBillDate,
@@ -290,7 +357,16 @@ fun AddSubscriptionScreen(
                                 reminderDaysBefore = reminderDays,
                                 colorHex = selectedColorHex,
                                 iconUrl = iconUrl,
-                                notes = notes.trim()
+                                notes = notes.trim(),
+                                isTrial = isTrial,
+                                trialEndDate = if (isTrial) trialEndDate else "",
+                                trialConverts = trialConverts,
+                                postTrialAmount = if (isTrial) previewAmount else 0.0,
+                                postTrialCycle = cycle,
+                                // Turning a resolved trial back into a running
+                                // one starts its story over; keeping the old
+                                // outcome would hide the prompt at its new end.
+                                trialOutcome = TrialOutcome.PENDING
                             )
                         )
                     }
@@ -387,7 +463,12 @@ fun AddSubscriptionScreen(
                                 urgent = previewUrgent,
                                 amount = previewAmount,
                                 currencyCode = currency,
-                                cycleLabel = cycleShortLabel(cycle),
+                                cycleLabel = if (isTrial) {
+                                    previewTrailing
+                                } else {
+                                    cycleShortLabel(cycle)
+                                },
+                                freeLabel = if (isTrial) previewFreeLabel else null,
                                 nameColor = if (name.isBlank()) {
                                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                 } else {
@@ -487,7 +568,13 @@ fun AddSubscriptionScreen(
                         RowDivider()
 
                         // Price + currency
-                        FormFieldRow(label = stringResource(R.string.field_price)) {
+                        FormFieldRow(
+                            label = if (isTrial) {
+                                stringResource(R.string.field_price_after_trial)
+                            } else {
+                                stringResource(R.string.field_price)
+                            }
+                        ) {
                             BasicTextField(
                                 value = amountText,
                                 onValueChange = {
@@ -568,14 +655,20 @@ fun AddSubscriptionScreen(
                                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
                                     fontWeight = FontWeight.Medium
                                 )
-                                Text(
-                                    text = stringResource(
-                                        R.string.renews_next_on,
-                                        DateCalculators.formatMedium(nextRenewal, locale)
-                                    ),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                // Suppressed on a trial: the date below is an
+                                // ending, and calling it a renewal here while
+                                // the row underneath calls it the trial's end
+                                // gives the same day two different meanings.
+                                if (!isTrial) {
+                                    Text(
+                                        text = stringResource(
+                                            R.string.renews_next_on,
+                                            DateCalculators.formatMedium(nextRenewal, locale)
+                                        ),
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -593,6 +686,199 @@ fun AddSubscriptionScreen(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                                     modifier = Modifier.size(13.dp)
                                 )
+                            }
+                        }
+                        RowDivider()
+
+                        // Free trial
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(R.string.trial_toggle),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = stringResource(R.string.trial_toggle_sub),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Switch(
+                                checked = isTrial,
+                                onCheckedChange = {
+                                    haptics.tick()
+                                    isTrial = it
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary
+                                )
+                            )
+                        }
+
+                        AnimatedVisibility(visible = isTrial) {
+                            Column {
+                                RowDivider()
+
+                                // Trial end date. The picker refuses anything
+                                // on or before the start date, so the invalid
+                                // state is unreachable rather than merely
+                                // reported; the error below it is for a record
+                                // that arrived in that state some other way.
+                                val trialStart = DateCalculators.parseOrNull(firstBillDate)
+                                    ?: LocalDate.now()
+                                val parsedTrialEnd = DateCalculators.parseOrNull(trialEndDate)
+                                    ?: trialStart.plusMonths(1)
+                                val trialPickerDialog = remember(trialEndDate, firstBillDate) {
+                                    DatePickerDialog(
+                                        context,
+                                        { _, y, m, d -> trialEndDate = LocalDate.of(y, m + 1, d).toString() },
+                                        parsedTrialEnd.year,
+                                        parsedTrialEnd.monthValue - 1,
+                                        parsedTrialEnd.dayOfMonth
+                                    ).apply {
+                                        datePicker.minDate = trialStart
+                                            .plusDays(1)
+                                            .atStartOfDay(ZoneId.systemDefault())
+                                            .toInstant()
+                                            .toEpochMilli()
+                                    }
+                                }
+
+                                val trialEndLabel = stringResource(R.string.trial_end_date)
+                                val trialEndValue = DateCalculators.formatMedium(trialEndDate, locale)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { trialPickerDialog.show() }
+                                        .heightIn(min = 48.dp)
+                                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                                        .semantics {
+                                            contentDescription = "$trialEndLabel, $trialEndValue"
+                                            role = Role.Button
+                                        },
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = trialEndLabel,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Text(
+                                            text = trialEndValue,
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                    }
+                                }
+                                FieldError(
+                                    visible = showValidation && !trialDatesValid,
+                                    text = stringResource(R.string.trial_end_date_invalid)
+                                )
+                                RowDivider()
+
+                                // Whether it turns into a bill, which decides
+                                // whether the price above is required at all.
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 48.dp)
+                                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = stringResource(R.string.trial_converts),
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.trial_converts_sub),
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                    Switch(
+                                        checked = trialConverts,
+                                        onCheckedChange = {
+                                            haptics.tick()
+                                            trialConverts = it
+                                        },
+                                        colors = SwitchDefaults.colors(
+                                            checkedThumbColor = Color.White,
+                                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                                        )
+                                    )
+                                }
+
+                                // The lead picker further down belongs to
+                                // renewals and is gated on Pro; a trial uses
+                                // its own free set, so what will actually
+                                // happen is stated here instead of leaving the
+                                // user to read the wrong control.
+                                Text(
+                                    text = if (trialLeads.isEmpty() || reminderDays <= 0) {
+                                        stringResource(R.string.trial_alert_off)
+                                    } else {
+                                        stringResource(
+                                            R.string.trial_alert_summary,
+                                            trialLeads.sortedDescending().joinToString(", ")
+                                        )
+                                    },
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 11.sp,
+                                        lineHeight = 15.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(
+                                        start = 16.dp,
+                                        end = 16.dp,
+                                        bottom = 10.dp
+                                    )
+                                )
+
+                                // Said here rather than left to be discovered
+                                // when the warning never arrives. The trial is
+                                // still tracked either way, and saying so is
+                                // the difference between a limitation and a
+                                // silent failure.
+                                if (!RenewalNotificationWorker.hasNotificationPermission(context)) {
+                                    Text(
+                                        text = stringResource(R.string.trial_reminders_unavailable),
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 11.sp,
+                                            lineHeight = 15.sp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            bottom = 10.dp
+                                        )
+                                    )
+                                }
                             }
                         }
                         RowDivider()

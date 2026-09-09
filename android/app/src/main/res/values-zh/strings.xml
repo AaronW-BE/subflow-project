@@ -310,4 +310,34 @@
     <string name="restore_read_failed">无法读取该文件。</string>
     <string name="section_danger">危险操作</string>
     <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">试用</string>
+    <string name="trial_toggle">免费试用</string>
+    <string name="trial_toggle_sub">现在还没有为它付费</string>
+    <string name="trial_end_date">试用结束</string>
+    <string name="trial_end_date_invalid">试用结束日期必须晚于开始日期</string>
+    <string name="trial_converts">结束后转为付费</string>
+    <string name="trial_converts_sub">如果到期就直接结束，请关掉</string>
+    <string name="field_price_after_trial">试用后价格</string>
+    <string name="trial_free_amount">免费</string>
+    <string name="trial_ends_today">今天结束</string>
+    <string name="trial_ended">试用已结束</string>
+    <string name="trial_then_amount">到期后 %s</string>
+    <string name="trial_no_charge">不扣费</string>
+    <string name="detail_trial_end">试用结束</string>
+    <string name="detail_trial_price">试用后价格</string>
+    <string name="trial_ended_prompt">这个试用已经结束了，后来怎么样？</string>
+    <string name="trial_action_converted">已转为付费</string>
+    <string name="trial_action_cancelled">我取消了</string>
+    <string name="trial_action_extend">延长试用</string>
+    <string name="trial_reminders_unavailable">通知已关闭，试用到期前无法提醒你。倒计时仍会显示在这里。</string>
+    <string name="trial_alert_summary">结束前 %s 天提醒</string>
+    <string name="trial_alert_off">结束前不提醒</string>
+    <string name="trial_reminder_value">提前 %s 天</string>
+    <string name="settings_trial_leads_title">试用提醒</string>
+    <string name="settings_trial_leads_sub">免费试用结束前提醒。所有版本都包含。</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">试用还有 %d 天</item>
+    </plurals>
 </resources>
