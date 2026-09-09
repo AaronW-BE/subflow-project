@@ -82,6 +82,12 @@ func (db *DB) migrate() error {
 			notes TEXT,
 			updated_at INTEGER,
 			is_deleted INTEGER DEFAULT 0,
+			is_trial INTEGER DEFAULT 0,
+			trial_end_date TEXT DEFAULT '',
+			trial_converts INTEGER DEFAULT 1,
+			post_trial_amount REAL DEFAULT 0,
+			post_trial_cycle TEXT DEFAULT 'monthly',
+			trial_outcome TEXT DEFAULT '',
 			FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_subs_user_updated ON subscriptions(user_id, updated_at);`,
@@ -101,6 +107,56 @@ func (db *DB) migrate() error {
 	for _, query := range queries {
 		if _, err := db.conn.Exec(query); err != nil {
 			return err
+		}
+	}
+
+	// CREATE TABLE IF NOT EXISTS above only shapes a database that does not
+	// exist yet. Anything already on disk keeps the columns it was created
+	// with, so added ones have to be applied separately.
+	return db.ensureColumns("subscriptions", map[string]string{
+		"is_trial":          "INTEGER DEFAULT 0",
+		"trial_end_date":    "TEXT DEFAULT ''",
+		"trial_converts":    "INTEGER DEFAULT 1",
+		"post_trial_amount": "REAL DEFAULT 0",
+		"post_trial_cycle":  "TEXT DEFAULT 'monthly'",
+		"trial_outcome":     "TEXT DEFAULT ''",
+	})
+}
+
+// ensureColumns adds any of the named columns the table does not already have.
+//
+// SQLite has no ADD COLUMN IF NOT EXISTS, and it errors rather than shrugging
+// when the column is there, so the existing shape is read first. Running this
+// on an up-to-date database does nothing.
+func (db *DB) ensureColumns(table string, columns map[string]string) error {
+	rows, err := db.conn.Query("PRAGMA table_info(" + table + ");")
+	if err != nil {
+		return err
+	}
+	existing := map[string]bool{}
+	for rows.Next() {
+		var cid int
+		var name, colType string
+		var notNull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &colType, &notNull, &dflt, &pk); err != nil {
+			rows.Close()
+			return err
+		}
+		existing[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return err
+	}
+	rows.Close()
+
+	for name, definition := range columns {
+		if existing[name] {
+			continue
+		}
+		if _, err := db.conn.Exec("ALTER TABLE " + table + " ADD COLUMN " + name + " " + definition + ";"); err != nil {
+			return fmt.Errorf("adding %s.%s: %w", table, name, err)
 		}
 	}
 	return nil
@@ -232,8 +288,8 @@ func (db *DB) UpsertSubscription(s *model.Subscription) error {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	query := `INSERT INTO subscriptions (id, user_id, name, category, amount, currency, cycle, first_bill_date, next_bill_date, reminder_days_before, is_active, color_hex, icon_url, notes, updated_at, is_deleted)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	query := `INSERT INTO subscriptions (id, user_id, name, category, amount, currency, cycle, first_bill_date, next_bill_date, reminder_days_before, is_active, color_hex, icon_url, notes, updated_at, is_deleted, is_trial, trial_end_date, trial_converts, post_trial_amount, post_trial_cycle, trial_outcome)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(id) DO UPDATE SET
 			name=excluded.name,
 			category=excluded.category,
@@ -248,7 +304,13 @@ func (db *DB) UpsertSubscription(s *model.Subscription) error {
 			icon_url=excluded.icon_url,
 			notes=excluded.notes,
 			updated_at=excluded.updated_at,
-			is_deleted=excluded.is_deleted
+			is_deleted=excluded.is_deleted,
+			is_trial=excluded.is_trial,
+			trial_end_date=excluded.trial_end_date,
+			trial_converts=excluded.trial_converts,
+			post_trial_amount=excluded.post_trial_amount,
+			post_trial_cycle=excluded.post_trial_cycle,
+			trial_outcome=excluded.trial_outcome
 		WHERE excluded.updated_at >= subscriptions.updated_at;`
 
 	isActive := 0
@@ -260,8 +322,22 @@ func (db *DB) UpsertSubscription(s *model.Subscription) error {
 		isDeleted = 1
 	}
 
+	isTrial := 0
+	if s.IsTrial {
+		isTrial = 1
+	}
+	trialConverts := 0
+	if s.TrialConverts {
+		trialConverts = 1
+	}
+	postTrialCycle := string(s.PostTrialCycle)
+	if postTrialCycle == "" {
+		postTrialCycle = string(model.CycleMonthly)
+	}
+
 	_, err := db.conn.Exec(query, s.ID, s.UserID, s.Name, s.Category, s.Amount, s.Currency, string(s.Cycle),
-		s.FirstBillDate, s.NextBillDate, s.ReminderDaysBefore, isActive, s.ColorHex, s.IconURL, s.Notes, s.UpdatedAt, isDeleted)
+		s.FirstBillDate, s.NextBillDate, s.ReminderDaysBefore, isActive, s.ColorHex, s.IconURL, s.Notes, s.UpdatedAt, isDeleted,
+		isTrial, s.TrialEndDate, trialConverts, s.PostTrialAmount, postTrialCycle, s.TrialOutcome)
 	return err
 }
 
@@ -269,7 +345,7 @@ func (db *DB) GetSubscriptionsForUser(userID string, sinceTimestamp int64) ([]mo
 	db.mu.RLock()
 	defer db.mu.RUnlock()
 
-	query := `SELECT id, user_id, name, category, amount, currency, cycle, first_bill_date, next_bill_date, reminder_days_before, is_active, color_hex, icon_url, notes, updated_at, is_deleted
+	query := `SELECT id, user_id, name, category, amount, currency, cycle, first_bill_date, next_bill_date, reminder_days_before, is_active, color_hex, icon_url, notes, updated_at, is_deleted, is_trial, trial_end_date, trial_converts, post_trial_amount, post_trial_cycle, trial_outcome
 		FROM subscriptions
 		WHERE user_id = ? AND updated_at > ?
 		ORDER BY updated_at ASC;`
@@ -283,15 +359,19 @@ func (db *DB) GetSubscriptionsForUser(userID string, sinceTimestamp int64) ([]mo
 	var result []model.Subscription
 	for rows.Next() {
 		var s model.Subscription
-		var cycle string
-		var isActive, isDeleted int
+		var cycle, postTrialCycle string
+		var isActive, isDeleted, isTrial, trialConverts int
 		if err := rows.Scan(&s.ID, &s.UserID, &s.Name, &s.Category, &s.Amount, &s.Currency, &cycle,
-			&s.FirstBillDate, &s.NextBillDate, &s.ReminderDaysBefore, &isActive, &s.ColorHex, &s.IconURL, &s.Notes, &s.UpdatedAt, &isDeleted); err != nil {
+			&s.FirstBillDate, &s.NextBillDate, &s.ReminderDaysBefore, &isActive, &s.ColorHex, &s.IconURL, &s.Notes, &s.UpdatedAt, &isDeleted,
+			&isTrial, &s.TrialEndDate, &trialConverts, &s.PostTrialAmount, &postTrialCycle, &s.TrialOutcome); err != nil {
 			return nil, err
 		}
 		s.Cycle = model.BillingCycle(cycle)
 		s.IsActive = isActive == 1
 		s.IsDeleted = isDeleted == 1
+		s.IsTrial = isTrial == 1
+		s.TrialConverts = trialConverts == 1
+		s.PostTrialCycle = model.BillingCycle(postTrialCycle)
 		result = append(result, s)
 	}
 	return result, nil
