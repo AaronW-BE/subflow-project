@@ -153,7 +153,7 @@
     <string name="onboarding_3_title">Vos données restent sur votre téléphone</string>
     <string name="onboarding_3_body">Aucun compte requis. Tout est stocké localement, et la sauvegarde cloud reste votre choix.</string>
     <string name="onboarding_manage_title">Ajouter, modifier, supprimer</string>
-    <string name="onboarding_manage_add">Appuyez sur + pour ajouter un abonnement</string>
+    <string name="onboarding_manage_add">Appuyez sur + en bas à droite pour ajouter un abonnement</string>
     <string name="onboarding_manage_edit">Appuyez sur une carte pour la modifier</string>
     <string name="onboarding_manage_delete">Balayez une carte vers la gauche, ou ouvrez-la et appuyez sur Supprimer</string>
     <string name="onboarding_replay">Revoir la présentation</string>

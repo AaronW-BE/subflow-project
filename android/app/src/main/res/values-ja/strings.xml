@@ -153,7 +153,7 @@
     <string name="onboarding_3_title">データは端末の中だけに</string>
     <string name="onboarding_3_body">アカウント登録は不要です。すべて端末内に保存され、クラウドバックアップを使うかどうかはご自身で選べます。</string>
     <string name="onboarding_manage_title">追加・編集・削除</string>
-    <string name="onboarding_manage_add">+ をタップしてサブスクを追加</string>
+    <string name="onboarding_manage_add">右下の + をタップしてサブスクを追加</string>
     <string name="onboarding_manage_edit">カードをタップして編集</string>
     <string name="onboarding_manage_delete">カードを左にスワイプ、または開いて削除をタップ</string>
     <string name="onboarding_replay">ガイドをもう一度見る</string>

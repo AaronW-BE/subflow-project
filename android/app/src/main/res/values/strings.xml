@@ -156,7 +156,7 @@
     <string name="onboarding_3_title">Your data stays on your phone</string>
     <string name="onboarding_3_body">No account required. Everything is stored locally, and cloud backup is entirely your choice.</string>
     <string name="onboarding_manage_title">Add, change, remove</string>
-    <string name="onboarding_manage_add">Tap + to add a subscription</string>
+    <string name="onboarding_manage_add">Tap + in the bottom right to add a subscription</string>
     <string name="onboarding_manage_edit">Tap any card to edit it</string>
     <string name="onboarding_manage_delete">Swipe a card left to delete it, or open it and tap Delete</string>
     <string name="onboarding_replay">Show the walkthrough again</string>
