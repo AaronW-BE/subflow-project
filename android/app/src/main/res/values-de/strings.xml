@@ -153,7 +153,7 @@
     <string name="onboarding_3_title">Deine Daten bleiben auf deinem Gerät</string>
     <string name="onboarding_3_body">Kein Konto nötig. Alles wird lokal gespeichert, und Cloud-Backup ist allein deine Entscheidung.</string>
     <string name="onboarding_manage_title">Hinzufügen, ändern, entfernen</string>
-    <string name="onboarding_manage_add">Tippe auf +, um ein Abo hinzuzufügen</string>
+    <string name="onboarding_manage_add">Tippe unten rechts auf +, um ein Abo hinzuzufügen</string>
     <string name="onboarding_manage_edit">Tippe auf eine Karte, um sie zu bearbeiten</string>
     <string name="onboarding_manage_delete">Wische eine Karte nach links oder öffne sie und tippe auf Löschen</string>
     <string name="onboarding_replay">Einführung erneut ansehen</string>

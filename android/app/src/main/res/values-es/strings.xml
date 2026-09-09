@@ -153,7 +153,7 @@
     <string name="onboarding_3_title">Tus datos se quedan en tu móvil</string>
     <string name="onboarding_3_body">No hace falta cuenta. Todo se guarda en el dispositivo y la copia en la nube es decisión tuya.</string>
     <string name="onboarding_manage_title">Añadir, cambiar, eliminar</string>
-    <string name="onboarding_manage_add">Toca + para añadir una suscripción</string>
+    <string name="onboarding_manage_add">Toca + abajo a la derecha para añadir una suscripción</string>
     <string name="onboarding_manage_edit">Toca cualquier tarjeta para editarla</string>
     <string name="onboarding_manage_delete">Desliza una tarjeta a la izquierda, o ábrela y toca Eliminar</string>
     <string name="onboarding_replay">Ver la introducción otra vez</string>
