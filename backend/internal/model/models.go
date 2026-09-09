@@ -69,6 +69,17 @@ type Subscription struct {
 	Notes              string       `json:"notes,omitempty"`
 	UpdatedAt          int64        `json:"updated_at"` // Unix epoch milliseconds for sync
 	IsDeleted          bool         `json:"is_deleted"`
+
+	// Trial tracking. A running trial carries Amount 0 - it costs nothing
+	// today - and the price that starts when it ends lives in
+	// PostTrialAmount. The client relies on that, so these have to survive a
+	// sync round trip or a trial comes back looking free forever.
+	IsTrial         bool         `json:"is_trial"`
+	TrialEndDate    string       `json:"trial_end_date"` // YYYY-MM-DD
+	TrialConverts   bool         `json:"trial_converts"`
+	PostTrialAmount float64      `json:"post_trial_amount"`
+	PostTrialCycle  BillingCycle `json:"post_trial_cycle"`
+	TrialOutcome    string       `json:"trial_outcome"` // "" | converted | cancelled
 }
 
 // Purchase state as reported by the Play Billing client.

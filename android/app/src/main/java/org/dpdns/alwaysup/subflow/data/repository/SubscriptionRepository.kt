@@ -5,6 +5,7 @@ import android.util.Log
 import org.dpdns.alwaysup.subflow.data.local.SubFlowDatabase
 import org.dpdns.alwaysup.subflow.data.local.SubscriptionEntity
 import org.dpdns.alwaysup.subflow.data.remote.SubFlowApiService
+import org.dpdns.alwaysup.subflow.data.remote.SubscriptionDto
 import org.dpdns.alwaysup.subflow.data.remote.SyncRequestDto
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
@@ -144,7 +145,8 @@ class SubscriptionRepository(
         if (token.isNullOrBlank()) return Result.failure(IllegalStateException("NOT_SIGNED_IN"))
         return try {
             val lastSync = prefs.getLong("last_sync_timestamp", 0)
-            val modified = dao.getModifiedSince(lastSync).map { it.toDomain() }
+            val modified = dao.getModifiedSince(lastSync)
+                .map { SubscriptionDto.fromDomain(it.toDomain()) }
 
             val res = api.syncSubscriptions(
                 token = "Bearer $token",
@@ -154,7 +156,9 @@ class SubscriptionRepository(
             val body = res.body()
             if (res.isSuccessful && body != null) {
                 if (body.subscriptions.isNotEmpty()) {
-                    dao.insertAll(body.subscriptions.map { SubscriptionEntity.fromDomain(it) })
+                    dao.insertAll(
+                        body.subscriptions.map { SubscriptionEntity.fromDomain(it.toDomain()) }
+                    )
                 }
                 prefs.edit().putLong("last_sync_timestamp", body.serverTimestamp).apply()
                 Result.success(body.subscriptions.size)

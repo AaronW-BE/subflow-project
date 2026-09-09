@@ -5,6 +5,7 @@ import org.dpdns.alwaysup.subflow.BuildConfig
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.model.UserProfile
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -101,14 +102,110 @@ data class CurrencyRatesResponse(
     val keyed: Boolean = false
 )
 
+/**
+ * A subscription as it travels to and from the server.
+ *
+ * Deliberately not the domain [Subscription]. The default Gson instance names
+ * fields exactly as Kotlin declares them and writes enums with `name()`, so
+ * sending the domain type put `firstBillDate` and `"MONTHLY"` on the wire
+ * where the server reads `first_bill_date` and `"monthly"`. Of sixteen fields
+ * only six ever lined up - id, name, category, amount, currency and notes -
+ * and every date, the active flag, the colour, the icon and the update
+ * timestamp were dropped in both directions, silently, because JSON that does
+ * not match simply decodes as absent.
+ *
+ * Fixing that by renaming the domain type's fields was not an option: the same
+ * class and the same Gson instance write the backup file, so the rename would
+ * have made every backup already sitting on a user's disk restore as blanks.
+ *
+ * Strings are nullable here rather than defaulted because Gson builds objects
+ * without running the constructor - an absent key leaves a null behind
+ * whatever the declared type says, and `omitempty` on the server means absent
+ * keys are normal.
+ */
+data class SubscriptionDto(
+    @SerializedName("id") val id: String,
+    @SerializedName("name") val name: String? = null,
+    @SerializedName("category") val category: String? = null,
+    @SerializedName("amount") val amount: Double = 0.0,
+    @SerializedName("currency") val currency: String? = null,
+    /** The cycle's own key ("monthly"), not the enum constant ("MONTHLY"). */
+    @SerializedName("cycle") val cycle: String? = null,
+    @SerializedName("first_bill_date") val firstBillDate: String? = null,
+    @SerializedName("next_bill_date") val nextBillDate: String? = null,
+    @SerializedName("reminder_days_before") val reminderDaysBefore: Int = 0,
+    @SerializedName("is_active") val isActive: Boolean = true,
+    @SerializedName("color_hex") val colorHex: String? = null,
+    @SerializedName("icon_url") val iconUrl: String? = null,
+    @SerializedName("notes") val notes: String? = null,
+    @SerializedName("updated_at") val updatedAt: Long = 0L,
+    @SerializedName("is_deleted") val isDeleted: Boolean = false,
+    @SerializedName("is_trial") val isTrial: Boolean = false,
+    @SerializedName("trial_end_date") val trialEndDate: String? = null,
+    @SerializedName("trial_converts") val trialConverts: Boolean = true,
+    @SerializedName("post_trial_amount") val postTrialAmount: Double = 0.0,
+    @SerializedName("post_trial_cycle") val postTrialCycle: String? = null,
+    @SerializedName("trial_outcome") val trialOutcome: String? = null
+) {
+    fun toDomain(): Subscription = Subscription(
+        id = id,
+        name = name.orEmpty(),
+        category = category ?: "Streaming",
+        amount = amount,
+        currency = currency ?: "USD",
+        cycle = BillingCycle.fromKey(cycle.orEmpty()),
+        firstBillDate = firstBillDate.orEmpty(),
+        nextBillDate = nextBillDate.orEmpty(),
+        reminderDaysBefore = reminderDaysBefore,
+        isActive = isActive,
+        colorHex = colorHex ?: "#5856D6",
+        iconUrl = iconUrl.orEmpty(),
+        notes = notes.orEmpty(),
+        updatedAt = updatedAt,
+        isDeleted = isDeleted,
+        isTrial = isTrial,
+        trialEndDate = trialEndDate.orEmpty(),
+        trialConverts = trialConverts,
+        postTrialAmount = postTrialAmount,
+        postTrialCycle = BillingCycle.fromKey(postTrialCycle.orEmpty()),
+        trialOutcome = TrialOutcome.fromKey(trialOutcome.orEmpty())
+    )
+
+    companion object {
+        fun fromDomain(d: Subscription): SubscriptionDto = SubscriptionDto(
+            id = d.id,
+            name = d.name,
+            category = d.category,
+            amount = d.amount,
+            currency = d.currency,
+            cycle = d.cycle.key,
+            firstBillDate = d.firstBillDate,
+            nextBillDate = d.nextBillDate,
+            reminderDaysBefore = d.reminderDaysBefore,
+            isActive = d.isActive,
+            colorHex = d.colorHex,
+            iconUrl = d.iconUrl,
+            notes = d.notes,
+            updatedAt = d.updatedAt,
+            isDeleted = d.isDeleted,
+            isTrial = d.isTrial,
+            trialEndDate = d.trialEndDate,
+            trialConverts = d.trialConverts,
+            postTrialAmount = d.postTrialAmount,
+            postTrialCycle = d.postTrialCycle.key,
+            trialOutcome = d.trialOutcome.key
+        )
+    }
+}
+
 data class SyncRequestDto(
     @SerializedName("last_sync_timestamp") val lastSyncTimestamp: Long,
-    val subscriptions: List<Subscription>
+    @SerializedName("subscriptions") val subscriptions: List<SubscriptionDto>
 )
 
 data class SyncResponseDto(
     @SerializedName("server_timestamp") val serverTimestamp: Long,
-    val subscriptions: List<Subscription>
+    @SerializedName("subscriptions") val subscriptions: List<SubscriptionDto>
 )
 
 interface SubFlowApiService {
