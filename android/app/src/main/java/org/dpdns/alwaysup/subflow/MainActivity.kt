@@ -130,6 +130,12 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(onboardingComplete) {
                 if (!onboardingComplete) return@LaunchedEffect
                 RenewalNotificationWorker.scheduleDailyRenewalCheck(this@MainActivity)
+                // ...and settle anything the daily schedule slept through.
+                // The user being here is the only reliable signal this app
+                // gets; the periodic work can be deferred for days or removed
+                // by a force stop, and it is not owed a second chance anywhere
+                // else.
+                RenewalNotificationWorker.runCatchUpNow(this@MainActivity)
                 adsConsentManager.gather(this@MainActivity) {
                     requestNotificationPermissionIfNeeded()
                 }

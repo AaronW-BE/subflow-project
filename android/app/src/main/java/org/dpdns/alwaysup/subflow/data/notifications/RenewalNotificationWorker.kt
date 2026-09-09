@@ -187,6 +187,7 @@ class RenewalNotificationWorker(
     companion object {
         const val CHANNEL_ID = "subflow_renewal_alerts"
         const val WORK_NAME = "subflow_daily_renewal_check"
+        const val CATCH_UP_WORK_NAME = "subflow_reminder_catch_up"
         private const val SENT_PREFS = "subflow_notification_state"
 
         /**
@@ -209,6 +210,35 @@ class RenewalNotificationWorker(
                 WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
                 request
+            )
+        }
+
+        /**
+         * Runs the same scan once, now.
+         *
+         * [scheduleDailyRenewalCheck] is "about once a day" rather than a
+         * promise: Doze and the standby bucket defer it, a low battery skips
+         * it, and a force stop removes the job outright until the app is next
+         * opened. Opening the app is the one moment we know the user is
+         * present, so it is also the moment to settle whatever the schedule
+         * slept through - which for a trial is the difference between a
+         * warning and the charge it existed to prevent.
+         *
+         * Safe on every launch because nothing here can be delivered twice: a
+         * renewal alert is stamped with today's date and a trial lead is
+         * retired permanently, both before the scan returns. KEEP only stops a
+         * second launch from queueing a duplicate while the first is still
+         * running.
+         *
+         * Deliberately without the battery constraint the periodic work
+         * carries. That constraint exists to avoid waking a device that is
+         * running low; this runs on one the user is already holding.
+         */
+        fun runCatchUpNow(context: Context) {
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                CATCH_UP_WORK_NAME,
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequestBuilder<RenewalNotificationWorker>().build()
             )
         }
 
