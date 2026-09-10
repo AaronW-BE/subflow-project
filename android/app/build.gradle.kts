@@ -38,12 +38,18 @@ android {
         // the server disagreeing about every field name. (The 1..4 spent while
         // this app was called com.subflow.app belong to that other Console
         // entry and never constrained this one - Play only requires
-        // versionCode to increase within a single app.)
+        // versionCode to increase within a single app.) 4 follows the upload
+        // of 3: Traditional Chinese, Settings split into pages, the default
+        // currency pinned to the device region instead of drifting with the
+        // interface language, and the rate date shown under the currency
+        // picker.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
-        // looking for, not a correction to one that shipped.
-        versionCode = 3
-        versionName = "1.1.0"
+        // looking for, not a correction to one that shipped. 1.2.0 for the
+        // same reason - a new language and a reorganised Settings are things
+        // a user will notice, not fixes to something they already had.
+        versionCode = 4
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
