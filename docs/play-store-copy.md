@@ -7,6 +7,12 @@ of writing; when the code changes, re-check the copy.
 Play limits: release notes 500 characters per language; title 30; short
 description 80; full description 4000.
 
+**Every upload adds a release-notes section here, newest first.** The steps
+are in `.claude/skills/play-release/SKILL.md`, and
+`python tools/check_play_copy.py` must pass before anything is pasted into
+the Console. Uploaded builds are tagged `v<versionName>`, so "what changed
+since the last upload" is `git log <last tag>..main`.
+
 ---
 
 ## 1.2.0 (versionCode 4): release notes
