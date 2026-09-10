@@ -618,17 +618,6 @@ fun SettingsScreen(
             }
         }
 
-        item(key = "rate_attribution") {
-            // The rate feed's terms require the credit to stay visible on the
-            // screens the rates are used with, and every converted total in the
-            // app derives from them, so it cannot move to a sheet that only
-            // opens on demand. It keeps its place at the foot of Settings, next
-            // to the version, where this kind of credit is looked for - but as
-            // one line rather than two. What it used to carry underneath, how
-            // old the rates are, now sits under the currency list instead.
-            RateAttributionRow(onOpenUrl = onOpenUrl)
-        }
-
         item(key = "version") {
             Text(
                 // Version name only. The build number is an artefact of the
@@ -663,7 +652,7 @@ fun SettingsScreen(
                     curr.name.contains(q, ignoreCase = true)
             },
             onDismiss = { showCurrencySheet = false },
-            footer = { RateFreshnessFootnote(onOpenUrl = onOpenUrl) }
+            footer = { RateAttributionFootnote(onOpenUrl = onOpenUrl) }
         ) { curr ->
             SubFlowPickerRow(
                 title = "${curr.name} (${curr.code})",
@@ -879,40 +868,17 @@ private fun AccountCard(
 }
 
 /**
- * The required credit, and nothing else.
+ * The rate provider's credit, with the date the rates were quoted, under the
+ * primary currency list - the only place the app shows it.
  *
- * The provider's terms ask for this exact linked wording on the screens its
- * rates are used with, and explicitly allow it to be "discreet and in keeping
- * with how the rest of your application looks" - so one quiet line is enough.
- * It used to carry the quote date on a second line, which put the only part
- * worth reading at the very bottom of Settings, below "Clear all data". That
- * half now lives in [RateFreshnessFootnote].
+ * It used to sit at the foot of Settings, between "Clear all data" and the
+ * version, where nobody reads it. Choosing the currency every total is
+ * converted *into* is the one moment anyone is thinking about conversion, so
+ * that is where it lives now. Drawn outside the list's scroll so it stays
+ * visible while the forty-odd currencies move past it.
  */
 @Composable
-private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
-    Text(
-        text = stringResource(R.string.rates_attribution),
-        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onOpenUrl(RATE_PROVIDER_URL) }
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    )
-}
-
-/**
- * The credit again, with the date the rates were quoted, under the primary
- * currency list.
- *
- * Choosing the currency every total is converted *into* is the one moment the
- * age of those rates is worth knowing, and the only place in the app where
- * someone is thinking about conversion at all. Drawn outside the list's scroll
- * so it stays visible while the forty-odd currencies move past it.
- */
-@Composable
-private fun RateFreshnessFootnote(onOpenUrl: (String) -> Unit) {
+private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
     val quotedAt = CurrencyConverter.quotedAtEpochMillis
     val freshness = if (quotedAt > 0L) {
         stringResource(
