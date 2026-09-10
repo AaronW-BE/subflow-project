@@ -20,9 +20,16 @@ Changes since 1.1.0 (versionCode 3):
 | Home currency pinned to the device region, no longer moved by the interface language | BIN-25, PR #20 |
 | Rate date shown under the currency picker | BIN-22, PR #19 |
 
-Paste the whole block below into **Release notes** in Play Console. It
-accepts every language in one box. `zh-HK` reuses the Taiwan text; delete
-any language the listing does not have.
+**Which languages to paste.** Play Console pre-fills the Release notes box
+with one tag for each language the store listing has. On 2026-09-10 it showed
+only `<en-US>`, so the listing is English-only and **only the en-US block
+goes in**. Other locales see the en-US notes as the default. A language's
+tag only appears once that language is added under Main store listing →
+Manage translations, which also needs a full listing (title, short and full
+description) in that language. So far only zh-TW (below) exists.
+
+The other languages below are ready for when their listings exist. `zh-HK`
+reuses the Taiwan text.
 
 The page names in each language are the ones the app itself shows, e.g.
 German *Allgemein*, not *Einstellungen*, because that is the tab's name.
@@ -170,7 +177,7 @@ so the feature isn't there.
 ## Other Console items for this release
 
 - [ ] **versionCode 4 / versionName 1.2.0**. 3 is used up.
-- [ ] **Release notes**: paste the block above.
+- [ ] **Release notes**: paste the **en-US** block (the listing is English-only; see above).
 - [ ] **Add 中文（台灣） listing language** (optionally 中文（香港） too) with the text above.
 - [ ] **Screenshots are out of date.** `play-assets/screenshots/` was captured on 2026-08-28.
       `05-settings.png` shows the old single-page Settings, and none of them show trial
