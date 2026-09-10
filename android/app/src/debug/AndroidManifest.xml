@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      The launcher label, so the striped icon is not the only thing telling the
+      two installs apart - a themed-icon launcher draws the monochrome layer
+      only and would show the same silhouette for both.
+    -->
+    <application
+        android:label="@string/app_name_debug"
+        tools:replace="android:label" />
+</manifest>

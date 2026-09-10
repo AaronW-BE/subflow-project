@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      A separate name rather than an override of app_name: app_name is
+      translated into all six shipped locales, and a debug-only value in
+      values/ would lose to values-zh (or any other locale folder) from main on
+      exactly the devices this is meant to help on.
+
+      Not translatable - it is never in a user's hands.
+    -->
+    <string name="app_name_debug" translatable="false">SubFlow Debug</string>
+</resources>
