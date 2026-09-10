@@ -98,7 +98,8 @@ val SupportedLanguages = listOf(
     LanguageOption("fr", "French", "Français"),
     LanguageOption("es", "Spanish", "Español"),
     LanguageOption("ja", "Japanese", "日本語"),
-    LanguageOption("zh", "Simplified Chinese", "简体中文")
+    LanguageOption("zh", "Simplified Chinese", "简体中文"),
+    LanguageOption(TRADITIONAL_CHINESE, "Traditional Chinese", "繁體中文")
 )
 
 /**
@@ -309,14 +310,10 @@ class PreferencesManager(context: Context) {
          * own last answer.
          */
         fun deviceLanguage(): String {
-            val locales = Resources.getSystem().configuration.locales
-            for (i in 0 until locales.size()) {
-                val tag = locales[i].language
-                SupportedLanguages.firstOrNull {
-                    it.code != SYSTEM_LANGUAGE && it.code.equals(tag, ignoreCase = true)
-                }?.let { return it.code }
-            }
-            return "en"
+            val list = Resources.getSystem().configuration.locales
+            val locales = (0 until list.size()).map { list[it] }
+            val shipped = SupportedLanguages.map { it.code }.filter { it != SYSTEM_LANGUAGE }
+            return DeviceLanguage.firstSupported(locales, shipped) ?: "en"
         }
 
         /** Read directly from prefs for use outside Compose (e.g. the notification worker). */
