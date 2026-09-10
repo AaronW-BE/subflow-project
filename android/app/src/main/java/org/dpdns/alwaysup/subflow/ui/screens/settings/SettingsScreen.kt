@@ -26,7 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -615,14 +618,6 @@ fun SettingsScreen(
             }
         }
 
-        item(key = "rate_attribution") {
-            // The rate feed's terms require visible attribution wherever the
-            // rates are used, and every converted total in the app derives from
-            // them. It sits at the foot of Settings with the version, which is
-            // where this kind of credit is conventionally looked for.
-            RateAttributionRow(onOpenUrl = onOpenUrl)
-        }
-
         item(key = "version") {
             Text(
                 // Version name only. The build number is an artefact of the
@@ -656,7 +651,8 @@ fun SettingsScreen(
                 curr.code.contains(q, ignoreCase = true) ||
                     curr.name.contains(q, ignoreCase = true)
             },
-            onDismiss = { showCurrencySheet = false }
+            onDismiss = { showCurrencySheet = false },
+            footer = { RateAttributionFootnote(onOpenUrl = onOpenUrl) }
         ) { curr ->
             SubFlowPickerRow(
                 title = "${curr.name} (${curr.code})",
@@ -871,10 +867,20 @@ private fun AccountCard(
     }
 }
 
+/**
+ * The rate provider's credit, with the date the rates were quoted, under the
+ * primary currency list - the only place the app shows it.
+ *
+ * It used to sit at the foot of Settings, between "Clear all data" and the
+ * version, where nobody reads it. Choosing the currency every total is
+ * converted *into* is the one moment anyone is thinking about conversion, so
+ * that is where it lives now. Drawn outside the list's scroll so it stays
+ * visible while the forty-odd currencies move past it.
+ */
 @Composable
-private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
+private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
     val quotedAt = CurrencyConverter.quotedAtEpochMillis
-    val subtitle = if (quotedAt > 0L) {
+    val freshness = if (quotedAt > 0L) {
         stringResource(
             R.string.rates_updated_on,
             DateUtils.formatDateTime(
@@ -886,25 +892,32 @@ private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
     } else {
         stringResource(R.string.rates_offline_snapshot)
     }
+    // One Text rather than two side by side: German runs to "Aktualisiert
+    // 10. Sept." and a Row would have to wrap it or clip it. An annotated
+    // string wraps like ordinary text while still colouring the credit as the
+    // link, and the credit stays whole - the terms fix its wording, so it is
+    // never formatted into a sentence.
+    val credit = stringResource(R.string.rates_attribution)
+    val label = buildAnnotatedString {
+        withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append(credit) }
+        withStyle(
+            SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+        ) {
+            append("\u00A0\u00B7 ")
+            append(freshness)
+        }
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onOpenUrl(RATE_PROVIDER_URL) }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
         Text(
-            text = stringResource(R.string.rates_attribution),
+            text = label,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onOpenUrl(RATE_PROVIDER_URL) }
+                .padding(horizontal = 20.dp, vertical = 12.dp)
         )
     }
 }

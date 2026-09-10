@@ -1076,6 +1076,8 @@ fun AdMobAdaptiveBanner(
  *
  * @param matches supply to enable the search field. It is only rendered once
  *   the list is long enough for scanning it to be the slower option.
+ * @param footer drawn below the list, outside its scroll, so it stays put
+ *   while the list moves. For a note about the list rather than an entry in it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1086,6 +1088,7 @@ fun <T> SubFlowPickerSheet(
     onDismiss: () -> Unit,
     searchHint: String = "",
     matches: ((T, String) -> Boolean)? = null,
+    footer: (@Composable () -> Unit)? = null,
     row: @Composable (T) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -1130,6 +1133,8 @@ fun <T> SubFlowPickerSheet(
         ) {
             items(visible, key = { key(it) }) { row(it) }
         }
+
+        footer?.invoke()
 
         // The gesture bar overlaps the sheet, so the final row needs to clear it.
         Spacer(modifier = Modifier.navigationBarsPadding())
