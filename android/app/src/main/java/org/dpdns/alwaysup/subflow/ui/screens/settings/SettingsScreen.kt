@@ -5,6 +5,7 @@ import android.text.format.DateUtils
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
@@ -54,6 +56,7 @@ import org.dpdns.alwaysup.subflow.ui.components.AppleCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleGroupedCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
 import org.dpdns.alwaysup.subflow.ui.components.AppleRowSeparator
+import org.dpdns.alwaysup.subflow.ui.components.CircleIconButton
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
@@ -62,9 +65,31 @@ import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
 import org.dpdns.alwaysup.subflow.ui.theme.ScreenTitleStyle
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
 
+/**
+ * A second-level Settings page. The top level is `null`.
+ *
+ * Settings used to be one scroll six screens long at 360dp: the account, every
+ * preference, two grids of reminder chips, import and export, the legal links
+ * and "Clear all data", in that order. The top level now holds the account and
+ * a way into each of these; each page is one of the sections it used to be.
+ */
+enum class SettingsPage(val key: String, val titleRes: Int) {
+    PREFERENCES("preferences", R.string.settings_page_preferences),
+    NOTIFICATIONS("notifications", R.string.settings_page_notifications),
+    DATA("data", R.string.settings_page_data),
+    ABOUT("about", R.string.settings_page_about);
+
+    companion object {
+        fun fromKey(key: String?): SettingsPage? = entries.find { it.key == key }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    page: SettingsPage?,
+    onOpenPage: (SettingsPage) -> Unit,
+    onBack: () -> Unit,
     user: UserProfile?,
     isPro: Boolean,
     proTier: ProTier,
@@ -91,9 +116,6 @@ fun SettingsScreen(
     val currentCurrency by preferencesManager.currency.collectAsState()
     val currentThemeMode by preferencesManager.themeMode.collectAsState()
     val currentLang by preferencesManager.language.collectAsState()
-    val hapticsEnabled by preferencesManager.hapticsEnabled.collectAsState()
-    val reminderLeads by preferencesManager.reminderLeads.collectAsState()
-    val trialReminderLeads by preferencesManager.trialReminderLeads.collectAsState()
 
     var showCurrencySheet by remember { mutableStateOf(false) }
     var showThemeSheet by remember { mutableStateOf(false) }
@@ -125,518 +147,195 @@ fun SettingsScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item(key = "title") {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(top = 16.dp, bottom = 4.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_title),
-                    style = ScreenTitleStyle
-                )
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (page != null) SettingsTopBar(onBack = onBack)
+
+        // Each page is its own back-stack entry, and the list's scroll state
+        // is saved with it: coming back to the top level lands where it was.
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item(key = "title") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // A pushed page's top bar has already cleared the
+                        // status bar; the top level scrolls under it instead.
+                        .then(if (page == null) Modifier.statusBarsPadding() else Modifier)
+                        .padding(top = if (page == null) 16.dp else 0.dp, bottom = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(page?.titleRes ?: R.string.settings_title),
+                        style = ScreenTitleStyle
+                    )
+                }
             }
-        }
 
-        item(key = "account") {
-            AccountCard(
-                user = user,
-                isPro = isPro,
-                isGoogleSignInAvailable = isGoogleSignInAvailable,
-                onPaywallClick = onPaywallClick,
-                onSignInClick = onSignInClick,
-                onSignOutClick = onSignOutClick
-            )
-        }
-
-        // Subscription management is only meaningful once something is owned.
-        if (isPro) {
-            item(key = "membership") {
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    if (proTier == ProTier.MONTHLY || proTier == ProTier.ANNUAL) {
-                        AppleListRow(
-                            title = stringResource(R.string.manage_subscription),
-                            icon = Icons.Default.CreditCard,
-                            iconTint = MaterialTheme.colorScheme.primary,
-                            onClick = onManageSubscription
+            when (page) {
+                null -> {
+                    item(key = "account") {
+                        AccountCard(
+                            user = user,
+                            isPro = isPro,
+                            isGoogleSignInAvailable = isGoogleSignInAvailable,
+                            onPaywallClick = onPaywallClick,
+                            onSignInClick = onSignInClick,
+                            onSignOutClick = onSignOutClick
                         )
                     }
-                    AppleListRow(
-                        title = stringResource(R.string.btn_restore),
-                        icon = Icons.Default.Restore,
-                        iconTint = MaterialTheme.colorScheme.secondary,
-                        showDivider = false,
-                        onClick = onRestorePurchases
-                    )
-                }
-            }
-        }
 
-        if (user?.authProvider == "google") {
-            item(key = "sync") {
-                AppleCard(modifier = Modifier.fillMaxWidth(), onClick = onSyncClick) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.Sync,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.cloud_backup),
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = stringResource(R.string.cloud_backup_sub),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Icon(Icons.Default.CloudDone, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-                    }
-                }
-            }
-        }
-
-        item(key = "preferences") {
-            Column {
-                SectionHeader(text = stringResource(R.string.section_preferences))
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    AppleListRow(
-                        title = stringResource(R.string.primary_currency),
-                        valueText = currentCurrency,
-                        icon = Icons.Default.AttachMoney,
-                        iconTint = MaterialTheme.colorScheme.secondary,
-                        onClick = { showCurrencySheet = true }
-                    )
-
-                    AppleListRow(
-                        title = stringResource(R.string.appearance),
-                        valueText = stringResource(currentThemeMode.labelRes),
-                        icon = Icons.Default.Palette,
-                        iconTint = MaterialTheme.colorScheme.primary,
-                        onClick = { showThemeSheet = true }
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.language),
-                        valueText = languageLabel(currentLang),
-                        icon = Icons.Default.Public,
-                        iconTint = SubFlowAccents.blue,
-                        onClick = { showLanguageSheet = true }
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.haptics),
-                        subtitle = stringResource(R.string.haptics_sub),
-                        icon = Icons.Default.Vibration,
-                        iconTint = MaterialTheme.colorScheme.tertiary,
-                        showDivider = false,
-                        trailingContent = {
-                            Switch(
-                                checked = hapticsEnabled,
-                                onCheckedChange = { preferencesManager.setHapticsEnabled(it) },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = Color.White,
-                                    checkedTrackColor = MaterialTheme.colorScheme.primary
-                                )
-                            )
-                        }
-                    )
-                }
-            }
-        }
-
-        item(key = "notifications") {
-            Column {
-                SectionHeader(text = stringResource(R.string.section_notifications))
-
-                AnimatedVisibility(visible = !notificationsEnabled) {
-                    AppleCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        cornerRadius = 14.dp,
-                        contentPadding = PaddingValues(14.dp),
-                        onClick = { openNotificationSettings(context) }
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.NotificationsOff,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text(
-                                text = stringResource(R.string.notifications_blocked),
-                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = stringResource(R.string.open_settings),
-                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // Matches AppleListRow's 32dp glyph + 14dp gap so the
-                            // title sits on the same baseline as the rows above.
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.Schedule,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.tertiary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.reminder_lead_title),
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
-                                    fontWeight = FontWeight.Medium
-                                )
-                                if (!isPro) {
-                                    Text(
-                                        text = stringResource(R.string.reminder_lead_sub_free),
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    // Subscription management is only meaningful once something is owned.
+                    if (isPro) {
+                        item(key = "membership") {
+                            AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+                                if (proTier == ProTier.MONTHLY || proTier == ProTier.ANNUAL) {
+                                    AppleListRow(
+                                        title = stringResource(R.string.manage_subscription),
+                                        icon = Icons.Default.CreditCard,
+                                        iconTint = MaterialTheme.colorScheme.primary,
+                                        onClick = onManageSubscription
                                     )
                                 }
+                                AppleListRow(
+                                    title = stringResource(R.string.btn_restore),
+                                    icon = Icons.Default.Restore,
+                                    iconTint = MaterialTheme.colorScheme.secondary,
+                                    showDivider = false,
+                                    onClick = onRestorePurchases
+                                )
                             }
-                            if (!isPro) ProBadge()
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            ReminderLead.entries.forEach { lead ->
-                                val locked = lead.isPro && !isPro
-                                val checked = if (isPro) lead.days in reminderLeads else lead.days == 1
-                                Surface(
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = if (checked && !locked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                    onClick = {
-                                        if (locked) onPaywallClick()
-                                        else preferencesManager.toggleReminderLead(lead.days, !checked)
-                                    }
+                    }
+
+                    if (user?.authProvider == "google") {
+                        item(key = "sync") {
+                            AppleCard(modifier = Modifier.fillMaxWidth(), onClick = onSyncClick) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Row(
-                                        modifier = Modifier
-                                            .heightIn(min = 40.dp)
-                                            .padding(horizontal = 4.dp),
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.weight(1f)
                                     ) {
-                                        if (locked) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
                                             Icon(
-                                                Icons.Default.Lock,
+                                                Icons.Default.Sync,
                                                 contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                                modifier = Modifier.size(11.dp)
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(20.dp)
                                             )
-                                            Spacer(modifier = Modifier.width(3.dp))
                                         }
-                                        Text(
-                                            text = if (lead.days == 1) {
-                                                stringResource(R.string.reminder_lead_one)
-                                            } else {
-                                                stringResource(R.string.reminder_lead_value, lead.days)
-                                            },
-                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                                            fontWeight = if (checked && !locked) FontWeight.Bold else FontWeight.Medium,
-                                            color = when {
-                                                checked && !locked -> Color.White
-                                                locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                                                else -> MaterialTheme.colorScheme.onSurface
-                                            },
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
+                                        Column {
+                                            Text(
+                                                text = stringResource(R.string.cloud_backup),
+                                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                            Text(
+                                                text = stringResource(R.string.cloud_backup_sub),
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
                                     }
+                                    Icon(Icons.Default.CloudDone, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
                                 }
                             }
                         }
                     }
 
-                    AppleRowSeparator(startInset = 62.dp)
-
-                    // Trial reminders. Same shape as the block above and
-                    // deliberately without its locks: missing the end of a
-                    // trial is the unexpected charge the feature exists to
-                    // prevent, and selling the warning would mean selling
-                    // protection from a bill we withheld it about.
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.Schedule,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.settings_trial_leads_title),
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Text(
-                                    text = stringResource(R.string.settings_trial_leads_sub),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            ReminderLead.entries.forEach { lead ->
-                                val checked = lead.days in trialReminderLeads
-                                val leadLabel = if (lead.days == 1) {
-                                    stringResource(R.string.reminder_lead_one)
-                                } else {
-                                    stringResource(R.string.reminder_lead_value, lead.days)
-                                }
-                                // toggleable rather than Surface(onClick=):
-                                // Surface applies the caller's modifier inside
-                                // its own clickable node, so semantics set
-                                // there land on a child and get merged in
-                                // beside the label - read out, the chip says
-                                // its name twice. This puts the switch role and
-                                // its on/off state on the focusable node, and
-                                // leaves the visible text as the label.
-                                Surface(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .toggleable(
-                                            value = checked,
-                                            role = Role.Switch,
-                                            onValueChange = { next ->
-                                                preferencesManager.toggleTrialReminderLead(
-                                                    lead.days,
-                                                    next
-                                                )
-                                            }
-                                        ),
-                                    shape = RoundedCornerShape(10.dp),
-                                    color = if (checked) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.surfaceVariant
-                                    }
-                                ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .heightIn(min = 40.dp)
-                                            .padding(horizontal = 4.dp),
-                                        horizontalArrangement = Arrangement.Center,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = leadLabel,
-                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                                            fontWeight = if (checked) FontWeight.Bold else FontWeight.Medium,
-                                            color = if (checked) {
-                                                Color.White
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurface
-                                            },
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // 62dp so it lines up with the separators of the icon rows
-                    // above and below, not 16dp.
-                    AppleRowSeparator(startInset = 62.dp)
-
-                    AppleListRow(
-                        title = stringResource(R.string.test_notification),
-                        subtitle = stringResource(R.string.test_notification_sub),
-                        icon = Icons.Default.NotificationsActive,
-                        iconTint = MaterialTheme.colorScheme.error,
-                        showDivider = false,
-                        onClick = onTestNotification
-                    )
-                }
-            }
-        }
-
-        item(key = "data") {
-            Column {
-                SectionHeader(text = stringResource(R.string.data_portability))
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    AppleListRow(
-                        title = stringResource(R.string.backup_json),
-                        subtitle = stringResource(R.string.backup_json_sub),
-                        icon = Icons.Default.FileDownload,
-                        iconTint = MaterialTheme.colorScheme.secondary,
-                        onClick = onBackupClick
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.restore_json),
-                        subtitle = stringResource(R.string.restore_json_sub),
-                        icon = Icons.Default.FileUpload,
-                        iconTint = SubFlowAccents.blue,
-                        showDivider = false,
-                        onClick = {
-                            // Some providers report a backup as octet-stream, so
-                            // accept a couple of types rather than only JSON.
-                            runCatching {
-                                restoreLauncher.launch(
-                                    arrayOf("application/json", "text/plain", "application/octet-stream")
-                                )
-                            }
-                        }
-                    )
-                }
-            }
-        }
-
-        item(key = "about") {
-            Column {
-                SectionHeader(text = stringResource(R.string.legal_and_support))
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    AppleListRow(
-                        title = stringResource(R.string.rate_app),
-                        subtitle = stringResource(R.string.rate_app_sub),
-                        icon = Icons.Default.StarRate,
-                        iconTint = MaterialTheme.colorScheme.tertiary,
-                        onClick = onRateApp
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.share_app),
-                        icon = Icons.Default.Share,
-                        iconTint = MaterialTheme.colorScheme.primary,
-                        onClick = onShareApp
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.onboarding_replay),
-                        subtitle = stringResource(R.string.onboarding_replay_sub),
-                        icon = Icons.AutoMirrored.Filled.HelpOutline,
-                        iconTint = SubFlowAccents.blue,
-                        onClick = onReplayOnboarding
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.privacy_policy),
-                        icon = Icons.Default.Lock,
-                        iconTint = MaterialTheme.colorScheme.primary,
-                        onClick = { onOpenUrl(PRIVACY_URL) }
-                    )
-                    AppleListRow(
-                        title = stringResource(R.string.terms_of_service),
-                        icon = Icons.Default.Description,
-                        iconTint = SubFlowAccents.blue,
-                        onClick = { onOpenUrl(TERMS_URL) }
-                    )
-                    // Required by the TCF policy whenever a consent form was shown.
-                    if (isPrivacyOptionsRequired && !isPro) {
-                        AppleListRow(
-                            title = stringResource(R.string.ad_privacy_options),
-                            icon = Icons.Default.PrivacyTip,
-                            iconTint = SubFlowAccents.purple,
-                            onClick = onPrivacyOptionsClick
+                    item(key = "pages") {
+                        SettingsPageLinks(
+                            notificationsEnabled = notificationsEnabled,
+                            onOpenPage = onOpenPage
                         )
                     }
-                    AppleListRow(
-                        title = stringResource(R.string.contact_support),
-                        subtitle = stringResource(R.string.contact_support_sub),
-                        icon = Icons.Default.Mail,
-                        iconTint = MaterialTheme.colorScheme.secondary,
-                        showDivider = false,
-                        onClick = { openSupportEmail(context) }
+
+                    item(key = "version") {
+                        Text(
+                            // Version name only. The build number is an artefact of the
+                            // Play upload process and means nothing to the person reading
+                            // it; it is still attached to support emails, where it does.
+                            text = stringResource(
+                                R.string.app_version_full,
+                                stringResource(R.string.app_version, BuildConfig.VERSION_NAME)
+                            ),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        )
+                    }
+                }
+
+                SettingsPage.PREFERENCES -> item(key = "preferences") {
+                    PreferencesSection(
+                        preferencesManager = preferencesManager,
+                        onCurrencyClick = { showCurrencySheet = true },
+                        onThemeClick = { showThemeSheet = true },
+                        onLanguageClick = { showLanguageSheet = true }
+                    )
+                }
+
+                SettingsPage.NOTIFICATIONS -> item(key = "notifications") {
+                    NotificationsSection(
+                        preferencesManager = preferencesManager,
+                        isPro = isPro,
+                        notificationsEnabled = notificationsEnabled,
+                        onPaywallClick = onPaywallClick,
+                        onTestNotification = onTestNotification
+                    )
+                }
+
+                SettingsPage.DATA -> {
+                    item(key = "data") {
+                        DataSection(
+                            onBackupClick = onBackupClick,
+                            restoreLauncher = restoreLauncher
+                        )
+                    }
+                    // Irreversible, so it gets its own section rather than
+                    // sitting one row below "Restore" where a mis-tap is cheap.
+                    // It lives here rather than on the top level: that page is
+                    // now short enough to show it without scrolling, which
+                    // would put it one careless tap from the account card.
+                    item(key = "danger") {
+                        Column {
+                            SectionHeader(text = stringResource(R.string.section_danger))
+                            DangerSection(onClearClick = { showResetDialog = true })
+                        }
+                    }
+                }
+
+                SettingsPage.ABOUT -> item(key = "about") {
+                    AboutSection(
+                        isPro = isPro,
+                        isPrivacyOptionsRequired = isPrivacyOptionsRequired,
+                        onRateApp = onRateApp,
+                        onShareApp = onShareApp,
+                        onReplayOnboarding = onReplayOnboarding,
+                        onOpenUrl = onOpenUrl,
+                        onPrivacyOptionsClick = onPrivacyOptionsClick
                     )
                 }
             }
-        }
 
-        // Irreversible, so it gets its own section rather than sitting one row
-        // below "Contact support" where a mis-tap is cheap.
-        item(key = "danger") {
-            Column {
-                SectionHeader(text = stringResource(R.string.section_danger))
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    AppleListRow(
-                        title = stringResource(R.string.clear_all_data),
-                        subtitle = stringResource(R.string.clear_all_data_sub),
-                        icon = Icons.Default.DeleteForever,
-                        iconTint = MaterialTheme.colorScheme.error,
-                        showDivider = false,
-                        onClick = { showResetDialog = true }
-                    )
-                }
-            }
+            item(key = "footer") { Spacer(modifier = Modifier.height(28.dp)) }
         }
-
-        item(key = "version") {
-            Text(
-                // Version name only. The build number is an artefact of the
-                // Play upload process and means nothing to the person reading
-                // it; it is still attached to support emails, where it does.
-                text = stringResource(
-                    R.string.app_version_full,
-                    stringResource(R.string.app_version, BuildConfig.VERSION_NAME)
-                ),
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            )
-        }
-
-        item(key = "footer") { Spacer(modifier = Modifier.height(28.dp)) }
     }
 
     if (showCurrencySheet) {
@@ -744,6 +443,503 @@ fun SettingsScreen(
 }
 
 // -------------------------------------------------------------------- pieces
+
+/** The back button above a pushed Settings page - the same one the detail screen uses. */
+@Composable
+private fun SettingsTopBar(onBack: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CircleIconButton(
+            icon = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = stringResource(R.string.back),
+            onClick = onBack
+        )
+    }
+}
+
+/**
+ * The top level's way into each page.
+ *
+ * Two rows carry a subtitle, for different reasons. Preferences names what it
+ * holds, because currency and language are what people come to Settings
+ * looking for, and they are no longer on the page they used to be on.
+ * Notifications speaks up only when alerts are blocked: that warning used to be
+ * a banner in plain sight, and moving it a level down must not hide it.
+ */
+@Composable
+private fun SettingsPageLinks(
+    notificationsEnabled: Boolean,
+    onOpenPage: (SettingsPage) -> Unit
+) {
+    val preferencesSummary = listOf(
+        stringResource(R.string.primary_currency),
+        stringResource(R.string.appearance),
+        stringResource(R.string.language)
+    ).joinToString(" \u00B7 ")
+
+    AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+        AppleListRow(
+            title = stringResource(R.string.settings_page_preferences),
+            subtitle = preferencesSummary,
+            icon = Icons.Default.Tune,
+            iconTint = MaterialTheme.colorScheme.secondary,
+            onClick = { onOpenPage(SettingsPage.PREFERENCES) }
+        )
+        AppleListRow(
+            title = stringResource(R.string.settings_page_notifications),
+            subtitle = if (notificationsEnabled) null else stringResource(R.string.notifications_blocked),
+            subtitleColor = MaterialTheme.colorScheme.error,
+            icon = if (notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+            iconTint = MaterialTheme.colorScheme.error,
+            onClick = { onOpenPage(SettingsPage.NOTIFICATIONS) }
+        )
+        AppleListRow(
+            title = stringResource(R.string.settings_page_data),
+            icon = Icons.Default.Storage,
+            iconTint = SubFlowAccents.blue,
+            onClick = { onOpenPage(SettingsPage.DATA) }
+        )
+        AppleListRow(
+            title = stringResource(R.string.settings_page_about),
+            icon = Icons.Default.Info,
+            iconTint = MaterialTheme.colorScheme.primary,
+            showDivider = false,
+            onClick = { onOpenPage(SettingsPage.ABOUT) }
+        )
+    }
+}
+
+@Composable
+private fun PreferencesSection(
+    preferencesManager: PreferencesManager,
+    onCurrencyClick: () -> Unit,
+    onThemeClick: () -> Unit,
+    onLanguageClick: () -> Unit
+) {
+    val currentCurrency by preferencesManager.currency.collectAsState()
+    val currentThemeMode by preferencesManager.themeMode.collectAsState()
+    val currentLang by preferencesManager.language.collectAsState()
+    val hapticsEnabled by preferencesManager.hapticsEnabled.collectAsState()
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+            AppleListRow(
+                title = stringResource(R.string.primary_currency),
+                valueText = currentCurrency,
+                icon = Icons.Default.AttachMoney,
+                iconTint = MaterialTheme.colorScheme.secondary,
+                onClick = onCurrencyClick
+            )
+
+            AppleListRow(
+                title = stringResource(R.string.appearance),
+                valueText = stringResource(currentThemeMode.labelRes),
+                icon = Icons.Default.Palette,
+                iconTint = MaterialTheme.colorScheme.primary,
+                onClick = onThemeClick
+            )
+            AppleListRow(
+                title = stringResource(R.string.language),
+                valueText = languageLabel(currentLang),
+                icon = Icons.Default.Public,
+                iconTint = SubFlowAccents.blue,
+                onClick = onLanguageClick
+            )
+            AppleListRow(
+                title = stringResource(R.string.haptics),
+                subtitle = stringResource(R.string.haptics_sub),
+                icon = Icons.Default.Vibration,
+                iconTint = MaterialTheme.colorScheme.tertiary,
+                showDivider = false,
+                trailingContent = {
+                    Switch(
+                        checked = hapticsEnabled,
+                        onCheckedChange = { preferencesManager.setHapticsEnabled(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun NotificationsSection(
+    preferencesManager: PreferencesManager,
+    isPro: Boolean,
+    notificationsEnabled: Boolean,
+    onPaywallClick: () -> Unit,
+    onTestNotification: () -> Unit
+) {
+    val context = LocalContext.current
+    val reminderLeads by preferencesManager.reminderLeads.collectAsState()
+    val trialReminderLeads by preferencesManager.trialReminderLeads.collectAsState()
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+
+        AnimatedVisibility(visible = !notificationsEnabled) {
+            AppleCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                cornerRadius = 14.dp,
+                contentPadding = PaddingValues(14.dp),
+                onClick = { openNotificationSettings(context) }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.NotificationsOff,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(R.string.notifications_blocked),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = stringResource(R.string.open_settings),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Matches AppleListRow's 32dp glyph + 14dp gap so the
+                    // title sits on the same baseline as the rows above.
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Schedule,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.reminder_lead_title),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                            fontWeight = FontWeight.Medium
+                        )
+                        if (!isPro) {
+                            Text(
+                                text = stringResource(R.string.reminder_lead_sub_free),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    if (!isPro) ProBadge()
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ReminderLead.entries.forEach { lead ->
+                        val locked = lead.isPro && !isPro
+                        val checked = if (isPro) lead.days in reminderLeads else lead.days == 1
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (checked && !locked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                            onClick = {
+                                if (locked) onPaywallClick()
+                                else preferencesManager.toggleReminderLead(lead.days, !checked)
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .heightIn(min = 40.dp)
+                                    .padding(horizontal = 4.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (locked) {
+                                    Icon(
+                                        Icons.Default.Lock,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(11.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                }
+                                Text(
+                                    text = if (lead.days == 1) {
+                                        stringResource(R.string.reminder_lead_one)
+                                    } else {
+                                        stringResource(R.string.reminder_lead_value, lead.days)
+                                    },
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                    fontWeight = if (checked && !locked) FontWeight.Bold else FontWeight.Medium,
+                                    color = when {
+                                        checked && !locked -> Color.White
+                                        locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                        else -> MaterialTheme.colorScheme.onSurface
+                                    },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            AppleRowSeparator(startInset = 62.dp)
+
+            // Trial reminders. Same shape as the block above and
+            // deliberately without its locks: missing the end of a
+            // trial is the unexpected charge the feature exists to
+            // prevent, and selling the warning would mean selling
+            // protection from a bill we withheld it about.
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Schedule,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.settings_trial_leads_title),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_trial_leads_sub),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ReminderLead.entries.forEach { lead ->
+                        val checked = lead.days in trialReminderLeads
+                        val leadLabel = if (lead.days == 1) {
+                            stringResource(R.string.reminder_lead_one)
+                        } else {
+                            stringResource(R.string.reminder_lead_value, lead.days)
+                        }
+                        // toggleable rather than Surface(onClick=):
+                        // Surface applies the caller's modifier inside
+                        // its own clickable node, so semantics set
+                        // there land on a child and get merged in
+                        // beside the label - read out, the chip says
+                        // its name twice. This puts the switch role and
+                        // its on/off state on the focusable node, and
+                        // leaves the visible text as the label.
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .toggleable(
+                                    value = checked,
+                                    role = Role.Switch,
+                                    onValueChange = { next ->
+                                        preferencesManager.toggleTrialReminderLead(
+                                            lead.days,
+                                            next
+                                        )
+                                    }
+                                ),
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (checked) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .heightIn(min = 40.dp)
+                                    .padding(horizontal = 4.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = leadLabel,
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                    fontWeight = if (checked) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (checked) {
+                                        Color.White
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 62dp so it lines up with the separators of the icon rows
+            // above and below, not 16dp.
+            AppleRowSeparator(startInset = 62.dp)
+
+            AppleListRow(
+                title = stringResource(R.string.test_notification),
+                subtitle = stringResource(R.string.test_notification_sub),
+                icon = Icons.Default.NotificationsActive,
+                iconTint = MaterialTheme.colorScheme.error,
+                showDivider = false,
+                onClick = onTestNotification
+            )
+        }
+    }
+}
+
+@Composable
+private fun DataSection(
+    onBackupClick: () -> Unit,
+    restoreLauncher: ManagedActivityResultLauncher<Array<String>, Uri?>
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+            AppleListRow(
+                title = stringResource(R.string.backup_json),
+                subtitle = stringResource(R.string.backup_json_sub),
+                icon = Icons.Default.FileDownload,
+                iconTint = MaterialTheme.colorScheme.secondary,
+                onClick = onBackupClick
+            )
+            AppleListRow(
+                title = stringResource(R.string.restore_json),
+                subtitle = stringResource(R.string.restore_json_sub),
+                icon = Icons.Default.FileUpload,
+                iconTint = SubFlowAccents.blue,
+                showDivider = false,
+                onClick = {
+                    // Some providers report a backup as octet-stream, so
+                    // accept a couple of types rather than only JSON.
+                    runCatching {
+                        restoreLauncher.launch(
+                            arrayOf("application/json", "text/plain", "application/octet-stream")
+                        )
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun AboutSection(
+    isPro: Boolean,
+    isPrivacyOptionsRequired: Boolean,
+    onRateApp: () -> Unit,
+    onShareApp: () -> Unit,
+    onReplayOnboarding: () -> Unit,
+    onOpenUrl: (String) -> Unit,
+    onPrivacyOptionsClick: () -> Unit
+) {
+    val context = LocalContext.current
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+            AppleListRow(
+                title = stringResource(R.string.rate_app),
+                subtitle = stringResource(R.string.rate_app_sub),
+                icon = Icons.Default.StarRate,
+                iconTint = MaterialTheme.colorScheme.tertiary,
+                onClick = onRateApp
+            )
+            AppleListRow(
+                title = stringResource(R.string.share_app),
+                icon = Icons.Default.Share,
+                iconTint = MaterialTheme.colorScheme.primary,
+                onClick = onShareApp
+            )
+            AppleListRow(
+                title = stringResource(R.string.onboarding_replay),
+                subtitle = stringResource(R.string.onboarding_replay_sub),
+                icon = Icons.AutoMirrored.Filled.HelpOutline,
+                iconTint = SubFlowAccents.blue,
+                onClick = onReplayOnboarding
+            )
+            AppleListRow(
+                title = stringResource(R.string.privacy_policy),
+                icon = Icons.Default.Lock,
+                iconTint = MaterialTheme.colorScheme.primary,
+                onClick = { onOpenUrl(PRIVACY_URL) }
+            )
+            AppleListRow(
+                title = stringResource(R.string.terms_of_service),
+                icon = Icons.Default.Description,
+                iconTint = SubFlowAccents.blue,
+                onClick = { onOpenUrl(TERMS_URL) }
+            )
+            // Required by the TCF policy whenever a consent form was shown.
+            if (isPrivacyOptionsRequired && !isPro) {
+                AppleListRow(
+                    title = stringResource(R.string.ad_privacy_options),
+                    icon = Icons.Default.PrivacyTip,
+                    iconTint = SubFlowAccents.purple,
+                    onClick = onPrivacyOptionsClick
+                )
+            }
+            AppleListRow(
+                title = stringResource(R.string.contact_support),
+                subtitle = stringResource(R.string.contact_support_sub),
+                icon = Icons.Default.Mail,
+                iconTint = MaterialTheme.colorScheme.secondary,
+                showDivider = false,
+                onClick = { openSupportEmail(context) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DangerSection(
+    onClearClick: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+            AppleListRow(
+                title = stringResource(R.string.clear_all_data),
+                subtitle = stringResource(R.string.clear_all_data_sub),
+                icon = Icons.Default.DeleteForever,
+                iconTint = MaterialTheme.colorScheme.error,
+                showDivider = false,
+                onClick = onClearClick
+            )
+        }
+    }
+}
+
 
 /** How the language setting names itself, including the follow-the-device case. */
 @Composable

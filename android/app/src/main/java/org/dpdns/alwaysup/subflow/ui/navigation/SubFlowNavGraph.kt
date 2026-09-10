@@ -62,6 +62,7 @@ import org.dpdns.alwaysup.subflow.ui.screens.dashboard.DashboardScreen
 import org.dpdns.alwaysup.subflow.ui.screens.detail.SubscriptionDetailScreen
 import org.dpdns.alwaysup.subflow.ui.screens.onboarding.OnboardingScreen
 import org.dpdns.alwaysup.subflow.ui.screens.paywall.PaywallScreen
+import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsPage
 import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsScreen
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowSnackbarHost
 import org.dpdns.alwaysup.subflow.ui.util.rememberHaptics
@@ -75,6 +76,10 @@ sealed class Screen(val route: String) {
     data object Dashboard : Screen("dashboard")
     data object Analytics : Screen("analytics")
     data object Settings : Screen("settings")
+    /** A page inside Settings. Not a tab route, so the tab bar steps aside for it. */
+    data object SettingsSubPage : Screen("settings/{page}") {
+        fun createRoute(page: SettingsPage) = "settings/${page.key}"
+    }
     data object AddSubscription : Screen("add_subscription")
     data object SubscriptionDetail : Screen("subscription_detail/{subId}") {
         fun createRoute(subId: String) = "subscription_detail/$subId"
@@ -213,6 +218,136 @@ fun SubFlowNavHost(
     val bottomBarRoutes = listOf(Screen.Dashboard.route, Screen.Analytics.route, Screen.Settings.route)
     val showBottomBar = currentRoute in bottomBarRoutes
 
+    /**
+     * Settings and each of its pages. One definition rather than one per
+     * destination, because every page reaches the same callbacks and copies of
+     * them would drift apart.
+     */
+    @Composable
+    fun SettingsDestination(page: SettingsPage?) {
+        val syncOffline = stringResource(R.string.sync_offline)
+        val signInUnavailable = stringResource(R.string.sign_in_unavailable)
+        val signInCancelled = stringResource(R.string.sign_in_cancelled)
+        val signInFailed = stringResource(R.string.sign_in_failed)
+        val restoreFailed = stringResource(R.string.restore_failed)
+        val restoreReadFailed = stringResource(R.string.restore_read_failed)
+        val resetDone = stringResource(R.string.reset_done)
+        val testSent = stringResource(R.string.test_notification_sent)
+        val exportFailed = stringResource(R.string.export_failed)
+        val shareText = stringResource(R.string.share_app_text, playStoreUrl(context))
+
+        SettingsScreen(
+            page = page,
+            onOpenPage = { navController.navigate(Screen.SettingsSubPage.createRoute(it)) },
+            onBack = { navController.popBackStack() },
+            user = currentUser,
+            isPro = isPro,
+            proTier = proTier,
+            preferencesManager = preferencesManager,
+            isGoogleSignInAvailable = authRepository.isGoogleSignInAvailable,
+            isPrivacyOptionsRequired = adsConsentManager.isPrivacyOptionsRequired,
+            onSignInClick = {
+                scope.launch {
+                    if (activity == null) return@launch
+                    val result = authRepository.signInWithGoogle(activity)
+                    result.onFailure { error ->
+                        showMessage(
+                            when (error) {
+                                is SignInNotConfiguredException -> signInUnavailable
+                                is SignInCancelledException -> signInCancelled
+                                else -> signInFailed
+                            }
+                        )
+                    }
+                }
+            },
+            onSignOutClick = { authRepository.signOut() },
+            onSyncClick = {
+                scope.launch {
+                    val res = subscriptionRepository.syncWithServer(authRepository.authToken.value)
+                    showMessage(
+                        res.fold(
+                            onSuccess = { count -> context.getString(R.string.sync_complete, count) },
+                            onFailure = { syncOffline }
+                        )
+                    )
+                }
+            },
+            onPaywallClick = { navController.navigate(Screen.Paywall.route) },
+            onManageSubscription = {
+                openUrl(billingManager.manageSubscriptionUrl(skuFor(proTier)))
+            },
+            onRestorePurchases = { billingManager.restorePurchases() },
+            onPrivacyOptionsClick = {
+                activity?.let { adsConsentManager.showPrivacyOptions(it) }
+            },
+            onBackupClick = {
+                scope.launch {
+                    val json = subscriptionRepository.exportBackupJson()
+                    val intent = ExportUtils.shareIntent(
+                        context = context,
+                        fileName = ExportUtils.timestampedName("subflow-backup", "json"),
+                        content = json,
+                        mimeType = "application/json",
+                        subject = "SubFlow backup"
+                    )
+                    if (intent != null) {
+                        runCatching { context.startActivity(Intent.createChooser(intent, null)) }
+                    } else {
+                        showMessage(exportFailed)
+                    }
+                }
+            },
+            onRestoreFromFile = { uri ->
+                scope.launch {
+                    val json = withContext(Dispatchers.IO) {
+                        runCatching {
+                            context.contentResolver.openInputStream(uri)
+                                ?.bufferedReader()
+                                ?.use { it.readText() }
+                        }.getOrNull()
+                    }
+                    if (json.isNullOrBlank()) {
+                        showMessage(restoreReadFailed)
+                        return@launch
+                    }
+                    val res = subscriptionRepository.restoreBackupJson(json)
+                    showMessage(
+                        res.fold(
+                            onSuccess = { n -> context.getString(R.string.restore_success_count, n) },
+                            onFailure = { restoreFailed }
+                        )
+                    )
+                }
+            },
+            onClearAllData = {
+                scope.launch {
+                    subscriptionRepository.clearAllData()
+                    showMessage(resetDone)
+                }
+            },
+            onTestNotification = {
+                org.dpdns.alwaysup.subflow.data.notifications.RenewalNotificationWorker
+                    .sendTestNotification(context)
+                showMessage(testSent)
+            },
+            onOpenUrl = ::openUrl,
+            onShareApp = {
+                val send = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                }
+                runCatching { context.startActivity(Intent.createChooser(send, null)) }
+            },
+            onReplayOnboarding = {
+                preferencesManager.restartOnboarding()
+                navController.navigate(Screen.Onboarding.route)
+            },
+            onRateApp = { openUrl(playStoreUrl(context)) }
+        )
+
+    }
+
     Scaffold(
         snackbarHost = { SubFlowSnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
@@ -344,124 +479,18 @@ fun SubFlowNavHost(
                 )
             }
 
-            composable(Screen.Settings.route) {
-                val syncOffline = stringResource(R.string.sync_offline)
-                val signInUnavailable = stringResource(R.string.sign_in_unavailable)
-                val signInCancelled = stringResource(R.string.sign_in_cancelled)
-                val signInFailed = stringResource(R.string.sign_in_failed)
-                val restoreFailed = stringResource(R.string.restore_failed)
-                val restoreReadFailed = stringResource(R.string.restore_read_failed)
-                val resetDone = stringResource(R.string.reset_done)
-                val testSent = stringResource(R.string.test_notification_sent)
-                val exportFailed = stringResource(R.string.export_failed)
-                val shareText = stringResource(R.string.share_app_text, playStoreUrl(context))
+            composable(Screen.Settings.route) { SettingsDestination(page = null) }
 
-                SettingsScreen(
-                    user = currentUser,
-                    isPro = isPro,
-                    proTier = proTier,
-                    preferencesManager = preferencesManager,
-                    isGoogleSignInAvailable = authRepository.isGoogleSignInAvailable,
-                    isPrivacyOptionsRequired = adsConsentManager.isPrivacyOptionsRequired,
-                    onSignInClick = {
-                        scope.launch {
-                            if (activity == null) return@launch
-                            val result = authRepository.signInWithGoogle(activity)
-                            result.onFailure { error ->
-                                showMessage(
-                                    when (error) {
-                                        is SignInNotConfiguredException -> signInUnavailable
-                                        is SignInCancelledException -> signInCancelled
-                                        else -> signInFailed
-                                    }
-                                )
-                            }
-                        }
-                    },
-                    onSignOutClick = { authRepository.signOut() },
-                    onSyncClick = {
-                        scope.launch {
-                            val res = subscriptionRepository.syncWithServer(authRepository.authToken.value)
-                            showMessage(
-                                res.fold(
-                                    onSuccess = { count -> context.getString(R.string.sync_complete, count) },
-                                    onFailure = { syncOffline }
-                                )
-                            )
-                        }
-                    },
-                    onPaywallClick = { navController.navigate(Screen.Paywall.route) },
-                    onManageSubscription = {
-                        openUrl(billingManager.manageSubscriptionUrl(skuFor(proTier)))
-                    },
-                    onRestorePurchases = { billingManager.restorePurchases() },
-                    onPrivacyOptionsClick = {
-                        activity?.let { adsConsentManager.showPrivacyOptions(it) }
-                    },
-                    onBackupClick = {
-                        scope.launch {
-                            val json = subscriptionRepository.exportBackupJson()
-                            val intent = ExportUtils.shareIntent(
-                                context = context,
-                                fileName = ExportUtils.timestampedName("subflow-backup", "json"),
-                                content = json,
-                                mimeType = "application/json",
-                                subject = "SubFlow backup"
-                            )
-                            if (intent != null) {
-                                runCatching { context.startActivity(Intent.createChooser(intent, null)) }
-                            } else {
-                                showMessage(exportFailed)
-                            }
-                        }
-                    },
-                    onRestoreFromFile = { uri ->
-                        scope.launch {
-                            val json = withContext(Dispatchers.IO) {
-                                runCatching {
-                                    context.contentResolver.openInputStream(uri)
-                                        ?.bufferedReader()
-                                        ?.use { it.readText() }
-                                }.getOrNull()
-                            }
-                            if (json.isNullOrBlank()) {
-                                showMessage(restoreReadFailed)
-                                return@launch
-                            }
-                            val res = subscriptionRepository.restoreBackupJson(json)
-                            showMessage(
-                                res.fold(
-                                    onSuccess = { n -> context.getString(R.string.restore_success_count, n) },
-                                    onFailure = { restoreFailed }
-                                )
-                            )
-                        }
-                    },
-                    onClearAllData = {
-                        scope.launch {
-                            subscriptionRepository.clearAllData()
-                            showMessage(resetDone)
-                        }
-                    },
-                    onTestNotification = {
-                        org.dpdns.alwaysup.subflow.data.notifications.RenewalNotificationWorker
-                            .sendTestNotification(context)
-                        showMessage(testSent)
-                    },
-                    onOpenUrl = ::openUrl,
-                    onShareApp = {
-                        val send = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, shareText)
-                        }
-                        runCatching { context.startActivity(Intent.createChooser(send, null)) }
-                    },
-                    onReplayOnboarding = {
-                        preferencesManager.restartOnboarding()
-                        navController.navigate(Screen.Onboarding.route)
-                    },
-                    onRateApp = { openUrl(playStoreUrl(context)) }
-                )
+            composable(
+                route = Screen.SettingsSubPage.route,
+                arguments = listOf(navArgument("page") { type = NavType.StringType })
+            ) { backStack ->
+                val page = SettingsPage.fromKey(backStack.arguments?.getString("page"))
+                if (page == null) {
+                    LaunchedEffect(Unit) { navController.popBackStack() }
+                } else {
+                    SettingsDestination(page = page)
+                }
             }
 
             composable(Screen.AddSubscription.route) {

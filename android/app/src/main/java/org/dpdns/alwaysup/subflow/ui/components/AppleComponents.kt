@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
@@ -730,6 +731,8 @@ fun SectionHeader(
 fun AppleListRow(
     title: String,
     subtitle: String? = null,
+    /** For a subtitle that is a warning rather than a description. */
+    subtitleColor: Color = Color.Unspecified,
     icon: ImageVector? = null,
     iconTint: Color = MaterialTheme.colorScheme.primary,
     iconBackground: Color = iconTint.copy(alpha = 0.15f),
@@ -799,7 +802,9 @@ fun AppleListRow(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha)
+                        color = subtitleColor
+                            .takeOrElse { MaterialTheme.colorScheme.onSurfaceVariant }
+                            .copy(alpha = contentAlpha)
                     )
                 }
             }
@@ -834,6 +839,40 @@ fun AppleListRow(
 
         if (showDivider) {
             AppleRowSeparator(startInset = if (icon != null) 62.dp else 16.dp)
+        }
+    }
+}
+
+/**
+ * A round icon button: 38dp visual inside a 48dp hit area, per the
+ * touch-target minimum. The back button on every pushed screen, and the
+ * actions beside it on the detail screen.
+ */
+@Composable
+fun CircleIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    tint: Color = MaterialTheme.colorScheme.onSurface,
+    background: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = Modifier.size(48.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(CircleShape)
+                .background(background),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = tint,
+                modifier = Modifier.size(19.dp)
+            )
         }
     }
 }
