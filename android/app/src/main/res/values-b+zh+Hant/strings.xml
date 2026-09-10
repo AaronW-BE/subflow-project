@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Traditional Chinese (BIN-27). One file for Taiwan, Hong Kong and Macau:
+    the script qualifier matches all three, where values-zh-rTW would only
+    match Taiwan. Written in Taiwan usage rather than converted character by
+    character from values-zh - 設定 not 設置, 資料 not 數據, 帳號 not 賬號,
+    扣款 not 扣費, 儲存 not 保存, 搜尋 not 搜索.
+-->
+<resources>
+    <string name="app_name">SubFlow</string>
+    <string name="nav_subscriptions">訂閱</string>
+    <string name="nav_analytics">分析</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- Dashboard -->
+    <string name="total_monthly_spend">每月總支出</string>
+    <string name="projected_annual_spend">預估年度支出</string>
+    <string name="switch_to_annual">依年檢視</string>
+    <string name="switch_to_monthly">依月檢視</string>
+    <string name="projected_yearly">預估：%s/年</string>
+    <string name="next_renewal_in">距下次續訂 %s</string>
+    <string name="days_count">%d 天</string>
+    <string name="filter_all">全部</string>
+    <string name="filter_streaming">影音</string>
+    <string name="filter_productivity">生產力</string>
+    <string name="filter_cloud">雲端服務</string>
+    <string name="filter_utilities">生活工具</string>
+    <string name="filter_health">健康</string>
+    <string name="add_subscription">新增訂閱</string>
+    <string name="upgrade_to_pro">升級 Pro</string>
+    <string name="clear_search">清除搜尋</string>
+    <string name="choose_custom_logo">選擇圖示</string>
+    <string name="remove_custom_logo">移除圖示</string>
+    <string name="search_currency_hint">搜尋貨幣或代碼</string>
+    <string name="rates_updated_on">更新於 %1$s</string>
+    <string name="rates_offline_snapshot">離線快照</string>
+    <string name="search">搜尋</string>
+    <string name="empty_title">還沒有任何訂閱</string>
+    <string name="empty_body">把你正在付費的服務加進來，SubFlow 會幫你集中管理金額與續訂日期。</string>
+    <string name="empty_cta">新增第一筆訂閱</string>
+    <string name="empty_search_title">沒有結果</string>
+    <string name="empty_search_body">找不到與「%s」相符的訂閱。</string>
+    <string name="clear_search_action">清除搜尋</string>
+    <string name="deleted_item">已刪除「%s」</string>
+    <string name="delete_action">刪除</string>
+    <string name="swipe_hint">將卡片向左滑動即可刪除</string>
+    <string name="swipe_hint_dismiss">關閉提示</string>
+
+    <!-- Free quota -->
+    <string name="quota_label">免費版</string>
+    <string name="quota_progress">已用 %1$d / %2$d</string>
+    <string name="quota_nudge_title">免費版只剩 1 個名額</string>
+    <string name="quota_nudge_title_full">免費版名額已用完</string>
+    <string name="quota_nudge_body">升級 Pro 可解除 5 筆訂閱的上限、開啟續訂提醒並移除廣告。</string>
+    <string name="quota_nudge_cta">了解 Pro</string>
+
+    <!-- Add Subscription -->
+    <string name="title_new_subscription">新增訂閱</string>
+    <string name="title_edit_subscription">編輯訂閱</string>
+    <string name="cancel">取消</string>
+    <string name="save">儲存</string>
+    <string name="delete">刪除</string>
+    <string name="search_presets">搜尋服務（Netflix、Spotify…）</string>
+    <string name="field_service">服務</string>
+    <string name="choose_service">選擇服務</string>
+    <string name="custom_service">自訂服務</string>
+    <string name="custom_service_hint">自訂名稱、顏色與圖示</string>
+    <string name="custom_subscription">自訂訂閱</string>
+    <string name="service_name">服務名稱</string>
+    <string name="category">類別</string>
+    <string name="amount">金額</string>
+    <string name="billing_cycle">計費週期</string>
+    <string name="first_bill_date">首次扣款日期</string>
+    <string name="cycle_weekly">每週</string>
+    <string name="cycle_monthly">每月</string>
+    <string name="cycle_quarterly">每季</string>
+    <string name="cycle_yearly">每年</string>
+    <string name="renewal_alerts">續訂提醒</string>
+    <string name="remind_before_renewal">在扣款前提醒你</string>
+    <string name="live_preview">即時預覽</string>
+    <string name="accent_colour_own_mark">這個服務的標誌本身就是整塊彩色的，所以主題色不會改變圖示，只會決定它在支出面積圖裡的顏色。</string>
+    <string name="brand_accent_color">主題色</string>
+    <string name="subscription_details">詳細資訊</string>
+    <string name="field_name">名稱</string>
+    <string name="field_price">價格</string>
+    <string name="field_category">類別</string>
+    <string name="field_notes">備註</string>
+    <string name="field_notes_hint">選填備註</string>
+    <string name="field_currency">貨幣</string>
+    <string name="renews_next_on">下次續訂 %s</string>
+    <string name="reminder_lead_value">提前 %d 天</string>
+    <string name="reminder_lead_one">提前 1 天</string>
+    <string name="price_invalid">請輸入大於 0 的價格</string>
+    <string name="name_required">請填寫訂閱名稱</string>
+    <string name="discard_changes_title">要捨棄變更嗎？</string>
+    <string name="discard_changes_body">你對這筆訂閱所做的變更將不會儲存。</string>
+    <string name="discard">捨棄</string>
+    <string name="keep_editing">繼續編輯</string>
+    <string name="saved_subscription">已儲存「%s」</string>
+
+    <!-- Paywall -->
+    <string name="subflow_pro">SUBFLOW PRO</string>
+    <string name="paywall_headline">每一筆訂閱都在掌握之中</string>
+    <string name="paywall_subhead">無限筆數、扣款前的續訂提醒，完全沒有廣告。</string>
+    <string name="feat_unlimited">不限訂閱數量</string>
+    <string name="feat_unlimited_sub">免費版上限為 5 筆</string>
+    <string name="feat_push_alerts">提前 1、3、7 天的續訂提醒</string>
+    <string name="feat_push_alerts_sub">在扣款之前取消，而不是之後</string>
+    <string name="feat_rates">多幣別合併統計</string>
+    <string name="feat_rates_sub">即時匯率，統一換算成主要貨幣</string>
+    <string name="feat_analytics">完整的支出分析</string>
+    <string name="feat_analytics_sub">歷史趨勢、類別佔比與 CSV 匯出</string>
+    <string name="feat_no_ads">永久移除廣告</string>
+    <string name="feat_no_ads_sub">升級後橫幅廣告立即消失</string>
+    <string name="plan_annual">年繳</string>
+    <string name="plan_monthly">月繳</string>
+    <string name="plan_lifetime">買斷</string>
+    <string name="plan_annual_note">每年扣款一次</string>
+    <string name="plan_monthly_note">可隨時取消</string>
+    <string name="plan_lifetime_note">一次付費，永久使用</string>
+    <string name="plan_per_month">%s / 月</string>
+    <string name="plan_per_year">%s / 年</string>
+    <string name="plan_one_time">%s 一次付清</string>
+    <string name="plan_effective_monthly">相當於 %s / 月</string>
+    <string name="badge_best_value">最划算</string>
+    <string name="badge_save_percent">省 %d%%</string>
+    <string name="badge_free_trial">%d 天免費試用</string>
+    <string name="btn_start_trial">開始 %d 天免費試用</string>
+    <string name="btn_continue">繼續</string>
+    <string name="btn_restore">回復購買</string>
+    <string name="trial_footnote">前 %1$d 天免費，之後以 %2$s 計費。可隨時在 Google Play 取消。</string>
+    <string name="sub_footnote">%s，透過 Google Play 計費，可隨時取消。</string>
+    <string name="lifetime_footnote">%s 一次付清，不會自動續訂。</string>
+    <string name="terms_of_service">服務條款</string>
+    <string name="privacy_policy">隱私權政策</string>
+    <string name="close">關閉</string>
+    <string name="loading_plans">正在載入方案</string>
+    <string name="plans_unavailable">暫時無法連線至 Google Play 付款服務，請檢查網路後再試一次。</string>
+    <string name="retry">重試</string>
+    <string name="already_pro_title">你已是 SubFlow Pro 使用者</string>
+    <string name="already_pro_body">感謝支持，所有功能已在此帳號解鎖。</string>
+    <string name="manage_subscription">管理訂閱</string>
+    <string name="restore_none_found">目前的 Google 帳號下找不到購買紀錄。</string>
+    <string name="restore_success">已回復 Pro。</string>
+    <string name="purchase_success">歡迎使用 SubFlow Pro。</string>
+    <string name="purchase_cancelled">已取消購買。</string>
+    <string name="purchase_failed">購買未完成，沒有產生任何扣款。</string>
+    <string name="purchase_pending">付款處理中，Google Play 確認後會自動解鎖 Pro。</string>
+    <string name="quota_reached_title">免費版名額已滿</string>
+    <string name="quota_reached_desc">你已記錄 5 筆訂閱，升級後即可繼續新增。</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">略過</string>
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_start">開始使用</string>
+    <string name="onboarding_1_title">看清楚自己到底花了多少</string>
+    <string name="onboarding_1_body">只要輸入一次，SubFlow 就會把週繳、月繳、年繳統一換算成一個真實的每月總額。</string>
+    <string name="onboarding_2_title">不再被突如其來的扣款嚇到</string>
+    <string name="onboarding_2_body">提醒會在扣款之前送達，讓你還來得及免費取消。</string>
+    <string name="onboarding_3_title">資料只留在你自己的手機上</string>
+    <string name="onboarding_3_body">不需要註冊帳號，所有資料都儲存在本機，要不要使用雲端備份完全由你決定。</string>
+    <string name="onboarding_manage_title">新增、修改、刪除</string>
+    <string name="onboarding_manage_add">輕觸右下角的 + 新增訂閱</string>
+    <string name="onboarding_manage_edit">輕觸卡片即可編輯</string>
+    <string name="onboarding_manage_delete">將卡片向左滑動，或開啟後輕觸刪除</string>
+    <string name="onboarding_replay">重新觀看導覽</string>
+    <string name="onboarding_replay_sub">再看一次初次使用介紹</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">分析</string>
+    <string name="avg_monthly">每月平均支出</string>
+    <string name="annual_forecast">年度支出預測</string>
+    <string name="category_breakdown">類別佔比</string>
+    <string name="top_expenses">支出最高的訂閱</string>
+    <string name="export_report">匯出 CSV 報表</string>
+    <string name="export_report_sub_pro">分享或儲存完整表格</string>
+    <string name="export_report_sub_free">升級 SubFlow Pro 即可解鎖</string>
+    <string name="segment_monthly">依月</string>
+    <string name="segment_annual">依年</string>
+    <string name="metric_monthly_commitment">每月固定支出</string>
+    <string name="metric_annual_run_rate">年度支出換算</string>
+    <string name="metric_daily_avg">每天</string>
+    <string name="metric_top_share">最大單項</string>
+    <string name="metric_tracked">已記錄</string>
+    <string name="metric_share_percent">%d%%</string>
+    <string name="spend_map">支出面積圖</string>
+    <string name="spend_map_caption">每一塊代表一筆訂閱，面積代表它在每月總支出中的佔比</string>
+    <string name="spend_map_other">其餘訂閱</string>
+    <string name="spend_map_summary">支出面積圖：%2$d 筆訂閱共 %1$s，最大的一項是 %3$s</string>
+    <string name="billing_forecast">帳單預測</string>
+    <string name="billing_forecast_caption">每個月實際會扣多少錢。年繳會在某一天整筆扣款，而不是平均分攤到 12 個月。</string>
+    <string name="forecast_peak">%1$s 是支出最多的月份，共 %2$s</string>
+    <string name="forecast_even">未來六個月相當平均，每月約 %1$s</string>
+    <string name="forecast_average_line">虛線：每月平均支出</string>
+    <string name="history_caption">近 6 個月，依每筆訂閱的開始時間推算</string>
+    <string name="analytics_empty">新增訂閱後即可查看支出分析。</string>
+    <string name="pro_locked_analytics">圖表與明細分析是 Pro 功能。</string>
+    <string name="unlock_with_pro">升級解鎖</string>
+    <string name="export_ready">CSV 已產生，可以分享了</string>
+    <string name="export_failed">無法建立 CSV 檔案。</string>
+
+    <!-- Detail -->
+    <string name="detail_days_left">天後續訂</string>
+    <string name="detail_due_today">今天扣款</string>
+    <string name="detail_overdue">續訂日期已過</string>
+    <string name="detail_billing_details">計費資訊</string>
+    <string name="detail_cycle">計費週期</string>
+    <string name="detail_next_renewal">下次續訂</string>
+    <string name="detail_first_payment">首次扣款</string>
+    <string name="detail_monthly_equivalent">換算每月</string>
+    <string name="detail_yearly_commitment">換算每年</string>
+    <string name="detail_paid_so_far">累計已付</string>
+    <string name="detail_notes">備註</string>
+    <string name="detail_reminder">提醒</string>
+    <string name="detail_reminder_off">已關閉</string>
+    <string name="detail_manage_official">前往官方頁面管理或取消</string>
+    <string name="detail_manage_official_sub">開啟服務供應商的帳號頁面</string>
+    <string name="detail_remove">移除此訂閱</string>
+    <string name="detail_billed_cycle">%s扣款</string>
+    <string name="delete_confirm_title">要移除 %s 嗎？</string>
+    <string name="delete_confirm_body">這只會把它從 SubFlow 的紀錄中移除，並不會真正取消服務供應商那邊的訂閱。</string>
+    <string name="edit">編輯</string>
+    <string name="back">返回</string>
+    <string name="not_found">找不到這筆訂閱</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_page_preferences">偏好設定</string>
+    <string name="settings_page_notifications">通知</string>
+    <string name="settings_page_data">資料</string>
+    <string name="settings_page_about">關於</string>
+    <string name="primary_currency">主要貨幣</string>
+    <string name="appearance">外觀</string>
+    <string name="theme_system">跟隨系統</string>
+    <string name="theme_light">淺色</string>
+    <string name="theme_dark">深色（純黑）</string>
+    <string name="language">語言</string>
+    <string name="language_system">跟隨系統</string>
+    <string name="cloud_backup">雲端備份與同步</string>
+    <string name="cloud_backup_sub">輕觸即可立即同步</string>
+    <string name="sign_in_google">使用 Google 登入</string>
+    <string name="sign_out">登出</string>
+    <string name="signed_in_as">已登入：%s</string>
+    <string name="guest_vault">儲存在本機，不需要帳號</string>
+    <string name="search_subscriptions">搜尋訂閱</string>
+    <string name="sort_options">排序方式</string>
+    <string name="sort_renewal_date">依續訂日期</string>
+    <string name="sort_price_high">價格：由高到低</string>
+    <string name="sort_price_low">價格：由低到高</string>
+    <string name="sort_name_asc">名稱：A 到 Z</string>
+    <string name="section_preferences">偏好設定</string>
+    <string name="section_notifications">通知</string>
+    <string name="data_portability">資料</string>
+    <string name="backup_json">匯出備份（JSON）</string>
+    <string name="backup_json_sub">儲存一份完整的訂閱紀錄</string>
+    <string name="restore_json">從備份還原</string>
+    <string name="restore_json_sub">匯入先前匯出的檔案</string>
+    <string name="legal_and_support">關於</string>
+    <string name="contact_support">聯絡客服</string>
+    <string name="contact_support_sub">諮詢、回報問題與功能建議</string>
+    <string name="rate_app">為 SubFlow 評分</string>
+    <string name="rate_app_sub">你的評分對我們真的很有幫助</string>
+    <string name="share_app">分享 SubFlow</string>
+    <string name="clear_all_data">清除所有資料</string>
+    <string name="clear_all_data_sub">刪除這台裝置上的所有訂閱紀錄</string>
+    <string name="haptics">觸覺回饋</string>
+    <string name="haptics_sub">操作時輕微震動</string>
+    <string name="reminder_lead_title">要提前多久提醒我</string>
+    <string name="reminder_lead_sub_free">Pro 可增加 3 天與 7 天</string>
+    <string name="test_notification">傳送測試提醒</string>
+    <string name="test_notification_sub">確認通知能正常送達</string>
+    <string name="test_notification_sent">已傳送測試提醒。</string>
+    <string name="notifications_blocked">SubFlow 的通知權限已關閉。</string>
+    <string name="open_settings">前往設定</string>
+    <string name="undo">復原</string>
+    <string name="renewal_today">今天扣款</string>
+    <plurals name="renewal_days_left">
+        <item quantity="other">還有 %d 天</item>
+    </plurals>
+    <string name="renewal_days_short">%d 天</string>
+    <string name="renewal_overdue">已逾期</string>
+    <string name="cycle_short_weekly">/週</string>
+    <string name="cycle_short_monthly">/月</string>
+    <string name="cycle_short_quarterly">/季</string>
+    <string name="cycle_short_yearly">/年</string>
+    <string name="app_version">版本 %s</string>
+    <string name="restore_success_count">已還原 %d 筆訂閱。</string>
+    <string name="restore_failed">這看起來不是 SubFlow 的備份檔案。</string>
+    <string name="reset_dialog_title">要清除所有資料嗎？</string>
+    <string name="reset_dialog_body">這台裝置上的所有訂閱紀錄將永久刪除。已購買的 Pro 不受影響。</string>
+    <string name="reset_confirm">全部清除</string>
+    <string name="reset_done">已清除所有訂閱資料。</string>
+    <string name="sync_complete">同步完成，共 %d 項</string>
+    <string name="sync_offline">目前處於離線狀態，資料已安全儲存在本機。</string>
+    <string name="sign_in_unavailable">這個版本未設定 Google 登入。</string>
+    <string name="sign_in_cancelled">已取消登入。</string>
+    <string name="sign_in_failed">登入失敗。你仍然可以在不登入的情況下使用 SubFlow。</string>
+    <string name="share_app_text">SubFlow 幫我集中管理所有訂閱，還會在續訂前提醒我。%s</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_renewal">續訂提醒</string>
+    <string name="notif_channel_renewal_desc">訂閱即將續訂時的提醒</string>
+    <string name="notif_renewal_title_today">%s 今天續訂</string>
+    <string name="notif_renewal_title">%1$s 將在 %2$d 天後續訂</string>
+    <string name="notif_renewal_body">將於 %2$s 扣款 %1$s。如果不再使用，現在取消還來得及。</string>
+    <string name="notif_trial_title_today">%s 試用今天結束</string>
+    <string name="notif_trial_title">%1$s 試用還有 %2$d 天結束</string>
+    <string name="notif_trial_body_converts">%2$s 起轉為付費，將扣款 %1$s。在此之前取消就不會產生費用。</string>
+    <string name="notif_trial_body_free">試用將於 %s 結束，不會產生費用。</string>
+    <string name="notif_test_title">通知功能正常</string>
+    <string name="notif_test_body">SubFlow 會在下次續訂之前提醒你。</string>
+    <plurals name="active_subscriptions_count">
+        <item quantity="other">%d 筆進行中的訂閱</item>
+    </plurals>
+    <plurals name="metric_services">
+        <item quantity="other">%d 項服務</item>
+    </plurals>
+    <string name="cd_advertisement">廣告</string>
+    <string name="cd_accent_colour">主題色 %s</string>
+    <string name="ad_privacy_options">廣告隱私權選項</string>
+    <string name="restore_read_failed">無法讀取這個檔案。</string>
+    <string name="section_danger">危險操作</string>
+    <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">試用</string>
+    <string name="trial_toggle">免費試用</string>
+    <string name="trial_toggle_sub">目前還沒有為它付費</string>
+    <string name="trial_end_date">試用結束</string>
+    <string name="trial_end_date_invalid">試用結束日期必須晚於開始日期</string>
+    <string name="trial_converts">結束後轉為付費</string>
+    <string name="trial_converts_sub">如果到期就直接結束，請關閉這個選項</string>
+    <string name="field_price_after_trial">試用後價格</string>
+    <string name="trial_free_amount">免費</string>
+    <string name="trial_ends_today">今天結束</string>
+    <string name="trial_ended">試用已結束</string>
+    <string name="trial_then_amount">到期後 %s</string>
+    <string name="trial_no_charge">不扣款</string>
+    <string name="detail_trial_end">試用結束</string>
+    <string name="detail_trial_price">試用後價格</string>
+    <string name="trial_ended_prompt">這個試用已經結束了，後來怎麼樣？</string>
+    <string name="trial_action_converted">已轉為付費</string>
+    <string name="trial_action_cancelled">我取消了</string>
+    <string name="trial_action_extend">延長試用</string>
+    <string name="trial_reminders_unavailable">通知已關閉，試用到期前無法提醒你。倒數計時仍會顯示在這裡。</string>
+    <string name="trial_alert_summary">結束前 %s 天提醒</string>
+    <string name="trial_alert_off">結束前不提醒</string>
+    <string name="trial_reminder_value">提前 %s 天</string>
+    <string name="settings_trial_leads_title">試用提醒</string>
+    <string name="settings_trial_leads_sub">在免費試用結束前提醒。所有版本都包含此功能。</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">試用還有 %d 天</item>
+    </plurals>
+</resources>

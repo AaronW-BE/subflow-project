@@ -49,7 +49,11 @@ android {
 
         // Ship only the languages the in-app picker offers; drops ~80 unused
         // AndroidX translations from the bundle.
-        resourceConfigurations += listOf("en", "de", "fr", "es", "ja", "zh")
+        //
+        // Traditional Chinese is named by its own qualifier: "zh" matches
+        // values-zh and nothing else, and on its own it silently stripped
+        // values-b+zh+Hant from the release build (BIN-27).
+        resourceConfigurations += listOf("en", "de", "fr", "es", "ja", "zh", "b+zh+Hant")
     }
 
     signingConfigs {

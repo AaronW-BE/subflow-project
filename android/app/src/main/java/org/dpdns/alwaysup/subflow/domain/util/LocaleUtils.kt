@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.SYSTEM_LANGUAGE
+import org.dpdns.alwaysup.subflow.data.preferences.TRADITIONAL_CHINESE
 import java.util.Locale
 
 fun localeForLanguageCode(code: String): Locale = when (
@@ -14,6 +15,9 @@ fun localeForLanguageCode(code: String): Locale = when (
     }.lowercase()
 ) {
     "zh" -> Locale.SIMPLIFIED_CHINESE
+    // By script rather than as zh-TW, so it reads as the language Hong Kong and
+    // Macau write too, and resolves to values-b+zh+Hant rather than values-zh.
+    TRADITIONAL_CHINESE.lowercase() -> Locale.forLanguageTag(TRADITIONAL_CHINESE)
     "ja" -> Locale.JAPANESE
     "de" -> Locale.GERMAN
     "fr" -> Locale.FRENCH
