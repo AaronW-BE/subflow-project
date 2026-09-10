@@ -2,6 +2,7 @@ package org.dpdns.alwaysup.subflow.data.preferences
 
 import android.content.Context
 import android.content.res.Resources
+import androidx.core.app.LocaleManagerCompat
 import org.dpdns.alwaysup.subflow.domain.util.Trials
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -117,7 +118,7 @@ enum class ReminderLead(val days: Int, val isPro: Boolean) {
 class PreferencesManager(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    private val _currency = MutableStateFlow(prefs.getString("primary_currency", resolveInitialCurrency()) ?: "USD")
+    private val _currency = MutableStateFlow(resolveCurrency(context))
     val currency: StateFlow<String> = _currency.asStateFlow()
 
     private val _themeMode = MutableStateFlow(ThemeMode.fromKey(prefs.getString("theme_mode", "system") ?: "system"))
@@ -151,7 +152,7 @@ class PreferencesManager(context: Context) {
 
     fun setCurrency(code: String) {
         _currency.value = code
-        prefs.edit().putString("primary_currency", code).apply()
+        prefs.edit().putString(KEY_CURRENCY, code).apply()
     }
 
     fun setThemeMode(mode: ThemeMode) {
@@ -231,8 +232,8 @@ class PreferencesManager(context: Context) {
 
     /** Incremented once per cold start; drives the "ask for a review" moment. */
     fun recordLaunch(): Int {
-        val next = prefs.getInt("launch_count", 0) + 1
-        prefs.edit().putInt("launch_count", next).apply()
+        val next = prefs.getInt(KEY_LAUNCH_COUNT, 0) + 1
+        prefs.edit().putInt(KEY_LAUNCH_COUNT, next).apply()
         return next
     }
 
@@ -242,11 +243,41 @@ class PreferencesManager(context: Context) {
         return stored.mapNotNull { it.toIntOrNull() }.toSet().ifEmpty { setOf(1) }
     }
 
-    private fun resolveInitialCurrency(): String {
-        val fromLocale = runCatching {
-            java.util.Currency.getInstance(java.util.Locale.getDefault()).currencyCode
-        }.getOrNull()
-        return SupportedCurrencies.firstOrNull { it.code == fromLocale }?.code ?: "USD"
+    /**
+     * The stored primary currency, or - the first time through - a default that
+     * is then stored, so nothing derived here can move afterwards. See
+     * [DefaultCurrency] for why it used to.
+     *
+     * Runs before `recordLaunch()` in `MainActivity.onCreate`, so a zero launch
+     * count means this is the install's first launch. `launch_count` has been
+     * written on every launch since the first release, so an existing install
+     * is never mistaken for a new one.
+     */
+    private fun resolveCurrency(context: Context): String {
+        val resolution = DefaultCurrency.resolve(
+            stored = prefs.getString(KEY_CURRENCY, null),
+            firstLaunch = prefs.getInt(KEY_LAUNCH_COUNT, 0) == 0,
+            systemRegions = systemRegions(context),
+            // What earlier versions used: by now MainActivity has set the JVM
+            // default to the interface language, exactly as it did for them.
+            legacy = java.util.Locale.getDefault()
+        )
+        if (resolution.save) prefs.edit().putString(KEY_CURRENCY, resolution.code).apply()
+        return resolution.code
+    }
+
+    /**
+     * The device's regions, in the order the user ranked their languages.
+     *
+     * Not `Locale.getDefault()`, which is the app's interface language by the
+     * time this runs, and not `Resources.getSystem()` either: under a per-app
+     * locale (Android 13+) that lists the app's language first - measured, it
+     * reads de-DE on a zh-Hans-CN phone once the app is set to German.
+     * LocaleManagerCompat asks for the system list itself.
+     */
+    private fun systemRegions(context: Context): List<String> {
+        val locales = LocaleManagerCompat.getSystemLocales(context)
+        return (0 until locales.size()).mapNotNull { locales[it]?.country }
     }
 
     companion object {
@@ -254,6 +285,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_LEADS = "reminder_lead_days"
         private const val KEY_TRIAL_LEADS = "trial_reminder_lead_days"
         private const val KEY_SWIPE_HINT = "swipe_hint_seen"
+        private const val KEY_CURRENCY = "primary_currency"
+        private const val KEY_LAUNCH_COUNT = "launch_count"
 
         /**
          * The stored language choice, which may be [SYSTEM_LANGUAGE].
