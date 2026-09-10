@@ -26,7 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -616,10 +619,13 @@ fun SettingsScreen(
         }
 
         item(key = "rate_attribution") {
-            // The rate feed's terms require visible attribution wherever the
-            // rates are used, and every converted total in the app derives from
-            // them. It sits at the foot of Settings with the version, which is
-            // where this kind of credit is conventionally looked for.
+            // The rate feed's terms require the credit to stay visible on the
+            // screens the rates are used with, and every converted total in the
+            // app derives from them, so it cannot move to a sheet that only
+            // opens on demand. It keeps its place at the foot of Settings, next
+            // to the version, where this kind of credit is looked for - but as
+            // one line rather than two. What it used to carry underneath, how
+            // old the rates are, now sits under the currency list instead.
             RateAttributionRow(onOpenUrl = onOpenUrl)
         }
 
@@ -656,7 +662,8 @@ fun SettingsScreen(
                 curr.code.contains(q, ignoreCase = true) ||
                     curr.name.contains(q, ignoreCase = true)
             },
-            onDismiss = { showCurrencySheet = false }
+            onDismiss = { showCurrencySheet = false },
+            footer = { RateFreshnessFootnote(onOpenUrl = onOpenUrl) }
         ) { curr ->
             SubFlowPickerRow(
                 title = "${curr.name} (${curr.code})",
@@ -871,10 +878,43 @@ private fun AccountCard(
     }
 }
 
+/**
+ * The required credit, and nothing else.
+ *
+ * The provider's terms ask for this exact linked wording on the screens its
+ * rates are used with, and explicitly allow it to be "discreet and in keeping
+ * with how the rest of your application looks" - so one quiet line is enough.
+ * It used to carry the quote date on a second line, which put the only part
+ * worth reading at the very bottom of Settings, below "Clear all data". That
+ * half now lives in [RateFreshnessFootnote].
+ */
 @Composable
 private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
+    Text(
+        text = stringResource(R.string.rates_attribution),
+        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onOpenUrl(RATE_PROVIDER_URL) }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+
+/**
+ * The credit again, with the date the rates were quoted, under the primary
+ * currency list.
+ *
+ * Choosing the currency every total is converted *into* is the one moment the
+ * age of those rates is worth knowing, and the only place in the app where
+ * someone is thinking about conversion at all. Drawn outside the list's scroll
+ * so it stays visible while the forty-odd currencies move past it.
+ */
+@Composable
+private fun RateFreshnessFootnote(onOpenUrl: (String) -> Unit) {
     val quotedAt = CurrencyConverter.quotedAtEpochMillis
-    val subtitle = if (quotedAt > 0L) {
+    val freshness = if (quotedAt > 0L) {
         stringResource(
             R.string.rates_updated_on,
             DateUtils.formatDateTime(
@@ -886,25 +926,32 @@ private fun RateAttributionRow(onOpenUrl: (String) -> Unit) {
     } else {
         stringResource(R.string.rates_offline_snapshot)
     }
+    // One Text rather than two side by side: German runs to "Aktualisiert
+    // 10. Sept." and a Row would have to wrap it or clip it. An annotated
+    // string wraps like ordinary text while still colouring the credit as the
+    // link, and the credit stays whole - the terms fix its wording, so it is
+    // never formatted into a sentence.
+    val credit = stringResource(R.string.rates_attribution)
+    val label = buildAnnotatedString {
+        withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append(credit) }
+        withStyle(
+            SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+        ) {
+            append("\u00A0\u00B7 ")
+            append(freshness)
+        }
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onOpenUrl(RATE_PROVIDER_URL) }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
         Text(
-            text = stringResource(R.string.rates_attribution),
+            text = label,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = subtitle,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onOpenUrl(RATE_PROVIDER_URL) }
+                .padding(horizontal = 20.dp, vertical = 12.dp)
         )
     }
 }
