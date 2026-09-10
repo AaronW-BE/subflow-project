@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The debug build's background: the release gradient with hazard stripes laid
+  over it.
+
+  Debug installs alongside release (applicationIdSuffix ".debug"), so the two
+  sit next to each other in the launcher wearing the same face. Marking the
+  background rather than the foreground is deliberate - the background layer is
+  the one the adaptive-icon mask never clips, so the stripes read the same
+  whether the launcher cuts a circle, a squircle or a rounded square, while a
+  badge in a corner would simply disappear on most of them.
+
+  Keeping the gradient underneath keeps it recognisably the same app.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:pathData="M0,0h108v108h-108z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="108"
+                android:endY="108">
+                <item android:offset="0" android:color="#3B3990" />
+                <item android:offset="0.55" android:color="#241F5E" />
+                <item android:offset="1" android:color="#0D0C22" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!--
+      Bars are drawn upright and rotated as a group; they run from -40 to 148
+      so that the corners are still covered once the 45 degree turn pulls them
+      diagonally across the 108x108 viewport. The amber is dark enough that the
+      white ring and glyph in the foreground keep their contrast where they
+      cross a stripe.
+    -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="-45">
+        <path
+            android:fillColor="#A87200"
+            android:pathData="M-42,-40h13v188h-13z M-16,-40h13v188h-13z M10,-40h13v188h-13z M36,-40h13v188h-13z M62,-40h13v188h-13z M88,-40h13v188h-13z M114,-40h13v188h-13z M140,-40h13v188h-13z" />
+    </group>
+</vector>
