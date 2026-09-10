@@ -218,6 +218,10 @@
 
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
+    <string name="settings_page_preferences">Allgemein</string>
+    <string name="settings_page_notifications">Mitteilungen</string>
+    <string name="settings_page_data">Daten</string>
+    <string name="settings_page_about">Über</string>
     <string name="primary_currency">Hauptwährung</string>
     <string name="appearance">Erscheinungsbild</string>
     <string name="theme_system">System</string>

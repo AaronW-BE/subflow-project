@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.ui.components.CircleIconButton
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
@@ -521,36 +522,6 @@ fun SubscriptionDetailScreen(
                 }
             }
         )
-    }
-}
-
-@Composable
-private fun CircleIconButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
-    background: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-) {
-    IconButton(
-        onClick = onClick,
-        // 48dp hit area with a 38dp visual, per the touch-target minimum.
-        modifier = Modifier.size(48.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(background),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                tint = tint,
-                modifier = Modifier.size(19.dp)
-            )
-        }
     }
 }
 

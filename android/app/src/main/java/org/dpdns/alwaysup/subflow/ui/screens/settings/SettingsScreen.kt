@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
@@ -55,6 +56,7 @@ import org.dpdns.alwaysup.subflow.ui.components.AppleCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleGroupedCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
 import org.dpdns.alwaysup.subflow.ui.components.AppleRowSeparator
+import org.dpdns.alwaysup.subflow.ui.components.CircleIconButton
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
@@ -63,9 +65,31 @@ import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
 import org.dpdns.alwaysup.subflow.ui.theme.ScreenTitleStyle
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
 
+/**
+ * A second-level Settings page. The top level is `null`.
+ *
+ * Settings used to be one scroll six screens long at 360dp: the account, every
+ * preference, two grids of reminder chips, import and export, the legal links
+ * and "Clear all data", in that order. The top level now holds the account and
+ * a way into each of these; each page is one of the sections it used to be.
+ */
+enum class SettingsPage(val key: String, val titleRes: Int) {
+    PREFERENCES("preferences", R.string.settings_page_preferences),
+    NOTIFICATIONS("notifications", R.string.settings_page_notifications),
+    DATA("data", R.string.settings_page_data),
+    ABOUT("about", R.string.settings_page_about);
+
+    companion object {
+        fun fromKey(key: String?): SettingsPage? = entries.find { it.key == key }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    page: SettingsPage?,
+    onOpenPage: (SettingsPage) -> Unit,
+    onBack: () -> Unit,
     user: UserProfile?,
     isPro: Boolean,
     proTier: ProTier,
@@ -123,186 +147,195 @@ fun SettingsScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item(key = "title") {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(top = 16.dp, bottom = 4.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.settings_title),
-                    style = ScreenTitleStyle
-                )
-            }
-        }
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (page != null) SettingsTopBar(onBack = onBack)
 
-        item(key = "account") {
-            AccountCard(
-                user = user,
-                isPro = isPro,
-                isGoogleSignInAvailable = isGoogleSignInAvailable,
-                onPaywallClick = onPaywallClick,
-                onSignInClick = onSignInClick,
-                onSignOutClick = onSignOutClick
-            )
-        }
-
-        // Subscription management is only meaningful once something is owned.
-        if (isPro) {
-            item(key = "membership") {
-                AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
-                    if (proTier == ProTier.MONTHLY || proTier == ProTier.ANNUAL) {
-                        AppleListRow(
-                            title = stringResource(R.string.manage_subscription),
-                            icon = Icons.Default.CreditCard,
-                            iconTint = MaterialTheme.colorScheme.primary,
-                            onClick = onManageSubscription
-                        )
-                    }
-                    AppleListRow(
-                        title = stringResource(R.string.btn_restore),
-                        icon = Icons.Default.Restore,
-                        iconTint = MaterialTheme.colorScheme.secondary,
-                        showDivider = false,
-                        onClick = onRestorePurchases
+        // Each page is its own back-stack entry, and the list's scroll state
+        // is saved with it: coming back to the top level lands where it was.
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item(key = "title") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        // A pushed page's top bar has already cleared the
+                        // status bar; the top level scrolls under it instead.
+                        .then(if (page == null) Modifier.statusBarsPadding() else Modifier)
+                        .padding(top = if (page == null) 16.dp else 0.dp, bottom = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(page?.titleRes ?: R.string.settings_title),
+                        style = ScreenTitleStyle
                     )
                 }
             }
-        }
 
-        if (user?.authProvider == "google") {
-            item(key = "sync") {
-                AppleCard(modifier = Modifier.fillMaxWidth(), onClick = onSyncClick) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Default.Sync,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.cloud_backup),
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = stringResource(R.string.cloud_backup_sub),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            when (page) {
+                null -> {
+                    item(key = "account") {
+                        AccountCard(
+                            user = user,
+                            isPro = isPro,
+                            isGoogleSignInAvailable = isGoogleSignInAvailable,
+                            onPaywallClick = onPaywallClick,
+                            onSignInClick = onSignInClick,
+                            onSignOutClick = onSignOutClick
+                        )
+                    }
+
+                    // Subscription management is only meaningful once something is owned.
+                    if (isPro) {
+                        item(key = "membership") {
+                            AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+                                if (proTier == ProTier.MONTHLY || proTier == ProTier.ANNUAL) {
+                                    AppleListRow(
+                                        title = stringResource(R.string.manage_subscription),
+                                        icon = Icons.Default.CreditCard,
+                                        iconTint = MaterialTheme.colorScheme.primary,
+                                        onClick = onManageSubscription
+                                    )
+                                }
+                                AppleListRow(
+                                    title = stringResource(R.string.btn_restore),
+                                    icon = Icons.Default.Restore,
+                                    iconTint = MaterialTheme.colorScheme.secondary,
+                                    showDivider = false,
+                                    onClick = onRestorePurchases
                                 )
                             }
                         }
-                        Icon(Icons.Default.CloudDone, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                    }
+
+                    if (user?.authProvider == "google") {
+                        item(key = "sync") {
+                            AppleCard(modifier = Modifier.fillMaxWidth(), onClick = onSyncClick) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Sync,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                        Column {
+                                            Text(
+                                                text = stringResource(R.string.cloud_backup),
+                                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                            Text(
+                                                text = stringResource(R.string.cloud_backup_sub),
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                    Icon(Icons.Default.CloudDone, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                                }
+                            }
+                        }
+                    }
+
+                    item(key = "pages") {
+                        SettingsPageLinks(
+                            notificationsEnabled = notificationsEnabled,
+                            onOpenPage = onOpenPage
+                        )
+                    }
+
+                    item(key = "version") {
+                        Text(
+                            // Version name only. The build number is an artefact of the
+                            // Play upload process and means nothing to the person reading
+                            // it; it is still attached to support emails, where it does.
+                            text = stringResource(
+                                R.string.app_version_full,
+                                stringResource(R.string.app_version, BuildConfig.VERSION_NAME)
+                            ),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        )
                     }
                 }
+
+                SettingsPage.PREFERENCES -> item(key = "preferences") {
+                    PreferencesSection(
+                        preferencesManager = preferencesManager,
+                        onCurrencyClick = { showCurrencySheet = true },
+                        onThemeClick = { showThemeSheet = true },
+                        onLanguageClick = { showLanguageSheet = true }
+                    )
+                }
+
+                SettingsPage.NOTIFICATIONS -> item(key = "notifications") {
+                    NotificationsSection(
+                        preferencesManager = preferencesManager,
+                        isPro = isPro,
+                        notificationsEnabled = notificationsEnabled,
+                        onPaywallClick = onPaywallClick,
+                        onTestNotification = onTestNotification
+                    )
+                }
+
+                SettingsPage.DATA -> {
+                    item(key = "data") {
+                        DataSection(
+                            onBackupClick = onBackupClick,
+                            restoreLauncher = restoreLauncher
+                        )
+                    }
+                    // Irreversible, so it gets its own section rather than
+                    // sitting one row below "Restore" where a mis-tap is cheap.
+                    // It lives here rather than on the top level: that page is
+                    // now short enough to show it without scrolling, which
+                    // would put it one careless tap from the account card.
+                    item(key = "danger") {
+                        Column {
+                            SectionHeader(text = stringResource(R.string.section_danger))
+                            DangerSection(onClearClick = { showResetDialog = true })
+                        }
+                    }
+                }
+
+                SettingsPage.ABOUT -> item(key = "about") {
+                    AboutSection(
+                        isPro = isPro,
+                        isPrivacyOptionsRequired = isPrivacyOptionsRequired,
+                        onRateApp = onRateApp,
+                        onShareApp = onShareApp,
+                        onReplayOnboarding = onReplayOnboarding,
+                        onOpenUrl = onOpenUrl,
+                        onPrivacyOptionsClick = onPrivacyOptionsClick
+                    )
+                }
             }
-        }
 
-        item(key = "preferences") {
-            Column {
-                SectionHeader(text = stringResource(R.string.section_preferences))
-                PreferencesSection(
-                    preferencesManager = preferencesManager,
-                    onCurrencyClick = { showCurrencySheet = true },
-                    onThemeClick = { showThemeSheet = true },
-                    onLanguageClick = { showLanguageSheet = true }
-                )
-            }
+            item(key = "footer") { Spacer(modifier = Modifier.height(28.dp)) }
         }
-
-        item(key = "notifications") {
-            Column {
-                SectionHeader(text = stringResource(R.string.section_notifications))
-                NotificationsSection(
-                    preferencesManager = preferencesManager,
-                    isPro = isPro,
-                    notificationsEnabled = notificationsEnabled,
-                    onPaywallClick = onPaywallClick,
-                    onTestNotification = onTestNotification
-                )
-            }
-        }
-
-        item(key = "data") {
-            Column {
-                SectionHeader(text = stringResource(R.string.data_portability))
-                DataSection(
-                    onBackupClick = onBackupClick,
-                    restoreLauncher = restoreLauncher
-                )
-            }
-        }
-
-        item(key = "about") {
-            Column {
-                SectionHeader(text = stringResource(R.string.legal_and_support))
-                AboutSection(
-                    isPro = isPro,
-                    isPrivacyOptionsRequired = isPrivacyOptionsRequired,
-                    onRateApp = onRateApp,
-                    onShareApp = onShareApp,
-                    onReplayOnboarding = onReplayOnboarding,
-                    onOpenUrl = onOpenUrl,
-                    onPrivacyOptionsClick = onPrivacyOptionsClick
-                )
-            }
-        }
-
-        // Irreversible, so it gets its own section rather than sitting one row
-        // below "Contact support" where a mis-tap is cheap.
-        item(key = "danger") {
-            Column {
-                SectionHeader(text = stringResource(R.string.section_danger))
-                DangerSection(
-                    onClearClick = { showResetDialog = true }
-                )
-            }
-        }
-
-        item(key = "version") {
-            Text(
-                // Version name only. The build number is an artefact of the
-                // Play upload process and means nothing to the person reading
-                // it; it is still attached to support emails, where it does.
-                text = stringResource(
-                    R.string.app_version_full,
-                    stringResource(R.string.app_version, BuildConfig.VERSION_NAME)
-                ),
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-            )
-        }
-
-        item(key = "footer") { Spacer(modifier = Modifier.height(28.dp)) }
     }
 
     if (showCurrencySheet) {
@@ -410,6 +443,76 @@ fun SettingsScreen(
 }
 
 // -------------------------------------------------------------------- pieces
+
+/** The back button above a pushed Settings page - the same one the detail screen uses. */
+@Composable
+private fun SettingsTopBar(onBack: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CircleIconButton(
+            icon = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = stringResource(R.string.back),
+            onClick = onBack
+        )
+    }
+}
+
+/**
+ * The top level's way into each page.
+ *
+ * Two rows carry a subtitle, for different reasons. Preferences names what it
+ * holds, because currency and language are what people come to Settings
+ * looking for, and they are no longer on the page they used to be on.
+ * Notifications speaks up only when alerts are blocked: that warning used to be
+ * a banner in plain sight, and moving it a level down must not hide it.
+ */
+@Composable
+private fun SettingsPageLinks(
+    notificationsEnabled: Boolean,
+    onOpenPage: (SettingsPage) -> Unit
+) {
+    val preferencesSummary = listOf(
+        stringResource(R.string.primary_currency),
+        stringResource(R.string.appearance),
+        stringResource(R.string.language)
+    ).joinToString(" \u00B7 ")
+
+    AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
+        AppleListRow(
+            title = stringResource(R.string.settings_page_preferences),
+            subtitle = preferencesSummary,
+            icon = Icons.Default.Tune,
+            iconTint = MaterialTheme.colorScheme.secondary,
+            onClick = { onOpenPage(SettingsPage.PREFERENCES) }
+        )
+        AppleListRow(
+            title = stringResource(R.string.settings_page_notifications),
+            subtitle = if (notificationsEnabled) null else stringResource(R.string.notifications_blocked),
+            subtitleColor = MaterialTheme.colorScheme.error,
+            icon = if (notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
+            iconTint = MaterialTheme.colorScheme.error,
+            onClick = { onOpenPage(SettingsPage.NOTIFICATIONS) }
+        )
+        AppleListRow(
+            title = stringResource(R.string.settings_page_data),
+            icon = Icons.Default.Storage,
+            iconTint = SubFlowAccents.blue,
+            onClick = { onOpenPage(SettingsPage.DATA) }
+        )
+        AppleListRow(
+            title = stringResource(R.string.settings_page_about),
+            icon = Icons.Default.Info,
+            iconTint = MaterialTheme.colorScheme.primary,
+            showDivider = false,
+            onClick = { onOpenPage(SettingsPage.ABOUT) }
+        )
+    }
+}
 
 @Composable
 private fun PreferencesSection(
