@@ -75,6 +75,30 @@ class SubscriptionRepository(
         return Result.success(Unit)
     }
 
+    /**
+     * Pauses or resumes a subscription.
+     *
+     * Resuming goes through the same free-tier gate that adding one does.
+     * A paused subscription does not count towards the limit - `getActiveCount`
+     * filters on `is_active` - so five active plus a paused sixth is a legal
+     * state, and resuming that sixth is the moment it stops being one.
+     * [saveSubscription] would not catch it: it only checks the quota for a
+     * subscription it has never seen before.
+     *
+     * Resuming also re-dates the subscription, because that is what
+     * [saveSubscription] does to every write, and a subscription paused for
+     * three months has a renewal date three months in the past.
+     */
+    suspend fun setActive(id: String, active: Boolean, isPro: Boolean): Result<Unit> {
+        val existing = dao.getById(id)?.toDomain()
+            ?: return Result.failure(NoSuchElementException("No subscription $id"))
+        if (existing.isActive == active) return Result.success(Unit)
+        if (active && resumeExceedsFreeTier(isPro, dao.getActiveCount())) {
+            return Result.failure(QuotaReachedException())
+        }
+        return saveSubscription(existing.copy(isActive = active), isPro)
+    }
+
     suspend fun deleteSubscription(id: String) = dao.markDeleted(id)
 
     suspend fun restoreSubscription(id: String) = dao.restoreDeleted(id)
@@ -304,6 +328,17 @@ class SubscriptionRepository(
 
         /** Free tier ceiling. Mirrored in ADR 0002 and on the paywall. */
         const val FREE_TIER_LIMIT = 5
+
+        /**
+         * Whether turning a paused subscription back on would break the free
+         * tier, given how many are active right now.
+         *
+         * [activeCount] must not include the subscription being resumed - it
+         * is paused, so `getActiveCount` has already left it out, and that is
+         * why the comparison is `>=` rather than `>`.
+         */
+        fun resumeExceedsFreeTier(isPro: Boolean, activeCount: Int): Boolean =
+            !isPro && activeCount >= FREE_TIER_LIMIT
         /**
          * 2 since trial fields were added. Restore ignores this number and
          * repairs whatever is missing, so a v1 file still imports.

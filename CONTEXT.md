@@ -17,6 +17,10 @@ _Avoid_: Template, service icon, app preset
 The regular recurrence interval at which a subscription renews (Weekly, Monthly, Quarterly, Semi-Annually, Annually).
 _Avoid_: Recurrence frequency, interval, period
 
+**Paused**:
+A subscription the user keeps in SubFlow but is no longer paying for. It sends no Renewal Alert, is excluded from every total and chart, and does not count towards the Free Tier limit; nothing about it is deleted. The word describes the record, never the service — SubFlow cannot cancel anything on the user's behalf (ADR 0001), so no copy may imply that pausing did.
+_Avoid_: Cancelled, archived, inactive, disabled, on hold
+
 **Renewal Alert**:
 A scheduled push notification delivered prior to a subscription's renewal date to alert the user to review or cancel.
 _Avoid_: Reminder, alarm, notice

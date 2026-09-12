@@ -209,6 +209,13 @@
     <string name="detail_manage_official">提供元で管理・解約する</string>
     <string name="detail_manage_official_sub">提供元のアカウントページを開きます</string>
     <string name="detail_remove">この登録を削除</string>
+    <string name="paused">停止中</string>
+    <string name="detail_pause">この登録を停止</string>
+    <string name="detail_resume">この登録を再開</string>
+    <string name="detail_paused_note">停止中の登録には通知が届かず、合計にも含まれません。データは削除されません。</string>
+    <string name="dashboard_paused_header">停止中（%d）</string>
+    <string name="paused_item">「%s」を停止しました</string>
+    <string name="resumed_item">「%s」を再開しました</string>
     <string name="detail_billed_cycle">%s の請求</string>
     <string name="delete_confirm_title">%s を削除しますか？</string>
     <string name="delete_confirm_body">SubFlow の記録から外れるだけで、提供元の契約は解約されません。</string>

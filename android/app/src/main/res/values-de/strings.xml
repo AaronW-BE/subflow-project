@@ -209,6 +209,13 @@
     <string name="detail_manage_official">Beim Anbieter verwalten oder kündigen</string>
     <string name="detail_manage_official_sub">Öffnet die Kontoseite des Anbieters</string>
     <string name="detail_remove">Abo entfernen</string>
+    <string name="paused">Pausiert</string>
+    <string name="detail_pause">Abo pausieren</string>
+    <string name="detail_resume">Abo fortsetzen</string>
+    <string name="detail_paused_note">Ein pausiertes Abo erinnert dich nicht und zählt nicht zu deinen Summen. Gelöscht wird nichts.</string>
+    <string name="dashboard_paused_header">Pausiert (%d)</string>
+    <string name="paused_item">„%s“ pausiert</string>
+    <string name="resumed_item">„%s“ fortgesetzt</string>
     <string name="detail_billed_cycle">%s abgerechnet</string>
     <string name="delete_confirm_title">%s entfernen?</string>
     <string name="delete_confirm_body">Damit verschwindet es nur aus deiner Übersicht. Das Abo beim Anbieter wird dadurch nicht gekündigt.</string>

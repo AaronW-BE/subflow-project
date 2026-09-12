@@ -216,6 +216,13 @@
     <string name="detail_manage_official">前往官方頁面管理或取消</string>
     <string name="detail_manage_official_sub">開啟服務供應商的帳號頁面</string>
     <string name="detail_remove">移除此訂閱</string>
+    <string name="paused">已暫停</string>
+    <string name="detail_pause">暫停此訂閱</string>
+    <string name="detail_resume">恢復此訂閱</string>
+    <string name="detail_paused_note">已暫停的訂閱不會提醒，也不會計入合計。內容不會被刪除。</string>
+    <string name="dashboard_paused_header">已暫停（%d）</string>
+    <string name="paused_item">已暫停「%s」</string>
+    <string name="resumed_item">已恢復「%s」</string>
     <string name="detail_billed_cycle">%s扣款</string>
     <string name="delete_confirm_title">要移除 %s 嗎？</string>
     <string name="delete_confirm_body">這只會把它從 SubFlow 的紀錄中移除，並不會真正取消服務供應商那邊的訂閱。</string>

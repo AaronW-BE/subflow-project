@@ -57,7 +57,9 @@ fun SubscriptionDetailScreen(
     onDelete: (String) -> Unit,
     onOpenUrl: (String) -> Unit,
     /** Persists a subscription changed in place, used by the trial actions. */
-    onUpdate: (Subscription) -> Unit = {}
+    onUpdate: (Subscription) -> Unit = {},
+    /** Pauses (false) or resumes (true) this subscription. */
+    onSetActive: (Boolean) -> Unit = {}
 ) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -181,12 +183,37 @@ fun SubscriptionDetailScreen(
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        CountdownRing(
-                            progress = progressPct,
-                            daysLeft = daysLeft,
-                            urgent = urgent,
-                            isTrial = isTrial
-                        )
+                        // A paused subscription has no renewal to count down
+                        // to, so the ring would be counting to a charge that is
+                        // not coming. Say what the state means instead.
+                        if (subscription.isActive) {
+                            CountdownRing(
+                                progress = progressPct,
+                                daysLeft = daysLeft,
+                                urgent = urgent,
+                                isTrial = isTrial
+                            )
+                        } else {
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.paused),
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = stringResource(R.string.detail_paused_note),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -468,6 +495,29 @@ fun SubscriptionDetailScreen(
                             )
                         }
                     }
+                }
+            }
+
+            item(key = "pause") {
+                Button(
+                    onClick = { onSetActive(!subscription.isActive) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(
+                            if (subscription.isActive) R.string.detail_pause else R.string.detail_resume
+                        ),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
 

@@ -209,6 +209,13 @@
     <string name="detail_manage_official">Gérer ou résilier chez le fournisseur</string>
     <string name="detail_manage_official_sub">Ouvre la page de compte du fournisseur</string>
     <string name="detail_remove">Retirer l’abonnement</string>
+    <string name="paused">En pause</string>
+    <string name="detail_pause">Mettre l’abonnement en pause</string>
+    <string name="detail_resume">Reprendre l’abonnement</string>
+    <string name="detail_paused_note">Un abonnement en pause n’envoie aucun rappel et n’entre pas dans vos totaux. Rien n’est supprimé.</string>
+    <string name="dashboard_paused_header">En pause (%d)</string>
+    <string name="paused_item">« %s » mis en pause</string>
+    <string name="resumed_item">« %s » repris</string>
     <string name="detail_billed_cycle">Facturé %s</string>
     <string name="delete_confirm_title">Retirer %s ?</string>
     <string name="delete_confirm_body">Cela le retire seulement de votre suivi. L’abonnement chez le fournisseur n’est pas résilié.</string>

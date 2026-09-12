@@ -533,6 +533,25 @@ fun SubFlowNavHost(
                     onOpenUrl = ::openUrl,
                     onUpdate = { updated ->
                         scope.launch { subscriptionRepository.saveSubscription(updated, isPro) }
+                    },
+                    onSetActive = { active ->
+                        val sub = subscriptions.find { it.id == subId }
+                        scope.launch {
+                            val res = subscriptionRepository.setActive(subId, active, isPro)
+                            when {
+                                res.isSuccess -> showMessage(
+                                    context.getString(
+                                        if (active) R.string.resumed_item else R.string.paused_item,
+                                        sub?.name.orEmpty()
+                                    )
+                                )
+                                // Five active plus a paused sixth is legal, so
+                                // resuming the sixth is where the free tier
+                                // ends - the same wall adding one runs into.
+                                res.exceptionOrNull() is QuotaReachedException ->
+                                    navController.navigate(Screen.Paywall.route)
+                            }
+                        }
                     }
                 )
             }
