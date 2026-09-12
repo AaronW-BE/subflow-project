@@ -212,6 +212,13 @@
     <string name="detail_manage_official">Manage or cancel with the provider</string>
     <string name="detail_manage_official_sub">Opens the provider account page</string>
     <string name="detail_remove">Remove subscription</string>
+    <string name="paused">Paused</string>
+    <string name="detail_pause">Pause this subscription</string>
+    <string name="detail_resume">Resume this subscription</string>
+    <string name="detail_paused_note">A paused subscription sends no reminders and stays out of your totals. Nothing is deleted.</string>
+    <string name="dashboard_paused_header">Paused (%d)</string>
+    <string name="paused_item">“%s” paused</string>
+    <string name="resumed_item">“%s” resumed</string>
     <string name="detail_billed_cycle">Billed %s</string>
     <string name="delete_confirm_title">Remove %s?</string>
     <string name="delete_confirm_body">This removes it from your tracking. It does not cancel the subscription with the provider.</string>

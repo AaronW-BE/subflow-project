@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -85,6 +86,45 @@ enum class DashboardSortOrder(val stringResId: Int) {
     NAME_ASC(R.string.sort_name_asc)
 }
 
+/**
+ * The dashboard list: what the category chips and the search box let through,
+ * in the order the sort sheet asked for.
+ *
+ * Active and paused subscriptions go through the same call, so a search finds
+ * a subscription whichever state it is in, and the two lists can never drift
+ * into filtering differently.
+ */
+fun List<Subscription>.filterAndSort(
+    category: String,
+    query: String,
+    order: DashboardSortOrder,
+    primaryCurrency: String
+): List<Subscription> = this
+    .filter { sub ->
+        val matchCat = category == "All" ||
+            sub.category.equals(category, ignoreCase = true) ||
+            // "Entertainment" is the legacy label for what is now "Streaming".
+            (category == "Streaming" && sub.category.equals("Entertainment", true))
+        val q = query.trim()
+        val matchQuery = q.isBlank() ||
+            sub.name.contains(q, ignoreCase = true) ||
+            sub.category.contains(q, ignoreCase = true) ||
+            sub.notes.contains(q, ignoreCase = true)
+        matchCat && matchQuery
+    }
+    .let { list ->
+        when (order) {
+            DashboardSortOrder.RENEWAL_DATE -> list.sortedBy { DateCalculators.calculateDaysUntil(it.nextBillDate) }
+            DashboardSortOrder.PRICE_HIGH -> list.sortedByDescending {
+                CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
+            }
+            DashboardSortOrder.PRICE_LOW -> list.sortedBy {
+                CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
+            }
+            DashboardSortOrder.NAME_ASC -> list.sortedBy { it.name.lowercase() }
+        }
+    }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
@@ -116,6 +156,9 @@ fun DashboardScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var sortOrder by rememberSaveable { mutableStateOf(DashboardSortOrder.RENEWAL_DATE) }
     var showSortSheet by remember { mutableStateOf(false) }
+    // Collapsed by default: paused subscriptions are the ones the user has
+    // said they are not thinking about.
+    var pausedExpanded by rememberSaveable { mutableStateOf(false) }
 
     val categories = listOf(
         "All" to R.string.filter_all,
@@ -127,37 +170,19 @@ fun DashboardScreen(
     )
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
+    val pausedSubs = remember(subscriptions) { subscriptions.filter { !it.isActive && !it.isDeleted } }
     val totalMonthly = remember(activeSubs, primaryCurrency) {
         activeSubs.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
     }
     val totalYearly = totalMonthly * 12.0
 
     val filteredSubs = remember(activeSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
-        activeSubs
-            .filter { sub ->
-                val matchCat = selectedCategory == "All" ||
-                    sub.category.equals(selectedCategory, ignoreCase = true) ||
-                    // "Entertainment" is the legacy label for what is now "Streaming".
-                    (selectedCategory == "Streaming" && sub.category.equals("Entertainment", true))
-                val q = searchQuery.trim()
-                val matchQuery = q.isBlank() ||
-                    sub.name.contains(q, ignoreCase = true) ||
-                    sub.category.contains(q, ignoreCase = true) ||
-                    sub.notes.contains(q, ignoreCase = true)
-                matchCat && matchQuery
-            }
-            .let { list ->
-                when (sortOrder) {
-                    DashboardSortOrder.RENEWAL_DATE -> list.sortedBy { DateCalculators.calculateDaysUntil(it.nextBillDate) }
-                    DashboardSortOrder.PRICE_HIGH -> list.sortedByDescending {
-                        CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
-                    }
-                    DashboardSortOrder.PRICE_LOW -> list.sortedBy {
-                        CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
-                    }
-                    DashboardSortOrder.NAME_ASC -> list.sortedBy { it.name.lowercase() }
-                }
-            }
+        activeSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
+    }
+    // The same search and category apply to the paused list, so one query
+    // answers "where did my Netflix go" whichever state it is in.
+    val filteredPaused = remember(pausedSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
+        pausedSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
     }
 
     val nextRenewalSub = activeSubs.minByOrNull { DateCalculators.calculateDaysUntil(it.nextBillDate) }
@@ -298,7 +323,7 @@ fun DashboardScreen(
                         items(4, key = { "skeleton_$it" }) { SubscriptionRowSkeleton() }
                     }
 
-                    filteredSubs.isEmpty() -> {
+                    filteredSubs.isEmpty() && filteredPaused.isEmpty() -> {
                         item(key = "empty") {
                             EmptyState(
                                 query = searchQuery,
@@ -317,6 +342,44 @@ fun DashboardScreen(
                                     val deletedName = sub.name
                                     val deletedId = sub.id
                                     onSwipeHintSeen()
+                                    onDeleteSubscription(deletedId)
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        val res = snackbarHostState.showSnackbar(
+                                            message = context.getString(R.string.deleted_item, deletedName),
+                                            actionLabel = undoText,
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        if (res == SnackbarResult.ActionPerformed) {
+                                            onRestoreSubscription(deletedId)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                if (filteredPaused.isNotEmpty()) {
+                    item(key = "paused_header") {
+                        PausedSectionHeader(
+                            count = filteredPaused.size,
+                            expanded = pausedExpanded,
+                            onToggle = {
+                                haptics.tick()
+                                pausedExpanded = !pausedExpanded
+                            }
+                        )
+                    }
+
+                    if (pausedExpanded) {
+                        items(filteredPaused, key = { it.id }) { sub ->
+                            SubscriptionRow(
+                                sub = sub,
+                                onClick = { onSubscriptionClick(sub.id) },
+                                onDelete = {
+                                    val deletedName = sub.name
+                                    val deletedId = sub.id
                                     onDeleteSubscription(deletedId)
                                     scope.launch {
                                         snackbarHostState.currentSnackbarData?.dismiss()
@@ -1041,6 +1104,7 @@ private fun SubscriptionRow(
     // ahead - so only the words change, not the shape.
     val isTrial = sub.isTrialPending
     val renewalText = when {
+        !sub.isActive -> stringResource(R.string.paused)
         isTrial && daysLeft < 0L -> stringResource(R.string.trial_ended)
         isTrial && daysLeft == 0L -> stringResource(R.string.trial_ends_today)
         isTrial -> pluralStringResource(
@@ -1069,7 +1133,7 @@ private fun SubscriptionRow(
     }
     // An ended trial is the most urgent thing this list can show: it is a
     // question the user still owes an answer to, and possibly a charge.
-    val urgent = if (isTrial) daysLeft <= 3L else daysLeft in 0..3
+    val urgent = sub.isActive && if (isTrial) daysLeft <= 3L else daysLeft in 0..3
 
     SwipeableSubscriptionCard(
         modifier = Modifier.fillMaxWidth(),
@@ -1111,6 +1175,53 @@ private fun SubscriptionRow(
                 freeLabel = if (isTrial) stringResource(R.string.trial_free_amount) else null
             )
         }
+    }
+}
+
+/**
+ * The divider between what the user is paying for and what they have put down.
+ *
+ * It collapses because a paused subscription is, by definition, one they said
+ * they are not thinking about - but it stays on the same screen, because a
+ * pause that hid a subscription entirely would be indistinguishable from a
+ * delete.
+ */
+@Composable
+private fun PausedSectionHeader(
+    count: Int,
+    expanded: Boolean,
+    onToggle: () -> Unit
+) {
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 90f else 0f,
+        label = "pausedChevron"
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onToggle)
+            .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.dashboard_paused_header, count),
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            ),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f)
+        )
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+            modifier = Modifier
+                .size(10.dp)
+                .rotate(rotation)
+        )
     }
 }
 

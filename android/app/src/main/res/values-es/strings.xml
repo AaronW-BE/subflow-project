@@ -209,6 +209,13 @@
     <string name="detail_manage_official">Gestionar o cancelar con el proveedor</string>
     <string name="detail_manage_official_sub">Abre la página de cuenta del proveedor</string>
     <string name="detail_remove">Quitar suscripción</string>
+    <string name="paused">En pausa</string>
+    <string name="detail_pause">Pausar esta suscripción</string>
+    <string name="detail_resume">Reanudar esta suscripción</string>
+    <string name="detail_paused_note">Una suscripción en pausa no envía recordatorios ni cuenta en tus totales. No se borra nada.</string>
+    <string name="dashboard_paused_header">En pausa (%d)</string>
+    <string name="paused_item">«%s» en pausa</string>
+    <string name="resumed_item">«%s» reanudada</string>
     <string name="detail_billed_cycle">Facturación %s</string>
     <string name="delete_confirm_title">¿Quitar %s?</string>
     <string name="delete_confirm_body">Solo la quita de tu seguimiento. No cancela la suscripción con el proveedor.</string>
