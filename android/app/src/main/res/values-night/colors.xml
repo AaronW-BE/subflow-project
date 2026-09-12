@@ -2,4 +2,12 @@
 <resources>
     <color name="canvas_ground">#000000</color>
     <color name="splash_ground">#000000</color>
+
+    <!-- The widget: Glance never sees the Compose theme, so its palette is
+         resources, which the launcher resolves for light and dark. Same
+         values as ui/theme/Color.kt. -->
+    <color name="widget_surface">#141416</color>
+    <color name="widget_ink">#FFFFFF</color>
+    <color name="widget_ink_dim">#9E9EA5</color>
+    <color name="widget_accent">#7D7BFF</color>
 </resources>

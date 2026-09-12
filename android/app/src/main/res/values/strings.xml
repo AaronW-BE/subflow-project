@@ -219,6 +219,8 @@
     <string name="dashboard_paused_header">Paused (%d)</string>
     <string name="paused_item">“%s” paused</string>
     <string name="resumed_item">“%s” resumed</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">This month’s total and the next renewal.</string>
     <string name="detail_billed_cycle">Billed %s</string>
     <string name="delete_confirm_title">Remove %s?</string>
     <string name="delete_confirm_body">This removes it from your tracking. It does not cancel the subscription with the provider.</string>

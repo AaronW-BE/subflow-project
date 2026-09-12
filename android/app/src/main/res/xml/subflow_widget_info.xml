@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The widget is three cells by one at its smallest, which is the size that
+    holds the total on its own. Dragged taller it also shows the next renewal;
+    SizeMode.Responsive in SubFlowWidget picks between the two.
+
+    updatePeriodMillis is six hours because the days-left figure goes stale on
+    its own, with nothing running to notice. Every other change - an edit, a
+    pause, a new currency - redraws immediately through refreshSubFlowWidget.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="60dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="1"
+    android:minResizeWidth="180dp"
+    android:minResizeHeight="60dp"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="21600000"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewImage="@mipmap/ic_launcher"
+    android:description="@string/widget_description"
+    android:widgetCategory="home_screen" />

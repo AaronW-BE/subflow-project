@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">En pause (%d)</string>
     <string name="paused_item">« %s » mis en pause</string>
     <string name="resumed_item">« %s » repris</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">Le total du mois et le prochain renouvellement.</string>
     <string name="detail_billed_cycle">Facturé %s</string>
     <string name="delete_confirm_title">Retirer %s ?</string>
     <string name="delete_confirm_body">Cela le retire seulement de votre suivi. L’abonnement chez le fournisseur n’est pas résilié.</string>

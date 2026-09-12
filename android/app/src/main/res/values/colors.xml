@@ -3,4 +3,12 @@
     <color name="canvas_ground">#F2F2F7</color>
     <color name="apple_indigo">#5856D6</color>
     <color name="splash_ground">#F2F2F7</color>
+
+    <!-- The widget: Glance never sees the Compose theme, so its palette is
+         resources, which the launcher resolves for light and dark. Same
+         values as ui/theme/Color.kt. -->
+    <color name="widget_surface">#FFFFFF</color>
+    <color name="widget_ink">#1C1C1E</color>
+    <color name="widget_ink_dim">#6C6C70</color>
+    <color name="widget_accent">#5856D6</color>
 </resources>

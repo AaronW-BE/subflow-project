@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">已暂停（%d）</string>
     <string name="paused_item">已暂停“%s”</string>
     <string name="resumed_item">已恢复“%s”</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">本月总支出与下一次续费。</string>
     <string name="detail_billed_cycle">%s扣费</string>
     <string name="delete_confirm_title">移除 %s？</string>
     <string name="delete_confirm_body">这只会把它从 SubFlow 的记录中移除，并不会真正取消服务商那边的订阅。</string>

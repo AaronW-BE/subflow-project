@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">Pausiert (%d)</string>
     <string name="paused_item">„%s“ pausiert</string>
     <string name="resumed_item">„%s“ fortgesetzt</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">Die Summe dieses Monats und die nächste Verlängerung.</string>
     <string name="detail_billed_cycle">%s abgerechnet</string>
     <string name="delete_confirm_title">%s entfernen?</string>
     <string name="delete_confirm_body">Damit verschwindet es nur aus deiner Übersicht. Das Abo beim Anbieter wird dadurch nicht gekündigt.</string>
