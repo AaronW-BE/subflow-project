@@ -55,7 +55,6 @@ import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.notifications.RenewalNotificationWorker
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
-import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
@@ -63,6 +62,7 @@ import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import org.dpdns.alwaysup.subflow.domain.util.localizedCurrencies
 import org.dpdns.alwaysup.subflow.ui.components.*
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.localizedCategory
 import org.dpdns.alwaysup.subflow.ui.theme.*
@@ -92,6 +92,7 @@ fun AddSubscriptionScreen(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
+    val currencies = remember(locale) { localizedCurrencies(locale) }
     val isEditing = existingSubscription != null
 
     var selectedPresetId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -1195,13 +1196,10 @@ fun AddSubscriptionScreen(
     if (showCurrencySheet) {
         SubFlowPickerSheet(
             title = stringResource(R.string.field_currency),
-            items = SupportedCurrencies,
+            items = currencies,
             key = { it.code },
             searchHint = stringResource(R.string.search_currency_hint),
-            matches = { curr, q ->
-                curr.code.contains(q, ignoreCase = true) ||
-                    curr.name.contains(q, ignoreCase = true)
-            },
+            matches = { curr, q -> curr.matches(q) },
             onDismiss = { showCurrencySheet = false }
         ) { curr ->
             SubFlowPickerRow(
