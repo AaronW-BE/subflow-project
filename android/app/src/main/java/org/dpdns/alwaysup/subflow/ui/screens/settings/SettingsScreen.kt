@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -46,7 +47,6 @@ import androidx.compose.ui.semantics.Role
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
-import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
 import org.dpdns.alwaysup.subflow.data.preferences.SYSTEM_LANGUAGE
 import org.dpdns.alwaysup.subflow.data.preferences.SupportedLanguages
 import org.dpdns.alwaysup.subflow.data.preferences.ThemeMode
@@ -60,10 +60,12 @@ import org.dpdns.alwaysup.subflow.ui.components.CircleIconButton
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
+import org.dpdns.alwaysup.subflow.domain.util.localizedCurrencies
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerRow
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
 import org.dpdns.alwaysup.subflow.ui.theme.ScreenTitleStyle
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
+import java.util.Locale
 
 /**
  * A second-level Settings page. The top level is `null`.
@@ -113,6 +115,12 @@ fun SettingsScreen(
     onReplayOnboarding: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    // The configuration carries the in-app language, so the currency names
+    // follow what the user picked in Settings rather than the system locale.
+    val configuration = LocalConfiguration.current
+    val currencies = remember(configuration) {
+        localizedCurrencies(configuration.locales.get(0) ?: Locale.getDefault())
+    }
     val currentCurrency by preferencesManager.currency.collectAsState()
     val currentThemeMode by preferencesManager.themeMode.collectAsState()
     val currentLang by preferencesManager.language.collectAsState()
@@ -341,15 +349,12 @@ fun SettingsScreen(
     if (showCurrencySheet) {
         SubFlowPickerSheet(
             title = stringResource(R.string.primary_currency),
-            items = SupportedCurrencies,
+            items = currencies,
             key = { it.code },
             searchHint = stringResource(R.string.search_currency_hint),
-            // Match on code as well as name: someone looking for the won knows
-            // "KRW" long before they know it is filed under "South Korean".
-            matches = { curr, q ->
-                curr.code.contains(q, ignoreCase = true) ||
-                    curr.name.contains(q, ignoreCase = true)
-            },
+            // Matching covers the code and both names: someone looking for the
+            // won knows "KRW" long before they know it is filed under 韩元.
+            matches = { curr, q -> curr.matches(q) },
             onDismiss = { showCurrencySheet = false },
             footer = { RateAttributionFootnote(onOpenUrl = onOpenUrl) }
         ) { curr ->
