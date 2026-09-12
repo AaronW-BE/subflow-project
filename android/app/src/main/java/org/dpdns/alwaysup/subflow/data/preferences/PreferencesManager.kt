@@ -316,6 +316,22 @@ class PreferencesManager(context: Context) {
             return DeviceLanguage.firstSupported(locales, shipped) ?: "en"
         }
 
+        /**
+         * The stored primary currency, for code with no PreferencesManager -
+         * the home screen widget renders from a broadcast, with no Activity
+         * alive to have built one.
+         *
+         * Reads what was stored and stops there: resolving a default is
+         * [DefaultCurrency]'s job, it writes what it decides, and it reads
+         * `Locale.getDefault()`, which is only the interface language once
+         * MainActivity has attached. A widget deciding the default would
+         * therefore pin the wrong one. An empty store means the app has never
+         * been opened, so there is nothing to total anyway.
+         */
+        fun readCurrencyStatic(context: Context): String =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(KEY_CURRENCY, null) ?: "USD"
+
         /** Read directly from prefs for use outside Compose (e.g. the notification worker). */
         fun readLeadsStatic(context: Context, isPro: Boolean): Set<Int> {
             if (!isPro) return setOf(ReminderLead.ONE_DAY.days)

@@ -66,6 +66,7 @@ import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsPage
 import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsScreen
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowSnackbarHost
 import org.dpdns.alwaysup.subflow.ui.util.rememberHaptics
+import org.dpdns.alwaysup.subflow.widget.refreshSubFlowWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -133,6 +134,17 @@ fun SubFlowNavHost(
     }
 
     // Deep link from a renewal notification.
+    // Redraw the home screen widget whenever what it shows changes.
+    //
+    // This one place covers every write - add, edit, delete, pause, restore,
+    // import, clear - because every one of them flows back through
+    // `activeSubscriptions`, and because nothing can write while the app is
+    // dead. Hooking the repository's write methods instead would mean
+    // remembering to hook the next one too.
+    LaunchedEffect(subscriptionsOrNull, primaryCurrency) {
+        if (subscriptionsOrNull != null) refreshSubFlowWidget(context)
+    }
+
     LaunchedEffect(pendingSubscriptionId) {
         val id = pendingSubscriptionId ?: return@LaunchedEffect
         navController.navigate(Screen.SubscriptionDetail.createRoute(id))

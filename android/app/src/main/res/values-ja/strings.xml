@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">停止中（%d）</string>
     <string name="paused_item">「%s」を停止しました</string>
     <string name="resumed_item">「%s」を再開しました</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">今月の合計と次の更新。</string>
     <string name="detail_billed_cycle">%s の請求</string>
     <string name="delete_confirm_title">%s を削除しますか？</string>
     <string name="delete_confirm_body">SubFlow の記録から外れるだけで、提供元の契約は解約されません。</string>

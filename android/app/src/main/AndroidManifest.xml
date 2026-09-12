@@ -57,6 +57,21 @@
             </intent-filter>
         </activity>
 
+        <!-- Home screen widget: this month's total and the next renewal.
+             Not exported to anyone but the launcher, which is what
+             APPWIDGET_UPDATE amounts to. -->
+        <receiver
+            android:name=".widget.SubFlowWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/subflow_widget_info" />
+        </receiver>
+
         <!-- Shares exported CSV/JSON files without granting access to app storage. -->
         <provider
             android:name="androidx.core.content.FileProvider"

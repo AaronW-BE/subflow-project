@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">En pausa (%d)</string>
     <string name="paused_item">«%s» en pausa</string>
     <string name="resumed_item">«%s» reanudada</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">El total del mes y la próxima renovación.</string>
     <string name="detail_billed_cycle">Facturación %s</string>
     <string name="delete_confirm_title">¿Quitar %s?</string>
     <string name="delete_confirm_body">Solo la quita de tu seguimiento. No cancela la suscripción con el proveedor.</string>
