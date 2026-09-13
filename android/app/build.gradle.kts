@@ -44,15 +44,19 @@ android {
         // interface language, and the rate date shown under the currency
         // picker. 5 follows the upload of 4: pausing a subscription instead of
         // deleting it, the home screen widget with the total and the renewals
-        // coming up, and currency names in the interface language.
+        // coming up, and currency names in the interface language. 6 follows
+        // the upload of 5 and only fixes the widget, which kept showing the
+        // previous state when a subscription was edited again within the 45
+        // seconds a Glance session stays alive.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
         // looking for, not a correction to one that shipped. 1.2.0 for the
         // same reason - a new language and a reorganised Settings are things
         // a user will notice, not fixes to something they already had. 1.3.0
         // likewise: pause and the widget are both things to go and find.
-        versionCode = 5
-        versionName = "1.3.0"
+        // 1.3.1 is a patch: nothing new to find, a fix to something that shipped.
+        versionCode = 6
+        versionName = "1.3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

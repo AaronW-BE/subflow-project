@@ -15,6 +15,47 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.3.1 (versionCode 6): release notes
+
+Changes since 1.3.0 (versionCode 5):
+
+| Change | Source |
+|---|---|
+| The widget updates straight away after an edit, even several in a row | BIN-33, PR #30 |
+
+A fix-only release. The widget terms are the ones the 1.3.0 notes introduced:
+桌面小组件 / 主畫面小工具 / *Widget für den Startbildschirm* / *widget de l'écran
+d'accueil* / *widget de la pantalla de inicio* / ホーム画面ウィジェット.
+
+```
+<en-US>
+• Fixed: the home screen widget now updates straight away after you edit, pause or resume a subscription, even when you make several changes in a row.
+</en-US>
+<zh-CN>
+• 修复：连续编辑、暂停或恢复订阅时，桌面小组件现在会立即更新。
+</zh-CN>
+<zh-TW>
+• 修正：連續編輯、暫停或恢復訂閱時，主畫面小工具現在會立即更新。
+</zh-TW>
+<zh-HK>
+• 修正：連續編輯、暫停或恢復訂閱時，主畫面小工具現在會立即更新。
+</zh-HK>
+<de-DE>
+• Behoben: Das Widget auf dem Startbildschirm aktualisiert sich jetzt sofort, wenn du ein Abo bearbeitest, pausierst oder fortsetzt – auch bei mehreren Änderungen hintereinander.
+</de-DE>
+<fr-FR>
+• Corrigé : le widget de l'écran d'accueil se met désormais à jour immédiatement quand vous modifiez, mettez en pause ou reprenez un abonnement, même après plusieurs changements d'affilée.
+</fr-FR>
+<es-ES>
+• Corregido: el widget de la pantalla de inicio ahora se actualiza al instante cuando editas, pausas o reanudas una suscripción, incluso tras varios cambios seguidos.
+</es-ES>
+<ja-JP>
+• 修正：登録を続けて編集・停止・再開したときも、ホーム画面ウィジェットがすぐに更新されるようになりました。
+</ja-JP>
+```
+
+---
+
 ## 1.3.0 (versionCode 5): release notes
 
 Changes since 1.2.0 (versionCode 4):
@@ -627,21 +668,18 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 5 / versionName 1.3.0**. 4 is used up.
-- [ ] **Release notes**: paste the whole 1.3.0 block, all languages.
-- [ ] **Store listing text changed in all seven languages**: each now mentions
-      pausing and the widget. Replace the en-US text, and add (or replace) the
-      six translations under Main store listing → Manage translations. As of
-      BIN-31 the translations had not been added yet.
-- [ ] **Screenshots**: the six captured 2026-09-13 are current (1080×2160, within
-      Play's 2:1 limit). **Still no widget screenshot** — the widget is this
-      release's headline, so one from a real phone with a clean home screen is
-      worth adding. Pausing is not shown in any of the six either.
-- [ ] **Data safety: no changes.** Since v1.2.0 the manifest gains only a
-      non-exported widget receiver, and no permission. The one new dependency is
-      Glance, which renders the widget on the device and makes no network call.
-      The paused state is a field in the local database. Nothing new is
-      collected or shared.
+- [ ] **versionCode 6 / versionName 1.3.1**. 5 is used up.
+- [ ] **Release notes**: paste the whole 1.3.1 block, all languages.
+- [ ] **Store listings: no change from 1.3.0.** 1.3.1 only fixes the widget
+      refresh, and nothing a listing claims has moved (the only file changed
+      since v1.3.0 is `SubFlowWidget.kt`). If the 1.3.0 listing work is still
+      open — replacing the en-US text and adding the six translations under
+      Main store listing → Manage translations — it still applies.
+- [ ] **Screenshots**: unchanged. Still no widget screenshot; one from a real
+      phone with a clean home screen is still worth adding.
+- [ ] **Data safety: no changes.** Since v1.3.0 the manifest and the
+      dependencies are untouched; the fix only changes when the widget reads
+      the local database.
 
 ### How the screenshots were taken
 
