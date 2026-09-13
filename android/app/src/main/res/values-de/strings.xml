@@ -218,6 +218,9 @@
     <string name="resumed_item">„%s“ fortgesetzt</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">Die Summe dieses Monats und die anstehenden Verlängerungen.</string>
+    <string name="widget_preview_when_1">Noch 2 Tage</string>
+    <string name="widget_preview_when_2">Test: noch 3 Tage</string>
+    <string name="widget_preview_when_3">Noch 9 Tage</string>
     <string name="detail_billed_cycle">%s abgerechnet</string>
     <string name="delete_confirm_title">%s entfernen?</string>
     <string name="delete_confirm_body">Damit verschwindet es nur aus deiner Übersicht. Das Abo beim Anbieter wird dadurch nicht gekündigt.</string>

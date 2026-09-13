@@ -218,6 +218,9 @@
     <string name="resumed_item">已恢复“%s”</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">本月总支出与即将到来的续费。</string>
+    <string name="widget_preview_when_1">还有 2 天</string>
+    <string name="widget_preview_when_2">试用还有 3 天</string>
+    <string name="widget_preview_when_3">还有 9 天</string>
     <string name="detail_billed_cycle">%s扣费</string>
     <string name="delete_confirm_title">移除 %s？</string>
     <string name="delete_confirm_body">这只会把它从 SubFlow 的记录中移除，并不会真正取消服务商那边的订阅。</string>

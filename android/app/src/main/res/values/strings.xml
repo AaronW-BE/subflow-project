@@ -221,6 +221,15 @@
     <string name="resumed_item">“%s” resumed</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">This month’s total and the renewals coming up.</string>
+    <string name="widget_preview_total" translatable="false">$27.48</string>
+    <string name="widget_preview_name_1" translatable="false">Spotify</string>
+    <string name="widget_preview_price_1" translatable="false">$11.99</string>
+    <string name="widget_preview_name_2" translatable="false">Perplexity Pro</string>
+    <string name="widget_preview_name_3" translatable="false">Netflix</string>
+    <string name="widget_preview_price_3" translatable="false">$15.49</string>
+    <string name="widget_preview_when_1">2 days left</string>
+    <string name="widget_preview_when_2">Trial: 3 days left</string>
+    <string name="widget_preview_when_3">9 days left</string>
     <string name="detail_billed_cycle">Billed %s</string>
     <string name="delete_confirm_title">Remove %s?</string>
     <string name="delete_confirm_body">This removes it from your tracking. It does not cancel the subscription with the provider.</string>

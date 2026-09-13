@@ -218,6 +218,9 @@
     <string name="resumed_item">«%s» reanudada</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">El total del mes y las próximas renovaciones.</string>
+    <string name="widget_preview_when_1">Quedan 2 días</string>
+    <string name="widget_preview_when_2">Prueba: quedan 3 días</string>
+    <string name="widget_preview_when_3">Quedan 9 días</string>
     <string name="detail_billed_cycle">Facturación %s</string>
     <string name="delete_confirm_title">¿Quitar %s?</string>
     <string name="delete_confirm_body">Solo la quita de tu seguimiento. No cancela la suscripción con el proveedor.</string>

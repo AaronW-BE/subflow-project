@@ -11,6 +11,11 @@
     updatePeriodMillis is six hours because the days-left figures go stale on
     their own, with nothing running to notice. Every other change - an edit, a
     pause, a new currency - redraws immediately through refreshSubFlowWidget.
+
+    previewLayout is what the launcher's widget picker draws (API 31+): a
+    static copy of the widget with sample data, in the phone's language. Before
+    it, the picker showed only the app icon. Launchers older than 31 ignore
+    previewLayout and fall back to previewImage, which stays the icon.
 -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="180dp"
@@ -23,5 +28,6 @@
     android:updatePeriodMillis="21600000"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:previewImage="@mipmap/ic_launcher"
+    android:previewLayout="@layout/widget_preview"
     android:description="@string/widget_description"
     android:widgetCategory="home_screen" />
