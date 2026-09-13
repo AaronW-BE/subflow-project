@@ -42,14 +42,17 @@ android {
         // of 3: Traditional Chinese, Settings split into pages, the default
         // currency pinned to the device region instead of drifting with the
         // interface language, and the rate date shown under the currency
-        // picker.
+        // picker. 5 follows the upload of 4: pausing a subscription instead of
+        // deleting it, the home screen widget with the total and the renewals
+        // coming up, and currency names in the interface language.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
         // looking for, not a correction to one that shipped. 1.2.0 for the
         // same reason - a new language and a reorganised Settings are things
-        // a user will notice, not fixes to something they already had.
-        versionCode = 4
-        versionName = "1.2.0"
+        // a user will notice, not fixes to something they already had. 1.3.0
+        // likewise: pause and the widget are both things to go and find.
+        versionCode = 5
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
