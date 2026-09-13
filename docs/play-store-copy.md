@@ -553,11 +553,14 @@ so the feature isn't there.
 - [ ] **versionCode 4 / versionName 1.2.0**. 3 is used up.
 - [ ] **Release notes**: paste the whole block, all languages.
 - [ ] **Add the listing languages** under Main store listing → Manage translations: zh-CN, zh-TW, zh-HK, de-DE, fr-FR, es-ES, ja-JP, with the text above. Also consider replacing the en-US text if it's out of date.
-- [ ] **Screenshots are out of date.** `play-assets/screenshots/` was captured on 2026-08-28.
-      `05-settings.png` shows the old single-page Settings, and none of them show trial
-      tracking. Play falls back to the default language's screenshots for zh-TW, so
-      Traditional Chinese screenshots aren't required but would look better. Keep the
-      2:1 limit: 1080×2160 is accepted, while the Pixel 8a's native 1080×2400 is rejected.
+- [x] **Screenshots re-captured 2026-09-13** (BIN-31), replacing the 2026-08-28 set.
+      Six now, all 1080×2160 — the 2:1 limit Play enforces, which the Pixel 8a's
+      native 1080×2400 fails. `05-settings.png` is the split Settings that
+      replaced the single page, and `06-currencies.png` is new. Trial tracking
+      now appears in `01`, `02` and `03`. Play falls back to the default
+      language's screenshots, so the other six languages need none.
+      **Still missing: the home screen widget**, because the only device here is
+      an emulator whose launcher would put other apps' icons in the shot.
 - [ ] **Check the existing en-US listing.** The 2026-08-28 draft named **10** currencies
       and avoided the phrase "live exchange rates". Since 2026-09-02 there are **40**
       currencies and the rates are fetched live. If the listing still says the old
@@ -565,3 +568,18 @@ so the feature isn't there.
 - [ ] **Data safety: no changes.** 1.2.0 collects nothing new. The language and currency
       choices are stored only on the device, and the exchange-rate request already
       existed before this release.
+
+### How the screenshots were taken
+
+So the next set matches rather than drifting. On the Pixel_8a emulator:
+
+- `adb shell wm size 1080x2160` — the capture is then already at the ratio Play
+  accepts, with nothing cropped away.
+- `cmd locale set-app-locales <pkg> --locales en-US`, home currency USD.
+- Seed three active subscriptions and one paused, **not four** — at four the
+  "one slot left on the free plan" card fills half the screen. One of the three
+  is a running trial, which is what puts trial tracking in the frame.
+- **Airplane mode on.** Otherwise the AdMob *test* banner renders into the
+  bottom of every shot, and a Play Billing error snackbar covers a row.
+- The app's own Appearance setting drives dark mode, not `cmd uimode night` —
+  the setting overrides the system.

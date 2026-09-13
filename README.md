@@ -8,9 +8,10 @@ It has no connection to your bank, your card, or the services you track, and it
 cannot cancel anything on your behalf. That constraint is the product decision,
 not a limitation — see [ADR 0001](docs/adr/0001-privacy-first-manual-tracking.md).
 
-**Status:** unreleased. Bundle `1.0.0 (2)` is built and verified against Play's
-Android 16 and Billing 9 requirements; closed testing has not yet reached the
-12-tester threshold.
+**Status:** on Google Play. `1.2.0 (4)` is the live build; the next upload is
+versionCode 5. Each uploaded build is tagged `v<versionName>` on the commit it
+was built from, and `.claude/skills/play-release` is the procedure that gets it
+there.
 
 ## Layout
 
