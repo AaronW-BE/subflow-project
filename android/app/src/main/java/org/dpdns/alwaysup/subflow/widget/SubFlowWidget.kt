@@ -16,10 +16,12 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
-import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -29,6 +31,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -45,7 +48,7 @@ import org.dpdns.alwaysup.subflow.data.repository.ExchangeRateRepository
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 
 /*
- * The home screen widget: what this month costs, and what is due next.
+ * The home screen widget: what this month costs, and what renews when.
  *
  * It reads Room and SharedPreferences directly. The widget is rendered from a
  * broadcast, with no Activity and no ViewModel alive, so anything that assumes
@@ -65,13 +68,16 @@ private val WidgetInk = ColorProvider(R.color.widget_ink)
 private val WidgetInkDim = ColorProvider(R.color.widget_ink_dim)
 private val WidgetAccent = ColorProvider(R.color.widget_accent)
 
+/** Below this the widget is one cell tall, and the total is all that fits. */
+private val ListThreshold = 100.dp
+
 class SubFlowWidget : GlanceAppWidget() {
 
-    // One row of total, and a taller size that can also carry the next
-    // renewal. Responsive rather than Exact so the launcher picks by the size
-    // the user dragged it to, without a second provider.
+    // Short: the total alone. Tall: the total over a scrolling list of every
+    // active subscription. Responsive rather than Exact so the launcher picks
+    // by the size the user dragged it to, without a second provider.
     override val sizeMode = SizeMode.Responsive(
-        setOf(DpSize(160.dp, 60.dp), DpSize(180.dp, 110.dp))
+        setOf(DpSize(180.dp, 60.dp), DpSize(180.dp, 110.dp))
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -94,7 +100,7 @@ class SubFlowWidget : GlanceAppWidget() {
 @Composable
 private fun WidgetBody(summary: WidgetSummary) {
     val context = LocalContext.current
-    val tall = LocalSize.current.height >= 100.dp
+    val tall = LocalSize.current.height >= ListThreshold
 
     Column(
         modifier = GlanceModifier
@@ -109,7 +115,7 @@ private fun WidgetBody(summary: WidgetSummary) {
             text = context.getString(R.string.total_monthly_spend),
             style = TextStyle(color = WidgetInkDim, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         )
-        Spacer(modifier = GlanceModifier.height(4.dp))
+        Spacer(modifier = GlanceModifier.height(2.dp))
 
         if (summary.activeCount == 0) {
             Text(
@@ -124,60 +130,86 @@ private fun WidgetBody(summary: WidgetSummary) {
             style = TextStyle(color = WidgetInk, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         )
 
-        val next = summary.next
-        if (tall && next != null) {
-            Spacer(modifier = GlanceModifier.height(8.dp))
-            NextRenewalRow(next)
+        if (!tall) return@Column
+
+        Spacer(modifier = GlanceModifier.height(6.dp))
+        // The list takes whatever height is left and scrolls past it, so a
+        // widget dragged taller shows more rows rather than more blank space.
+        LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+            items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
+                RenewalRow(renewal)
+            }
         }
     }
 }
 
 @Composable
-private fun NextRenewalRow(next: NextRenewal) {
+private fun RenewalRow(renewal: UpcomingRenewal) {
     val context = LocalContext.current
-    val days = next.daysLeft
+    val days = renewal.daysLeft
     val whenText = when {
         days < 0L -> context.getString(
-            if (next.isTrial) R.string.trial_ended else R.string.renewal_overdue
+            if (renewal.isTrial) R.string.trial_ended else R.string.renewal_overdue
         )
         days == 0L -> context.getString(
-            if (next.isTrial) R.string.trial_ends_today else R.string.renewal_today
+            if (renewal.isTrial) R.string.trial_ends_today else R.string.renewal_today
         )
         else -> context.resources.getQuantityString(
-            if (next.isTrial) R.plurals.trial_days_left else R.plurals.renewal_days_left,
+            if (renewal.isTrial) R.plurals.trial_days_left else R.plurals.renewal_days_left,
             days.toInt(),
             days.toInt()
         )
+    }
+    // Within three days is when a reminder would fire; the same threshold
+    // colours the dashboard's rows.
+    val soon = days <= 3L
+    val price = if (renewal.isTrial) {
+        context.getString(R.string.trial_free_amount)
+    } else {
+        CurrencyFormatter.format(renewal.amount, renewal.currency)
     }
 
     Row(
         modifier = GlanceModifier
             .fillMaxWidth()
+            .padding(vertical = 5.dp)
             // Straight to the subscription, through the deep link the renewal
             // notification already uses.
             .clickable(
                 actionStartActivity(
                     Intent(
                         Intent.ACTION_VIEW,
-                        Uri.parse("subflow://subscription/${next.id}")
+                        Uri.parse("subflow://subscription/${renewal.id}")
                     ).setComponent(ComponentName(context, MainActivity::class.java))
                 )
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                text = renewal.name,
+                maxLines = 1,
+                style = TextStyle(color = WidgetInk, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            )
+            Text(
+                text = whenText,
+                maxLines = 1,
+                style = TextStyle(
+                    color = if (soon) WidgetAccent else WidgetInkDim,
+                    fontSize = 11.sp,
+                    fontWeight = if (soon) FontWeight.Medium else FontWeight.Normal
+                )
+            )
+        }
+        Spacer(modifier = GlanceModifier.width(8.dp))
         Text(
-            text = next.name,
+            text = price,
             maxLines = 1,
-            style = TextStyle(color = WidgetInk, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-        )
-        Text(
-            text = "  ·  ",
-            style = TextStyle(color = WidgetInkDim, fontSize = 13.sp)
-        )
-        Text(
-            text = whenText,
-            maxLines = 1,
-            style = TextStyle(color = WidgetAccent, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            style = TextStyle(
+                color = if (renewal.isTrial) WidgetAccent else WidgetInk,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            )
         )
     }
 }
