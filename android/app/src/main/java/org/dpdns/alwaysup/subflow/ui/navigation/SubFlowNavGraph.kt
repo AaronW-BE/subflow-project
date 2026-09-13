@@ -118,6 +118,7 @@ fun SubFlowNavHost(
     val proTier by authRepository.proTier.collectAsState()
     val currentUser by authRepository.currentUser.collectAsState()
     val primaryCurrency by preferencesManager.currency.collectAsState()
+    val appLanguage by preferencesManager.language.collectAsState()
     val onboardingComplete by preferencesManager.onboardingComplete.collectAsState()
     val swipeHintSeen by preferencesManager.swipeHintSeen.collectAsState()
     val plans by billingManager.plans.collectAsState()
@@ -140,8 +141,10 @@ fun SubFlowNavHost(
     // import, clear - because every one of them flows back through
     // `activeSubscriptions`, and because nothing can write while the app is
     // dead. Hooking the repository's write methods instead would mean
-    // remembering to hook the next one too.
-    LaunchedEffect(subscriptionsOrNull, primaryCurrency) {
+    // remembering to hook the next one too. The currency and the language are
+    // keys as well: neither changes a subscription, but both change what the
+    // widget says.
+    LaunchedEffect(subscriptionsOrNull, primaryCurrency, appLanguage) {
         if (subscriptionsOrNull != null) refreshSubFlowWidget(context)
     }
 
