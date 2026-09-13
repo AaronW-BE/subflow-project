@@ -48,7 +48,8 @@ android {
         // the upload of 5 and only fixes the widget, which kept showing the
         // previous state when a subscription was edited again within the 45
         // seconds a Glance session stays alive, and drew in the phone's
-        // language instead of the one chosen in the app.
+        // language instead of the one chosen in the app; it also gives the
+        // launcher's widget picker a preview instead of the app icon.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
         // looking for, not a correction to one that shipped. 1.2.0 for the
