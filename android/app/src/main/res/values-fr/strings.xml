@@ -218,6 +218,9 @@
     <string name="resumed_item">« %s » repris</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">Le total du mois et les prochains renouvellements.</string>
+    <string name="widget_preview_when_1">2 jours restants</string>
+    <string name="widget_preview_when_2">Essai : 3 jours restants</string>
+    <string name="widget_preview_when_3">9 jours restants</string>
     <string name="detail_billed_cycle">Facturé %s</string>
     <string name="delete_confirm_title">Retirer %s ?</string>
     <string name="delete_confirm_body">Cela le retire seulement de votre suivi. L’abonnement chez le fournisseur n’est pas résilié.</string>

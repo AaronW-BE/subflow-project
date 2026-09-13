@@ -225,6 +225,9 @@
     <string name="resumed_item">已恢復「%s」</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">本月總支出與即將到來的續費。</string>
+    <string name="widget_preview_when_1">還有 2 天</string>
+    <string name="widget_preview_when_2">試用還有 3 天</string>
+    <string name="widget_preview_when_3">還有 9 天</string>
     <string name="detail_billed_cycle">%s扣款</string>
     <string name="delete_confirm_title">要移除 %s 嗎？</string>
     <string name="delete_confirm_body">這只會把它從 SubFlow 的紀錄中移除，並不會真正取消服務供應商那邊的訂閱。</string>

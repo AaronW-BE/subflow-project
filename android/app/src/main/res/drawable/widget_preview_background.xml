@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The card behind the widget picker's preview. Same surface and corner as the
+    Glance widget itself (SubFlowWidget: widget_surface, 16dp), so what the
+    picker shows is what lands on the home screen. The colour resolves through
+    values-night like the real widget's does.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/widget_surface" />
+    <corners android:radius="16dp" />
+</shape>
