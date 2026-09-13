@@ -15,23 +15,37 @@ data class WidgetSummary(
     val monthlyTotal: Double,
     val currency: String,
     val activeCount: Int,
-    val next: NextRenewal?
-)
+    /**
+     * Every active subscription, soonest first.
+     *
+     * All of them, not a top few: the widget's list scrolls, and how many rows
+     * fit is the launcher's business, not this function's. Cutting the list
+     * here was what made a tall widget show one subscription and then empty
+     * space.
+     */
+    val upcoming: List<UpcomingRenewal>
+) {
+    /** The soonest renewal, which is what the smallest widget names. */
+    val next: UpcomingRenewal? get() = upcoming.firstOrNull()
+}
 
-/** The renewal the widget names, which is simply the soonest one. */
-data class NextRenewal(
+/** One row of the widget's list. */
+data class UpcomingRenewal(
     val id: String,
     val name: String,
     val daysLeft: Long,
-    val isTrial: Boolean
+    val isTrial: Boolean,
+    /** Per billing cycle, in the subscription's own currency - as its dashboard row shows it. */
+    val amount: Double,
+    val currency: String
 )
 
 /**
- * The active subscriptions, as a monthly total and the next thing due.
+ * The active subscriptions, as a monthly total and a list by renewal date.
  *
  * Deliberately the same shape as `DashboardScreen`: active only (paused and
  * deleted are out), every cycle normalised to a month, everything converted to
- * [primaryCurrency], and the soonest renewal by date. A trial counts as a
+ * [primaryCurrency], and ordered by how soon each renews. A trial counts as a
  * renewal because its end *is* its next dated event, and it contributes zero
  * to the total because the repository writes its amount as zero.
  */
@@ -43,18 +57,25 @@ fun summariseForWidget(
     val total = active.sumOf {
         CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
     }
-    val soonest = active.minByOrNull { DateCalculators.calculateDaysUntil(it.nextBillDate) }
+    val upcoming = active
+        .map { sub ->
+            UpcomingRenewal(
+                id = sub.id,
+                name = sub.name,
+                daysLeft = DateCalculators.calculateDaysUntil(sub.nextBillDate),
+                isTrial = sub.isTrialPending,
+                amount = sub.amount,
+                currency = sub.currency
+            )
+        }
+        // Name breaks ties so two renewals on the same day keep a stable
+        // order between redraws instead of swapping places.
+        .sortedWith(compareBy<UpcomingRenewal> { it.daysLeft }.thenBy { it.name.lowercase() })
+
     return WidgetSummary(
         monthlyTotal = total,
         currency = primaryCurrency,
         activeCount = active.size,
-        next = soonest?.let {
-            NextRenewal(
-                id = it.id,
-                name = it.name,
-                daysLeft = DateCalculators.calculateDaysUntil(it.nextBillDate),
-                isTrial = it.isTrialPending
-            )
-        }
+        upcoming = upcoming
     )
 }

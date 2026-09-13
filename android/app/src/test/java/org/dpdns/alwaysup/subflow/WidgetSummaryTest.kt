@@ -115,10 +115,50 @@ class WidgetSummaryTest {
         assertEquals(0.0, empty.monthlyTotal, 0.0)
         assertEquals(0, empty.activeCount)
         assertNull(empty.next)
+        assertTrue(empty.upcoming.isEmpty())
 
         val allPaused = summariseForWidget(listOf(sub("Paused", active = false)), "USD")
         assertEquals(0, allPaused.activeCount)
         assertNull(allPaused.next)
+    }
+
+    @Test
+    fun `the list carries every active subscription, soonest first`() {
+        // Cutting this list short is what left a tall widget showing one
+        // subscription over empty space. How many rows fit is the launcher's
+        // business; the summary hands over all of them.
+        val s = summariseForWidget(
+            listOf(
+                sub("Later", daysAway = 20),
+                sub("Paused", daysAway = 1, active = false),
+                sub("Sooner", daysAway = 2),
+                sub("Latest", daysAway = 40),
+                sub("Soonest", daysAway = 0),
+                sub("Gone", daysAway = 1, deleted = true)
+            ),
+            "USD"
+        )
+        assertEquals(listOf("Soonest", "Sooner", "Later", "Latest"), s.upcoming.map { it.name })
+        assertEquals(s.activeCount, s.upcoming.size)
+    }
+
+    @Test
+    fun `renewals on the same day keep a stable order`() {
+        val s = summariseForWidget(
+            listOf(sub("Zeta", daysAway = 5), sub("alpha", daysAway = 5), sub("Beta", daysAway = 5)),
+            "USD"
+        )
+        assertEquals(listOf("alpha", "Beta", "Zeta"), s.upcoming.map { it.name })
+    }
+
+    @Test
+    fun `each row carries its own price and currency, not the converted one`() {
+        // The dashboard row shows what the subscription is billed, in what it
+        // is billed in; the widget row must say the same thing.
+        val eur = sub("Spotify", amount = 10.99).copy(currency = "EUR")
+        val row = summariseForWidget(listOf(eur), "USD").upcoming.single()
+        assertEquals(10.99, row.amount, 0.0)
+        assertEquals("EUR", row.currency)
     }
 
     @Test

@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    The widget is three cells by one at its smallest, which is the size that
-    holds the total on its own. Dragged taller it also shows the next renewal;
+    Placed three cells by two, which fits the total and the first few renewals;
+    the list scrolls for the rest and grows if the widget is dragged taller.
+    It can still be shrunk to one cell tall, where only the total fits.
     SizeMode.Responsive in SubFlowWidget picks between the two.
 
-    updatePeriodMillis is six hours because the days-left figure goes stale on
-    its own, with nothing running to notice. Every other change - an edit, a
+    Placing it one cell tall by default is what made the widget look like it
+    could only show a single subscription.
+
+    updatePeriodMillis is six hours because the days-left figures go stale on
+    their own, with nothing running to notice. Every other change - an edit, a
     pause, a new currency - redraws immediately through refreshSubFlowWidget.
 -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="180dp"
-    android:minHeight="60dp"
+    android:minHeight="110dp"
     android:targetCellWidth="3"
-    android:targetCellHeight="1"
+    android:targetCellHeight="2"
     android:minResizeWidth="180dp"
     android:minResizeHeight="60dp"
     android:resizeMode="horizontal|vertical"
