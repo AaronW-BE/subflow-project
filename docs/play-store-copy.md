@@ -22,35 +22,45 @@ Changes since 1.3.0 (versionCode 5):
 | Change | Source |
 |---|---|
 | The widget updates straight away after an edit, even several in a row | BIN-33, PR #30 |
+| The widget uses the language chosen in the app, not the phone's | BIN-34, PR #32 |
 
-A fix-only release. The widget terms are the ones the 1.3.0 notes introduced:
+A fix-only release. "Language" is each app's own word for the setting
+(语言 / 語言 / *Sprache* / *langue* / *idioma* / 言語). The widget terms are the ones the 1.3.0 notes introduced:
 桌面小组件 / 主畫面小工具 / *Widget für den Startbildschirm* / *widget de l'écran
 d'accueil* / *widget de la pantalla de inicio* / ホーム画面ウィジェット.
 
 ```
 <en-US>
 • Fixed: the home screen widget now updates straight away after you edit, pause or resume a subscription, even when you make several changes in a row.
+• Fixed: the home screen widget now uses the language you chose in the app, not your phone's.
 </en-US>
 <zh-CN>
 • 修复：连续编辑、暂停或恢复订阅时，桌面小组件现在会立即更新。
+• 修复：桌面小组件现在使用你在应用中选择的语言，而不是手机的系统语言。
 </zh-CN>
 <zh-TW>
 • 修正：連續編輯、暫停或恢復訂閱時，主畫面小工具現在會立即更新。
+• 修正：主畫面小工具現在會使用你在應用程式中選擇的語言，而不是手機的系統語言。
 </zh-TW>
 <zh-HK>
 • 修正：連續編輯、暫停或恢復訂閱時，主畫面小工具現在會立即更新。
+• 修正：主畫面小工具現在會使用你在應用程式中選擇的語言，而不是手機的系統語言。
 </zh-HK>
 <de-DE>
 • Behoben: Das Widget auf dem Startbildschirm aktualisiert sich jetzt sofort, wenn du ein Abo bearbeitest, pausierst oder fortsetzt – auch bei mehreren Änderungen hintereinander.
+• Behoben: Das Widget auf dem Startbildschirm verwendet jetzt die Sprache, die du in der App gewählt hast, nicht die deines Geräts.
 </de-DE>
 <fr-FR>
 • Corrigé : le widget de l'écran d'accueil se met désormais à jour immédiatement quand vous modifiez, mettez en pause ou reprenez un abonnement, même après plusieurs changements d'affilée.
+• Corrigé : le widget de l'écran d'accueil utilise désormais la langue choisie dans l'app, et non celle de votre téléphone.
 </fr-FR>
 <es-ES>
 • Corregido: el widget de la pantalla de inicio ahora se actualiza al instante cuando editas, pausas o reanudas una suscripción, incluso tras varios cambios seguidos.
+• Corregido: el widget de la pantalla de inicio ahora usa el idioma que elegiste en la app, no el de tu móvil.
 </es-ES>
 <ja-JP>
 • 修正：登録を続けて編集・停止・再開したときも、ホーム画面ウィジェットがすぐに更新されるようになりました。
+• 修正：ホーム画面ウィジェットが、端末の言語ではなくアプリで選んだ言語で表示されるようになりました。
 </ja-JP>
 ```
 
@@ -671,15 +681,16 @@ so the feature isn't there.
 - [ ] **versionCode 6 / versionName 1.3.1**. 5 is used up.
 - [ ] **Release notes**: paste the whole 1.3.1 block, all languages.
 - [ ] **Store listings: no change from 1.3.0.** 1.3.1 only fixes the widget
-      refresh, and nothing a listing claims has moved (the only file changed
-      since v1.3.0 is `SubFlowWidget.kt`). If the 1.3.0 listing work is still
+      refresh and the language it draws in, and nothing a listing claims has
+      moved (since v1.3.0 only `SubFlowWidget.kt` and `SubFlowNavGraph.kt`
+      changed). If the 1.3.0 listing work is still
       open — replacing the en-US text and adding the six translations under
       Main store listing → Manage translations — it still applies.
 - [ ] **Screenshots**: unchanged. Still no widget screenshot; one from a real
       phone with a clean home screen is still worth adding.
 - [ ] **Data safety: no changes.** Since v1.3.0 the manifest and the
-      dependencies are untouched; the fix only changes when the widget reads
-      the local database.
+      dependencies are untouched; the fixes only change when the widget reads
+      the local database and which language it draws in.
 
 ### How the screenshots were taken
 

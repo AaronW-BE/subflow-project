@@ -47,7 +47,8 @@ android {
         // coming up, and currency names in the interface language. 6 follows
         // the upload of 5 and only fixes the widget, which kept showing the
         // previous state when a subscription was edited again within the 45
-        // seconds a Glance session stays alive.
+        // seconds a Glance session stays alive, and drew in the phone's
+        // language instead of the one chosen in the app.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
         // looking for, not a correction to one that shipped. 1.2.0 for the
