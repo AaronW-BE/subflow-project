@@ -15,6 +15,67 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.3.0 (versionCode 5): release notes
+
+Changes since 1.2.0 (versionCode 4):
+
+| Change | Source |
+|---|---|
+| Pause a subscription instead of deleting it | BIN-29, PR #25 |
+| Home screen widget: monthly total and the renewals coming up | BIN-30, PR #26; BIN-32, PR #28 |
+| Currency names in the interface language | BIN-28, PR #24 |
+| *Not in the notes:* store screenshots and README | BIN-31, PR #27 |
+
+Paste the whole block into **Release notes**; the Console accepts every tag
+in the one box. `zh-HK` reuses the Taiwan text. The terms are the app's own:
+*Paused* / 已暂停 / 已暫停 / *Pausiert* / *En pause* / *En pausa* / 停止中, and
+Japanese calls a subscription 登録 on the detail screen.
+
+```
+<en-US>
+• New: pause a subscription you've stopped paying for instead of deleting it. It keeps its details, sends no reminders and stays out of your totals.
+• New: a home screen widget with your monthly total and the renewals coming up.
+• Currency names now appear in your language.
+</en-US>
+<zh-CN>
+• 新增：不再付费的订阅可以暂停，而不必删除。已暂停的订阅会保留记录，不再提醒，也不计入总支出。
+• 新增：桌面小组件，显示每月总支出和即将到来的续费。
+• 货币名称现在会以你使用的语言显示。
+</zh-CN>
+<zh-TW>
+• 新增：不再付費的訂閱可以暫停，不必刪除。已暫停的訂閱會保留紀錄、不再提醒，也不會計入總支出。
+• 新增：主畫面小工具，顯示每月總支出與即將到來的續費。
+• 貨幣名稱現在會以你使用的語言顯示。
+</zh-TW>
+<zh-HK>
+• 新增：不再付費的訂閱可以暫停，不必刪除。已暫停的訂閱會保留紀錄、不再提醒，也不會計入總支出。
+• 新增：主畫面小工具，顯示每月總支出與即將到來的續費。
+• 貨幣名稱現在會以你使用的語言顯示。
+</zh-HK>
+<de-DE>
+• Neu: Pausiere ein Abo, das du nicht mehr bezahlst, statt es zu löschen. Es behält seine Daten, erinnert dich nicht mehr und zählt nicht zu deinen Summen.
+• Neu: Ein Widget für den Startbildschirm mit deinen monatlichen Gesamtausgaben und den anstehenden Verlängerungen.
+• Währungsnamen erscheinen jetzt in deiner Sprache.
+</de-DE>
+<fr-FR>
+• Nouveau : mettez en pause un abonnement que vous ne payez plus, au lieu de le supprimer. Il garde ses informations, n'envoie plus de rappel et sort de vos totaux.
+• Nouveau : un widget pour l'écran d'accueil, avec votre dépense mensuelle totale et les prochains renouvellements.
+• Les noms des devises s'affichent désormais dans votre langue.
+</fr-FR>
+<es-ES>
+• Nuevo: pausa una suscripción que ya no pagas en lugar de eliminarla. Conserva sus datos, no envía avisos y no cuenta en tus totales.
+• Nuevo: un widget para la pantalla de inicio con tu gasto mensual total y las próximas renovaciones.
+• Los nombres de las monedas ahora aparecen en tu idioma.
+</es-ES>
+<ja-JP>
+• 支払いをやめた登録を、削除せずに停止できるようになりました。停止中の登録は内容を残したまま、通知が届かず、合計にも含まれません。
+• ホーム画面ウィジェットを追加しました。月あたりの合計とこれからの更新を表示します。
+• 通貨名がお使いの言語で表示されるようになりました。
+</ja-JP>
+```
+
+---
+
 ## 1.2.0 (versionCode 4): release notes
 
 Changes since 1.1.0 (versionCode 3):
@@ -132,6 +193,8 @@ TRACK EVERY SUBSCRIPTION
 • Weekly, monthly, quarterly and yearly billing, all converted into monthly and yearly totals
 • Sort by renewal date, price or name; filter by category and search
 • Swipe a card left to delete it
+• Pause a subscription you've stopped paying for: it keeps its details but drops out of your totals and reminders
+• A home screen widget shows your monthly total and the renewals coming up
 
 A REMINDER BEFORE YOU'RE CHARGED
 • A reminder 1 day before each renewal (Pro adds 3 and 7 days)
@@ -192,6 +255,8 @@ Netflix、Spotify、云存储、健身房……每个月的订阅费加起来到
 • 支持每周、每月、每季度、每年四种计费周期，自动折算成每月和每年支出
 • 按续费日期、价格或名称排序，可按分类筛选和搜索
 • 向左滑动卡片即可删除
+• 不再付费的订阅可以暂停：记录保留，但不再提醒，也不计入总支出
+• 桌面小组件，随时查看每月总支出和即将到来的续费
 
 【扣费前提醒你】
 • 续费前 1 天提醒（Pro 可再增加提前 3 天和 7 天）
@@ -252,6 +317,8 @@ Netflix、Spotify、雲端空間、健身房……每個月的訂閱費用加起
 • 支援每週、每月、每季、每年四種計費週期，自動換算成每月與每年支出
 • 依續訂日期、價格或名稱排序，並可依類別篩選與搜尋
 • 向左滑動卡片即可刪除
+• 不再付費的訂閱可以暫停：保留紀錄，但不再提醒，也不計入總支出
+• 主畫面小工具，隨時查看每月總支出與即將到來的續訂
 
 【扣款前提醒你】
 • 續訂前 1 天提醒（Pro 版可再增加提前 3 天與 7 天）
@@ -312,6 +379,8 @@ ALLE ABOS IM BLICK
 • Wöchentliche, monatliche, vierteljährliche und jährliche Abrechnung, umgerechnet in Monats- und Jahressummen
 • Nach Verlängerungsdatum, Preis oder Name sortieren, nach Kategorie filtern und suchen
 • Karte nach links wischen zum Löschen
+• Ein Abo, das du nicht mehr bezahlst, pausieren: Die Daten bleiben, aber es zählt nicht mehr zu den Summen und erinnert dich nicht
+• Ein Widget für den Startbildschirm zeigt deine Monatssumme und die anstehenden Verlängerungen
 
 ERINNERUNG VOR DER ABBUCHUNG
 • Eine Erinnerung 1 Tag vor jeder Verlängerung (Pro ergänzt 3 und 7 Tage)
@@ -372,6 +441,8 @@ TOUS VOS ABONNEMENTS
 • Facturation hebdomadaire, mensuelle, trimestrielle ou annuelle, convertie en totaux mensuels et annuels
 • Tri par date de renouvellement, prix ou nom ; filtre par catégorie et recherche
 • Balayez une carte vers la gauche pour la supprimer
+• Mettez en pause un abonnement que vous ne payez plus : ses informations restent, mais il sort des totaux et des rappels
+• Un widget pour l’écran d’accueil affiche votre total mensuel et les prochains renouvellements
 
 UN RAPPEL AVANT LE PRÉLÈVEMENT
 • Un rappel 1 jour avant chaque renouvellement (Pro ajoute 3 et 7 jours)
@@ -432,6 +503,8 @@ TODAS TUS SUSCRIPCIONES
 • Facturación semanal, mensual, trimestral o anual, convertida en totales mensuales y anuales
 • Ordena por fecha de renovación, precio o nombre; filtra por categoría y busca
 • Desliza una tarjeta a la izquierda para eliminarla
+• Pausa una suscripción que ya no pagas: conserva sus datos, pero deja de contar en los totales y de avisarte
+• Un widget para la pantalla de inicio muestra tu total mensual y las próximas renovaciones
 
 UN AVISO ANTES DEL COBRO
 • Un aviso 1 día antes de cada renovación (Pro añade 3 y 7 días)
@@ -492,6 +565,8 @@ Netflix、Spotify、クラウドストレージ、ジム……毎月のサブス
 • 週・月・四半期・年ごとの請求に対応し、月額と年額に自動で換算
 • 更新日・金額・名前で並べ替え、カテゴリでの絞り込みと検索も可能
 • カードを左にスワイプして削除
+• 支払いをやめたサブスクは削除せずに停止できます。記録は残したまま、通知と合計の対象から外れます
+• ホーム画面ウィジェットで、月額合計とこれからの更新をいつでも確認できます
 
 【請求の前にお知らせ】
 • 更新の 1 日前に通知（Pro では 3 日前・7 日前も追加できます）
@@ -541,6 +616,8 @@ What each claim rests on:
 | No account, stored locally | release build has `BACKEND_ENABLED = false` |
 | 7 languages | `SupportedLanguages` |
 | Totals and daily average free | outside the `ProGate`s (`item(key = "metrics")`) |
+| Pause instead of delete; out of totals and reminders; every plan | `Subscription.isActive`, `SubscriptionRepository.setActive` (no `ProGate`); BIN-29 |
+| Home screen widget: monthly total and upcoming renewals; every plan | `widget/SubFlowWidget.kt`, `summariseForWidget` (not gated); BIN-30, BIN-32 |
 | Opening the service's account page | `cancellationUrlFor()`: known services get their own page; everything else gets Google Play's subscriptions page, so the copy says "常見服務" |
 
 **Deliberately not claimed:** cloud sync. The release build has no backend,
@@ -550,24 +627,21 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 4 / versionName 1.2.0**. 3 is used up.
-- [ ] **Release notes**: paste the whole block, all languages.
-- [ ] **Add the listing languages** under Main store listing → Manage translations: zh-CN, zh-TW, zh-HK, de-DE, fr-FR, es-ES, ja-JP, with the text above. Also consider replacing the en-US text if it's out of date.
-- [x] **Screenshots re-captured 2026-09-13** (BIN-31), replacing the 2026-08-28 set.
-      Six now, all 1080×2160 — the 2:1 limit Play enforces, which the Pixel 8a's
-      native 1080×2400 fails. `05-settings.png` is the split Settings that
-      replaced the single page, and `06-currencies.png` is new. Trial tracking
-      now appears in `01`, `02` and `03`. Play falls back to the default
-      language's screenshots, so the other six languages need none.
-      **Still missing: the home screen widget**, because the only device here is
-      an emulator whose launcher would put other apps' icons in the shot.
-- [ ] **Check the existing en-US listing.** The 2026-08-28 draft named **10** currencies
-      and avoided the phrase "live exchange rates". Since 2026-09-02 there are **40**
-      currencies and the rates are fetched live. If the listing still says the old
-      version, update it.
-- [ ] **Data safety: no changes.** 1.2.0 collects nothing new. The language and currency
-      choices are stored only on the device, and the exchange-rate request already
-      existed before this release.
+- [ ] **versionCode 5 / versionName 1.3.0**. 4 is used up.
+- [ ] **Release notes**: paste the whole 1.3.0 block, all languages.
+- [ ] **Store listing text changed in all seven languages**: each now mentions
+      pausing and the widget. Replace the en-US text, and add (or replace) the
+      six translations under Main store listing → Manage translations. As of
+      BIN-31 the translations had not been added yet.
+- [ ] **Screenshots**: the six captured 2026-09-13 are current (1080×2160, within
+      Play's 2:1 limit). **Still no widget screenshot** — the widget is this
+      release's headline, so one from a real phone with a clean home screen is
+      worth adding. Pausing is not shown in any of the six either.
+- [ ] **Data safety: no changes.** Since v1.2.0 the manifest gains only a
+      non-exported widget receiver, and no permission. The one new dependency is
+      Glance, which renders the widget on the device and makes no network call.
+      The paused state is a field in the local database. Nothing new is
+      collected or shared.
 
 ### How the screenshots were taken
 
