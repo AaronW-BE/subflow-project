@@ -52,6 +52,7 @@ import org.dpdns.alwaysup.subflow.data.local.SubFlowDatabase
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.repository.ExchangeRateRepository
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
+import org.dpdns.alwaysup.subflow.domain.util.withAppLocale
 
 /*
  * The home screen widget: what this month costs, and what renews when.
@@ -105,7 +106,15 @@ class SubFlowWidget : GlanceAppWidget() {
             val summary by produceState(initial, stamp) {
                 if (stamp != loadedFor) value = loadWidgetSummary(context)
             }
-            WidgetBody(summary)
+            // The widget is drawn with the application context, which carries
+            // the *system* locale: the app's own language is applied only to
+            // MainActivity, through an override configuration. Without this
+            // the widget stayed in the phone's language after the user picked
+            // another one in Settings. Re-read with the stamp, so a language
+            // change - which triggers a refresh - is picked up by a session
+            // that is already running.
+            val localized = remember(stamp) { context.withAppLocale() }
+            WidgetBody(summary, localized)
         }
     }
 }
@@ -135,8 +144,9 @@ private suspend fun loadWidgetSummary(context: Context): WidgetSummary {
 }
 
 @Composable
-private fun WidgetBody(summary: WidgetSummary) {
+private fun WidgetBody(summary: WidgetSummary, localized: Context) {
     val context = LocalContext.current
+    val locale = localized.resources.configuration.locales[0]
     val tall = LocalSize.current.height >= ListThreshold
 
     Column(
@@ -149,21 +159,21 @@ private fun WidgetBody(summary: WidgetSummary) {
         verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = context.getString(R.string.total_monthly_spend),
+            text = localized.getString(R.string.total_monthly_spend),
             style = TextStyle(color = WidgetInkDim, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         )
         Spacer(modifier = GlanceModifier.height(2.dp))
 
         if (summary.activeCount == 0) {
             Text(
-                text = context.getString(R.string.empty_title),
+                text = localized.getString(R.string.empty_title),
                 style = TextStyle(color = WidgetInk, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             )
             return@Column
         }
 
         Text(
-            text = CurrencyFormatter.format(summary.monthlyTotal, summary.currency),
+            text = CurrencyFormatter.format(summary.monthlyTotal, summary.currency, locale),
             style = TextStyle(color = WidgetInk, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         )
 
@@ -174,24 +184,26 @@ private fun WidgetBody(summary: WidgetSummary) {
         // widget dragged taller shows more rows rather than more blank space.
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
             items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
-                RenewalRow(renewal)
+                RenewalRow(renewal, localized)
             }
         }
     }
 }
 
 @Composable
-private fun RenewalRow(renewal: UpcomingRenewal) {
+private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
+    // Plain context for the tap intent; the app-language one for every word.
     val context = LocalContext.current
+    val locale = localized.resources.configuration.locales[0]
     val days = renewal.daysLeft
     val whenText = when {
-        days < 0L -> context.getString(
+        days < 0L -> localized.getString(
             if (renewal.isTrial) R.string.trial_ended else R.string.renewal_overdue
         )
-        days == 0L -> context.getString(
+        days == 0L -> localized.getString(
             if (renewal.isTrial) R.string.trial_ends_today else R.string.renewal_today
         )
-        else -> context.resources.getQuantityString(
+        else -> localized.resources.getQuantityString(
             if (renewal.isTrial) R.plurals.trial_days_left else R.plurals.renewal_days_left,
             days.toInt(),
             days.toInt()
@@ -201,9 +213,9 @@ private fun RenewalRow(renewal: UpcomingRenewal) {
     // colours the dashboard's rows.
     val soon = days <= 3L
     val price = if (renewal.isTrial) {
-        context.getString(R.string.trial_free_amount)
+        localized.getString(R.string.trial_free_amount)
     } else {
-        CurrencyFormatter.format(renewal.amount, renewal.currency)
+        CurrencyFormatter.format(renewal.amount, renewal.currency, locale)
     }
 
     Row(
