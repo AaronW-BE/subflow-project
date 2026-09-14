@@ -1212,7 +1212,7 @@ private fun openSupportEmail(context: Context) {
     val body = "\n\n---\nSubFlow ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\n" +
         "Android ${android.os.Build.VERSION.RELEASE} · ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
     val intent = Intent(Intent.ACTION_SENDTO).apply {
-        data = android.net.Uri.parse("mailto:zmtzwb@gmail.com")
+        data = android.net.Uri.parse("mailto:bin-tech@outlook.com")
         putExtra(Intent.EXTRA_SUBJECT, "SubFlow Android support")
         putExtra(Intent.EXTRA_TEXT, body)
     }

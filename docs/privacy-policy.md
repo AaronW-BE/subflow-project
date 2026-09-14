@@ -5,7 +5,7 @@
 SubFlow ("the app") is a subscription tracker published by Bin Tech ("we", "us").
 This policy explains what the app does and does not do with your information.
 
-Contact for privacy questions: **zmtzwb@gmail.com**
+Contact for privacy questions: **bin-tech@outlook.com**
 
 ---
 
@@ -128,7 +128,7 @@ your device and under your control.
 To reset the advertising identifier used by AdMob, use
 **Android Settings → Privacy → Ads**.
 
-If you have a question or a request about your data, email **zmtzwb@gmail.com**
+If you have a question or a request about your data, email **bin-tech@outlook.com**
 and we will respond within 30 days.
 
 ---

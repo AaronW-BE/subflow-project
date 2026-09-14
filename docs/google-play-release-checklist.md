@@ -281,8 +281,8 @@ Host `privacy.html` at a public URL (GitHub Pages is enough), then paste that UR
 into 应用内容 → 隐私权政策. Doing so unblocks the 数据安全 submission, which is
 currently stuck as a draft.
 
-Check before publishing: the contact address (`zmtzwb@gmail.com`) and the
-publisher name ("Bin Tech").
+Check before publishing: the contact address (`zmtzwb@gmail.com` then; `bin-tech@outlook.com`
+since 2026-09-14) and the publisher name ("Bin Tech").
 
 ### Remaining critical path
 
@@ -403,6 +403,15 @@ have gone nowhere. All three now point at the domain we control:
 - `https://subflow.alwaysup.dpdns.org/privacy.html`
 - `https://subflow.alwaysup.dpdns.org/terms.html`
 - `mailto:zmtzwb@gmail.com`
+
+**Update 2026-09-14: support address is now `bin-tech@outlook.com`.** The
+in-app Contact support row (`openSupportEmail` in `SettingsScreen.kt`),
+`docs/privacy-policy.md`, `docs/privacy.html` and `docs/terms.html` all use it.
+The entries above that name `zmtzwb@gmail.com` are what was true when they were
+written and are left as the record. What was entered in Play Console then has
+**not** been changed by this: the store listing's 详细联系信息 email and the
+IARC content-rating contact still say `zmtzwb@gmail.com` until they are edited
+in the Console itself.
 
 ### The backend default was a latent leak
 
