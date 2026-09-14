@@ -15,6 +15,58 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.3.2 (versionCode 7): release notes
+
+Changes since 1.3.1 (versionCode 6):
+
+| Change | Source |
+|---|---|
+| Settings pages: back button and page title on one row | BIN-36, PR #36 |
+| Contact support writes to bin-tech@outlook.com | BIN-37, PR #37 |
+
+A patch release: a tighter header and a new support address, nothing new to go
+and find. The terms are each app's own: *Settings* is 设置 / 設定 / *Einstellungen* /
+*Réglages* / *Ajustes* / 設定, and *Contact support* is 联系支持 / 聯絡客服 /
+*Support kontaktieren* / *Contacter le support* / *Contactar con soporte* /
+サポートに連絡.
+
+```
+<en-US>
+• Settings pages now show the back button and the page title on one row, leaving more room for the settings themselves.
+• Contact support now writes to our new address, bin-tech@outlook.com.
+</en-US>
+<zh-CN>
+• 设置里的各个页面，返回按钮和标题现在在同一行，腾出更多空间显示设置项。
+• “联系支持”现在会发邮件到新地址 bin-tech@outlook.com。
+</zh-CN>
+<zh-TW>
+• 設定裡的各個頁面，返回按鈕和標題現在位於同一列，騰出更多空間顯示設定項目。
+• 「聯絡客服」現在會寄信到新地址 bin-tech@outlook.com。
+</zh-TW>
+<zh-HK>
+• 設定裡的各個頁面，返回按鈕和標題現在位於同一列，騰出更多空間顯示設定項目。
+• 「聯絡客服」現在會寄信到新地址 bin-tech@outlook.com。
+</zh-HK>
+<de-DE>
+• In den Einstellungen stehen Zurück-Taste und Seitentitel jetzt in einer Zeile – so bleibt mehr Platz für die Einstellungen selbst.
+• „Support kontaktieren“ schreibt jetzt an unsere neue Adresse bin-tech@outlook.com.
+</de-DE>
+<fr-FR>
+• Dans les Réglages, le bouton retour et le titre de la page sont désormais sur une seule ligne, ce qui laisse plus de place aux réglages.
+• « Contacter le support » écrit désormais à notre nouvelle adresse, bin-tech@outlook.com.
+</fr-FR>
+<es-ES>
+• En Ajustes, el botón de volver y el título de la página ahora están en una sola fila, lo que deja más espacio para los ajustes.
+• «Contactar con soporte» ahora escribe a nuestra nueva dirección, bin-tech@outlook.com.
+</es-ES>
+<ja-JP>
+• 設定の各ページで、戻るボタンとページタイトルが1行にまとまり、設定項目を表示できる領域が広がりました。
+• 「サポートに連絡」の宛先が新しいアドレス bin-tech@outlook.com になりました。
+</ja-JP>
+```
+
+---
+
 ## 1.3.1 (versionCode 6): release notes
 
 Changes since 1.3.0 (versionCode 5):
@@ -687,20 +739,25 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 6 / versionName 1.3.1**. 5 is used up.
-- [ ] **Release notes**: paste the whole 1.3.1 block, all languages.
-- [ ] **Store listings: no change from 1.3.0.** 1.3.1 only fixes the widget
-      refresh and the language it draws in and adds its picker preview, and
-      nothing a listing claims has moved (since v1.3.0 only `SubFlowWidget.kt`,
-      `SubFlowNavGraph.kt` and the widget's preview resources changed). If the 1.3.0 listing work is still
-      open — replacing the en-US text and adding the six translations under
-      Main store listing → Manage translations — it still applies.
-- [ ] **Screenshots**: unchanged. Still no widget screenshot; one from a real
-      phone with a clean home screen is still worth adding.
-- [ ] **Data safety: no changes.** Since v1.3.0 the manifest and the
-      dependencies are untouched; the changes only affect when the widget
-      reads the local database, which language it draws in, and a static
-      preview layout the launcher shows before the widget is placed.
+- [ ] **versionCode 7 / versionName 1.3.2**. 6 is used up.
+- [ ] **Release notes**: paste the whole 1.3.2 block, all languages.
+- [ ] **Screenshot `05-settings.png` replaced (2026-09-14).** It shows the
+      Preferences page, whose header changed in #36: the back button and the
+      title are now on one row. Upload it in place of the old one. Captured the
+      same way as the rest (1080×2160, English, USD, light, airplane mode). The
+      other five are unchanged. Still no widget screenshot.
+- [ ] **Contact details: switch to `bin-tech@outlook.com`.** The app's Contact
+      support and the hosted privacy policy and terms already use it, but two
+      Console fields entered on 2026-08-28 still say `zmtzwb@gmail.com`: Main
+      store listing → 详细联系信息 (email), and the IARC content-rating contact.
+- [ ] **Store listing text: no change from 1.3.1.** Since v1.3.1 only
+      `SettingsScreen.kt` and docs changed, and no listing names the support
+      address or describes the Settings header. If the earlier listing work is
+      still open — replacing the en-US text and adding the six translations
+      under Main store listing → Manage translations — it still applies.
+- [ ] **Data safety: no changes.** Re-checked since v1.3.1: no manifest or
+      dependency change. The support address is a mailto link the user chooses
+      to open; the app sends nothing itself.
 
 ### How the screenshots were taken
 
