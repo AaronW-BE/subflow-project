@@ -66,6 +66,11 @@ import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
 import org.dpdns.alwaysup.subflow.ui.theme.ScreenTitleStyle
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowAccents
 import java.util.Locale
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.setValue
 
 /**
  * A second-level Settings page. The top level is `null`.
@@ -156,7 +161,7 @@ fun SettingsScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        if (page != null) SettingsTopBar(onBack = onBack)
+        if (page != null) SettingsTopBar(title = stringResource(page.titleRes), onBack = onBack)
 
         // Each page is its own back-stack entry, and the list's scroll state
         // is saved with it: coming back to the top level lands where it was.
@@ -166,19 +171,21 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item(key = "title") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        // A pushed page's top bar has already cleared the
-                        // status bar; the top level scrolls under it instead.
-                        .then(if (page == null) Modifier.statusBarsPadding() else Modifier)
-                        .padding(top = if (page == null) 16.dp else 0.dp, bottom = 4.dp)
-                ) {
-                    Text(
-                        text = stringResource(page?.titleRes ?: R.string.settings_title),
-                        style = ScreenTitleStyle
-                    )
+            // A pushed page carries its title in the pinned bar, next to the
+            // back button; only the top level has a title that scrolls.
+            if (page == null) {
+                item(key = "title") {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(top = 16.dp, bottom = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.settings_title),
+                            style = ScreenTitleStyle
+                        )
+                    }
                 }
             }
 
@@ -449,14 +456,22 @@ fun SettingsScreen(
 
 // -------------------------------------------------------------------- pieces
 
-/** The back button above a pushed Settings page - the same one the detail screen uses. */
+/**
+ * The bar at the top of a pushed Settings page: the back button and the page
+ * title on one row.
+ *
+ * The button used to sit alone on a row with the large title underneath it,
+ * which spent a whole row on one 48dp button - on pages that are four rows
+ * long and never scroll far enough for a collapsing title to earn it. The row
+ * stays pinned, so the way back is still on screen when a page does scroll.
+ */
 @Composable
-private fun SettingsTopBar(onBack: () -> Unit) {
+private fun SettingsTopBar(title: String, onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         CircleIconButton(
@@ -464,7 +479,56 @@ private fun SettingsTopBar(onBack: () -> Unit) {
             contentDescription = stringResource(R.string.back),
             onClick = onBack
         )
+        // The circle sits 5dp inside its 48dp touch target, so this puts the
+        // title about 13dp from the edge of the circle.
+        Spacer(modifier = Modifier.width(8.dp))
+        FittingTitle(
+            text = title,
+            style = ScreenTitleStyle,
+            modifier = Modifier.weight(1f)
+        )
     }
+}
+
+/**
+ * A one-line title that steps its size down until it fits, instead of wrapping
+ * or being cut off.
+ *
+ * Beside the back button a 34sp title has about 276dp on a 360dp phone, and
+ * the longest page title - Spanish "Notificaciones" - needs about that much.
+ * Compose foundation 1.7 has no TextAutoSize, so this is the usual measure-
+ * and-retry: shrink while the layout overflows, stop at [minFontSize], and do
+ * not draw until the size has settled so the oversized first pass never
+ * flashes. Keyed on the text and the screen width, so a language change or a
+ * rotation starts again from full size.
+ */
+@Composable
+private fun FittingTitle(
+    text: String,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+    minFontSize: TextUnit = 24.sp
+) {
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    var fontSize by remember(text, widthDp) { mutableStateOf(style.fontSize) }
+    var settled by remember(text, widthDp) { mutableStateOf(false) }
+    val lineRatio = style.lineHeight.value / style.fontSize.value
+
+    Text(
+        text = text,
+        style = style.copy(fontSize = fontSize, lineHeight = (fontSize.value * lineRatio).sp),
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.drawWithContent { if (settled) drawContent() },
+        onTextLayout = { layout ->
+            if (layout.hasVisualOverflow && fontSize.value > minFontSize.value) {
+                fontSize = (fontSize.value * 0.92f).coerceAtLeast(minFontSize.value).sp
+            } else {
+                settled = true
+            }
+        }
+    )
 }
 
 /**
