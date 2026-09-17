@@ -103,6 +103,30 @@ class MoneyAndDatesTest {
     }
 
     @Test
+    fun `money and dates follow the locale asked for, not the JVM default`() {
+        // What the renewal reminder depends on. It builds its sentence from a
+        // context bound to the app's own language, and passes that language to
+        // both of these. Left to default, they would answer with the *system*
+        // language: the worker can wake a process in which MainActivity has
+        // never run, so `Locale.setDefault` has never been called, and the
+        // notification would have read as German prose quoting an American
+        // number and an American date.
+        val previous = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.US)
+            assertEquals("$1.234,56", CurrencyFormatter.format(1234.56, "USD", Locale.GERMANY))
+            assertEquals("18.09.2026", DateCalculators.formatMedium("2026-09-18", Locale.GERMANY))
+        } finally {
+            Locale.setDefault(previous)
+        }
+    }
+
+    @Test
+    fun `an unparseable date is shown as stored rather than dropped`() {
+        assertEquals("not a date", DateCalculators.formatMedium("not a date", Locale.US))
+    }
+
+    @Test
     fun `an unknown currency degrades to its code rather than a wrong symbol`() {
         assertTrue(CurrencyFormatter.format(10.0, "XYZ", Locale.US).startsWith("XYZ"))
     }
