@@ -1,12 +1,17 @@
 package org.dpdns.alwaysup.subflow.ui.screens.dashboard
 
+import android.content.Context
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -16,6 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -212,6 +218,12 @@ fun DashboardScreen(
     }
 
     val addFabLabel = stringResource(R.string.add_subscription)
+    // Hidden only while the list is being scrolled downwards. Exploring by
+    // touch is the one case where it stays put: a screen reader moves through
+    // the list by scrolling it, and a control that disappears as you read past
+    // it is a control you cannot reach.
+    val exploringByTouch = rememberTouchExplorationEnabled()
+    val addVisible = exploringByTouch || listState.isScrollingUp()
 
     Scaffold(
         snackbarHost = {
@@ -222,20 +234,32 @@ fun DashboardScreen(
         // the button above the ad banner and clear of the navigation bar
         // without this screen having to know how tall either of them is.
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    haptics.tick()
-                    onAddClick()
-                },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White,
-                modifier = Modifier.semantics { contentDescription = addFabLabel }
+            // The button floats over the bottom-right of the list, and the
+            // bottom-right of a row is its price. Reading down the list meant
+            // reading past a button sitting on the column the list exists to
+            // show. It gets out of the way while the list is being read and
+            // comes back the moment the user reverses - which is also when
+            // they have found what they came for and might add another.
+            AnimatedVisibility(
+                visible = addVisible,
+                enter = scaleIn(spring(dampingRatio = 0.6f, stiffness = 500f)) + fadeIn(),
+                exit = scaleOut(tween(120)) + fadeOut(tween(120))
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(26.dp)
-                )
+                FloatingActionButton(
+                    onClick = {
+                        haptics.tick()
+                        onAddClick()
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White,
+                    modifier = Modifier.semantics { contentDescription = addFabLabel }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
             }
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -497,6 +521,54 @@ fun DashboardScreen(
             }
         }
     }
+}
+
+// ------------------------------------------------------------------ scrolling
+
+/**
+ * Whether the last movement of this list was upwards. True before it has
+ * moved at all, so nothing is hidden on a screen the user has not scrolled.
+ *
+ * Reading the two `firstVisibleItem` values rather than `isScrollInProgress`
+ * is what makes it settle: a flick that ends still reports the direction it
+ * ended in, instead of snapping back the instant the finger lifts.
+ */
+@Composable
+private fun LazyListState.isScrollingUp(): Boolean {
+    var previousIndex by remember(this) { mutableIntStateOf(firstVisibleItemIndex) }
+    var previousOffset by remember(this) { mutableIntStateOf(firstVisibleItemScrollOffset) }
+    return remember(this) {
+        derivedStateOf {
+            if (previousIndex != firstVisibleItemIndex) {
+                previousIndex > firstVisibleItemIndex
+            } else {
+                previousOffset >= firstVisibleItemScrollOffset
+            }.also {
+                previousIndex = firstVisibleItemIndex
+                previousOffset = firstVisibleItemScrollOffset
+            }
+        }
+    }.value
+}
+
+/**
+ * Whether the system is exploring the screen by touch - TalkBack and the
+ * other screen readers. Read live, because it can be switched on while the
+ * app is in front.
+ */
+@Composable
+private fun rememberTouchExplorationEnabled(): Boolean {
+    val context = LocalContext.current
+    val manager = remember(context) {
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    }
+    var enabled by remember { mutableStateOf(manager.isTouchExplorationEnabled) }
+    DisposableEffect(manager) {
+        val listener = AccessibilityManager.TouchExplorationStateChangeListener { enabled = it }
+        manager.addTouchExplorationStateChangeListener(listener)
+        onDispose { manager.removeTouchExplorationStateChangeListener(listener) }
+    }
+    return enabled
 }
 
 // -------------------------------------------------------------------- pieces
