@@ -45,11 +45,18 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalConfiguration
@@ -1060,13 +1067,62 @@ private fun SearchAndSortRow(
     }
 }
 
+/** How much of each edge the chip row dissolves over. */
+private val CategoryFadeWidth = 28.dp
+
 @Composable
 private fun CategoryFilterRow(
     categories: List<Pair<String, Int>>,
     selectedCategory: String,
     onSelect: (String) -> Unit
 ) {
+    val rowState = rememberLazyListState()
+    // Only where there is actually something past the edge. On a wide screen
+    // every chip fits and a fade there would be dimming the last one for no
+    // reason.
+    val fadeStart by remember { derivedStateOf { rowState.canScrollBackward } }
+    val fadeEnd by remember { derivedStateOf { rowState.canScrollForward } }
+
     LazyRow(
+        state = rowState,
+        // A chip sliced through the middle of its word - "Ut" for Utilities -
+        // reads as a layout fault. Faded, the same cut says there is more this
+        // way, which is the only thing it was ever trying to say.
+        //
+        // DstIn multiplies the row's alpha by the gradient's, so it needs the
+        // row on its own layer first; without the offscreen strategy the blend
+        // would take the whole screen behind it with it.
+        modifier = Modifier
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+            .drawWithContent {
+                drawContent()
+                val fade = CategoryFadeWidth.toPx().coerceAtMost(size.width / 3f)
+                if (fadeStart) {
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            0f to Color.Transparent,
+                            1f to Color.Black,
+                            startX = 0f,
+                            endX = fade
+                        ),
+                        size = Size(fade, size.height),
+                        blendMode = BlendMode.DstIn
+                    )
+                }
+                if (fadeEnd) {
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            0f to Color.Black,
+                            1f to Color.Transparent,
+                            startX = size.width - fade,
+                            endX = size.width
+                        ),
+                        topLeft = Offset(size.width - fade, 0f),
+                        size = Size(fade, size.height),
+                        blendMode = BlendMode.DstIn
+                    )
+                }
+            },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
