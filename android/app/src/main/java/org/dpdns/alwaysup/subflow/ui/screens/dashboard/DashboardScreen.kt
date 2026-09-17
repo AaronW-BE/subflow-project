@@ -243,7 +243,15 @@ fun DashboardScreen(
             AnimatedVisibility(
                 visible = addVisible,
                 enter = scaleIn(spring(dampingRatio = 0.6f, stiffness = 500f)) + fadeIn(),
-                exit = scaleOut(tween(120)) + fadeOut(tween(120))
+                exit = scaleOut(tween(120)) + fadeOut(tween(120)),
+                // Tracks the right edge of the list rather than the right edge
+                // of the window. Once the content stops filling a wide screen,
+                // a button left in the corner is a button standing on its own
+                // in the margin, pointing at nothing. Zero on a phone, where
+                // the gutter is the 16dp the Scaffold already gives it.
+                modifier = Modifier.padding(
+                    end = (contentGutter() - 16.dp).coerceAtLeast(0.dp)
+                )
             ) {
                 FloatingActionButton(
                     onClick = {
@@ -271,7 +279,7 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = innerPadding.calculateBottomPadding())
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = contentGutter()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item(key = "header") {

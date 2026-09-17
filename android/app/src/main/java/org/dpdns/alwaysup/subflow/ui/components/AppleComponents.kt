@@ -139,6 +139,33 @@ fun AppleCard(
 val SubscriptionCardRadius = 20.dp
 
 /**
+ * The widest this app lets a column of content get.
+ *
+ * Every screen here is a single column of cards, and a card stretched across a
+ * tablet is not a bigger card - it is a row with its name at one edge and its
+ * price at the other and a hand's width of nothing in between. In landscape on
+ * a phone that gap measured about 900px.
+ */
+val ReadableContentWidth = 600.dp
+
+/**
+ * The side gutter that keeps a screen's content column centred and no wider
+ * than [ReadableContentWidth].
+ *
+ * Below that width it is just [minimum], so a phone in portrait is laid out
+ * exactly as before. Each caller passes the gutter it already had, because a
+ * row of icon buttons and a column of cards do not start at the same inset.
+ *
+ * Applied to the content, never to the window: the ad banner, the navigation
+ * bar and the collapsed title bar stay full width, which is what they are for.
+ */
+@Composable
+fun contentGutter(minimum: Dp = 16.dp): Dp {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    return maxOf(minimum, (screenWidth - ReadableContentWidth) / 2)
+}
+
+/**
  * Swipe-to-delete row. The swipe only *arms* the delete; the caller shows an
  * undo snackbar, so a mis-swipe is always recoverable.
  *

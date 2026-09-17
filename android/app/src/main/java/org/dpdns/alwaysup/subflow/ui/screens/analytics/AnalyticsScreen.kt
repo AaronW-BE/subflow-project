@@ -118,7 +118,7 @@ fun AnalyticsScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = contentGutter()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item(key = "title") {

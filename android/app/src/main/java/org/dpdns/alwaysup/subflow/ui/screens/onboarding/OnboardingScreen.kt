@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.ui.components.PrimaryButton
+import org.dpdns.alwaysup.subflow.ui.components.contentGutter
 import kotlinx.coroutines.launch
 
 private data class OnboardingPage(
@@ -128,7 +129,7 @@ fun OnboardingScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 32.dp, vertical = 16.dp),
+                        .padding(horizontal = contentGutter(32.dp), vertical = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -250,7 +251,7 @@ fun OnboardingScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = contentGutter(24.dp))
                     .padding(bottom = 24.dp)
             ) {
                 PrimaryButton(

@@ -39,6 +39,7 @@ import org.dpdns.alwaysup.subflow.data.billing.ProPlan
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.components.AppleCard
+import org.dpdns.alwaysup.subflow.ui.components.contentGutter
 import org.dpdns.alwaysup.subflow.ui.components.PrimaryButton
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.ui.components.ShimmerBox
@@ -112,7 +113,7 @@ fun PaywallScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = contentGutter(), vertical = 8.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(
@@ -144,7 +145,7 @@ fun PaywallScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = contentGutter(20.dp)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ProBadgeHeader()
@@ -243,7 +244,7 @@ fun PaywallScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
+                        .padding(horizontal = contentGutter(20.dp))
                         .padding(top = 12.dp, bottom = 8.dp)
                 ) {
                     if (!isPro) {
