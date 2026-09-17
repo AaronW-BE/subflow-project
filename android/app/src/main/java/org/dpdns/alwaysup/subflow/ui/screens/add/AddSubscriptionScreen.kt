@@ -312,7 +312,7 @@ fun AddSubscriptionScreen(
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(52.dp)
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = contentGutter(8.dp)),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -392,7 +392,7 @@ fun AddSubscriptionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = contentGutter()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item(key = "preview") {

@@ -39,6 +39,7 @@ import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.domain.util.Trials
 import org.dpdns.alwaysup.subflow.ui.components.AppleCard
+import org.dpdns.alwaysup.subflow.ui.components.contentGutter
 import org.dpdns.alwaysup.subflow.ui.components.AppleGroupedCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
 import org.dpdns.alwaysup.subflow.ui.components.BrandIconBadge
@@ -107,7 +108,7 @@ fun SubscriptionDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                    .padding(horizontal = contentGutter(12.dp), vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -140,7 +141,7 @@ fun SubscriptionDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = contentGutter()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item(key = "hero") {

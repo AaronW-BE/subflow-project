@@ -53,6 +53,7 @@ import org.dpdns.alwaysup.subflow.data.preferences.ThemeMode
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
 import org.dpdns.alwaysup.subflow.domain.model.UserProfile
 import org.dpdns.alwaysup.subflow.ui.components.AppleCard
+import org.dpdns.alwaysup.subflow.ui.components.contentGutter
 import org.dpdns.alwaysup.subflow.ui.components.AppleGroupedCard
 import org.dpdns.alwaysup.subflow.ui.components.AppleListRow
 import org.dpdns.alwaysup.subflow.ui.components.AppleRowSeparator
@@ -168,7 +169,7 @@ fun SettingsScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = contentGutter()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // A pushed page carries its title in the pinned bar, next to the
@@ -471,7 +472,7 @@ private fun SettingsTopBar(title: String, onBack: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+            .padding(start = contentGutter(12.dp), end = contentGutter(), top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         CircleIconButton(
