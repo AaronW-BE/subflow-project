@@ -37,6 +37,9 @@
     <string name="empty_search_title">No results</string>
     <string name="empty_search_body">Nothing matches “%s”.</string>
     <string name="clear_search_action">Clear search</string>
+    <string name="empty_filter_body">You have no subscriptions in “%s”.</string>
+    <string name="empty_filter_search_body">Nothing matches “%1$s” in “%2$s”.</string>
+    <string name="clear_filters_action">Clear filters</string>
     <string name="deleted_item">Deleted “%s”</string>
     <string name="delete_action">Delete</string>
     <string name="swipe_hint">Swipe a card left to delete it, right to pause it</string>

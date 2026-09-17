@@ -34,6 +34,9 @@
     <string name="empty_search_title">Aucun résultat</string>
     <string name="empty_search_body">Rien ne correspond à « %s ».</string>
     <string name="clear_search_action">Effacer la recherche</string>
+    <string name="empty_filter_body">Vous n’avez aucun abonnement dans « %s ».</string>
+    <string name="empty_filter_search_body">Rien ne correspond à « %1$s » dans « %2$s ».</string>
+    <string name="clear_filters_action">Effacer les filtres</string>
     <string name="deleted_item">« %s » supprimé</string>
     <string name="delete_action">Supprimer</string>
     <string name="swipe_hint">Balayez une carte vers la gauche pour la supprimer, vers la droite pour la mettre en pause</string>

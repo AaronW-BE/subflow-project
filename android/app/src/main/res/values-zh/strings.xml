@@ -34,6 +34,9 @@
     <string name="empty_search_title">没有结果</string>
     <string name="empty_search_body">没有找到与“%s”匹配的订阅。</string>
     <string name="clear_search_action">清除搜索</string>
+    <string name="empty_filter_body">“%s”分类下没有订阅。</string>
+    <string name="empty_filter_search_body">“%2$s”分类下没有与“%1$s”匹配的订阅。</string>
+    <string name="clear_filters_action">清除筛选</string>
     <string name="deleted_item">已删除“%s”</string>
     <string name="delete_action">删除</string>
     <string name="swipe_hint">向左滑动卡片删除，向右滑动暂停</string>

@@ -34,6 +34,9 @@
     <string name="empty_search_title">Sin resultados</string>
     <string name="empty_search_body">Nada coincide con «%s».</string>
     <string name="clear_search_action">Borrar búsqueda</string>
+    <string name="empty_filter_body">No tienes suscripciones en «%s».</string>
+    <string name="empty_filter_search_body">Nada coincide con «%1$s» en «%2$s».</string>
+    <string name="clear_filters_action">Borrar filtros</string>
     <string name="deleted_item">«%s» eliminada</string>
     <string name="delete_action">Eliminar</string>
     <string name="swipe_hint">Desliza una tarjeta a la izquierda para eliminarla y a la derecha para pausarla</string>

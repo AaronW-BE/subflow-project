@@ -41,6 +41,9 @@
     <string name="empty_search_title">沒有結果</string>
     <string name="empty_search_body">找不到與「%s」相符的訂閱。</string>
     <string name="clear_search_action">清除搜尋</string>
+    <string name="empty_filter_body">「%s」分類下沒有訂閱。</string>
+    <string name="empty_filter_search_body">「%2$s」分類下找不到與「%1$s」相符的訂閱。</string>
+    <string name="clear_filters_action">清除篩選</string>
     <string name="deleted_item">已刪除「%s」</string>
     <string name="delete_action">刪除</string>
     <string name="swipe_hint">將卡片向左滑動刪除，向右滑動暫停</string>

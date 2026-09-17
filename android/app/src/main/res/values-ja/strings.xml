@@ -34,6 +34,9 @@
     <string name="empty_search_title">見つかりません</string>
     <string name="empty_search_body">「%s」に一致するものはありません。</string>
     <string name="clear_search_action">検索をクリア</string>
+    <string name="empty_filter_body">「%s」に登録はありません。</string>
+    <string name="empty_filter_search_body">「%2$s」に「%1$s」に一致するものはありません。</string>
+    <string name="clear_filters_action">フィルタをクリア</string>
     <string name="deleted_item">「%s」を削除しました</string>
     <string name="delete_action">削除</string>
     <string name="swipe_hint">カードを左にスワイプで削除、右にスワイプで停止できます</string>

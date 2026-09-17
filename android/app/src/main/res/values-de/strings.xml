@@ -34,6 +34,9 @@
     <string name="empty_search_title">Keine Treffer</string>
     <string name="empty_search_body">Nichts passt zu „%s“.</string>
     <string name="clear_search_action">Suche löschen</string>
+    <string name="empty_filter_body">Du hast keine Abos in „%s“.</string>
+    <string name="empty_filter_search_body">In „%2$s“ passt nichts zu „%1$s“.</string>
+    <string name="clear_filters_action">Filter zurücksetzen</string>
     <string name="deleted_item">„%s“ gelöscht</string>
     <string name="delete_action">Löschen</string>
     <string name="swipe_hint">Wische eine Karte nach links zum Löschen, nach rechts zum Pausieren</string>

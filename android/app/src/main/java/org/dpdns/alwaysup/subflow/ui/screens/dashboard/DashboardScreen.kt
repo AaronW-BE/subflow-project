@@ -411,8 +411,17 @@ fun DashboardScreen(
                         item(key = "empty") {
                             EmptyState(
                                 query = searchQuery,
+                                // Null when the chip row is on "All", which is
+                                // what tells the card whether a filter is part
+                                // of why it is being shown.
+                                categoryLabel = selectedCategory
+                                    .takeIf { it != "All" }
+                                    ?.let { localizedCategory(it) },
                                 onAddClick = onAddClick,
-                                onClearSearch = { searchQuery = "" }
+                                onClearFilters = {
+                                    searchQuery = ""
+                                    selectedCategory = "All"
+                                }
                             )
                         }
                     }
@@ -1077,13 +1086,32 @@ private fun CategoryFilterRow(
     }
 }
 
+/**
+ * The card shown when the list has nothing in it.
+ *
+ * It has to tell two very different stories apart. "You have no
+ * subscriptions" is one of them. "You have plenty, but this filter matches
+ * none of them" is the other, and it used to be told with the first one's
+ * words - someone with five subscriptions who tapped a category chip that
+ * matched none of them was informed they had none at all, under a button
+ * offering to add their first. Their data had not gone anywhere; the filter
+ * had.
+ *
+ * So anything that narrows the list is named here, and the button clears it
+ * rather than offering to add.
+ */
 @Composable
 private fun EmptyState(
     query: String,
+    /** The selected category, already translated. Null means "All". */
+    categoryLabel: String?,
     onAddClick: () -> Unit,
-    onClearSearch: () -> Unit
+    onClearFilters: () -> Unit
 ) {
     val searching = query.isNotBlank()
+    val filtering = categoryLabel != null
+    // Either one is enough to mean "this list is not empty, it is narrowed".
+    val narrowed = searching || filtering
     AppleCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -1104,7 +1132,7 @@ private fun EmptyState(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (searching) Icons.Default.Search else Icons.Default.Inbox,
+                    imageVector = if (narrowed) Icons.Default.Search else Icons.Default.Inbox,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(30.dp)
@@ -1115,7 +1143,7 @@ private fun EmptyState(
 
             Text(
                 text = stringResource(
-                    if (searching) R.string.empty_search_title else R.string.empty_title
+                    if (narrowed) R.string.empty_search_title else R.string.empty_title
                 ),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
@@ -1124,10 +1152,16 @@ private fun EmptyState(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = if (searching) {
-                    stringResource(R.string.empty_search_body, query)
-                } else {
-                    stringResource(R.string.empty_body)
+                text = when {
+                    // Both are on, and naming only one of them would send the
+                    // user hunting for a word that is in the list, under a
+                    // chip that hides it.
+                    searching && categoryLabel != null ->
+                        stringResource(R.string.empty_filter_search_body, query, categoryLabel)
+                    searching -> stringResource(R.string.empty_search_body, query)
+                    categoryLabel != null ->
+                        stringResource(R.string.empty_filter_body, categoryLabel)
+                    else -> stringResource(R.string.empty_body)
                 },
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 19.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1136,13 +1170,20 @@ private fun EmptyState(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            if (searching) {
+            if (narrowed) {
                 OutlinedButton(
-                    onClick = onClearSearch,
+                    onClick = onClearFilters,
                     shape = RoundedCornerShape(14.dp),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text(stringResource(R.string.clear_search_action))
+                    // It clears both either way. It is only called "clear
+                    // search" when a search is the only thing it would clear.
+                    Text(
+                        stringResource(
+                            if (filtering) R.string.clear_filters_action
+                            else R.string.clear_search_action
+                        )
+                    )
                 }
             } else {
                 PrimaryButton(
