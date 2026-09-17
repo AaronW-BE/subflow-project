@@ -39,7 +39,7 @@
     <string name="clear_search_action">Clear search</string>
     <string name="deleted_item">Deleted “%s”</string>
     <string name="delete_action">Delete</string>
-    <string name="swipe_hint">Swipe a card left to delete it</string>
+    <string name="swipe_hint">Swipe a card left to delete it, right to pause it</string>
     <string name="swipe_hint_dismiss">Dismiss hint</string>
 
     <!-- Free quota -->
@@ -219,6 +219,8 @@
     <string name="dashboard_paused_header">Paused (%d)</string>
     <string name="paused_item">“%s” paused</string>
     <string name="resumed_item">“%s” resumed</string>
+    <string name="pause_action">Pause</string>
+    <string name="resume_action">Resume</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">This month’s total and the renewals coming up.</string>
     <string name="widget_preview_total" translatable="false">$27.48</string>

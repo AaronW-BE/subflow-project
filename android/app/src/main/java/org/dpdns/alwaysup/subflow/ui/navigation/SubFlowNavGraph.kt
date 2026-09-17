@@ -461,6 +461,18 @@ fun SubFlowNavHost(
                     onRestoreSubscription = { id ->
                         scope.launch { subscriptionRepository.restoreSubscription(id) }
                     },
+                    // The dashboard reports the outcome itself, with an undo,
+                    // so this answers rather than announces. The one thing it
+                    // does announce is the wall: resuming a sixth subscription
+                    // on the free tier is the same limit adding one runs into,
+                    // and the paywall is this graph's to open.
+                    onSetActive = { id, active ->
+                        val result = subscriptionRepository.setActive(id, active, isPro)
+                        if (result.exceptionOrNull() is QuotaReachedException) {
+                            navController.navigate(Screen.Paywall.route)
+                        }
+                        result.isSuccess
+                    },
                     onPaywallClick = { navController.navigate(Screen.Paywall.route) },
                     showSwipeHint = !swipeHintSeen,
                     onSwipeHintSeen = { preferencesManager.markSwipeHintSeen() }

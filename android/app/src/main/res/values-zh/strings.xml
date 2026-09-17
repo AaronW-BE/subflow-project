@@ -36,7 +36,7 @@
     <string name="clear_search_action">清除搜索</string>
     <string name="deleted_item">已删除“%s”</string>
     <string name="delete_action">删除</string>
-    <string name="swipe_hint">向左滑动卡片即可删除</string>
+    <string name="swipe_hint">向左滑动卡片删除，向右滑动暂停</string>
     <string name="swipe_hint_dismiss">关闭提示</string>
 
     <!-- Free quota -->
@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">已暂停（%d）</string>
     <string name="paused_item">已暂停“%s”</string>
     <string name="resumed_item">已恢复“%s”</string>
+    <string name="pause_action">暂停</string>
+    <string name="resume_action">恢复</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">本月总支出与即将到来的续费。</string>
     <string name="widget_preview_when_1">还有 2 天</string>

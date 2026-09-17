@@ -36,7 +36,7 @@
     <string name="clear_search_action">検索をクリア</string>
     <string name="deleted_item">「%s」を削除しました</string>
     <string name="delete_action">削除</string>
-    <string name="swipe_hint">カードを左にスワイプすると削除できます</string>
+    <string name="swipe_hint">カードを左にスワイプで削除、右にスワイプで停止できます</string>
     <string name="swipe_hint_dismiss">ヒントを閉じる</string>
 
     <!-- Free quota -->
@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">停止中（%d）</string>
     <string name="paused_item">「%s」を停止しました</string>
     <string name="resumed_item">「%s」を再開しました</string>
+    <string name="pause_action">停止</string>
+    <string name="resume_action">再開</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">今月の合計とこれからの更新。</string>
     <string name="widget_preview_when_1">あと 2 日</string>

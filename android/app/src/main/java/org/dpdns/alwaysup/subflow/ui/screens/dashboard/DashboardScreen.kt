@@ -142,6 +142,12 @@ fun DashboardScreen(
     onSubscriptionClick: (String) -> Unit,
     onDeleteSubscription: (String) -> Unit,
     onRestoreSubscription: (String) -> Unit = {},
+    /**
+     * Pauses or resumes, answering whether it happened. False means the free
+     * tier refused a resume and the caller has already said so - this screen
+     * must not then report a success it did not get.
+     */
+    onSetActive: suspend (String, Boolean) -> Boolean = { _, _ -> false },
     onPaywallClick: () -> Unit,
     showSwipeHint: Boolean = false,
     onSwipeHintSeen: () -> Unit = {}
@@ -214,6 +220,52 @@ fun DashboardScreen(
         derivedStateOf {
             listState.firstVisibleItemIndex > 0 ||
                 listState.firstVisibleItemScrollOffset > collapseThresholdPx
+        }
+    }
+
+    // Both lists offer both swipes, and the delete handler had already been
+    // copied out twice. One definition each, so the active list and the paused
+    // section cannot drift apart.
+    fun confirmWithUndo(message: String, undo: () -> Unit) {
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = undoText,
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) undo()
+        }
+    }
+
+    fun deleteWithUndo(sub: Subscription) {
+        val id = sub.id
+        onSwipeHintSeen()
+        onDeleteSubscription(id)
+        confirmWithUndo(context.getString(R.string.deleted_item, sub.name)) {
+            onRestoreSubscription(id)
+        }
+    }
+
+    fun togglePaused(sub: Subscription) {
+        val id = sub.id
+        val name = sub.name
+        val resuming = !sub.isActive
+        onSwipeHintSeen()
+        scope.launch {
+            // A resume can be refused: five active plus a paused sixth is a
+            // legal state, and resuming the sixth is where the free tier ends.
+            // The paywall is the caller's to show, and there is nothing to
+            // report or undo here.
+            if (!onSetActive(id, resuming)) return@launch
+            confirmWithUndo(
+                context.getString(
+                    if (resuming) R.string.resumed_item else R.string.paused_item,
+                    name
+                )
+            ) {
+                scope.launch { onSetActive(id, !resuming) }
+            }
         }
     }
 
@@ -370,23 +422,8 @@ fun DashboardScreen(
                             SubscriptionRow(
                                 sub = sub,
                                 onClick = { onSubscriptionClick(sub.id) },
-                                onDelete = {
-                                    val deletedName = sub.name
-                                    val deletedId = sub.id
-                                    onSwipeHintSeen()
-                                    onDeleteSubscription(deletedId)
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        val res = snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.deleted_item, deletedName),
-                                            actionLabel = undoText,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        if (res == SnackbarResult.ActionPerformed) {
-                                            onRestoreSubscription(deletedId)
-                                        }
-                                    }
-                                }
+                                onDelete = { deleteWithUndo(sub) },
+                                onTogglePaused = { togglePaused(sub) }
                             )
                         }
                     }
@@ -409,22 +446,8 @@ fun DashboardScreen(
                             SubscriptionRow(
                                 sub = sub,
                                 onClick = { onSubscriptionClick(sub.id) },
-                                onDelete = {
-                                    val deletedName = sub.name
-                                    val deletedId = sub.id
-                                    onDeleteSubscription(deletedId)
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        val res = snackbarHostState.showSnackbar(
-                                            message = context.getString(R.string.deleted_item, deletedName),
-                                            actionLabel = undoText,
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        if (res == SnackbarResult.ActionPerformed) {
-                                            onRestoreSubscription(deletedId)
-                                        }
-                                    }
-                                }
+                                onDelete = { deleteWithUndo(sub) },
+                                onTogglePaused = { togglePaused(sub) }
                             )
                         }
                     }
@@ -1179,7 +1202,8 @@ private fun SwipeHintCard(onDismiss: () -> Unit) {
 private fun SubscriptionRow(
     sub: Subscription,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onTogglePaused: () -> Unit
 ) {
     val daysLeft = DateCalculators.calculateDaysUntil(sub.nextBillDate)
     val localizedCategory = localizedCategory(sub.category)
@@ -1226,6 +1250,8 @@ private fun SubscriptionRow(
         modifier = Modifier.fillMaxWidth(),
         onClick = onClick,
         onDelete = onDelete,
+        onTogglePaused = onTogglePaused,
+        isActive = sub.isActive,
         // The upcoming charge is spoken for a trial: it is the fact the row
         // exists to carry, and element-by-element reading never attaches the
         // "then ..." line to the service it belongs to.

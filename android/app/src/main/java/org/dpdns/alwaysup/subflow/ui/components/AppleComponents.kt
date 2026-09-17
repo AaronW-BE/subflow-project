@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PauseCircleOutline
+import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.lazy.LazyColumn
@@ -166,10 +168,17 @@ fun contentGutter(minimum: Dp = 16.dp): Dp {
 }
 
 /**
- * Swipe-to-delete row. The swipe only *arms* the delete; the caller shows an
- * undo snackbar, so a mis-swipe is always recoverable.
+ * A subscription row you can swipe either way: left to delete, right to pause
+ * or resume. Both only *arm* the action; the caller shows an undo snackbar, so
+ * a mis-swipe is always recoverable.
  *
- * Two things about the red layer underneath.
+ * The two directions end differently, and that is deliberate. Deleting takes
+ * the row out of the list, so the swipe is allowed to complete and carry it
+ * off. Pausing does not - the subscription is still there, it has only moved
+ * to the paused section - so that swipe reports back that it did not commit
+ * and the row springs home while the list rearranges underneath it.
+ *
+ * Two things about the coloured layer underneath.
  *
  * It is drawn only once the row has actually moved. Both layers are the same
  * rounded rectangle, but a rounded rectangle drawn over an identical one does
@@ -179,9 +188,9 @@ fun contentGutter(minimum: Dp = 16.dp): Dp {
  * were already both 20dp. Not drawing it is the only fix that leaves nothing
  * to bleed.
  *
- * And it is a button, not just a gesture. Swiping is the only way to delete
- * from this list, which leaves anyone using a screen reader - or anyone who
- * has not discovered the gesture - with no way to do it at all.
+ * And they are buttons, not just gestures. A swipe is the only way to reach
+ * either action from this list, which would leave anyone using a screen reader
+ * - or anyone who has not discovered the gesture - with no way to do it at all.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -190,47 +199,74 @@ fun SwipeableSubscriptionCard(
     onDelete: () -> Unit,
     onClick: () -> Unit,
     contentDescription: String? = null,
+    /** What the right-hand swipe would do. Null leaves that direction off. */
+    onTogglePaused: (() -> Unit)? = null,
+    /** Whether this subscription is running, which is what names that action. */
+    isActive: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val haptics = rememberHaptics()
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
-            if (value == SwipeToDismissBoxValue.EndToStart) {
-                haptics.confirm()
-                onDelete()
-                true
-            } else false
+            when (value) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    haptics.confirm()
+                    onDelete()
+                    // Let it finish: the row is leaving the list.
+                    true
+                }
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    onTogglePaused?.let { toggle ->
+                        haptics.confirm()
+                        toggle()
+                    }
+                    // Refused on purpose. The subscription is not going
+                    // anywhere - it moves between the active list and the
+                    // paused section - so the row springs back to rest while
+                    // the list rearranges around it. Accepting here would
+                    // leave a committed, empty slot behind.
+                    false
+                }
+                SwipeToDismissBoxValue.Settled -> false
+            }
         },
         // Require a deliberate swipe past half the row rather than a flick.
         positionalThreshold = { distance -> distance * 0.5f }
     )
 
     val deleteLabel = stringResource(R.string.delete_action)
+    val pauseLabel = stringResource(
+        if (isActive) R.string.pause_action else R.string.resume_action
+    )
 
     // requireOffset throws until the box has been laid out once.
     val offset = runCatching { dismissState.requireOffset() }.getOrDefault(0f)
     val moved = offset != 0f
+    // Which way the finger has gone, so the layer underneath says what will
+    // happen on this side rather than always threatening a delete.
+    val pausing = offset > 0f
 
     // Past the threshold the swipe will commit on release. Saying so before
     // the user lets go is the difference between feedback and a surprise.
-    val armed = dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
+    val armed = dismissState.targetValue != SwipeToDismissBoxValue.Settled
+    val restingColor = if (pausing) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.error
+    }
     val backgroundColor by animateColorAsState(
-        targetValue = if (armed) {
-            MaterialTheme.colorScheme.error
-        } else {
-            MaterialTheme.colorScheme.error.copy(alpha = 0.72f)
-        },
-        label = "deleteBackgroundColor"
+        targetValue = if (armed) restingColor else restingColor.copy(alpha = 0.72f),
+        label = "swipeBackgroundColor"
     )
     val labelScale by animateFloatAsState(
         targetValue = if (armed) 1f else 0.88f,
         animationSpec = spring(dampingRatio = 0.6f, stiffness = 500f),
-        label = "deleteLabelScale"
+        label = "swipeLabelScale"
     )
 
     SwipeToDismissBox(
         state = dismissState,
-        enableDismissFromStartToEnd = false,
+        enableDismissFromStartToEnd = onTogglePaused != null,
         enableDismissFromEndToStart = true,
         backgroundContent = {
             if (!moved) return@SwipeToDismissBox
@@ -240,25 +276,41 @@ fun SwipeableSubscriptionCard(
                     .clip(RoundedCornerShape(SubscriptionCardRadius))
                     .background(backgroundColor)
                     .padding(horizontal = 24.dp),
-                contentAlignment = Alignment.CenterEnd
+                // The label sits on the side the row has moved away from,
+                // which is the side the finger is heading towards.
+                contentAlignment = if (pausing) Alignment.CenterStart else Alignment.CenterEnd
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.scale(labelScale)
                 ) {
+                    if (pausing) {
+                        Icon(
+                            imageVector = if (isActive) {
+                                Icons.Default.PauseCircleOutline
+                            } else {
+                                Icons.Default.PlayCircleOutline
+                            },
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                     Text(
-                        text = deleteLabel,
+                        text = if (pausing) pauseLabel else deleteLabel,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(22.dp)
-                    )
+                    if (!pausing) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
             }
         },
@@ -272,7 +324,13 @@ fun SwipeableSubscriptionCard(
                     if (contentDescription != null) {
                         this.contentDescription = contentDescription
                     }
-                    customActions = listOf(
+                    customActions = listOfNotNull(
+                        onTogglePaused?.let { toggle ->
+                            CustomAccessibilityAction(pauseLabel) {
+                                toggle()
+                                true
+                            }
+                        },
                         CustomAccessibilityAction(deleteLabel) {
                             onDelete()
                             true
