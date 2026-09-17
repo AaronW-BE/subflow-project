@@ -23,6 +23,7 @@
     <string name="back_to_top">先頭に戻る</string>
     <string name="upgrade_to_pro">Pro にアップグレード</string>
     <string name="clear_search">検索をクリア</string>
+    <string name="clear_name">名前をクリア</string>
     <string name="choose_custom_logo">ロゴを選択</string>
     <string name="remove_custom_logo">ロゴを削除</string>
     <string name="search_currency_hint">通貨またはコードを検索</string>

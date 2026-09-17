@@ -559,7 +559,7 @@ fun AddSubscriptionScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Close,
-                                        contentDescription = stringResource(R.string.clear_search),
+                                        contentDescription = stringResource(R.string.clear_name),
                                         modifier = Modifier.size(15.dp)
                                     )
                                 }
@@ -906,7 +906,21 @@ fun AddSubscriptionScreen(
                                     }
                                 }
                                 Text(
-                                    text = stringResource(R.string.remind_before_renewal),
+                                    // The one-day alert is free - ONE_DAY is
+                                    // isPro = false, the switch is on by
+                                    // default and it works. Left saying only
+                                    // "notify before the charge lands", the
+                                    // badge beside the title read as though
+                                    // the whole alert were locked. Naming what
+                                    // Pro actually adds is what the Settings
+                                    // screen already does, with this string.
+                                    text = stringResource(
+                                        if (isPro) {
+                                            R.string.remind_before_renewal
+                                        } else {
+                                            R.string.reminder_lead_sub_free
+                                        }
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -1349,7 +1363,16 @@ private fun ReminderLeadPicker(
                                 else -> MaterialTheme.colorScheme.onSurface
                             },
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            // Weighted, so the padlock after it keeps its 14dp
+                            // rather than being pushed out of the chip. Without
+                            // this the label ate the whole width at a large
+                            // font scale and the only sign that 3 and 7 days
+                            // are Pro vanished - the label truncated and the
+                            // chip still opened the paywall when tapped.
+                            // fill = false so an unlocked chip's label stays
+                            // centred instead of stretching.
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                         if (locked) {
                             Spacer(modifier = Modifier.width(3.dp))

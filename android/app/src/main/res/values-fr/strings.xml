@@ -23,6 +23,7 @@
     <string name="back_to_top">Revenir en haut</string>
     <string name="upgrade_to_pro">Passer à Pro</string>
     <string name="clear_search">Effacer la recherche</string>
+    <string name="clear_name">Effacer le nom</string>
     <string name="choose_custom_logo">Choisir un logo</string>
     <string name="remove_custom_logo">Supprimer le logo</string>
     <string name="search_currency_hint">Rechercher une devise ou un code</string>
