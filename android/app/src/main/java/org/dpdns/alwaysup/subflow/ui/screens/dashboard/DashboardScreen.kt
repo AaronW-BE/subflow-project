@@ -232,7 +232,13 @@ fun DashboardScreen(
             val result = snackbarHostState.showSnackbar(
                 message = message,
                 actionLabel = undoText,
-                duration = SnackbarDuration.Short
+                // Long, not Short. Short is about four seconds, and an
+                // undo is not a status message - it is the only way back
+                // from a delete. Driving this by hand while testing the
+                // pause swipe, knowing exactly where the button was, the
+                // window closed twice before the tap landed and the tap
+                // hit whatever had moved under it.
+                duration = SnackbarDuration.Long
             )
             if (result == SnackbarResult.ActionPerformed) undo()
         }
@@ -270,6 +276,7 @@ fun DashboardScreen(
     }
 
     val addFabLabel = stringResource(R.string.add_subscription)
+    val backToTopLabel = stringResource(R.string.back_to_top)
     // Hidden only while the list is being scrolled downwards. Exploring by
     // touch is the one case where it stays put: a screen reader moves through
     // the list by scrolling it, and a control that disappears as you read past
@@ -489,6 +496,23 @@ fun DashboardScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                // Tapping the title goes back to the top. It
+                                // is the convention this app's design language
+                                // already borrows, and it is the only way back
+                                // to the search field and the sort button once
+                                // they have scrolled away - the alternative
+                                // was dragging the whole list up by hand.
+                                // No ripple: the bar is scenery until it is
+                                // needed, and a flash across the full width
+                                // would announce itself on every mis-tap.
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                    onClickLabel = backToTopLabel
+                                ) {
+                                    haptics.tick()
+                                    scope.launch { listState.animateScrollToItem(0) }
+                                }
                                 .statusBarsPadding()
                                 .height(44.dp)
                                 .padding(horizontal = 16.dp),
