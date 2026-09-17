@@ -240,6 +240,9 @@
     <string name="settings_page_notifications">Mitteilungen</string>
     <string name="settings_page_data">Daten</string>
     <string name="settings_page_about">Über</string>
+    <string name="settings_page_notifications_sub">Verlängerungen · Test-Erinnerungen</string>
+    <string name="settings_page_data_sub">Backup · Wiederherstellen</string>
+    <string name="settings_page_about_sub">Datenschutz · Bedingungen · Support</string>
     <string name="primary_currency">Hauptwährung</string>
     <string name="appearance">Erscheinungsbild</string>
     <string name="theme_system">System</string>

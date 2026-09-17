@@ -240,6 +240,9 @@
     <string name="settings_page_notifications">通知</string>
     <string name="settings_page_data">数据</string>
     <string name="settings_page_about">关于</string>
+    <string name="settings_page_notifications_sub">续费提醒 · 试用提醒</string>
+    <string name="settings_page_data_sub">备份 · 恢复</string>
+    <string name="settings_page_about_sub">隐私 · 条款 · 支持</string>
     <string name="primary_currency">本币</string>
     <string name="appearance">外观</string>
     <string name="theme_system">跟随系统</string>

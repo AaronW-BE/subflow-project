@@ -546,6 +546,11 @@ private fun SettingsPageLinks(
     notificationsEnabled: Boolean,
     onOpenPage: (SettingsPage) -> Unit
 ) {
+    // Preferences composes its line from the three rows it actually holds,
+    // so it cannot go stale. The other three hold rows whose titles are
+    // sentences - "Export backup (JSON)", "Alert me before renewal" - and a
+    // line stitched from those reads worse than one written for the job, so
+    // theirs are written.
     val preferencesSummary = listOf(
         stringResource(R.string.primary_currency),
         stringResource(R.string.appearance),
@@ -562,20 +567,35 @@ private fun SettingsPageLinks(
         )
         AppleListRow(
             title = stringResource(R.string.settings_page_notifications),
-            subtitle = if (notificationsEnabled) null else stringResource(R.string.notifications_blocked),
-            subtitleColor = MaterialTheme.colorScheme.error,
+            // Being switched off at the OS level outranks a list of
+            // contents: nothing on that page works until it is fixed.
+            subtitle = if (notificationsEnabled) {
+                stringResource(R.string.settings_page_notifications_sub)
+            } else {
+                stringResource(R.string.notifications_blocked)
+            },
+            // Only the warning is a warning. Before this row had a
+            // description of its own, the error colour could be left on
+            // unconditionally; now it would paint the contents red.
+            subtitleColor = if (notificationsEnabled) {
+                Color.Unspecified
+            } else {
+                MaterialTheme.colorScheme.error
+            },
             icon = if (notificationsEnabled) Icons.Default.Notifications else Icons.Default.NotificationsOff,
             iconTint = MaterialTheme.colorScheme.error,
             onClick = { onOpenPage(SettingsPage.NOTIFICATIONS) }
         )
         AppleListRow(
             title = stringResource(R.string.settings_page_data),
+            subtitle = stringResource(R.string.settings_page_data_sub),
             icon = Icons.Default.Storage,
             iconTint = SubFlowAccents.blue,
             onClick = { onOpenPage(SettingsPage.DATA) }
         )
         AppleListRow(
             title = stringResource(R.string.settings_page_about),
+            subtitle = stringResource(R.string.settings_page_about_sub),
             icon = Icons.Default.Info,
             iconTint = MaterialTheme.colorScheme.primary,
             showDivider = false,
