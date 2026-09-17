@@ -412,8 +412,13 @@ fun DashboardScreen(
                 exit = fadeOut() + slideOutVertically { -it / 2 },
                 modifier = Modifier.align(Alignment.TopCenter)
             ) {
+                // Opaque, not nearly-opaque. At 96% the white cards scrolling
+                // underneath came through as legible grey text - the quota
+                // card's body sat behind the title, and its button showed as a
+                // ghost sliced off at the divider. 4% of a white card on a
+                // grey bar is not a frosted effect, it is a rendering fault.
                 Surface(
-                    color = MaterialTheme.colorScheme.background.copy(alpha = 0.96f),
+                    color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column {
@@ -1098,6 +1103,8 @@ private fun SubscriptionRow(
 ) {
     val daysLeft = DateCalculators.calculateDaysUntil(sub.nextBillDate)
     val localizedCategory = localizedCategory(sub.category)
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
     // A running trial reuses every slot in this row, because what the row is
     // for does not change: what is it, when is the next thing, what does it
     // cost. The answers differ - the date is an ending, and the cost is still
@@ -1124,7 +1131,7 @@ private fun SubscriptionRow(
         isTrial && !sub.trialConverts -> stringResource(R.string.trial_no_charge)
         isTrial -> stringResource(
             R.string.trial_then_amount,
-            CurrencyFormatter.format(sub.postTrialAmount, sub.currency)
+            CurrencyFormatter.format(sub.postTrialAmount, sub.currency, locale)
         )
         sub.cycle == BillingCycle.WEEKLY -> stringResource(R.string.cycle_short_weekly)
         sub.cycle == BillingCycle.MONTHLY -> stringResource(R.string.cycle_short_monthly)

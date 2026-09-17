@@ -22,9 +22,8 @@ import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.domain.util.Trials
 import org.dpdns.alwaysup.subflow.domain.util.withAppLocale
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 /**
@@ -41,6 +40,7 @@ class RenewalNotificationWorker(
 
     override suspend fun doWork(): Result {
         val localized = context.withAppLocale()
+        val locale = localized.appLocale
         val dao = SubFlowDatabase.getDatabase(context).subscriptionDao()
         val subs = dao.getActiveSubscriptions().filter { it.isActive }
 
@@ -73,10 +73,7 @@ class RenewalNotificationWorker(
             val sentKey = "${sub.id}_${matchedLead}"
             if (sentPrefs.getString(sentKey, null) == today) continue
 
-            val renewalDate = runCatching {
-                LocalDate.parse(sub.nextBillDate)
-                    .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-            }.getOrDefault(sub.nextBillDate)
+            val renewalDate = DateCalculators.formatMedium(sub.nextBillDate, locale)
 
             val title = if (daysUntil == 0L) {
                 localized.getString(R.string.notif_renewal_title_today, sub.name)
@@ -85,7 +82,7 @@ class RenewalNotificationWorker(
             }
             val body = localized.getString(
                 R.string.notif_renewal_body,
-                CurrencyFormatter.format(sub.amount, sub.currency),
+                CurrencyFormatter.format(sub.amount, sub.currency, locale),
                 renewalDate
             )
 
@@ -126,6 +123,8 @@ class RenewalNotificationWorker(
         localized: Context,
         sentPrefs: android.content.SharedPreferences
     ) {
+        val locale = localized.appLocale
+
         for (sub in subs) {
             if (!sub.isTrialPending) continue
 
@@ -147,10 +146,7 @@ class RenewalNotificationWorker(
 
             decision.announce?.let { lead ->
                 val remaining = Trials.daysRemaining(sub, today) ?: 0L
-                val endDate = runCatching {
-                    LocalDate.parse(sub.trialEndDate)
-                        .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-                }.getOrDefault(sub.trialEndDate)
+                val endDate = DateCalculators.formatMedium(sub.trialEndDate, locale)
 
                 val title = if (remaining <= 0L) {
                     localized.getString(R.string.notif_trial_title_today, sub.name)
@@ -160,7 +156,7 @@ class RenewalNotificationWorker(
                 val body = if (sub.trialConverts) {
                     localized.getString(
                         R.string.notif_trial_body_converts,
-                        CurrencyFormatter.format(sub.postTrialAmount, sub.currency),
+                        CurrencyFormatter.format(sub.postTrialAmount, sub.currency, locale),
                         endDate
                     )
                 } else {
@@ -328,3 +324,20 @@ class RenewalNotificationWorker(
         }
     }
 }
+
+/*
+ * A reminder's words already come from the app's own language, through
+ * `withAppLocale`. The figures and dates written into them have to as well.
+ *
+ * `CurrencyFormatter.format` and `DateCalculators.formatMedium` both fall back
+ * to `Locale.getDefault()`, which is the *system* language unless MainActivity
+ * has run in this process and called `Locale.setDefault`. A reminder that
+ * wakes a cold process is exactly the case where it has not, so the sentence
+ * arrived in one language with its number grouping and its date written in
+ * another. Reading the locale off the localized context gives one answer, and
+ * it is the app's.
+ */
+
+/** The language [withAppLocale] bound this context to. */
+private val Context.appLocale: Locale
+    get() = resources.configuration.locales[0]

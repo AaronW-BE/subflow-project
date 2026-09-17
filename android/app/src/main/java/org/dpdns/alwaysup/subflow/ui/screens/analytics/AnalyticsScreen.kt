@@ -604,6 +604,9 @@ private fun TopCommitmentRow(
     sub: Subscription,
     primaryCurrency: String
 ) {
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
+
     AppleCard(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -654,7 +657,7 @@ private fun TopCommitmentRow(
                 )
                 if (!sub.currency.equals(primaryCurrency, ignoreCase = true)) {
                     Text(
-                        text = "(${CurrencyFormatter.format(sub.amount, sub.currency)})",
+                        text = "(${CurrencyFormatter.format(sub.amount, sub.currency, locale)})",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
