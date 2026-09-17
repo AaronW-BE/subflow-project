@@ -13,6 +13,7 @@ import org.dpdns.alwaysup.subflow.domain.model.SubFlowBackupContainer
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.dpdns.alwaysup.subflow.BuildConfig
@@ -48,30 +49,11 @@ class SubscriptionRepository(
             return Result.failure(QuotaReachedException())
         }
 
-        // Always store a renewal date that is genuinely in the future, otherwise
-        // the countdown and the reminder worker both go stale.
-        //
-        // A trial is the exception, and normalising it here is what lets the
-        // rest of the app stay ignorant of trials: its next dated event is the
-        // end of the trial, and it costs nothing until then. Forcing amount to
-        // zero at the single write path is why no total, chart or breakdown has
-        // to remember to exclude trials - and why none of them can forget to.
-        val normalised = if (subscription.isTrial) {
-            subscription.copy(
-                amount = 0.0,
-                nextBillDate = subscription.trialEndDate.ifBlank { subscription.firstBillDate },
-                updatedAt = System.currentTimeMillis()
+        dao.insertOrUpdate(
+            SubscriptionEntity.fromDomain(
+                normaliseForWrite(subscription).copy(updatedAt = System.currentTimeMillis())
             )
-        } else {
-            subscription.copy(
-                nextBillDate = DateCalculators.computeNextRenewalDate(
-                    subscription.firstBillDate,
-                    subscription.cycle
-                ),
-                updatedAt = System.currentTimeMillis()
-            )
-        }
-        dao.insertOrUpdate(SubscriptionEntity.fromDomain(normalised))
+        )
         return Result.success(Unit)
     }
 
@@ -325,6 +307,45 @@ class SubscriptionRepository(
 
     companion object {
         private const val TAG = "SubFlowRepo"
+
+        /**
+         * The dates and figures every write has to agree on, decided in one place.
+         *
+         * A renewal date must be genuinely in the future or the countdown and the
+         * reminder worker both go stale. A trial is the exception: its next dated
+         * event is the end of the trial, and it costs nothing until then. Forcing
+         * amount to zero here is why no total, chart or breakdown has to remember
+         * to exclude trials - and why none of them can forget to.
+         *
+         * The exception is keyed on [Subscription.isTrialPending], not on
+         * `isTrial`. `Trials.cancel` leaves `isTrial` true and only moves the
+         * outcome, so on `isTrial` a *cancelled* trial kept taking the trial
+         * branch: every later write pinned its renewal date back to a trial end
+         * that had already passed. Resume one and it sat in the list as "Overdue,
+         * $0.00" forever - rollForwardDueRenewals skips trials, so nothing would
+         * ever advance it again. A resolved trial is not a trial any more; it is a
+         * subscription with a history.
+         *
+         * Pure, and takes [today], so the rules can be read and tested without a
+         * database or a clock.
+         */
+        fun normaliseForWrite(
+            subscription: Subscription,
+            today: LocalDate = LocalDate.now()
+        ): Subscription = if (subscription.isTrialPending) {
+            subscription.copy(
+                amount = 0.0,
+                nextBillDate = subscription.trialEndDate.ifBlank { subscription.firstBillDate }
+            )
+        } else {
+            subscription.copy(
+                nextBillDate = DateCalculators.computeNextRenewalDate(
+                    subscription.firstBillDate,
+                    subscription.cycle,
+                    today
+                )
+            )
+        }
 
         /** Free tier ceiling. Mirrored in ADR 0002 and on the paywall. */
         const val FREE_TIER_LIMIT = 5
