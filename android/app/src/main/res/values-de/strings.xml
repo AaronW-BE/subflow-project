@@ -36,7 +36,7 @@
     <string name="clear_search_action">Suche löschen</string>
     <string name="deleted_item">„%s“ gelöscht</string>
     <string name="delete_action">Löschen</string>
-    <string name="swipe_hint">Wische eine Karte nach links, um sie zu löschen</string>
+    <string name="swipe_hint">Wische eine Karte nach links zum Löschen, nach rechts zum Pausieren</string>
     <string name="swipe_hint_dismiss">Hinweis ausblenden</string>
 
     <!-- Free quota -->
@@ -216,6 +216,8 @@
     <string name="dashboard_paused_header">Pausiert (%d)</string>
     <string name="paused_item">„%s“ pausiert</string>
     <string name="resumed_item">„%s“ fortgesetzt</string>
+    <string name="pause_action">Pausieren</string>
+    <string name="resume_action">Fortsetzen</string>
     <string name="widget_name">SubFlow</string>
     <string name="widget_description">Die Summe dieses Monats und die anstehenden Verlängerungen.</string>
     <string name="widget_preview_when_1">Noch 2 Tage</string>
