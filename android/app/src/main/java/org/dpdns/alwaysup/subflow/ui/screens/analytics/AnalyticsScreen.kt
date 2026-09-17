@@ -27,6 +27,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -237,9 +239,21 @@ fun AnalyticsScreen(
                         )
                     )
                 }
+                // The name goes in the label slot, where "Top item" used to
+                // sit. A tile this narrow cannot carry a heading, a name and a
+                // figure, and of the three the heading is the one the other
+                // two make redundant: "Netflix / 57%" says what "Top item /
+                // 57%" refused to. The heading comes back only when there is
+                // no subscription to name.
                 MetricTile(
                     modifier = Modifier.weight(1f),
-                    label = stringResource(R.string.metric_top_share)
+                    label = topSubs.firstOrNull()?.name
+                        ?: stringResource(R.string.metric_top_share),
+                    // Read out, the two halves are far enough apart to arrive
+                    // as unrelated facts, and a bare "57%" is of nothing.
+                    contentDescription = topSubs.firstOrNull()?.let {
+                        stringResource(R.string.metric_top_share_spoken, it.name, topExpensePct)
+                    }
                 ) {
                     Text(
                         text = stringResource(R.string.metric_share_percent, topExpensePct),
@@ -273,7 +287,7 @@ fun AnalyticsScreen(
 
         item(key = "categories") {
             AppleCard(modifier = Modifier.fillMaxWidth()) {
-                ProGate(isPro = isPro, onUnlock = onPaywallClick) {
+                ProGate(isPro = isPro, onUnlock = onPaywallClick, showPrompt = false) {
                     CategoryBreakdown(
                         categoryTotals = categoryTotals,
                         totalMonthly = totalMonthly,
@@ -289,7 +303,7 @@ fun AnalyticsScreen(
 
         item(key = "map") {
             AppleCard(modifier = Modifier.fillMaxWidth()) {
-                ProGate(isPro = isPro, onUnlock = onPaywallClick) {
+                ProGate(isPro = isPro, onUnlock = onPaywallClick, showPrompt = false) {
                     Column {
                         SpendTreemap(
                             items = treemapItems,
@@ -323,7 +337,7 @@ fun AnalyticsScreen(
 
         item(key = "forecast") {
             AppleCard(modifier = Modifier.fillMaxWidth()) {
-                ProGate(isPro = isPro, onUnlock = onPaywallClick) {
+                ProGate(isPro = isPro, onUnlock = onPaywallClick, showPrompt = false) {
                     Column {
                         BillingForecastChart(
                             forecast = forecast,
@@ -435,6 +449,13 @@ enum class TimeView(val labelRes: Int) {
 private fun ProGate(
     isPro: Boolean,
     onUnlock: () -> Unit,
+    /**
+     * Whether to spell out what is locked. True for the first gate on the
+     * screen and false for the rest: four identical sentences down one scroll
+     * stop being an offer and start reading like a screen that is stuck. The
+     * button stays on every one of them, so no route to the paywall is lost.
+     */
+    showPrompt: Boolean = true,
     content: @Composable () -> Unit
 ) {
     if (isPro) {
@@ -461,14 +482,16 @@ private fun ProGate(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp)
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.pro_locked_analytics),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, lineHeight = 17.sp),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 24.dp)
-            )
+            if (showPrompt) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.pro_locked_analytics),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, lineHeight = 17.sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 24.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(10.dp))
             Surface(
                 shape = RoundedCornerShape(10.dp),
@@ -501,10 +524,18 @@ private fun ChartCaption(text: String) {
 private fun MetricTile(
     modifier: Modifier = Modifier,
     label: String,
+    /** Replaces the label-then-value reading when the two need one sentence. */
+    contentDescription: String? = null,
     value: @Composable () -> Unit
 ) {
     AppleCard(
-        modifier = modifier,
+        modifier = if (contentDescription == null) {
+            modifier
+        } else {
+            modifier.semantics(mergeDescendants = true) {
+                this.contentDescription = contentDescription
+            }
+        },
         cornerRadius = 16.dp,
         contentPadding = PaddingValues(14.dp)
     ) {
@@ -512,6 +543,9 @@ private fun MetricTile(
             text = label,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            // A service name goes here now, and they are longer than "Top
+            // item" was.
+            overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )
         Spacer(modifier = Modifier.height(4.dp))

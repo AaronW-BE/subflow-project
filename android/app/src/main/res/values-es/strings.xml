@@ -179,6 +179,7 @@
     <string name="metric_top_share">Mayor gasto</string>
     <string name="metric_tracked">Seguidas</string>
     <string name="metric_share_percent">%d%%</string>
+    <string name="metric_top_share_spoken">%1$s, %2$d%% de tu total mensual</string>
     <string name="spend_map">Mapa de gastos</string>
     <string name="spend_map_caption">Cada casilla es una suscripción; su área es su parte del total mensual</string>
     <string name="spend_map_other">Todo lo demás</string>
