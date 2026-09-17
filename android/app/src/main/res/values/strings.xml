@@ -182,6 +182,7 @@
     <string name="metric_top_share">Top item</string>
     <string name="metric_tracked">Tracked</string>
     <string name="metric_share_percent">%d%%</string>
+    <string name="metric_top_share_spoken">%1$s, %2$d%% of your monthly total</string>
     <string name="spend_map">Spend map</string>
     <string name="spend_map_caption">Every tile is one subscription; its area is its share of the monthly total</string>
     <string name="spend_map_other">Everything else</string>

@@ -186,6 +186,7 @@
     <string name="metric_top_share">最大單項</string>
     <string name="metric_tracked">已記錄</string>
     <string name="metric_share_percent">%d%%</string>
+    <string name="metric_top_share_spoken">%1$s，佔月度總額 %2$d%%</string>
     <string name="spend_map">支出面積圖</string>
     <string name="spend_map_caption">每一塊代表一筆訂閱，面積代表它在每月總支出中的佔比</string>
     <string name="spend_map_other">其餘訂閱</string>
