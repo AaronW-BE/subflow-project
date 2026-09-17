@@ -30,6 +30,7 @@
     <string name="back_to_top">回到頂部</string>
     <string name="upgrade_to_pro">升級 Pro</string>
     <string name="clear_search">清除搜尋</string>
+    <string name="clear_name">清除名稱</string>
     <string name="choose_custom_logo">選擇圖示</string>
     <string name="remove_custom_logo">移除圖示</string>
     <string name="search_currency_hint">搜尋貨幣或代碼</string>

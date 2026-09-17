@@ -23,6 +23,7 @@
     <string name="back_to_top">Back to top</string>
     <string name="upgrade_to_pro">Upgrade to Pro</string>
     <string name="clear_search">Clear search</string>
+    <string name="clear_name">Clear name</string>
     <string name="choose_custom_logo">Choose a logo</string>
     <string name="remove_custom_logo">Remove logo</string>
     <string name="search_currency_hint">Search currency or code</string>
