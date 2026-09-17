@@ -222,6 +222,7 @@
     <string name="dashboard_paused_header">En pause (%d)</string>
     <string name="paused_item">« %s » mis en pause</string>
     <string name="resumed_item">« %s » repris</string>
+    <string name="resumed_as_paid">« %1$s » repris à %2$s</string>
     <string name="pause_action">Mettre en pause</string>
     <string name="resume_action">Reprendre</string>
     <string name="widget_name">SubFlow</string>

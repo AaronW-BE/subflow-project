@@ -98,6 +98,74 @@ class WriteNormalisationTest {
         assertEquals(end.plusMonths(1).toString(), out.nextBillDate)
     }
 
+    // ------------------------------------------- what resuming a trial means
+
+    private fun resume(s: Subscription) =
+        SubscriptionRepository.resolveActiveChange(s, active = true)
+
+    @Test
+    fun `resuming a cancelled trial starts paying for it`() {
+        // The user said they cancelled, then changed their mind. That is the
+        // same thing as answering "it became paid", so it converts rather than
+        // coming back as a free row that never charges.
+        val cancelled = Trials.cancel(
+            sub(isTrial = true, amount = 0.0, trialEnd = today.minusDays(12))
+        )
+        val out = normalise(resume(cancelled))
+
+        assertEquals(12.99, out.amount, 0.0001)
+        assertEquals(false, out.isTrial)
+        assertEquals(TrialOutcome.CONVERTED, out.trialOutcome)
+        assertTrue(out.isActive)
+        assertTrue(LocalDate.parse(out.nextBillDate).isAfter(today))
+    }
+
+    @Test
+    fun `a trial that was never going to charge just comes back`() {
+        // trialConverts false means there is no post-trial price to adopt, so
+        // 0.00 is the truth here rather than a hole in the data.
+        val free = Trials.cancel(
+            sub(isTrial = true, amount = 0.0, trialEnd = today.minusDays(12))
+                .copy(trialConverts = false, postTrialAmount = 0.0)
+        )
+        val out = resume(free)
+
+        assertTrue(out.isActive)
+        assertTrue("it is still a trial record", out.isTrial)
+        assertEquals(TrialOutcome.CANCELLED, out.trialOutcome)
+        assertEquals(0.0, out.amount, 0.0001)
+    }
+
+    @Test
+    fun `resuming an ordinary subscription only flips the flag`() {
+        val paused = sub().copy(isActive = false)
+        val out = resume(paused)
+
+        assertTrue(out.isActive)
+        assertEquals(paused.copy(isActive = true), out)
+    }
+
+    @Test
+    fun `resuming a trial still running does not convert it`() {
+        val live = sub(isTrial = true, amount = 0.0, trialEnd = today.plusDays(5))
+            .copy(isActive = false)
+        val out = resume(live)
+
+        assertTrue(out.isTrial)
+        assertEquals(TrialOutcome.PENDING, out.trialOutcome)
+        assertEquals(0.0, out.amount, 0.0001)
+    }
+
+    @Test
+    fun `pausing never converts anything`() {
+        val cancelled = Trials.cancel(
+            sub(isTrial = true, amount = 0.0, trialEnd = today.minusDays(12))
+        ).copy(isActive = true)
+        val out = SubscriptionRepository.resolveActiveChange(cancelled, active = false)
+
+        assertEquals(cancelled.copy(isActive = false), out)
+    }
+
     // -------------------------------------------------- an ordinary one
 
     @Test
