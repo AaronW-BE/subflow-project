@@ -51,7 +51,13 @@ android {
         // language instead of the one chosen in the app; it also gives the
         // launcher's widget picker a preview instead of the app icon. 7
         // follows the upload of 6: a Settings page's back button and title on
-        // one row, and Contact support writing to bin-tech@outlook.com.
+        // one row, and Contact support writing to bin-tech@outlook.com. 8
+        // follows the upload of 7: a swipe right that pauses or resumes a
+        // subscription, an Analytics screen whose Monthly/Annual switch
+        // changes every figure, a CSV export Excel opens with its accents
+        // intact, a cancelled trial that resumes as paid, restores that keep
+        // the best plan owned, and a long run of layout fixes for large text,
+        // narrow phones and wide screens.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
         // looking for, not a correction to one that shipped. 1.2.0 for the
@@ -60,8 +66,9 @@ android {
         // likewise: pause and the widget are both things to go and find.
         // 1.3.1 is a patch: nothing new to find, a fix to something that shipped.
         // 1.3.2 likewise: a tighter Settings header and a new support address.
-        versionCode = 7
-        versionName = "1.3.2"
+        // 1.4.0 is a minor bump again: swipe-to-pause is a new gesture to find.
+        versionCode = 8
+        versionName = "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

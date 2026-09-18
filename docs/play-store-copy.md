@@ -15,6 +15,90 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.4.0 (versionCode 8): release notes
+
+Changes since 1.3.2 (versionCode 7):
+
+| Change | Source |
+|---|---|
+| Swipe right to pause or resume a subscription; swipe left still deletes | BIN-41, PR #42 |
+| Resuming a cancelled trial restarts it as a paid subscription | BIN-49, PR #50 |
+| Analytics: the Monthly/Annual switch changes every figure; shares add up to 100%; labelled figures | BIN-43, BIN-50, BIN-51; PR #44, #52, #53 |
+| CSV export opens in Excel with accents and CJK text intact (UTF-8 BOM) | BIN-52, PR #54 |
+| Restore keeps the best plan owned; buying an owned plan says "Pro restored" | BIN-54, PR #56 |
+| An ended trial says "Trial ended" | BIN-55, PR #57 |
+| Home: compact free-plan card when nearly full; no billing error at launch | BIN-57, BIN-59, PR #59, #61 |
+| Polish: wide screens, large text, narrow phones, German labels, Save button, reminder chips, collapsed bar, add button, category row, empty filters, Settings subtitles, back to top, undo time, onboarding Skip, add-form Pro labels, paywall screen-reader labels | BIN-38–40, 42, 44–47, 53, 56, 58; PR #39–41, #43, #45–48, #51, #55, #58, #60 |
+| Not user-visible: resolved-trial write normalisation, tests | BIN-48, PR #49 |
+
+A minor release: swipe-to-pause is a new gesture to go and find. The terms are
+each app's own: *Pause/Resume* is 暂停/恢复 · 暫停/恢復 · *pausieren/fortsetzen* ·
+*mettre en pause/reprendre* · *pausar/reanudar* · 停止/再開; *Undo* is 撤销 · 復原 ·
+*Widerrufen* · *Annuler* · *Deshacer* · 元に戻す; the Analytics switch is
+按月/按年 · 依月/依年 · *Monatlich/Jährlich* · *Mensuel/Annuel* · *Mensual/Anual* ·
+月間/年間.
+
+```
+<en-US>
+• Swipe a subscription right to pause it, and right again to resume. Swiping left still deletes it, with Undo.
+• Analytics: switching between Monthly and Annual now changes every figure, and category shares always add up to 100%.
+• CSV reports now open in Excel with accents and other characters intact.
+• Resuming a cancelled trial now restarts it as a paid subscription.
+• Clearer layouts with large text, on small phones and on tablets.
+</en-US>
+<zh-CN>
+• 向右滑动订阅即可暂停，再向右滑动即可恢复；向左滑动仍是删除，并可撤销。
+• 分析：在“按月”和“按年”之间切换时，所有数字都会随之变化，各分类占比加起来始终是 100%。
+• 导出的 CSV 报表用 Excel 打开时，重音字母和中文不再乱码。
+• 恢复一个已取消的试用时，会直接按付费订阅恢复。
+• 大字体、小屏手机和平板上的排版更清晰。
+</zh-CN>
+<zh-TW>
+• 將訂閱向右滑動即可暫停，再向右滑動即可恢復；向左滑動仍是刪除，並可復原。
+• 分析：在「依月」和「依年」之間切換時，所有數字都會跟著變動，各分類占比加總一定是 100%。
+• 匯出的 CSV 報表用 Excel 開啟時，重音字母和中文不再變成亂碼。
+• 恢復已取消的試用時，會直接以付費訂閱恢復。
+• 在大字體、小螢幕手機和平板上，版面更清楚。
+</zh-TW>
+<zh-HK>
+• 將訂閱向右滑動即可暫停，再向右滑動即可恢復；向左滑動仍是刪除，並可復原。
+• 分析：在「依月」和「依年」之間切換時，所有數字都會跟著變動，各分類占比加總一定是 100%。
+• 匯出的 CSV 報表用 Excel 開啟時，重音字母和中文不再變成亂碼。
+• 恢復已取消的試用時，會直接以付費訂閱恢復。
+• 在大字體、小螢幕手機和平板上，版面更清楚。
+</zh-HK>
+<de-DE>
+• Wische ein Abo nach rechts, um es zu pausieren, und erneut nach rechts, um es fortzusetzen. Nach links löschst du es weiterhin – mit „Widerrufen“.
+• Analyse: „Monatlich“/„Jährlich“ ändert jetzt alle Zahlen, und die Kategorieanteile ergeben immer 100 %.
+• CSV-Berichte zeigen in Excel jetzt Umlaute korrekt an.
+• Eine gekündigte Testphase wird beim Fortsetzen jetzt als bezahltes Abo fortgesetzt.
+• Klareres Layout bei großer Schrift, auf kleinen Handys und Tablets.
+</de-DE>
+<fr-FR>
+• Balayez un abonnement vers la droite pour le mettre en pause, puis encore pour le reprendre. Vers la gauche, il est toujours supprimé, avec « Annuler ».
+• Analyse : « Mensuel »/« Annuel » change désormais tous les chiffres, et les parts par catégorie font toujours 100 %.
+• Les rapports CSV s’ouvrent dans Excel avec les accents intacts.
+• Reprendre un essai résilié le reprend désormais en abonnement payant.
+• Mise en page plus claire en grand texte, sur petits téléphones et tablettes.
+</fr-FR>
+<es-ES>
+• Desliza una suscripción a la derecha para pausarla y otra vez para reanudarla. A la izquierda se sigue eliminando, con «Deshacer».
+• Análisis: «Mensual»/«Anual» ahora cambia todas las cifras, y las partes por categoría siempre suman 100 %.
+• Los informes CSV se abren en Excel con los acentos intactos.
+• Al reanudar una prueba cancelada, se reanuda como suscripción de pago.
+• Diseño más claro con texto grande, en móviles pequeños y en tablets.
+</es-ES>
+<ja-JP>
+• サブスクを右にスワイプすると停止、もう一度右にスワイプすると再開できます。左スワイプは引き続き削除で、「元に戻す」も使えます。
+• 分析：「月間」と「年間」を切り替えると、すべての数値が切り替わるようになりました。カテゴリの割合は常に合計 100% です。
+• CSV レポートを Excel で開いても、日本語やアクセント記号が文字化けしなくなりました。
+• 解約したトライアルを再開すると、有料のサブスクとして再開されます。
+• 大きな文字、小さな画面、タブレットでのレイアウトを改善しました。
+</ja-JP>
+```
+
+---
+
 ## 1.3.2 (versionCode 7): release notes
 
 Changes since 1.3.1 (versionCode 6):
@@ -739,25 +823,31 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 7 / versionName 1.3.2**. 6 is used up.
-- [ ] **Release notes**: paste the whole 1.3.2 block, all languages.
-- [ ] **Screenshot `05-settings.png` replaced (2026-09-14).** It shows the
-      Preferences page, whose header changed in #36: the back button and the
-      title are now on one row. Upload it in place of the old one. Captured the
-      same way as the rest (1080×2160, English, USD, light, airplane mode). The
-      other five are unchanged. Still no widget screenshot.
-- [ ] **Contact details: switch to `bin-tech@outlook.com`.** The app's Contact
-      support and the hosted privacy policy and terms already use it, but two
-      Console fields entered on 2026-08-28 still say `zmtzwb@gmail.com`: Main
-      store listing → 详细联系信息 (email), and the IARC content-rating contact.
-- [ ] **Store listing text: no change from 1.3.1.** Since v1.3.1 only
-      `SettingsScreen.kt` and docs changed, and no listing names the support
-      address or describes the Settings header. If the earlier listing work is
-      still open — replacing the en-US text and adding the six translations
-      under Main store listing → Manage translations — it still applies.
-- [ ] **Data safety: no changes.** Re-checked since v1.3.1: no manifest or
-      dependency change. The support address is a mailto link the user chooses
-      to open; the app sends nothing itself.
+- [ ] **versionCode 8 / versionName 1.4.0**. 7 is used up.
+- [ ] **Release notes**: paste the whole 1.4.0 block, all languages.
+- [ ] **Check billing on a real device before promoting past internal
+      testing.** Two changes here (PR #56, #61) could not run on the emulator,
+      which has no Play Billing. With a license-tester account: (1) own two
+      products (e.g. Lifetime plus a running subscription) and tap *Restore
+      purchases*: Pro must show the Lifetime tier; (2) on the paywall, try to
+      buy a plan the account already owns: expect "Pro restored." and the
+      already-Pro card; (3) with billing unreachable, the "billing is
+      unavailable" message must appear on the paywall, never on the home screen.
+- [ ] **Screenshots: optional refresh, none wrong.** Since 1.3.2, `01-dashboard`
+      and `02-dashboard-dark` would show the category row fading at its edge
+      instead of a chip cut off. `04-add` would show "Pro adds 3 and 7 days"
+      under Renewal alert instead of "Notify before the charge lands". Nothing
+      in the current shots is false; retake them only if you want them current.
+- [ ] **Store listing text: no change.** Re-checked every row of *What each
+      claim rests on*: 34 presets, free limit 5, 1-day reminder free with 3/7 on
+      Pro, trial reminders, 40 currencies, four `ProGate`s plus gated CSV export,
+      7 languages, and `BACKEND_ENABLED` false in release (no
+      `subflow.apiBaseUrl` set). Swipe-to-pause isn't named in any listing, so
+      nothing is contradicted. The open listing work from 1.3.x (replacing the
+      en-US text, adding the six translations) still applies if not yet done.
+- [ ] **Data safety: no changes.** Since v1.3.2 there are no changes to the
+      manifest, dependencies or network endpoints. The CSV byte-order mark and
+      the billing fixes change no data collected or shared.
 
 ### How the screenshots were taken
 
