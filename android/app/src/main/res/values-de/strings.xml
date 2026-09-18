@@ -184,6 +184,7 @@
     <string name="metric_top_share_spoken">%1$s, %2$d%% deiner monatlichen Gesamtsumme</string>
     <string name="spend_map">Ausgabenkarte</string>
     <string name="spend_map_caption">Jede Kachel ist ein Abo; ihre Fläche ist ihr Anteil an den Monatskosten</string>
+    <string name="spend_map_caption_annual">Jede Kachel ist ein Abo; ihre Fläche ist ihr Anteil an den Jahreskosten</string>
     <string name="spend_map_other">Alles Übrige</string>
     <string name="spend_map_summary">Ausgabenkarte: %1$s aus %2$d Abos, größtes ist %3$s</string>
     <string name="billing_forecast">Rechnungsprognose</string>
