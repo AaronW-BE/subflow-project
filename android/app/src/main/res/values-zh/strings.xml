@@ -191,7 +191,7 @@
     <string name="forecast_peak">%1$s 是支出最重的一个月，共 %2$s</string>
     <string name="forecast_even">未来六个月比较平均，每月约 %1$s</string>
     <string name="forecast_average_line">虚线：月均支出</string>
-    <string name="history_caption">近 6 个月，依据每个订阅的开始时间推算</string>
+    <string name="history_caption">近 6 个月，按当前在付的订阅、依各自开始时间推算</string>
     <string name="analytics_empty">添加订阅后即可查看支出分析。</string>
     <string name="pro_locked_analytics">图表与明细分析属于 Pro 功能。</string>
     <string name="unlock_with_pro">升级解锁</string>

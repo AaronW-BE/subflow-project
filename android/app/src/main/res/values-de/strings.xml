@@ -191,7 +191,7 @@
     <string name="forecast_peak">%1$s ist der teuerste Monat mit %2$s</string>
     <string name="forecast_even">Die nächsten sechs Monate sind gleichmäßig, etwa %1$s pro Monat</string>
     <string name="forecast_average_line">Gestrichelt: Monatsdurchschnitt</string>
-    <string name="history_caption">Letzte 6 Monate, basierend auf dem Startdatum jedes Abos</string>
+    <string name="history_caption">Letzte 6 Monate deiner heutigen Abos, ab ihrem jeweiligen Startdatum</string>
     <string name="analytics_empty">Füge ein Abo hinzu, um deine Auswertung zu sehen.</string>
     <string name="pro_locked_analytics">Die Diagramme und Auswertungen gehören zu Pro.</string>
     <string name="unlock_with_pro">Mit Pro freischalten</string>

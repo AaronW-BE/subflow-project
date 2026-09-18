@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
@@ -590,9 +591,16 @@ private fun CategoryBreakdown(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Whole percentages that add up to 100. Truncating each one on its own
+        // lost a point per category - four categories came to 98% - and a
+        // breakdown that falls short of the whole reads as a sum gone wrong.
+        val percentages = remember(categoryTotals) {
+            wholePercentages(categoryTotals.map { it.second })
+        }
+
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             categoryTotals.forEachIndexed { idx, (cat, amt) ->
-                val pct = if (totalMonthly > 0) (amt / totalMonthly * 100.0).toInt() else 0
+                val pct = percentages[idx]
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -689,9 +697,17 @@ private fun TopCommitmentRow(
                         fontSize = 16.sp
                     )
                 )
-                if (!sub.currency.equals(primaryCurrency, ignoreCase = true)) {
+                // The figure above is a monthly equivalent in the home currency,
+                // which is the right thing to rank by and the wrong thing to
+                // leave unexplained. When it is not what the subscription is
+                // actually charged - another currency, or a cycle other than
+                // monthly - the real charge goes underneath. A $96-a-year plan
+                // used to read as "$8.00" with nothing to say it was yearly.
+                val converted = !sub.currency.equals(primaryCurrency, ignoreCase = true)
+                if (converted || sub.cycle != BillingCycle.MONTHLY) {
                     Text(
-                        text = "(${CurrencyFormatter.format(sub.amount, sub.currency, locale)})",
+                        text = "(" + CurrencyFormatter.format(sub.amount, sub.currency, locale) +
+                            cycleSuffix(sub.cycle) + ")",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
@@ -879,4 +895,36 @@ internal fun buildSpendHistory(
             amount = total
         )
     }
+}
+
+/** "/mo", "/yr" and so on - the same short suffix the dashboard rows use. */
+@Composable
+private fun cycleSuffix(cycle: BillingCycle): String = stringResource(
+    when (cycle) {
+        BillingCycle.WEEKLY -> R.string.cycle_short_weekly
+        BillingCycle.MONTHLY -> R.string.cycle_short_monthly
+        BillingCycle.QUARTERLY -> R.string.cycle_short_quarterly
+        BillingCycle.ANNUALLY -> R.string.cycle_short_yearly
+    }
+)
+
+/**
+ * Whole-number percentages of [values] that add up to exactly 100.
+ *
+ * Largest remainder: floor every share, then hand the points the flooring
+ * lost to the shares that lost the most. The result is as close to each true
+ * share as whole numbers allow and never sums to 98 or 101. Empty or all-zero
+ * input gives all zeros, not a division by zero.
+ */
+internal fun wholePercentages(values: List<Double>): List<Int> {
+    val total = values.sum()
+    if (values.isEmpty() || total <= 0.0) return values.map { 0 }
+    val exact = values.map { it / total * 100.0 }
+    val floors = exact.map { kotlin.math.floor(it).toInt() }
+    val missing = 100 - floors.sum()
+    val bump = exact.indices
+        .sortedByDescending { exact[it] - floors[it] }
+        .take(missing)
+        .toSet()
+    return floors.mapIndexed { i, f -> if (i in bump) f + 1 else f }
 }
