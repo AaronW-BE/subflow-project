@@ -19,8 +19,23 @@ object ExportUtils {
 
     private const val EXPORT_DIR = "exports"
 
+    /** U+FEFF: written as EF BB BF, the three bytes Excel looks for. */
+    const val UTF8_BOM = "\uFEFF"
+
+    /**
+     * The spending report as CSV, meant to be opened in a spreadsheet.
+     *
+     * It starts with a UTF-8 byte-order mark. Excel opens a double-clicked
+     * .csv in the system's legacy code page unless one is there, which turned
+     * every Chinese, Japanese or accented name and note into mojibake - in an
+     * app that ships in seven languages. Sheets and Numbers ignore it.
+     *
+     * The mark belongs to this file and not to [shareIntent], which also
+     * writes the JSON backup: JSON does not allow one, and the app's own
+     * restore reads that file with Gson.
+     */
     fun buildCsv(subs: List<Subscription>, primaryCurrency: String): String {
-        val sb = StringBuilder()
+        val sb = StringBuilder(UTF8_BOM)
         sb.append(
             "Name,Category,Amount,Currency,Cycle,MonthlyNormalized,MonthlyIn$primaryCurrency," +
                 "FirstBillDate,NextRenewalDate,ReminderDaysBefore,Notes\n"
