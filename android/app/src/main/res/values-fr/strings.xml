@@ -191,7 +191,7 @@
     <string name="forecast_peak">%1$s est le mois le plus lourd, avec %2$s</string>
     <string name="forecast_even">Les six prochains mois sont réguliers, environ %1$s par mois</string>
     <string name="forecast_average_line">Pointillés : moyenne mensuelle</string>
-    <string name="history_caption">6 derniers mois, d’après la date de début de chaque abonnement</string>
+    <string name="history_caption">6 derniers mois de ce que vous payez aujourd’hui, depuis le début de chaque abonnement</string>
     <string name="analytics_empty">Ajoutez un abonnement pour voir la répartition de vos dépenses.</string>
     <string name="pro_locked_analytics">Les graphiques et les analyses détaillées font partie de Pro.</string>
     <string name="unlock_with_pro">Débloquer avec Pro</string>

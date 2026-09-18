@@ -198,7 +198,7 @@
     <string name="forecast_peak">%1$s 是支出最多的月份，共 %2$s</string>
     <string name="forecast_even">未來六個月相當平均，每月約 %1$s</string>
     <string name="forecast_average_line">虛線：每月平均支出</string>
-    <string name="history_caption">近 6 個月，依每筆訂閱的開始時間推算</string>
+    <string name="history_caption">近 6 個月，依目前在付的訂閱、按各自開始時間推算</string>
     <string name="analytics_empty">新增訂閱後即可查看支出分析。</string>
     <string name="pro_locked_analytics">圖表與明細分析是 Pro 功能。</string>
     <string name="unlock_with_pro">升級解鎖</string>

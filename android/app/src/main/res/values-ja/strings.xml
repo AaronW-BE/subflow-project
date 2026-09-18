@@ -191,7 +191,7 @@
     <string name="forecast_peak">%1$s が最も重い月で、合計 %2$s です</string>
     <string name="forecast_even">今後 6 か月は平均的で、月あたり約 %1$s です</string>
     <string name="forecast_average_line">破線：月平均</string>
-    <string name="history_caption">直近 6 か月・各サブスクの開始日をもとに算出</string>
+    <string name="history_caption">直近 6 か月・現在支払い中のサブスクを各開始日から算出</string>
     <string name="analytics_empty">サブスクを追加すると支出の内訳が表示されます。</string>
     <string name="pro_locked_analytics">各グラフと内訳は Pro の機能です。</string>
     <string name="unlock_with_pro">Pro で解放</string>

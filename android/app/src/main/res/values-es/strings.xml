@@ -191,7 +191,7 @@
     <string name="forecast_peak">%1$s es el mes más caro, con %2$s</string>
     <string name="forecast_even">Los próximos seis meses son parejos, unos %1$s al mes</string>
     <string name="forecast_average_line">Línea discontinua: media mensual</string>
-    <string name="history_caption">Últimos 6 meses, según la fecha de inicio de cada suscripción</string>
+    <string name="history_caption">Últimos 6 meses de lo que pagas hoy, desde el inicio de cada suscripción</string>
     <string name="analytics_empty">Añade una suscripción para ver el desglose de tu gasto.</string>
     <string name="pro_locked_analytics">Los gráficos y los desgloses forman parte de Pro.</string>
     <string name="unlock_with_pro">Desbloquear con Pro</string>
