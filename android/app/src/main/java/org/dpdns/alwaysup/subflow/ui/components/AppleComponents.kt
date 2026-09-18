@@ -90,6 +90,13 @@ fun AppleCard(
     border: BorderStroke? = BorderStroke(Dp.Hairline, MaterialTheme.colorScheme.outline),
     onClick: (() -> Unit)? = null,
     onClickLabel: String? = null,
+    /**
+     * What a screen reader calls the card when it is tappable. A card that is
+     * one of a set of choices is a radio button, not a button - and the role
+     * has to be set here, because a semantics modifier from outside would be
+     * overwritten by this card's own clickable.
+     */
+    role: Role = Role.Button,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -116,7 +123,7 @@ fun AppleCard(
                         interactionSource = interactionSource,
                         indication = null,
                         onClickLabel = onClickLabel,
-                        role = Role.Button,
+                        role = role,
                         onClick = {
                             haptics.tick()
                             onClick()
