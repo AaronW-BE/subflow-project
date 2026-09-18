@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -320,7 +321,8 @@ fun AddSubscriptionScreen(
                     Text(
                         text = stringResource(R.string.cancel),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
                     )
                 }
 
@@ -333,7 +335,17 @@ fun AddSubscriptionScreen(
                         fontSize = 17.sp
                     ),
                     color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    // Weighted, so the title is what gives way. Unweighted it
+                    // was measured first and took the width it wanted: at a
+                    // large font on a narrow phone German "Sichern" was left with
+                    // room for "Si", and the one button that matters here
+                    // stopped saying what it does.
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
                 )
 
                 TextButton(
@@ -375,6 +387,7 @@ fun AddSubscriptionScreen(
                     Text(
                         text = stringResource(R.string.save),
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                         color = if (isValid) {
                             MaterialTheme.colorScheme.primary
@@ -1338,13 +1351,19 @@ private fun ReminderLeadPicker(
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+            // Chips whose label wraps to two lines stretch the others with
+            // them, so the three stay one even row.
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
         ) {
             ReminderLead.entries.forEach { lead ->
                 val locked = lead.isPro && !isPro
                 val selected = selectedDays == lead.days
                 Surface(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     shape = RoundedCornerShape(10.dp),
                     color = when {
                         selected -> MaterialTheme.colorScheme.primary
@@ -1355,7 +1374,7 @@ private fun ReminderLeadPicker(
                     Row(
                         modifier = Modifier
                             .heightIn(min = 40.dp)
-                            .padding(horizontal = 6.dp),
+                            .padding(horizontal = 6.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -1372,8 +1391,14 @@ private fun ReminderLeadPicker(
                                 locked -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 else -> MaterialTheme.colorScheme.onSurface
                             },
-                            maxLines = 1,
+                            // Two lines rather than one: at a large font
+                            // "1 day before" came out as "1 day befo…" even
+                            // on a full-size phone, and in German as
+                            // "1 Tag vo…" - the number survived, the meaning
+                            // did not.
+                            maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
+                            textAlign = TextAlign.Center,
                             // Weighted, so the padlock after it keeps its 14dp
                             // rather than being pushed out of the chip. Without
                             // this the label ate the whole width at a large
