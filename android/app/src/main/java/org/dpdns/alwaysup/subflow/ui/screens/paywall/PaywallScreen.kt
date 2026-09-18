@@ -28,6 +28,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -85,7 +89,7 @@ fun PaywallScreen(
     val monthly = plans[ProTier.MONTHLY]
     val lifetime = plans[ProTier.LIFETIME]
 
-    // Default to the plan with a trial, else the annual plan, else whatever loaded.
+    // Annual first, because it is the best value; then whichever loaded.
     var selectedTier by remember(plans.keys) {
         mutableStateOf(
             when {
@@ -415,7 +419,10 @@ private fun PlanList(
     onSelect: (ProTier) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        // One choice among several, so a screen reader can say "1 of 3".
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         annual?.let { plan ->
@@ -480,7 +487,11 @@ private fun PlanCard(
     AppleCard(
         modifier = Modifier
             .fillMaxWidth()
-            .scale(scale),
+            .scale(scale)
+            // The tick in the circle was drawn and never declared: all three
+            // cards read out identically, so someone using a screen reader
+            // could not tell which plan Continue was about to buy.
+            .semantics { this.selected = selected },
         cornerRadius = 18.dp,
         backgroundColor = if (selected) {
             MaterialTheme.colorScheme.primary.copy(alpha = 0.06f)
@@ -493,7 +504,8 @@ private fun PlanCard(
             color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
         ),
         onClick = onClick,
-        onClickLabel = title
+        onClickLabel = title,
+        role = Role.RadioButton
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

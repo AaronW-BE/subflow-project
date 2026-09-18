@@ -56,7 +56,7 @@
     <string name="quota_progress">已用 %1$d / %2$d</string>
     <string name="quota_nudge_title">免費版只剩 1 個名額</string>
     <string name="quota_nudge_title_full">免費版名額已用完</string>
-    <string name="quota_nudge_body">升級 Pro 可解除 5 筆訂閱的上限、開啟續訂提醒並移除廣告。</string>
+    <string name="quota_nudge_body">升級 Pro 可解除 5 筆訂閱的上限、增加提前 3 天和 7 天的續訂提醒並移除廣告。</string>
     <string name="quota_nudge_cta">了解 Pro</string>
 
     <!-- Add Subscription -->
