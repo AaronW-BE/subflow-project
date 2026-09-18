@@ -275,7 +275,11 @@ fun SubscriptionDetailScreen(
                     )
                     if (isTrial) {
                         AppleListRow(
-                            title = stringResource(R.string.detail_trial_end),
+                            // Next to "This trial has ended", a row saying it
+                            // "ends" on a date already gone contradicted it.
+                            title = stringResource(
+                                if (trialOver) R.string.trial_ended else R.string.detail_trial_end
+                            ),
                             valueText = DateCalculators.formatMedium(subscription.trialEndDate, locale)
                         )
                         AppleListRow(
