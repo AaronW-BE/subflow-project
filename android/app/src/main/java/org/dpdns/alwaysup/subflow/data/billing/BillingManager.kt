@@ -69,6 +69,28 @@ class BillingManager(
         val ALL_SKUS = setOf(SKU_MONTHLY, SKU_ANNUAL, SKU_LIFETIME)
 
         private const val MAX_RECONNECT_DELAY_MS = 60_000L
+
+        internal fun tierFor(productId: String): ProTier? = when (productId) {
+            SKU_MONTHLY -> ProTier.MONTHLY
+            SKU_ANNUAL -> ProTier.ANNUAL
+            SKU_LIFETIME -> ProTier.LIFETIME
+            else -> null
+        }
+
+        /**
+         * The tier to grant for everything the account owns. Someone can hold
+         * Lifetime and a subscription they have not cancelled yet; they are
+         * entitled to the better of the two, whichever order Play lists them in.
+         */
+        internal fun highestTier(productIds: List<String>): ProTier? =
+            productIds.mapNotNull { tierFor(it) }.maxByOrNull { it.rank() }
+
+        private fun ProTier.rank(): Int = when (this) {
+            ProTier.FREE -> 0
+            ProTier.MONTHLY -> 1
+            ProTier.ANNUAL -> 2
+            ProTier.LIFETIME -> 3
+        }
     }
 
     private val billingClient: BillingClient = BillingClient.newBuilder(context)
@@ -374,7 +396,9 @@ class BillingManager(
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
         when (billingResult.responseCode) {
             BillingClient.BillingResponseCode.OK -> {
-                val handled = purchases.orEmpty().map { handlePurchase(it) }
+                val updated = purchases.orEmpty()
+                val handled = updated.map { handlePurchase(it) }
+                grantHighestTier(updated)
                 when {
                     handled.any { it == PurchaseOutcome.PURCHASED } ->
                         _events.tryEmit(BillingEvent.PurchaseSuccess)
@@ -385,7 +409,11 @@ class BillingManager(
             BillingClient.BillingResponseCode.USER_CANCELED ->
                 _events.tryEmit(BillingEvent.PurchaseCancelled)
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
-                // Happens when a purchase exists but was never acknowledged.
+                // They tried to buy something this account already has - never
+                // acknowledged, or bought on another device. The query below
+                // unlocks it; treating it as a restore is what tells them so,
+                // where before Pro switched on with no word at all.
+                restoreRequested.set(true)
                 queryExistingPurchases()
             }
             else -> {
@@ -397,13 +425,27 @@ class BillingManager(
 
     private enum class PurchaseOutcome { PURCHASED, PENDING, IGNORED }
 
+    /**
+     * Grants Pro at the best tier among [purchases] that are paid for. Done once
+     * for the whole set: granting per purchase meant the last one Play happened
+     * to list won, so a Lifetime owner with a subscription still running could
+     * be recorded as Monthly.
+     */
+    private fun grantHighestTier(purchases: List<Purchase>) {
+        val tier = highestTier(
+            purchases
+                .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                .flatMap { it.products }
+        ) ?: return
+        authRepository.updateProStatus(true, tier)
+    }
+
+    /** Acknowledges and reports one purchase. Granting the tier is [grantHighestTier]'s job. */
     private fun handlePurchase(purchase: Purchase): PurchaseOutcome {
-        val tier = purchase.products.mapNotNull { tierFor(it) }.maxByOrNull { it.rank() }
-            ?: return PurchaseOutcome.IGNORED
+        if (highestTier(purchase.products) == null) return PurchaseOutcome.IGNORED
 
         return when (purchase.purchaseState) {
             Purchase.PurchaseState.PURCHASED -> {
-                authRepository.updateProStatus(true, tier)
                 if (!purchase.isAcknowledged) {
                     val params = AcknowledgePurchaseParams.newBuilder()
                         .setPurchaseToken(purchase.purchaseToken)
@@ -439,6 +481,11 @@ class BillingManager(
     }
 
     fun queryExistingPurchases() {
+        // The two callbacks can arrive on different threads, like the product
+        // queries above. Unguarded, both could miss the other's "done" and
+        // never finish, or the list could lose one side - the Lifetime purchase
+        // this whole function exists to find.
+        val lock = Any()
         var subsDone = false
         var inappDone = false
         var subsOk = false
@@ -447,14 +494,15 @@ class BillingManager(
 
         fun finishIfComplete() {
             if (!(subsDone && inappDone)) return
-            val activeTier = owned
-                .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
-                .flatMap { it.products }
-                .mapNotNull { tierFor(it) }
-                .maxByOrNull { it.rank() }
+            val activeTier = highestTier(
+                owned
+                    .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                    .flatMap { it.products }
+            )
 
             if (activeTier != null) {
                 owned.forEach { handlePurchase(it) }
+                authRepository.updateProStatus(true, activeTier)
                 if (restoreRequested.getAndSet(false)) {
                     _events.tryEmit(BillingEvent.RestoredPro)
                 }
@@ -477,37 +525,27 @@ class BillingManager(
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         ) { result, purchases ->
-            subsOk = result.responseCode == BillingClient.BillingResponseCode.OK
-            if (subsOk) owned += purchases
-            subsDone = true
-            finishIfComplete()
+            synchronized(lock) {
+                subsOk = result.responseCode == BillingClient.BillingResponseCode.OK
+                if (subsOk) owned += purchases
+                subsDone = true
+                finishIfComplete()
+            }
         }
 
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build()
         ) { result, purchases ->
-            inappOk = result.responseCode == BillingClient.BillingResponseCode.OK
-            if (inappOk) owned += purchases
-            inappDone = true
-            finishIfComplete()
+            synchronized(lock) {
+                inappOk = result.responseCode == BillingClient.BillingResponseCode.OK
+                if (inappOk) owned += purchases
+                inappDone = true
+                finishIfComplete()
+            }
         }
     }
 
     // ---------------------------------------------------------------- helpers
-
-    private fun tierFor(productId: String): ProTier? = when (productId) {
-        SKU_MONTHLY -> ProTier.MONTHLY
-        SKU_ANNUAL -> ProTier.ANNUAL
-        SKU_LIFETIME -> ProTier.LIFETIME
-        else -> null
-    }
-
-    private fun ProTier.rank(): Int = when (this) {
-        ProTier.FREE -> 0
-        ProTier.MONTHLY -> 1
-        ProTier.ANNUAL -> 2
-        ProTier.LIFETIME -> 3
-    }
 
     /** Deep-link to the Play subscription centre for an existing subscriber. */
     fun manageSubscriptionUrl(productId: String?): String {
