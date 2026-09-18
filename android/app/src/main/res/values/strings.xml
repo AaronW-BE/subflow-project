@@ -52,7 +52,6 @@
     <string name="quota_progress">%1$d of %2$d tracked</string>
     <string name="quota_nudge_title">One slot left on the free plan</string>
     <string name="quota_nudge_title_full">Your free plan is full</string>
-    <string name="quota_nudge_body">Pro removes the 5-subscription limit, adds 3- and 7-day renewal alerts and turns off ads.</string>
     <string name="quota_nudge_cta">See Pro</string>
 
     <!-- Add Subscription -->

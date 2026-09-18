@@ -49,7 +49,6 @@
     <string name="quota_progress">%1$d / %2$d 件</string>
     <string name="quota_nudge_title">無料プランの残りは 1 件です</string>
     <string name="quota_nudge_title_full">無料プランの上限に達しました</string>
-    <string name="quota_nudge_body">Pro なら 5 件の上限がなくなり、3 日前・7 日前の更新通知が加わり、広告も消えます。</string>
     <string name="quota_nudge_cta">Pro を見る</string>
 
     <!-- Add Subscription -->
