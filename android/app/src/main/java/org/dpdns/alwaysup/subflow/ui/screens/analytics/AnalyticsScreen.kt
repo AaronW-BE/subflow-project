@@ -63,6 +63,13 @@ fun AnalyticsScreen(
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
 
     var timeView by rememberSaveable { mutableStateOf(TimeView.MONTHLY) }
+    // The toggle sits at the top of the screen and reads as governing all of
+    // it. It used to change the hero and nothing else: switched to Annual, the
+    // hero said $1,025.64 and the category directly beneath it still said
+    // "Health $49.00", which reads as $49 a year. Every figure that is an
+    // amount of money per period now follows it. Shares, tile areas, the
+    // per-day figure and the month-by-month forecast are the same either way.
+    val periodFactor = if (timeView == TimeView.ANNUAL) 12.0 else 1.0
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
     val totalMonthly = remember(activeSubs, primaryCurrency) {
@@ -114,8 +121,8 @@ fun AnalyticsScreen(
     // ink - passed in rather than read inside, because the builder is a plain
     // function the tests can call.
     val otherColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-    val treemapItems = remember(activeSubs, primaryCurrency, otherLabel, otherColor) {
-        buildTreemapItems(activeSubs, primaryCurrency, otherLabel, otherColor)
+    val treemapItems = remember(activeSubs, primaryCurrency, otherLabel, otherColor, periodFactor) {
+        buildTreemapItems(activeSubs, primaryCurrency, otherLabel, otherColor, factor = periodFactor)
     }
 
     LazyColumn(
@@ -292,7 +299,8 @@ fun AnalyticsScreen(
                     CategoryBreakdown(
                         categoryTotals = categoryTotals,
                         totalMonthly = totalMonthly,
-                        primaryCurrency = primaryCurrency
+                        primaryCurrency = primaryCurrency,
+                        factor = periodFactor
                     )
                 }
             }
@@ -320,13 +328,21 @@ fun AnalyticsScreen(
                                 .height(216.dp),
                             summary = stringResource(
                                 R.string.spend_map_summary,
-                                CurrencyFormatter.format(totalMonthly, primaryCurrency, locale),
+                                CurrencyFormatter.format(totalMonthly * periodFactor, primaryCurrency, locale),
                                 activeSubs.size,
                                 topSubs.firstOrNull()?.name.orEmpty()
                             )
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        ChartCaption(text = stringResource(R.string.spend_map_caption))
+                        ChartCaption(
+                            text = stringResource(
+                                if (timeView == TimeView.ANNUAL) {
+                                    R.string.spend_map_caption_annual
+                                } else {
+                                    R.string.spend_map_caption
+                                }
+                            )
+                        )
                     }
                 }
             }
@@ -379,7 +395,8 @@ fun AnalyticsScreen(
             TopCommitmentRow(
                 rank = idx + 1,
                 sub = sub,
-                primaryCurrency = primaryCurrency
+                primaryCurrency = primaryCurrency,
+                period = timeView
             )
         }
 
@@ -558,7 +575,9 @@ private fun MetricTile(
 private fun CategoryBreakdown(
     categoryTotals: List<Pair<String, Double>>,
     totalMonthly: Double,
-    primaryCurrency: String
+    primaryCurrency: String,
+    /** 12 on the annual view. Shares are ratios and do not need it. */
+    factor: Double = 1.0
 ) {
     if (categoryTotals.isEmpty()) {
         Text(
@@ -627,7 +646,7 @@ private fun CategoryBreakdown(
                         modifier = Modifier.padding(end = 12.dp)
                     )
                     TabularCurrencyText(
-                        amount = amt,
+                        amount = amt * factor,
                         currencyCode = primaryCurrency,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontSize = 14.sp,
@@ -644,7 +663,8 @@ private fun CategoryBreakdown(
 private fun TopCommitmentRow(
     rank: Int,
     sub: Subscription,
-    primaryCurrency: String
+    primaryCurrency: String,
+    period: TimeView = TimeView.MONTHLY
 ) {
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
@@ -690,7 +710,8 @@ private fun TopCommitmentRow(
 
             Column(horizontalAlignment = Alignment.End) {
                 TabularCurrencyText(
-                    amount = CurrencyConverter.convert(sub.monthlyAmount, sub.currency, primaryCurrency),
+                    amount = CurrencyConverter.convert(sub.monthlyAmount, sub.currency, primaryCurrency) *
+                        (if (period == TimeView.ANNUAL) 12.0 else 1.0),
                     currencyCode = primaryCurrency,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
@@ -704,7 +725,11 @@ private fun TopCommitmentRow(
                 // monthly - the real charge goes underneath. A $96-a-year plan
                 // used to read as "$8.00" with nothing to say it was yearly.
                 val converted = !sub.currency.equals(primaryCurrency, ignoreCase = true)
-                if (converted || sub.cycle != BillingCycle.MONTHLY) {
+                // "Not what it is charged" depends on the view: on the annual
+                // view a yearly plan's figure is its charge and a monthly
+                // plan's is the one that needs explaining.
+                val viewCycle = if (period == TimeView.ANNUAL) BillingCycle.ANNUALLY else BillingCycle.MONTHLY
+                if (converted || sub.cycle != viewCycle) {
                     Text(
                         text = "(" + CurrencyFormatter.format(sub.amount, sub.currency, locale) +
                             cycleSuffix(sub.cycle) + ")",
@@ -827,10 +852,12 @@ internal fun buildTreemapItems(
     primaryCurrency: String,
     otherLabel: String,
     otherColor: Color,
-    maxTiles: Int = 8
+    maxTiles: Int = 8,
+    /** 12 for yearly labels. Scales every tile alike, so areas are unchanged. */
+    factor: Double = 1.0
 ): List<TreemapItem> {
     val ranked = subs
-        .map { it to CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
+        .map { it to CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) * factor }
         .filter { it.second > 0.0 }
         .sortedByDescending { it.second }
 

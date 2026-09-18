@@ -187,6 +187,7 @@
     <string name="metric_top_share_spoken">%1$s, %2$d%% of your monthly total</string>
     <string name="spend_map">Spend map</string>
     <string name="spend_map_caption">Every tile is one subscription; its area is its share of the monthly total</string>
+    <string name="spend_map_caption_annual">Every tile is one subscription; its area is its share of the yearly total</string>
     <string name="spend_map_other">Everything else</string>
     <string name="spend_map_summary">Spend map: %1$s of %2$d subscriptions, largest is %3$s</string>
     <string name="billing_forecast">Billing forecast</string>

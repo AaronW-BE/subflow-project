@@ -80,4 +80,22 @@ class TreemapItemsTest {
         )
         assertEquals(1, items.size)
     }
+
+    @Test
+    fun `the annual view scales every tile alike, so the picture does not change`() {
+        // Analytics' Monthly/Annual toggle passes 12 here. The labels must say
+        // yearly money; the areas, which are shares, must not move at all.
+        val subs = listOf(sub("a", 3.0), sub("b", 9.0), sub("c", 6.0))
+        val monthly = buildTreemapItems(subs, "USD", other, otherColor)
+        val yearly = buildTreemapItems(subs, "USD", other, otherColor, factor = 12.0)
+
+        assertEquals(monthly.map { it.label }, yearly.map { it.label })
+        monthly.zip(yearly).forEach { (m, y) ->
+            assertEquals(m.value * 12.0, y.value, 0.0001)
+        }
+        val share = { items: List<org.dpdns.alwaysup.subflow.ui.screens.analytics.TreemapItem> ->
+            items.map { it.value / items.sumOf { i -> i.value } }
+        }
+        share(monthly).zip(share(yearly)).forEach { (a, b) -> assertEquals(a, b, 1e-9) }
+    }
 }
