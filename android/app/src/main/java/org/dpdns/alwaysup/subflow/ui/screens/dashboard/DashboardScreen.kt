@@ -760,6 +760,7 @@ private fun DashboardHeader(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun HeroSpendCard(
     isDark: Boolean,
@@ -780,10 +781,14 @@ private fun HeroSpendCard(
         border = BorderStroke(Dp.Hairline, if (isDark) HairlineDark else HairlineLight)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
+            // A flow, not a row. Squeezed beside the toggle, a German compound
+            // at a large font had less room than one word needs and was cut
+            // mid-word ("GESAMTAUSG / ABEN"). Now the toggle drops to the next
+            // line and the label gets the full width, breaking between words.
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = stringResource(
@@ -795,15 +800,17 @@ private fun HeroSpendCard(
                         letterSpacing = 1.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
                     ),
-                    modifier = Modifier.weight(1f, fill = false)
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 8.dp)
                 )
-
-                Spacer(modifier = Modifier.width(8.dp))
 
                 Surface(
                     shape = RoundedCornerShape(10.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                    modifier = Modifier.clickable(onClick = onToggleView)
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable(onClick = onToggleView)
                 ) {
                     Text(
                         text = stringResource(
