@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -53,6 +54,7 @@ import org.dpdns.alwaysup.subflow.data.repository.QuotaReachedException
 import org.dpdns.alwaysup.subflow.data.repository.SignInCancelledException
 import org.dpdns.alwaysup.subflow.data.repository.SignInNotConfiguredException
 import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
 import org.dpdns.alwaysup.subflow.domain.util.ExportUtils
@@ -70,6 +72,7 @@ import org.dpdns.alwaysup.subflow.widget.refreshSubFlowWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Locale
 import kotlinx.coroutines.withContext
 
 sealed class Screen(val route: String) {
@@ -103,6 +106,8 @@ fun SubFlowNavHost(
     onPendingSubscriptionHandled: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
     val activity = context as? Activity
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
@@ -471,7 +476,14 @@ fun SubFlowNavHost(
                         if (result.exceptionOrNull() is QuotaReachedException) {
                             navController.navigate(Screen.Paywall.route)
                         }
-                        result.isSuccess
+                        result.getOrNull()
+                    },
+                    // Undo writes the record back as it was. Resuming a
+                    // cancelled trial converts it, and flipping the flag the
+                    // other way would leave the price, the cycle and the
+                    // first-bill date where the conversion put them.
+                    onRevertSubscription = { previous ->
+                        subscriptionRepository.revertTo(previous, isPro)
                     },
                     onPaywallClick = { navController.navigate(Screen.Paywall.route) },
                     showSwipeHint = !swipeHintSeen,
@@ -565,12 +577,28 @@ fun SubFlowNavHost(
                         val sub = subscriptions.find { it.id == subId }
                         scope.launch {
                             val res = subscriptionRepository.setActive(subId, active, isPro)
+                            val change = res.getOrNull()
                             when {
                                 res.isSuccess -> showMessage(
-                                    context.getString(
-                                        if (active) R.string.resumed_item else R.string.paused_item,
-                                        sub?.name.orEmpty()
-                                    )
+                                    // A resume that converted a cancelled
+                                    // trial starts a real charge, so it says
+                                    // so rather than only "resumed".
+                                    if (change?.convertedToPaid == true) {
+                                        context.getString(
+                                            R.string.resumed_as_paid,
+                                            sub?.name.orEmpty(),
+                                            CurrencyFormatter.format(
+                                                change.updated.amount,
+                                                change.updated.currency,
+                                                locale
+                                            )
+                                        )
+                                    } else {
+                                        context.getString(
+                                            if (active) R.string.resumed_item else R.string.paused_item,
+                                            sub?.name.orEmpty()
+                                        )
+                                    }
                                 )
                                 // Five active plus a paused sixth is legal, so
                                 // resuming the sixth is where the free tier

@@ -225,6 +225,7 @@
     <string name="dashboard_paused_header">Paused (%d)</string>
     <string name="paused_item">“%s” paused</string>
     <string name="resumed_item">“%s” resumed</string>
+    <string name="resumed_as_paid">“%1$s” resumed at %2$s</string>
     <string name="pause_action">Pause</string>
     <string name="resume_action">Resume</string>
     <string name="widget_name">SubFlow</string>

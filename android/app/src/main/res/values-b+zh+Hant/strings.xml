@@ -229,6 +229,7 @@
     <string name="dashboard_paused_header">已暫停（%d）</string>
     <string name="paused_item">已暫停「%s」</string>
     <string name="resumed_item">已恢復「%s」</string>
+    <string name="resumed_as_paid">已恢復「%1$s」，按 %2$s 計費</string>
     <string name="pause_action">暫停</string>
     <string name="resume_action">恢復</string>
     <string name="widget_name">SubFlow</string>

@@ -78,6 +78,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.data.repository.ActiveChange
 import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
@@ -150,11 +151,13 @@ fun DashboardScreen(
     onDeleteSubscription: (String) -> Unit,
     onRestoreSubscription: (String) -> Unit = {},
     /**
-     * Pauses or resumes, answering whether it happened. False means the free
-     * tier refused a resume and the caller has already said so - this screen
-     * must not then report a success it did not get.
+     * Pauses or resumes, answering with what changed. Null means the free tier
+     * refused a resume and the caller has already said so - this screen must
+     * not then report a success it did not get.
      */
-    onSetActive: suspend (String, Boolean) -> Boolean = { _, _ -> false },
+    onSetActive: suspend (String, Boolean) -> ActiveChange? = { _, _ -> null },
+    /** Writes a record back as it was, which is what undo needs. */
+    onRevertSubscription: suspend (Subscription) -> Unit = {},
     onPaywallClick: () -> Unit,
     showSwipeHint: Boolean = false,
     onSwipeHintSeen: () -> Unit = {}
@@ -168,6 +171,8 @@ fun DashboardScreen(
     val keyboard = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val undoText = stringResource(R.string.undo)
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
     val searchFocus = remember { FocusRequester() }
 
     var selectedCategory by rememberSaveable { mutableStateOf("All") }
@@ -261,7 +266,6 @@ fun DashboardScreen(
     }
 
     fun togglePaused(sub: Subscription) {
-        val id = sub.id
         val name = sub.name
         val resuming = !sub.isActive
         onSwipeHintSeen()
@@ -270,14 +274,27 @@ fun DashboardScreen(
             // legal state, and resuming the sixth is where the free tier ends.
             // The paywall is the caller's to show, and there is nothing to
             // report or undo here.
-            if (!onSetActive(id, resuming)) return@launch
-            confirmWithUndo(
-                context.getString(
-                    if (resuming) R.string.resumed_item else R.string.paused_item,
-                    name
+            val change = onSetActive(sub.id, resuming) ?: return@launch
+            val message = when {
+                // Resuming a cancelled trial starts a real charge. Saying only
+                // "resumed" would let a swipe begin billing without a word.
+                change.convertedToPaid -> context.getString(
+                    R.string.resumed_as_paid,
+                    name,
+                    CurrencyFormatter.format(
+                        change.updated.amount,
+                        change.updated.currency,
+                        locale
+                    )
                 )
-            ) {
-                scope.launch { onSetActive(id, !resuming) }
+                resuming -> context.getString(R.string.resumed_item, name)
+                else -> context.getString(R.string.paused_item, name)
+            }
+            // Writes the whole record back rather than flipping the flag: a
+            // conversion also moved the amount, the cycle, the first-bill date
+            // and the trial fields, and none of those return on their own.
+            confirmWithUndo(message) {
+                scope.launch { onRevertSubscription(change.previous) }
             }
         }
     }

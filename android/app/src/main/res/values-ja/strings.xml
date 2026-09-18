@@ -222,6 +222,7 @@
     <string name="dashboard_paused_header">停止中（%d）</string>
     <string name="paused_item">「%s」を停止しました</string>
     <string name="resumed_item">「%s」を再開しました</string>
+    <string name="resumed_as_paid">「%1$s」を %2$s で再開しました</string>
     <string name="pause_action">停止</string>
     <string name="resume_action">再開</string>
     <string name="widget_name">SubFlow</string>

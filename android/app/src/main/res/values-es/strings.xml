@@ -222,6 +222,7 @@
     <string name="dashboard_paused_header">En pausa (%d)</string>
     <string name="paused_item">«%s» en pausa</string>
     <string name="resumed_item">«%s» reanudada</string>
+    <string name="resumed_as_paid">«%1$s» reanudada por %2$s</string>
     <string name="pause_action">Pausar</string>
     <string name="resume_action">Reanudar</string>
     <string name="widget_name">SubFlow</string>

@@ -222,6 +222,7 @@
     <string name="dashboard_paused_header">已暂停（%d）</string>
     <string name="paused_item">已暂停“%s”</string>
     <string name="resumed_item">已恢复“%s”</string>
+    <string name="resumed_as_paid">已恢复“%1$s”，按 %2$s 计费</string>
     <string name="pause_action">暂停</string>
     <string name="resume_action">恢复</string>
     <string name="widget_name">SubFlow</string>

@@ -13,6 +13,7 @@ import org.dpdns.alwaysup.subflow.domain.model.SubFlowBackupContainer
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import org.dpdns.alwaysup.subflow.domain.util.Trials
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -58,7 +59,7 @@ class SubscriptionRepository(
     }
 
     /**
-     * Pauses or resumes a subscription.
+     * Pauses or resumes a subscription, answering with what it changed.
      *
      * Resuming goes through the same free-tier gate that adding one does.
      * A paused subscription does not count towards the limit - `getActiveCount`
@@ -70,16 +71,33 @@ class SubscriptionRepository(
      * Resuming also re-dates the subscription, because that is what
      * [saveSubscription] does to every write, and a subscription paused for
      * three months has a renewal date three months in the past.
+     *
+     * The record as it stood comes back in [ActiveChange.previous], because
+     * some of what this does cannot be undone by flipping the flag again.
      */
-    suspend fun setActive(id: String, active: Boolean, isPro: Boolean): Result<Unit> {
+    suspend fun setActive(id: String, active: Boolean, isPro: Boolean): Result<ActiveChange> {
         val existing = dao.getById(id)?.toDomain()
             ?: return Result.failure(NoSuchElementException("No subscription $id"))
-        if (existing.isActive == active) return Result.success(Unit)
+        if (existing.isActive == active) {
+            return Result.success(ActiveChange(existing, existing))
+        }
         if (active && resumeExceedsFreeTier(isPro, dao.getActiveCount())) {
             return Result.failure(QuotaReachedException())
         }
-        return saveSubscription(existing.copy(isActive = active), isPro)
+        val updated = resolveActiveChange(existing, active)
+        return saveSubscription(updated, isPro).map { ActiveChange(existing, updated) }
     }
+
+    /**
+     * Writes a subscription back exactly as it was handed over.
+     *
+     * What undo needs. Flipping `isActive` the other way is not the inverse of
+     * [setActive] once it has converted a cancelled trial: that also moves the
+     * amount, the cycle, the first-bill date and the trial flags, and none of
+     * them come back on their own.
+     */
+    suspend fun revertTo(subscription: Subscription, isPro: Boolean): Result<Unit> =
+        saveSubscription(subscription, isPro)
 
     suspend fun deleteSubscription(id: String) = dao.markDeleted(id)
 
@@ -309,6 +327,32 @@ class SubscriptionRepository(
         private const val TAG = "SubFlowRepo"
 
         /**
+         * What resuming or pausing turns a subscription into.
+         *
+         * Pausing, and resuming anything that is not a resolved trial, is the
+         * flag and nothing else.
+         *
+         * Resuming a *cancelled* trial is not. The user answered "I cancelled
+         * it" and has now changed their mind, which means they are paying for
+         * it again - so it converts: the post-trial price and cycle become the
+         * real ones and billing runs from the trial's end, exactly as if they
+         * had answered "it became paid" in the first place.
+         *
+         * Unless there was never going to be a charge. A trial with
+         * `trialConverts` false has a post-trial amount of zero and no price to
+         * adopt, so that one stays a plain resume - and 0.00 is then the truth
+         * rather than nonsense.
+         */
+        fun resolveActiveChange(existing: Subscription, active: Boolean): Subscription = when {
+            !active -> existing.copy(isActive = false)
+            existing.isTrial &&
+                existing.trialOutcome == TrialOutcome.CANCELLED &&
+                existing.trialConverts &&
+                existing.postTrialAmount > 0.0 -> Trials.convertToPaid(existing)
+            else -> existing.copy(isActive = true)
+        }
+
+        /**
          * The dates and figures every write has to agree on, decided in one place.
          *
          * A renewal date must be genuinely in the future or the countdown and the
@@ -366,4 +410,17 @@ class SubscriptionRepository(
          */
         const val BACKUP_VERSION = 2
     }
+}
+
+/**
+ * What one call to [SubscriptionRepository.setActive] did.
+ *
+ * [previous] is the record as it stood, which is what undo writes back.
+ */
+data class ActiveChange(
+    val previous: Subscription,
+    val updated: Subscription
+) {
+    /** True when resuming turned a cancelled trial into a paying subscription. */
+    val convertedToPaid: Boolean get() = previous.isTrial && !updated.isTrial
 }
