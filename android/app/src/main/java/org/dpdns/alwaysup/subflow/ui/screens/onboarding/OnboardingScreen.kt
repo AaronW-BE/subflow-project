@@ -95,7 +95,11 @@ fun OnboardingScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    // On the content column's edge, like every other screen's
+                    // top-bar controls. Left at the window's edge it sat alone
+                    // in the margin on a wide screen, 150dp from the page it
+                    // skips.
+                    .padding(horizontal = contentGutter(8.dp), vertical = 4.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onFinished) {
