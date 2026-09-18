@@ -641,51 +641,58 @@ fun AddSubscriptionScreen(
                             )
                         }
 
-                        Row(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { datePickerDialog.show() }
                                 .heightIn(min = 48.dp)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
                                     text = stringResource(R.string.first_bill_date),
                                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
-                                    fontWeight = FontWeight.Medium
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.weight(1f)
                                 )
-                                // Suppressed on a trial: the date below is an
-                                // ending, and calling it a renewal here while
-                                // the row underneath calls it the trial's end
-                                // gives the same day two different meanings.
-                                if (!isTrial) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
                                     Text(
-                                        text = stringResource(
-                                            R.string.renews_next_on,
-                                            DateCalculators.formatMedium(nextRenewal, locale)
-                                        ),
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = DateCalculators.formatMedium(firstBillDate, locale),
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(13.dp)
                                     )
                                 }
                             }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
+                            // Suppressed on a trial: the date below is an
+                            // ending, and calling it a renewal here while
+                            // the row underneath calls it the trial's end
+                            // gives the same day two different meanings.
+                            // Full width under the whole row, not squeezed
+                            // beside the date: at 1.5x text it had only the
+                            // gap to the left of the date and broke in two.
+                            if (!isTrial) {
                                 Text(
-                                    text = DateCalculators.formatMedium(firstBillDate, locale),
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowForwardIos,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    modifier = Modifier.size(13.dp)
+                                    text = stringResource(
+                                        R.string.renews_next_on,
+                                        DateCalculators.formatMedium(nextRenewal, locale)
+                                    ),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -754,7 +761,10 @@ fun AddSubscriptionScreen(
                                     }
                                 }
 
-                                val trialEndLabel = stringResource(R.string.trial_end_date)
+                                // A date that has passed is when it ended.
+                                val trialEndLabel = stringResource(
+                                    if (previewDaysLeft < 0L) R.string.trial_ended else R.string.trial_end_date
+                                )
                                 val trialEndValue = DateCalculators.formatMedium(trialEndDate, locale)
                                 Row(
                                     modifier = Modifier
