@@ -49,7 +49,6 @@
     <string name="quota_progress">%1$d von %2$d belegt</string>
     <string name="quota_nudge_title">Noch ein Platz in der kostenlosen Version</string>
     <string name="quota_nudge_title_full">Deine kostenlose Version ist voll</string>
-    <string name="quota_nudge_body">Pro hebt das Limit von 5 Abos auf, ergänzt Erinnerungen 3 und 7 Tage vor der Verlängerung und entfernt die Werbung.</string>
     <string name="quota_nudge_cta">Pro ansehen</string>
 
     <!-- Add Subscription -->

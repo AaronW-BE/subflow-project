@@ -49,7 +49,6 @@
     <string name="quota_progress">%1$d de %2$d en uso</string>
     <string name="quota_nudge_title">Queda un hueco en el plan gratuito</string>
     <string name="quota_nudge_title_full">Tu plan gratuito está completo</string>
-    <string name="quota_nudge_body">Pro elimina el límite de 5 suscripciones, añade avisos 3 y 7 días antes de la renovación y quita la publicidad.</string>
     <string name="quota_nudge_cta">Ver Pro</string>
 
     <!-- Add Subscription -->

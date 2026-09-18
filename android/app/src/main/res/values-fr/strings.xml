@@ -49,7 +49,6 @@
     <string name="quota_progress">%1$d sur %2$d utilisés</string>
     <string name="quota_nudge_title">Il reste une place en version gratuite</string>
     <string name="quota_nudge_title_full">Votre version gratuite est pleine</string>
-    <string name="quota_nudge_body">Pro lève la limite de 5 abonnements, ajoute les rappels 3 et 7 jours avant le renouvellement et supprime la publicité.</string>
     <string name="quota_nudge_cta">Découvrir Pro</string>
 
     <!-- Add Subscription -->

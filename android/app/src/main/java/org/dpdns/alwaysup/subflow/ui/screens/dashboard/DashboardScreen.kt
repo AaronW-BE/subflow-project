@@ -896,6 +896,7 @@ private fun HeroSpendCard(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun QuotaMeter(used: Int, limit: Int, onUpgrade: () -> Unit) {
     val clamped = used.coerceAtMost(limit)
@@ -910,12 +911,14 @@ private fun QuotaMeter(used: Int, limit: Int, onUpgrade: () -> Unit) {
     val atLimit = used >= limit
     val nearLimit = used >= limit - 1
     val trackColor = if (nearLimit) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+    val ctaLabel = stringResource(R.string.quota_nudge_cta)
 
     AppleCard(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 18.dp,
         contentPadding = PaddingValues(14.dp),
-        onClick = if (nearLimit) onUpgrade else null
+        onClick = if (nearLimit) onUpgrade else null,
+        onClickLabel = if (nearLimit) ctaLabel else null
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -948,36 +951,50 @@ private fun QuotaMeter(used: Int, limit: Int, onUpgrade: () -> Unit) {
             drawStopIndicator = {}
         )
 
+        // One line, not a pitch. The full list of what Pro adds sat here on
+        // every launch for as long as the plan stayed full - the tallest
+        // thing on the screen, above the subscriptions it is there to track -
+        // and the paywall one tap away already says all of it.
         AnimatedVisibility(visible = nearLimit) {
-            Column {
-                Spacer(modifier = Modifier.height(12.dp))
+            // A flow, so where the two do not fit side by side - German at a
+            // large font on a narrow phone - the link drops under the line
+            // instead of squeezing it into a three-line column.
+            FlowRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
                     text = stringResource(
                         if (atLimit) R.string.quota_nudge_title_full else R.string.quota_nudge_title
                     ),
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = stringResource(R.string.quota_nudge_body),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, lineHeight = 17.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .clickable(onClick = onUpgrade)
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 8.dp)
+                )
+                // Not a button of its own: the whole card opens the paywall,
+                // and a second target inside it would be read out twice.
+                Row(
+                    modifier = Modifier.align(Alignment.CenterVertically),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.quota_nudge_cta),
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
+                        text = ctaLabel,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 13.sp),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(11.dp)
                     )
                 }
             }
