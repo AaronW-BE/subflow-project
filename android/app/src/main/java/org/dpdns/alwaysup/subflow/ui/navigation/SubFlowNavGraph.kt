@@ -163,6 +163,16 @@ fun SubFlowNavHost(
     val messages = billingMessages()
     LaunchedEffect(Unit) {
         billingManager.events.collectLatest { event ->
+            // The catalogue is fetched at launch and on every resume, not only
+            // when someone opens the paywall, so a failed fetch used to put a
+            // billing error over whatever screen was up - on the home screen,
+            // seconds after launch, to someone who had asked about nothing.
+            // It only means something where the plans are shown.
+            if (event == BillingEvent.PlansUnavailable &&
+                navController.currentDestination?.route != Screen.Paywall.route
+            ) {
+                return@collectLatest
+            }
             val message = when (event) {
                 BillingEvent.PurchaseSuccess -> messages.purchaseSuccess
                 BillingEvent.PurchaseCancelled -> messages.purchaseCancelled
