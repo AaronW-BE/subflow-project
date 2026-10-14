@@ -238,6 +238,28 @@ class PreferencesManager(context: Context) {
         return next
     }
 
+    /**
+     * True once per update, for an install that was already here: the first
+     * launch on a new [currentVersionCode] after onboarding is done.
+     *
+     * Reading it records the version either way, so an install that is not
+     * shown the sheet - a fresh one, which gets onboarding instead - is not
+     * shown it on its second launch either, when its launch count has grown.
+     *
+     * Called after `recordLaunch()`, so a fresh install's count is 1.
+     */
+    fun consumeWhatsNew(currentVersionCode: Int): Boolean {
+        val lastSeen = prefs.getInt(KEY_LAST_SEEN_VERSION, 0)
+        if (lastSeen == currentVersionCode) return false
+        prefs.edit().putInt(KEY_LAST_SEEN_VERSION, currentVersionCode).apply()
+        return shouldShowWhatsNew(
+            lastSeen = lastSeen,
+            currentVersionCode = currentVersionCode,
+            launchCount = prefs.getInt(KEY_LAUNCH_COUNT, 0),
+            onboardingComplete = _onboardingComplete.value
+        )
+    }
+
     private fun readLeads(): Set<Int> {
         val stored = prefs.getStringSet(KEY_LEADS, null)
             ?: return setOf(ReminderLead.ONE_DAY.days, ReminderLead.THREE_DAYS.days)
@@ -288,6 +310,29 @@ class PreferencesManager(context: Context) {
         private const val KEY_SWIPE_HINT = "swipe_hint_seen"
         private const val KEY_CURRENCY = "primary_currency"
         private const val KEY_LAUNCH_COUNT = "launch_count"
+        private const val KEY_LAST_SEEN_VERSION = "last_seen_version_code"
+
+        /**
+         * Whether the what's-new sheet is owed, given what the install has seen.
+         *
+         * Kept pure and separate from [consumeWhatsNew] so the rules can be
+         * tested without SharedPreferences. A downgrade - a tester moving back
+         * to an older build - shows nothing: its news is already old.
+         *
+         * `lastSeen == 0` counts as an upgrade when the install has launched
+         * before, because that is every install that updates into the first
+         * build to store this key - the testers this is for. The one install
+         * it reads wrong is a new one that took two launches to finish
+         * onboarding, which is then shown a list of what the app can do.
+         */
+        internal fun shouldShowWhatsNew(
+            lastSeen: Int,
+            currentVersionCode: Int,
+            launchCount: Int,
+            onboardingComplete: Boolean
+        ): Boolean = onboardingComplete &&
+            launchCount > 1 &&
+            lastSeen < currentVersionCode
 
         /**
          * The stored language choice, which may be [SYSTEM_LANGUAGE].

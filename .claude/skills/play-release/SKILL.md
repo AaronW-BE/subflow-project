@@ -70,6 +70,14 @@ Rules that came from getting it wrong once:
 - The Console box pre-fills only the store listing's languages, but it
   accepts every tag. Paste the whole block.
 
+### The in-app what's-new sheet
+
+The app shows its own three lines on the first launch after an update
+(`whats_new_item_1..3`, BIN-60). **Rewrite them in all 7 locales for this
+release**, from the same three biggest changes the notes lead with, or testers
+read about the release before last. They are shorter than the Play notes: one
+line each, no version number, since the sheet prints the version itself.
+
 ## 4. Store listings: re-check, don't just carry forward
 
 The listings in `docs/play-store-copy.md` make claims about the app. For each

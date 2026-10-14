@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -45,6 +46,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import org.dpdns.alwaysup.subflow.BuildConfig
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.billing.BillingEvent
 import org.dpdns.alwaysup.subflow.data.billing.BillingManager
@@ -67,6 +69,8 @@ import org.dpdns.alwaysup.subflow.ui.screens.paywall.PaywallScreen
 import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsPage
 import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsScreen
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowSnackbarHost
+import org.dpdns.alwaysup.subflow.ui.components.WhatsNewSheet
+import org.dpdns.alwaysup.subflow.ui.support.openSupportEmail
 import org.dpdns.alwaysup.subflow.ui.util.rememberHaptics
 import org.dpdns.alwaysup.subflow.widget.refreshSubFlowWidget
 import kotlinx.coroutines.Dispatchers
@@ -151,6 +155,25 @@ fun SubFlowNavHost(
     // widget says.
     LaunchedEffect(subscriptionsOrNull, primaryCurrency, appLanguage) {
         if (subscriptionsOrNull != null) refreshSubFlowWidget(context)
+    }
+
+    // What changed in this update, once per update. Asked for after
+    // onboarding so a first run gets the walkthrough instead, and read through
+    // the manager, which records the version whether or not it shows.
+    var whatsNewVisible by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(onboardingComplete) {
+        if (onboardingComplete && preferencesManager.consumeWhatsNew(BuildConfig.VERSION_CODE)) {
+            whatsNewVisible = true
+        }
+    }
+    if (whatsNewVisible) {
+        WhatsNewSheet(
+            onFeedback = {
+                whatsNewVisible = false
+                openSupportEmail(context)
+            },
+            onDismiss = { whatsNewVisible = false }
+        )
     }
 
     LaunchedEffect(pendingSubscriptionId) {

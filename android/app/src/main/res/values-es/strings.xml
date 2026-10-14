@@ -372,4 +372,13 @@
         <item quantity="one">Prueba: queda %d día</item>
         <item quantity="other">Prueba: quedan %d días</item>
     </plurals>
+
+    <!-- What's new sheet (BIN-60); rewritten for each release -->
+    <string name="whats_new_title">Novedades</string>
+    <string name="whats_new_version">Versión %1$s</string>
+    <string name="whats_new_done">Entendido</string>
+    <string name="whats_new_feedback">Enviar comentarios</string>
+    <string name="whats_new_item_1">Desliza una suscripción a la derecha para pausarla y otra vez para reanudarla.</string>
+    <string name="whats_new_item_2">En Análisis, «Mensual»/«Anual» ahora cambia todas las cifras.</string>
+    <string name="whats_new_item_3">Los informes CSV se abren en Excel con los acentos intactos.</string>
 </resources>
