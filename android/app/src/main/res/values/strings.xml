@@ -29,7 +29,8 @@
     <string name="search_currency_hint">Search currency or code</string>
     <!-- Verbatim wording required by the exchange rate feed's terms.
          Not translated: the required text is this exact English phrase. -->
-    <string name="rates_attribution">Rates By Exchange Rate API</string>
+    <!-- Exchange Rate API's terms fix this wording, so it is not translated. -->
+    <string name="rates_attribution" translatable="false">Rates By Exchange Rate API</string>
     <string name="rates_updated_on">Updated %1$s</string>
     <string name="rates_offline_snapshot">Offline snapshot</string>
     <string name="search">Search</string>

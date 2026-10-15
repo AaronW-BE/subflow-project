@@ -172,8 +172,6 @@ object BrandLogos {
         "slack" to R.drawable.brand_colour_slack,
     )
 
-    /** A full-colour bitmap mark, drawn edge to edge with no tint. */
-    @DrawableRes
     /**
      * Names that resolve to a full-colour mark whose preset id does not spell
      * them.

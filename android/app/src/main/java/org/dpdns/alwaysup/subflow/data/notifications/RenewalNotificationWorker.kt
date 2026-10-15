@@ -1,6 +1,7 @@
 package org.dpdns.alwaysup.subflow.data.notifications
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -301,6 +302,9 @@ class RenewalNotificationWorker(
                 .build()
 
             if (!hasNotificationPermission(context)) return
+            // Lint cannot follow the guard above into its own function, and
+            // the throw it warns about is caught here in any case.
+            @SuppressLint("MissingPermission")
             runCatching {
                 NotificationManagerCompat.from(context).notify(id, notification)
             }
