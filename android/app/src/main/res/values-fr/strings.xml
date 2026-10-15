@@ -303,6 +303,7 @@
     <string name="cycle_short_yearly">/an</string>
     <string name="app_version">Version %s</string>
     <string name="restore_success_count">%d abonnements restaurés.</string>
+    <string name="restore_success_paused">%1$d abonnements restaurés. %2$d sont en pause, car la version gratuite en garde %3$d actifs.</string>
     <string name="restore_failed">Cela ne ressemble pas à une sauvegarde SubFlow.</string>
     <string name="reset_dialog_title">Effacer toutes les données ?</string>
     <string name="reset_dialog_body">Tous les abonnements de cet appareil seront définitivement supprimés. Votre achat Pro n’est pas affecté.</string>

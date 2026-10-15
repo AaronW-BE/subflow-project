@@ -302,6 +302,7 @@
     <string name="cycle_short_yearly">/年</string>
     <string name="app_version">バージョン %s</string>
     <string name="restore_success_count">%d 件を復元しました。</string>
+    <string name="restore_success_paused">%1$d 件を復元しました。無料版で利用できるのは %3$d 件までのため、%2$d 件は停止中です。</string>
     <string name="restore_failed">SubFlow のバックアップではないようです。</string>
     <string name="reset_dialog_title">すべてのデータを消去しますか？</string>
     <string name="reset_dialog_body">この端末のサブスクはすべて完全に削除されます。購入済みの Pro には影響しません。</string>

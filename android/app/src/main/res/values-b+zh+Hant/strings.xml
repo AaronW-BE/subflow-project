@@ -309,6 +309,7 @@
     <string name="cycle_short_yearly">/年</string>
     <string name="app_version">版本 %s</string>
     <string name="restore_success_count">已還原 %d 筆訂閱。</string>
+    <string name="restore_success_paused">已還原 %1$d 筆訂閱，其中 %2$d 筆已暫停：免費版最多保留 %3$d 筆進行中的訂閱。</string>
     <string name="restore_failed">這看起來不是 SubFlow 的備份檔案。</string>
     <string name="reset_dialog_title">要清除所有資料嗎？</string>
     <string name="reset_dialog_body">這台裝置上的所有訂閱紀錄將永久刪除。已購買的 Pro 不受影響。</string>
