@@ -1,8 +1,8 @@
 name: Android
 
 # Until now every check ran on one machine, by hand, and a pull request could
-# be merged without anything having compiled. This is the floor: it builds and
-# it passes its tests. Lint joins once its existing errors are cleared.
+# be merged without anything having compiled. This is the floor: it builds, it
+# passes its tests, and it is lint-clean.
 on:
   pull_request:
     branches: [main]
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Unit tests and debug build
+    name: Unit tests, debug build and lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -56,6 +56,18 @@ jobs:
       - name: Debug build
         working-directory: android
         run: ./gradlew :app:assembleDebug
+
+      - name: Lint
+        working-directory: android
+        run: ./gradlew :app:lintDebug
+
+      - name: Upload the lint report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lint-report
+          path: android/app/build/reports/lint-results-debug.html
+          retention-days: 7
 
       - name: Upload the test report
         if: failure()

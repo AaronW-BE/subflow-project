@@ -1,5 +1,6 @@
 package org.dpdns.alwaysup.subflow.widget
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -70,9 +71,21 @@ import org.dpdns.alwaysup.subflow.domain.util.withAppLocale
 // is held as colour resources rather than literals so values-night resolves it
 // the same way the rest of the app is themed - there is no "is it dark" check
 // anywhere below, and none should be. The values match ui/theme/Color.kt.
+// The resource-id overload is documented Glance API, but it is annotated
+// @RestrictedApi inside the library, so lint reads every call as a reach into
+// someone else's internals. The alternative - a day/night pair of literals -
+// would move the theming out of resources, which is the thing the comment
+// above says not to do.
+@SuppressLint("RestrictedApi")
 private val WidgetSurface = ColorProvider(R.color.widget_surface)
+
+@SuppressLint("RestrictedApi")
 private val WidgetInk = ColorProvider(R.color.widget_ink)
+
+@SuppressLint("RestrictedApi")
 private val WidgetInkDim = ColorProvider(R.color.widget_ink_dim)
+
+@SuppressLint("RestrictedApi")
 private val WidgetAccent = ColorProvider(R.color.widget_accent)
 
 /** Below this the widget is one cell tall, and the total is all that fits. */
