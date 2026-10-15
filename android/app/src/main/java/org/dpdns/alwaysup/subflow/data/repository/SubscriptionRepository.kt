@@ -206,31 +206,42 @@ class SubscriptionRepository(
         )
     }
 
-    suspend fun restoreBackupJson(jsonString: String): Result<Int> = try {
+    /**
+     * Writes a backup file's subscriptions back.
+     *
+     * A free plan keeps [FREE_TIER_LIMIT] subscriptions active, and this used
+     * to insert the whole file regardless, so restoring a hand-written backup
+     * was a way round the limit. Whatever does not fit now comes in paused:
+     * nothing in the file is lost, and upgrading is what resumes it.
+     */
+    suspend fun restoreBackupJson(jsonString: String, isPro: Boolean): Result<RestoreOutcome> = try {
         val backup = com.google.gson.Gson().fromJson(jsonString, SubFlowBackupContainer::class.java)
         val subs = backup?.subscriptions
         if (subs.isNullOrEmpty()) {
             Result.failure(IllegalArgumentException("Backup data is empty or invalid"))
         } else {
-            val entities = subs.map { raw ->
+            val repaired = subs.map { raw ->
                 val sub = raw.repaired()
-                SubscriptionEntity.fromDomain(
-                    sub.copy(
-                        updatedAt = System.currentTimeMillis(),
-                        isDeleted = false,
-                        nextBillDate = if (sub.isTrial) {
-                            sub.trialEndDate.ifBlank { sub.nextBillDate }
-                        } else {
-                            DateCalculators.computeNextRenewalDate(
-                                sub.firstBillDate.ifBlank { sub.nextBillDate },
-                                sub.cycle
-                            )
-                        }
-                    )
+                sub.copy(
+                    updatedAt = System.currentTimeMillis(),
+                    isDeleted = false,
+                    nextBillDate = if (sub.isTrial) {
+                        sub.trialEndDate.ifBlank { sub.nextBillDate }
+                    } else {
+                        DateCalculators.computeNextRenewalDate(
+                            sub.firstBillDate.ifBlank { sub.nextBillDate },
+                            sub.cycle
+                        )
+                    }
                 )
             }
-            dao.insertAll(entities)
-            Result.success(entities.size)
+            val activeOnDevice = dao.getActiveSubscriptions()
+                .filter { it.isActive }
+                .map { it.id }
+                .toSet()
+            val fit = fitToFreeLimit(repaired, activeOnDevice, isPro)
+            dao.insertAll(fit.subscriptions.map { SubscriptionEntity.fromDomain(it) })
+            Result.success(RestoreOutcome(fit.subscriptions.size, fit.pausedByLimit))
         }
     } catch (e: Exception) {
         Result.failure(e)
@@ -404,6 +415,42 @@ class SubscriptionRepository(
          */
         fun resumeExceedsFreeTier(isPro: Boolean, activeCount: Int): Boolean =
             !isPro && activeCount >= FREE_TIER_LIMIT
+
+        /**
+         * Which of [incoming] can stay active once they are written next to
+         * what the device already has, under the free plan's limit.
+         *
+         * Subscriptions active on the device take their slots first, unless
+         * [incoming] replaces them - a restore onto the same phone carries the
+         * same ids, and those must not be counted twice. The rest are
+         * admitted in the order given and the overflow is paused, not dropped:
+         * a restore or an import that silently lost rows would be worse than
+         * one that asks for an upgrade to resume them.
+         */
+        internal fun fitToFreeLimit(
+            incoming: List<Subscription>,
+            activeOnDeviceIds: Set<String>,
+            isPro: Boolean
+        ): LimitFit {
+            if (isPro) return LimitFit(incoming, 0)
+            val incomingIds = incoming.map { it.id }.toSet()
+            var taken = activeOnDeviceIds.count { it !in incomingIds }
+            var paused = 0
+            val fitted = incoming.map { sub ->
+                when {
+                    !sub.isActive -> sub
+                    taken < FREE_TIER_LIMIT -> {
+                        taken++
+                        sub
+                    }
+                    else -> {
+                        paused++
+                        sub.copy(isActive = false)
+                    }
+                }
+            }
+            return LimitFit(fitted, paused)
+        }
         /**
          * 2 since trial fields were added. Restore ignores this number and
          * repairs whatever is missing, so a v1 file still imports.
@@ -424,3 +471,9 @@ data class ActiveChange(
     /** True when resuming turned a cancelled trial into a paying subscription. */
     val convertedToPaid: Boolean get() = previous.isTrial && !updated.isTrial
 }
+
+/** [SubscriptionRepository.fitToFreeLimit]'s answer. */
+data class LimitFit(val subscriptions: List<Subscription>, val pausedByLimit: Int)
+
+/** What a restore wrote, and how many of those came in paused for the free limit. */
+data class RestoreOutcome(val restored: Int, val pausedByLimit: Int)

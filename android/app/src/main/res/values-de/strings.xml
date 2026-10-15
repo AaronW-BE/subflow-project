@@ -303,6 +303,7 @@
     <string name="cycle_short_yearly">/Jahr</string>
     <string name="app_version">Version %s</string>
     <string name="restore_success_count">%d Abos wiederhergestellt.</string>
+    <string name="restore_success_paused">%1$d Abos wiederhergestellt. %2$d sind pausiert, da die kostenlose Version %3$d aktive Abos erlaubt.</string>
     <string name="restore_failed">Das sieht nicht nach einem SubFlow-Backup aus.</string>
     <string name="reset_dialog_title">Alle Daten löschen?</string>
     <string name="reset_dialog_body">Jedes Abo auf diesem Gerät wird endgültig gelöscht. Dein Pro-Kauf bleibt davon unberührt.</string>

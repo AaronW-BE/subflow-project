@@ -302,6 +302,7 @@
     <string name="cycle_short_yearly">/年</string>
     <string name="app_version">版本 %s</string>
     <string name="restore_success_count">已恢复 %d 个订阅。</string>
+    <string name="restore_success_paused">已恢复 %1$d 个订阅，其中 %2$d 个已暂停：免费版最多保留 %3$d 项进行中的订阅。</string>
     <string name="restore_failed">这看起来不是 SubFlow 的备份文件。</string>
     <string name="reset_dialog_title">清除全部数据？</string>
     <string name="reset_dialog_body">本机上的所有订阅记录将被永久删除。已购买的 Pro 不受影响。</string>

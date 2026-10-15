@@ -364,10 +364,21 @@ fun SubFlowNavHost(
                         showMessage(restoreReadFailed)
                         return@launch
                     }
-                    val res = subscriptionRepository.restoreBackupJson(json)
+                    val res = subscriptionRepository.restoreBackupJson(json, isPro)
                     showMessage(
                         res.fold(
-                            onSuccess = { n -> context.getString(R.string.restore_success_count, n) },
+                            onSuccess = { outcome ->
+                                if (outcome.pausedByLimit > 0) {
+                                    context.getString(
+                                        R.string.restore_success_paused,
+                                        outcome.restored,
+                                        outcome.pausedByLimit,
+                                        SubscriptionRepository.FREE_TIER_LIMIT
+                                    )
+                                } else {
+                                    context.getString(R.string.restore_success_count, outcome.restored)
+                                }
+                            },
                             onFailure = { restoreFailed }
                         )
                     )

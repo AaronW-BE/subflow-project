@@ -303,6 +303,7 @@
     <string name="cycle_short_yearly">/año</string>
     <string name="app_version">Versión %s</string>
     <string name="restore_success_count">%d suscripciones restauradas.</string>
+    <string name="restore_success_paused">%1$d suscripciones restauradas. %2$d están en pausa, porque la versión gratuita mantiene %3$d activas.</string>
     <string name="restore_failed">Esto no parece una copia de SubFlow.</string>
     <string name="reset_dialog_title">¿Borrar todos los datos?</string>
     <string name="reset_dialog_body">Todas las suscripciones de este dispositivo se eliminarán definitivamente. Tu compra Pro no se ve afectada.</string>

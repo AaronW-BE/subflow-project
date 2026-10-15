@@ -313,6 +313,7 @@
     <string name="cycle_short_yearly">/yr</string>
     <string name="app_version">Version %s</string>
     <string name="restore_success_count">Restored %d subscriptions.</string>
+    <string name="restore_success_paused">Restored %1$d subscriptions. %2$d are paused, as the free plan keeps %3$d active.</string>
     <string name="restore_failed">That does not look like a SubFlow backup.</string>
     <string name="reset_dialog_title">Erase all data?</string>
     <string name="reset_dialog_body">Every subscription on this device is deleted permanently. Your Pro purchase is not affected.</string>
