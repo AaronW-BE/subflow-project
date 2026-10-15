@@ -38,9 +38,15 @@
             android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
             android:value="true" />
 
+        <!-- Portrait only: the app is designed and tested for it, and its
+             screens were never laid out for a phone on its side. Android 16
+             ignores this on screens 600dp and wider, where the readable-width
+             column already keeps the layout sound. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity,DiscouragedApi"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="uiMode|locale|layoutDirection|orientation|screenSize|screenLayout|smallestScreenSize|density|fontScale|keyboardHidden"
             android:theme="@style/Theme.SubFlow.Starting">
