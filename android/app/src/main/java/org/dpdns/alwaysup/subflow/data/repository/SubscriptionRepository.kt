@@ -90,6 +90,27 @@ class SubscriptionRepository(
     }
 
     /**
+     * Pauses or resumes several subscriptions, one at a time through
+     * [setActive], so each gets exactly what a single swipe would: the same
+     * free-plan check and the same conversion of a cancelled trial.
+     *
+     * A resume the free plan refuses is counted, not thrown: of ten selected,
+     * the ones that fit are resumed and the rest stay paused, which is the
+     * rule an import follows too.
+     */
+    suspend fun setActiveMany(ids: List<String>, active: Boolean, isPro: Boolean): BulkActiveChange {
+        val changes = mutableListOf<ActiveChange>()
+        var refused = 0
+        for (id in ids) {
+            setActive(id, active, isPro).fold(
+                onSuccess = { change -> if (change.previous != change.updated) changes += change },
+                onFailure = { if (it is QuotaReachedException) refused++ }
+            )
+        }
+        return BulkActiveChange(changes, refused)
+    }
+
+    /**
      * Writes a subscription back exactly as it was handed over.
      *
      * What undo needs. Flipping `isActive` the other way is not the inverse of
@@ -508,3 +529,6 @@ data class LimitFit(val subscriptions: List<Subscription>, val pausedByLimit: In
 
 /** What a restore wrote, and how many of those came in paused for the free limit. */
 data class RestoreOutcome(val restored: Int, val pausedByLimit: Int)
+
+/** What [SubscriptionRepository.setActiveMany] changed, and how many resumes the free plan refused. */
+data class BulkActiveChange(val changes: List<ActiveChange>, val refusedByLimit: Int)

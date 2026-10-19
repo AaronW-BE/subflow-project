@@ -434,4 +434,28 @@
         <item quantity="one">Imported %d subscription.</item>
         <item quantity="other">Imported %d subscriptions.</item>
     </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">Select</string>
+    <string name="select_all">Select all</string>
+    <string name="exit_selection">Cancel selection</string>
+    <string name="bulk_resumed_partial">Resumed %1$d. %2$d stay paused, as the free plan keeps %3$d active.</string>
+    <string name="bulk_resume_full">The free plan keeps %d active, so these stay paused.</string>
+    <string name="bulk_resumed_converted">Resumed %1$d. %2$d cancelled trials now bill at their full price.</string>
+    <plurals name="selection_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="one">Paused %d subscription</item>
+        <item quantity="other">Paused %d subscriptions</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="one">Resumed %d subscription</item>
+        <item quantity="other">Resumed %d subscriptions</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">Deleted %d subscription</item>
+        <item quantity="other">Deleted %d subscriptions</item>
+    </plurals>
 </resources>

@@ -640,6 +640,12 @@ fun SubFlowNavHost(
                     onRevertSubscription = { previous ->
                         subscriptionRepository.revertTo(previous, isPro)
                     },
+                    // Several at once. A resume the free plan refuses is
+                    // counted rather than sent to the paywall: the screen
+                    // says how many fitted and offers the plan itself.
+                    onSetActiveMany = { ids, active ->
+                        subscriptionRepository.setActiveMany(ids, active, isPro)
+                    },
                     onPaywallClick = { navController.navigate(Screen.Paywall.route) },
                     showSwipeHint = !swipeHintSeen,
                     onSwipeHintSeen = { preferencesManager.markSwipeHintSeen() }

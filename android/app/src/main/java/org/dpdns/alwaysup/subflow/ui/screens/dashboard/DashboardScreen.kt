@@ -2,6 +2,17 @@ package org.dpdns.alwaysup.subflow.ui.screens.dashboard
 
 import android.content.Context
 import android.view.accessibility.AccessibilityManager
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PauseCircleOutline
+import androidx.compose.material.icons.filled.PlayCircleOutline
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.runtime.saveable.Saver
+import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -158,6 +169,10 @@ fun DashboardScreen(
     onSetActive: suspend (String, Boolean) -> ActiveChange? = { _, _ -> null },
     /** Writes a record back as it was, which is what undo needs. */
     onRevertSubscription: suspend (Subscription) -> Unit = {},
+    /** Pauses or resumes several at once; see SubscriptionRepository.setActiveMany. */
+    onSetActiveMany: suspend (List<String>, Boolean) -> BulkActiveChange = { _, _ ->
+        BulkActiveChange(emptyList(), 0)
+    },
     onPaywallClick: () -> Unit,
     showSwipeHint: Boolean = false,
     onSwipeHintSeen: () -> Unit = {}
@@ -183,6 +198,14 @@ fun DashboardScreen(
     // Collapsed by default: paused subscriptions are the ones the user has
     // said they are not thinking about.
     var pausedExpanded by rememberSaveable { mutableStateOf(false) }
+
+    // Multi-select (BIN-66). Empty means it is off; a long press on a row
+    // turns it on with that row chosen. Insertion order is kept, so a bulk
+    // resume that can only fit some of them fits the first ones picked.
+    var selectedIds by rememberSaveable(stateSaver = SelectionSaver) {
+        mutableStateOf(emptySet<String>())
+    }
+    val selectionMode = selectedIds.isNotEmpty()
 
     val categories = remember(subscriptions, selectedCategory) {
         categoryFilters(subscriptions, selectedCategory)
@@ -294,6 +317,85 @@ fun DashboardScreen(
         }
     }
 
+    // A row that is deleted or filtered away while chosen stops being chosen,
+    // so the count in the bar is always the rows an action would touch.
+    val liveIds = remember(subscriptions) { subscriptions.filterNot { it.isDeleted }.map { it.id }.toSet() }
+    LaunchedEffect(liveIds) {
+        if (selectedIds.any { it !in liveIds }) selectedIds = selectedIds.filter { it in liveIds }.toSet()
+    }
+    BackHandler(enabled = selectionMode) { selectedIds = emptySet() }
+
+    val selectedSubs = remember(selectedIds, subscriptions) {
+        val byId = subscriptions.associateBy { it.id }
+        selectedIds.mapNotNull { byId[it] }
+    }
+    // Resume only when everything chosen is paused; otherwise the action
+    // pauses the running ones. One button that always does the obvious thing
+    // beats two that are each wrong for half the selection.
+    val selectionResumes = selectedSubs.isNotEmpty() && selectedSubs.none { it.isActive }
+
+    fun toggleSelected(id: String) {
+        haptics.tick()
+        selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id
+    }
+
+    fun bulkSetActive() {
+        val resume = selectionResumes
+        val targets = selectedSubs.filter { it.isActive != resume }.map { it.id }
+        selectedIds = emptySet()
+        onSwipeHintSeen()
+        scope.launch {
+            val result = onSetActiveMany(targets, resume)
+            val done = result.changes.size
+            if (done == 0) {
+                // Nothing fitted. Not an undo - there is nothing to undo - but
+                // the way to the plan that would have let it.
+                if (result.refusedByLimit > 0) {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    val choice = snackbarHostState.showSnackbar(
+                        message = context.getString(
+                            R.string.bulk_resume_full,
+                            SubscriptionRepository.FREE_TIER_LIMIT
+                        ),
+                        actionLabel = context.getString(R.string.quota_nudge_cta),
+                        duration = SnackbarDuration.Long
+                    )
+                    if (choice == SnackbarResult.ActionPerformed) onPaywallClick()
+                }
+                return@launch
+            }
+            val converted = result.changes.count { it.convertedToPaid }
+            val message = when {
+                !resume -> context.resources.getQuantityString(R.plurals.bulk_paused, done, done)
+                result.refusedByLimit > 0 -> context.getString(
+                    R.string.bulk_resumed_partial,
+                    done,
+                    result.refusedByLimit,
+                    SubscriptionRepository.FREE_TIER_LIMIT
+                )
+                // As with a single swipe: resuming a cancelled trial starts a
+                // charge, and that must not happen without a word.
+                converted > 0 -> context.getString(R.string.bulk_resumed_converted, done, converted)
+                else -> context.resources.getQuantityString(R.plurals.bulk_resumed, done, done)
+            }
+            confirmWithUndo(message) {
+                scope.launch { result.changes.forEach { onRevertSubscription(it.previous) } }
+            }
+        }
+    }
+
+    fun bulkDelete() {
+        val targets = selectedSubs
+        selectedIds = emptySet()
+        onSwipeHintSeen()
+        targets.forEach { onDeleteSubscription(it.id) }
+        confirmWithUndo(
+            context.resources.getQuantityString(R.plurals.bulk_deleted, targets.size, targets.size)
+        ) {
+            targets.forEach { onRestoreSubscription(it.id) }
+        }
+    }
+
     val addFabLabel = stringResource(R.string.add_subscription)
     val backToTopLabel = stringResource(R.string.back_to_top)
     // Hidden only while the list is being scrolled downwards. Exploring by
@@ -301,7 +403,7 @@ fun DashboardScreen(
     // the list by scrolling it, and a control that disappears as you read past
     // it is a control you cannot reach.
     val exploringByTouch = rememberTouchExplorationEnabled()
-    val addVisible = exploringByTouch || listState.isScrollingUp()
+    val addVisible = !selectionMode && (exploringByTouch || listState.isScrollingUp())
 
     Scaffold(
         snackbarHost = {
@@ -456,9 +558,14 @@ fun DashboardScreen(
                         items(filteredSubs, key = { it.id }) { sub ->
                             SubscriptionRow(
                                 sub = sub,
-                                onClick = { onSubscriptionClick(sub.id) },
+                                onClick = {
+                                    if (selectionMode) toggleSelected(sub.id) else onSubscriptionClick(sub.id)
+                                },
                                 onDelete = { deleteWithUndo(sub) },
-                                onTogglePaused = { togglePaused(sub) }
+                                onTogglePaused = { togglePaused(sub) },
+                                selectionMode = selectionMode,
+                                selected = sub.id in selectedIds,
+                                onLongClick = { toggleSelected(sub.id) }
                             )
                         }
                     }
@@ -480,9 +587,14 @@ fun DashboardScreen(
                         items(filteredPaused, key = { it.id }) { sub ->
                             SubscriptionRow(
                                 sub = sub,
-                                onClick = { onSubscriptionClick(sub.id) },
+                                onClick = {
+                                    if (selectionMode) toggleSelected(sub.id) else onSubscriptionClick(sub.id)
+                                },
                                 onDelete = { deleteWithUndo(sub) },
-                                onTogglePaused = { togglePaused(sub) }
+                                onTogglePaused = { togglePaused(sub) },
+                                selectionMode = selectionMode,
+                                selected = sub.id in selectedIds,
+                                onLongClick = { toggleSelected(sub.id) }
                             )
                         }
                     }
@@ -551,6 +663,27 @@ fun DashboardScreen(
                         )
                     }
                 }
+            }
+
+            // Multi-select bar, over everything at the top while choosing.
+            AnimatedVisibility(
+                visible = selectionMode,
+                enter = fadeIn() + slideInVertically { -it / 2 },
+                exit = fadeOut() + slideOutVertically { -it / 2 },
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                SelectionBar(
+                    count = selectedIds.size,
+                    resumes = selectionResumes,
+                    onClose = { selectedIds = emptySet() },
+                    onSelectAll = {
+                        haptics.tick()
+                        val visible = filteredSubs + if (pausedExpanded) filteredPaused else emptyList()
+                        selectedIds = selectedIds + visible.map { it.id }
+                    },
+                    onToggleActive = ::bulkSetActive,
+                    onDelete = ::bulkDelete
+                )
             }
         }
     }
@@ -1360,7 +1493,10 @@ private fun SubscriptionRow(
     sub: Subscription,
     onClick: () -> Unit,
     onDelete: () -> Unit,
-    onTogglePaused: () -> Unit
+    onTogglePaused: () -> Unit,
+    selectionMode: Boolean = false,
+    selected: Boolean = false,
+    onLongClick: () -> Unit = {}
 ) {
     val daysLeft = DateCalculators.calculateDaysUntil(sub.nextBillDate)
     val localizedCategory = localizedCategory(sub.category)
@@ -1409,6 +1545,10 @@ private fun SubscriptionRow(
         onDelete = onDelete,
         onTogglePaused = onTogglePaused,
         isActive = sub.isActive,
+        selectionMode = selectionMode,
+        selected = selected,
+        onLongClick = onLongClick,
+        onLongClickLabel = stringResource(R.string.select_action),
         // The upcoming charge is spoken for a trial: it is the fact the row
         // exists to carry, and element-by-element reading never attaches the
         // "then ..." line to the service it belongs to.
@@ -1423,6 +1563,24 @@ private fun SubscriptionRow(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            AnimatedVisibility(
+                visible = selectionMode,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
+                Icon(
+                    imageVector = if (selected) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                    contentDescription = null,
+                    tint = if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    },
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(24.dp)
+                )
+            }
             BrandIconBadge(
                 name = sub.name,
                 brandColorHex = sub.colorHex,
@@ -1538,4 +1696,71 @@ fun localizedCategory(category: String): String = when (category.lowercase()) {
     "lifestyle" -> stringResource(R.string.filter_lifestyle)
     "news" -> stringResource(R.string.filter_news)
     else -> category
+}
+
+/** Keeps the multi-select choice across recreation, in the order it was made. */
+private val SelectionSaver = Saver<Set<String>, ArrayList<String>>(
+    save = { ArrayList(it) },
+    restore = { LinkedHashSet(it) }
+)
+
+/**
+ * The bar that replaces the title while rows are being chosen: how many, and
+ * what can be done to all of them at once.
+ */
+@Composable
+private fun SelectionBar(
+    count: Int,
+    resumes: Boolean,
+    onClose: () -> Unit,
+    onSelectAll: () -> Unit,
+    onToggleActive: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .height(56.dp)
+                .padding(horizontal = contentGutter(4.dp)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.exit_selection))
+            }
+            Text(
+                text = pluralStringResource(R.plurals.selection_count, count, count),
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
+            IconButton(onClick = onSelectAll) {
+                Icon(Icons.Default.SelectAll, contentDescription = stringResource(R.string.select_all))
+            }
+            IconButton(onClick = onToggleActive) {
+                Icon(
+                    imageVector = if (resumes) Icons.Default.PlayCircleOutline else Icons.Default.PauseCircleOutline,
+                    contentDescription = stringResource(
+                        if (resumes) R.string.resume_action else R.string.pause_action
+                    )
+                )
+            }
+            IconButton(onClick = onDelete) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete_action),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
 }
