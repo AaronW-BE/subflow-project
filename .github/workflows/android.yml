@@ -42,8 +42,10 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          # Matches jvmTarget in android/app/build.gradle.kts.
-          java-version: '17'
+          # 21, not the 17 of jvmTarget: Robolectric runs the UI tests on the
+          # Android 36 image, which needs a JDK 21 to run on. The app still
+          # compiles to Java 17 bytecode. It is also what development uses.
+          java-version: '21'
 
       - uses: gradle/actions/setup-gradle@v6
         with:
