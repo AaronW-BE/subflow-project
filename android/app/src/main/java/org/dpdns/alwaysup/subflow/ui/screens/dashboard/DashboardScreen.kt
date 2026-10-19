@@ -184,14 +184,9 @@ fun DashboardScreen(
     // said they are not thinking about.
     var pausedExpanded by rememberSaveable { mutableStateOf(false) }
 
-    val categories = listOf(
-        "All" to R.string.filter_all,
-        "Streaming" to R.string.filter_streaming,
-        "Productivity" to R.string.filter_productivity,
-        "Cloud" to R.string.filter_cloud,
-        "Utilities" to R.string.filter_utilities,
-        "Health" to R.string.filter_health
-    )
+    val categories = remember(subscriptions, selectedCategory) {
+        categoryFilters(subscriptions, selectedCategory)
+    }
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
     val pausedSubs = remember(subscriptions) { subscriptions.filter { !it.isActive && !it.isDeleted } }
@@ -1113,7 +1108,7 @@ private val CategoryFadeWidth = 28.dp
 
 @Composable
 private fun CategoryFilterRow(
-    categories: List<Pair<String, Int>>,
+    categories: List<String>,
     selectedCategory: String,
     onSelect: (String) -> Unit
 ) {
@@ -1167,7 +1162,7 @@ private fun CategoryFilterRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(vertical = 2.dp)
     ) {
-        items(categories, key = { it.first }) { (catKey, catLabelRes) ->
+        items(categories, key = { it }) { catKey ->
             val isSelected = catKey == selectedCategory
             val backgroundColor by animateColorAsState(
                 targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
@@ -1177,7 +1172,7 @@ private fun CategoryFilterRow(
                 targetValue = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
                 label = "catFilterText"
             )
-            val label = stringResource(catLabelRes)
+            val label = localizedCategory(catKey)
 
             Box(
                 modifier = Modifier
@@ -1497,6 +1492,34 @@ private fun PausedSectionHeader(
                 .size(10.dp)
                 .rotate(rotation)
         )
+    }
+}
+
+/** The categories a subscription can be filed under, in the order the add form offers them. */
+val SUBSCRIPTION_CATEGORIES = listOf(
+    "Streaming", "Productivity", "Cloud", "Utilities", "Health",
+    "Finance", "Gaming", "Education", "Lifestyle", "News"
+)
+
+/**
+ * The dashboard's filter chips: "All", then each category at least one
+ * subscription is filed under, active or paused, in [SUBSCRIPTION_CATEGORIES]
+ * order. Ten fixed chips would mostly lead to an empty list, and on a 360dp
+ * screen most of them would sit off the edge.
+ *
+ * [selected] keeps its chip even once nothing is left in it - deleting the
+ * last Gaming subscription must not pull the chip out from under the user
+ * while it is still the filter in force.
+ */
+fun categoryFilters(subscriptions: List<Subscription>, selected: String): List<String> {
+    val used = subscriptions
+        .filterNot { it.isDeleted }
+        .mapTo(HashSet()) { it.category.lowercase() }
+    return listOf("All") + SUBSCRIPTION_CATEGORIES.filter { cat ->
+        cat.lowercase() in used ||
+            // "Entertainment" is the legacy label for what is now "Streaming".
+            (cat == "Streaming" && "entertainment" in used) ||
+            cat == selected
     }
 }
 

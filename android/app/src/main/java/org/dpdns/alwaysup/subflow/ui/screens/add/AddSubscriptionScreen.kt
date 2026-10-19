@@ -65,6 +65,7 @@ import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.domain.util.localizedCurrencies
 import org.dpdns.alwaysup.subflow.ui.components.*
+import org.dpdns.alwaysup.subflow.ui.screens.dashboard.SUBSCRIPTION_CATEGORIES
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.localizedCategory
 import org.dpdns.alwaysup.subflow.ui.theme.*
 import org.dpdns.alwaysup.subflow.ui.util.rememberHaptics
@@ -72,11 +73,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
 import java.util.UUID
-
-private val CATEGORIES = listOf(
-    "Streaming", "Productivity", "Cloud", "Utilities", "Health",
-    "Finance", "Gaming", "Education", "Lifestyle", "News"
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1260,7 +1256,7 @@ fun AddSubscriptionScreen(
     if (showCategorySheet) {
         SubFlowPickerSheet(
             title = stringResource(R.string.field_category),
-            items = CATEGORIES,
+            items = SUBSCRIPTION_CATEGORIES,
             key = { it },
             onDismiss = { showCategorySheet = false }
         ) { cat ->
