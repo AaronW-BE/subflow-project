@@ -458,4 +458,17 @@
         <item quantity="one">Deleted %d subscription</item>
         <item quantity="other">Deleted %d subscriptions</item>
     </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">Change category</string>
+    <string name="change_reminder">Change reminder</string>
+    <string name="more_actions">More actions</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="one">Moved %1$d subscription to %2$s</item>
+        <item quantity="other">Moved %1$d subscriptions to %2$s</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="one">Updated the reminder for %d subscription</item>
+        <item quantity="other">Updated the reminder for %d subscriptions</item>
+    </plurals>
 </resources>

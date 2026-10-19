@@ -448,4 +448,17 @@
         <item quantity="one">%d suscripción eliminada</item>
         <item quantity="other">%d suscripciones eliminadas</item>
     </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">Cambiar categoría</string>
+    <string name="change_reminder">Cambiar recordatorio</string>
+    <string name="more_actions">Más acciones</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="one">%1$d suscripción movida a «%2$s»</item>
+        <item quantity="other">%1$d suscripciones movidas a «%2$s»</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="one">Recordatorio actualizado para %d suscripción</item>
+        <item quantity="other">Recordatorio actualizado para %d suscripciones</item>
+    </plurals>
 </resources>

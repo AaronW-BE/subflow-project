@@ -435,4 +435,15 @@
     <plurals name="bulk_deleted">
         <item quantity="other">%d 件を削除しました</item>
     </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">カテゴリを変更</string>
+    <string name="change_reminder">通知を変更</string>
+    <string name="more_actions">その他の操作</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="other">%1$d 件を「%2$s」に移動しました</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="other">%d 件の通知を更新しました</item>
+    </plurals>
 </resources>

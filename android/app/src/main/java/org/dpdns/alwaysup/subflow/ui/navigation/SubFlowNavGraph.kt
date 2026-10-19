@@ -646,6 +646,9 @@ fun SubFlowNavHost(
                     onSetActiveMany = { ids, active ->
                         subscriptionRepository.setActiveMany(ids, active, isPro)
                     },
+                    onSaveSubscriptions = { list ->
+                        list.forEach { subscriptionRepository.revertTo(it, isPro) }
+                    },
                     onPaywallClick = { navController.navigate(Screen.Paywall.route) },
                     showSwipeHint = !swipeHintSeen,
                     onSwipeHintSeen = { preferencesManager.markSwipeHintSeen() }
