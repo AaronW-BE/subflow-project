@@ -115,6 +115,7 @@ fun SettingsScreen(
     onPrivacyOptionsClick: () -> Unit,
     onBackupClick: () -> Unit,
     onRestoreFromFile: (Uri) -> Unit,
+    onImportCsvFile: (Uri) -> Unit = {},
     onClearAllData: () -> Unit,
     onTestNotification: () -> Unit,
     onOpenUrl: (String) -> Unit,
@@ -145,6 +146,9 @@ fun SettingsScreen(
     val restoreLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let(onRestoreFromFile) }
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let(onImportCsvFile) }
 
     // Re-read whenever the screen comes back to the foreground: the user can
     // toggle this in system settings and return, and a stale banner would then
@@ -323,7 +327,8 @@ fun SettingsScreen(
                     item(key = "data") {
                         DataSection(
                             onBackupClick = onBackupClick,
-                            restoreLauncher = restoreLauncher
+                            restoreLauncher = restoreLauncher,
+                            importLauncher = importLauncher
                         )
                     }
                     // Irreversible, so it gets its own section rather than
@@ -916,7 +921,8 @@ private fun NotificationsSection(
 @Composable
 private fun DataSection(
     onBackupClick: () -> Unit,
-    restoreLauncher: ManagedActivityResultLauncher<Array<String>, Uri?>
+    restoreLauncher: ManagedActivityResultLauncher<Array<String>, Uri?>,
+    importLauncher: ManagedActivityResultLauncher<Array<String>, Uri?>
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
@@ -932,13 +938,35 @@ private fun DataSection(
                 subtitle = stringResource(R.string.restore_json_sub),
                 icon = Icons.Default.FileUpload,
                 iconTint = SubFlowAccents.blue,
-                showDivider = false,
                 onClick = {
                     // Some providers report a backup as octet-stream, so
                     // accept a couple of types rather than only JSON.
                     runCatching {
                         restoreLauncher.launch(
                             arrayOf("application/json", "text/plain", "application/octet-stream")
+                        )
+                    }
+                }
+            )
+            AppleListRow(
+                title = stringResource(R.string.import_csv),
+                subtitle = stringResource(R.string.import_csv_sub),
+                icon = Icons.Default.TableChart,
+                iconTint = SubFlowAccents.mint,
+                showDivider = false,
+                onClick = {
+                    // A CSV is labelled every way there is, depending on which
+                    // app saved it and which file manager is asked.
+                    runCatching {
+                        importLauncher.launch(
+                            arrayOf(
+                                "text/csv",
+                                "text/comma-separated-values",
+                                "application/csv",
+                                "application/vnd.ms-excel",
+                                "text/plain",
+                                "application/octet-stream"
+                            )
                         )
                     }
                 }

@@ -387,4 +387,41 @@
     <string name="whats_new_item_1">Wische ein Abo nach rechts, um es zu pausieren, und erneut, um es fortzusetzen.</string>
     <string name="whats_new_item_2">In der Analyse ändert „Monatlich“/„Jährlich“ jetzt alle Zahlen.</string>
     <string name="whats_new_item_3">CSV-Berichte zeigen in Excel jetzt Umlaute korrekt an.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">CSV importieren</string>
+    <string name="import_csv_sub">Aus einer Tabelle oder einer anderen App</string>
+    <string name="import_title">Aus CSV importieren</string>
+    <string name="import_nothing_new">Nichts Neues zum Importieren.</string>
+    <string name="import_paused_note">%1$d kommen pausiert dazu, da die kostenlose Version %2$d aktive Abos erlaubt.</string>
+    <string name="import_line">Zeile %1$d: %2$s</string>
+    <string name="import_problem_missing_name">kein Name</string>
+    <string name="import_problem_bad_amount">„%s“ ist kein Preis</string>
+    <string name="import_problem_bad_currency">„%s“ ist keine unterstützte Währung</string>
+    <string name="import_problem_bad_cycle">„%s“ ist kein Abrechnungszeitraum</string>
+    <string name="import_problem_bad_date">„%s“ ist kein Datum</string>
+    <string name="import_missing_columns">Die erste Zeile muss die Spalten benennen. In dieser Datei fehlt: %s.</string>
+    <string name="import_template_hint">Zum Beispiel: %s</string>
+    <string name="import_empty">In dieser Datei wurden keine Abos gefunden.</string>
+    <string name="import_done_paused">%1$d Abos importiert. %2$d sind pausiert, da die kostenlose Version %3$d aktive Abos erlaubt.</string>
+    <plurals name="import_new">
+        <item quantity="one">%d neues Abo</item>
+        <item quantity="other">%d neue Abos</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%d schon in SubFlow, wird übersprungen</item>
+        <item quantity="other">%d schon in SubFlow, werden übersprungen</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="one">%d Zeile konnte nicht gelesen werden</item>
+        <item quantity="other">%d Zeilen konnten nicht gelesen werden</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="one">%d Abo importieren</item>
+        <item quantity="other">%d Abos importieren</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d Abo importiert.</item>
+        <item quantity="other">%d Abos importiert.</item>
+    </plurals>
 </resources>

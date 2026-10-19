@@ -48,6 +48,13 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import org.dpdns.alwaysup.subflow.BuildConfig
 import org.dpdns.alwaysup.subflow.R
+import androidx.core.app.LocaleManagerCompat
+import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
+import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
+import org.dpdns.alwaysup.subflow.domain.util.CsvImport
+import org.dpdns.alwaysup.subflow.ui.screens.dashboard.SUBSCRIPTION_CATEGORIES
+import org.dpdns.alwaysup.subflow.ui.screens.settings.ImportPreviewSheet
+import org.dpdns.alwaysup.subflow.ui.screens.settings.ImportSheetState
 import org.dpdns.alwaysup.subflow.data.billing.BillingEvent
 import org.dpdns.alwaysup.subflow.data.billing.BillingManager
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
@@ -266,6 +273,109 @@ fun SubFlowNavHost(
         }
     }
 
+    // CSV import (BIN-65). The file is read and checked here, the sheet says
+    // what would happen, and only its Import button writes anything.
+    var importSheet by remember { mutableStateOf<ImportSheetState?>(null) }
+
+    fun importOptions(): CsvImport.Options {
+        val label = { id: Int -> context.getString(id) }
+        // The device's region, not the interface language: it is the region
+        // that decided how the spreadsheet wrote its dates.
+        val region = LocaleManagerCompat.getSystemLocales(context).get(0)?.country.orEmpty()
+        return CsvImport.Options(
+            primaryCurrency = primaryCurrency,
+            supportedCurrencies = SupportedCurrencies.map { it.code }.toSet(),
+            knownCategories = SUBSCRIPTION_CATEGORIES,
+            defaultCategory = SUBSCRIPTION_CATEGORIES.first(),
+            dayFirstSlashDates = region != "US",
+            extraCycleAliases = mapOf(
+                label(R.string.cycle_weekly) to BillingCycle.WEEKLY,
+                label(R.string.cycle_monthly) to BillingCycle.MONTHLY,
+                label(R.string.cycle_quarterly) to BillingCycle.QUARTERLY,
+                label(R.string.cycle_yearly) to BillingCycle.ANNUALLY,
+                label(R.string.segment_monthly) to BillingCycle.MONTHLY,
+                label(R.string.segment_annual) to BillingCycle.ANNUALLY
+            ),
+            // The add form's own labels, so a sheet headed in the interface
+            // language reads like one headed in English.
+            extraHeaderAliases = mapOf(
+                label(R.string.field_name) to CsvImport.Field.NAME,
+                label(R.string.field_service) to CsvImport.Field.NAME,
+                label(R.string.field_price) to CsvImport.Field.AMOUNT,
+                label(R.string.field_currency) to CsvImport.Field.CURRENCY,
+                label(R.string.billing_cycle) to CsvImport.Field.CYCLE,
+                label(R.string.first_bill_date) to CsvImport.Field.FIRST_BILL_DATE,
+                label(R.string.field_category) to CsvImport.Field.CATEGORY,
+                label(R.string.field_notes) to CsvImport.Field.NOTES
+            )
+        )
+    }
+
+    fun previewImport(uri: Uri) {
+        scope.launch {
+            val text = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openInputStream(uri)
+                        ?.bufferedReader()
+                        ?.use { it.readText() }
+                }.getOrNull()
+            }
+            if (text == null) {
+                showMessage(context.getString(R.string.restore_read_failed))
+                return@launch
+            }
+            val options = importOptions()
+            when (val result = withContext(Dispatchers.Default) { CsvImport.parse(text, options) }) {
+                CsvImport.Result.Empty -> showMessage(context.getString(R.string.import_empty))
+                is CsvImport.Result.MissingColumns ->
+                    importSheet = ImportSheetState.MissingColumns(result.missing)
+                is CsvImport.Result.Rows -> {
+                    val preview = CsvImport.preview(result.rows, subscriptions).let { p ->
+                        p.copy(toAdd = p.toAdd.map { CsvImport.withPresetLooks(it, presets) })
+                    }
+                    val activeIds = subscriptions.filter { it.isActive }.map { it.id }.toSet()
+                    val paused = SubscriptionRepository
+                        .fitToFreeLimit(preview.toAdd, activeIds, isPro)
+                        .pausedByLimit
+                    importSheet = ImportSheetState.Ready(preview, paused)
+                }
+            }
+        }
+    }
+
+    importSheet?.let { sheet ->
+        ImportPreviewSheet(
+            state = sheet,
+            freeLimit = SubscriptionRepository.FREE_TIER_LIMIT,
+            onImport = {
+                val ready = sheet as? ImportSheetState.Ready
+                importSheet = null
+                if (ready != null) {
+                    scope.launch {
+                        val outcome = subscriptionRepository.importSubscriptions(ready.preview.toAdd, isPro)
+                        showMessage(
+                            if (outcome.pausedByLimit > 0) {
+                                context.getString(
+                                    R.string.import_done_paused,
+                                    outcome.restored,
+                                    outcome.pausedByLimit,
+                                    SubscriptionRepository.FREE_TIER_LIMIT
+                                )
+                            } else {
+                                context.resources.getQuantityString(
+                                    R.plurals.import_done,
+                                    outcome.restored,
+                                    outcome.restored
+                                )
+                            }
+                        )
+                    }
+                }
+            },
+            onDismiss = { importSheet = null }
+        )
+    }
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val bottomBarRoutes = listOf(Screen.Dashboard.route, Screen.Analytics.route, Screen.Settings.route)
@@ -384,6 +494,7 @@ fun SubFlowNavHost(
                     )
                 }
             },
+            onImportCsvFile = { uri -> previewImport(uri) },
             onClearAllData = {
                 scope.launch {
                     subscriptionRepository.clearAllData()

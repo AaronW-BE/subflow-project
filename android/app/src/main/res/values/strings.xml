@@ -397,4 +397,41 @@
     <string name="whats_new_item_1">Swipe a subscription right to pause it, and right again to resume.</string>
     <string name="whats_new_item_2">Analytics: Monthly and Annual now change every figure on the screen.</string>
     <string name="whats_new_item_3">CSV reports open in Excel with accents and other characters intact.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">Import CSV</string>
+    <string name="import_csv_sub">From a spreadsheet or another app</string>
+    <string name="import_title">Import from CSV</string>
+    <string name="import_nothing_new">Nothing new to import.</string>
+    <string name="import_paused_note">%1$d will come in paused, as the free plan keeps %2$d active.</string>
+    <string name="import_line">Line %1$d: %2$s</string>
+    <string name="import_problem_missing_name">no name</string>
+    <string name="import_problem_bad_amount">“%s” isn’t a price</string>
+    <string name="import_problem_bad_currency">“%s” isn’t a supported currency</string>
+    <string name="import_problem_bad_cycle">“%s” isn’t a billing cycle</string>
+    <string name="import_problem_bad_date">“%s” isn’t a date</string>
+    <string name="import_missing_columns">The first row should name the columns, and this file is missing: %s.</string>
+    <string name="import_template_hint">For example: %s</string>
+    <string name="import_empty">No subscriptions found in that file.</string>
+    <string name="import_done_paused">Imported %1$d subscriptions. %2$d are paused, as the free plan keeps %3$d active.</string>
+    <plurals name="import_new">
+        <item quantity="one">%d new subscription</item>
+        <item quantity="other">%d new subscriptions</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%d already in SubFlow, skipped</item>
+        <item quantity="other">%d already in SubFlow, skipped</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="one">%d row couldn’t be read</item>
+        <item quantity="other">%d rows couldn’t be read</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="one">Import %d subscription</item>
+        <item quantity="other">Import %d subscriptions</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">Imported %d subscription.</item>
+        <item quantity="other">Imported %d subscriptions.</item>
+    </plurals>
 </resources>

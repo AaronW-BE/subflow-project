@@ -390,4 +390,36 @@
     <string name="whats_new_item_1">將訂閱向右滑動即可暫停，再向右滑動即可恢復。</string>
     <string name="whats_new_item_2">分析頁在「依月」和「依年」之間切換時，所有數字都會跟著變動。</string>
     <string name="whats_new_item_3">匯出的 CSV 報表用 Excel 開啟時不再變成亂碼。</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">匯入 CSV</string>
+    <string name="import_csv_sub">從試算表或其他 App 匯入</string>
+    <string name="import_title">從 CSV 匯入</string>
+    <string name="import_nothing_new">沒有可匯入的新訂閱。</string>
+    <string name="import_paused_note">其中 %1$d 筆將以暫停狀態匯入：免費版最多保留 %2$d 筆進行中的訂閱。</string>
+    <string name="import_line">第 %1$d 列：%2$s</string>
+    <string name="import_problem_missing_name">缺少名稱</string>
+    <string name="import_problem_bad_amount">「%s」不是有效的價格</string>
+    <string name="import_problem_bad_currency">「%s」不是支援的貨幣</string>
+    <string name="import_problem_bad_cycle">「%s」不是有效的計費週期</string>
+    <string name="import_problem_bad_date">「%s」不是有效的日期</string>
+    <string name="import_missing_columns">檔案第一列應為欄位名稱，這個檔案缺少：%s。</string>
+    <string name="import_template_hint">例如：%s</string>
+    <string name="import_empty">這個檔案裡找不到訂閱。</string>
+    <string name="import_done_paused">已匯入 %1$d 筆訂閱，其中 %2$d 筆已暫停：免費版最多保留 %3$d 筆進行中的訂閱。</string>
+    <plurals name="import_new">
+        <item quantity="other">%d 筆新訂閱</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="other">%d 筆已在 SubFlow 中，將略過</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="other">%d 列無法讀取</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="other">匯入 %d 筆訂閱</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="other">已匯入 %d 筆訂閱。</item>
+    </plurals>
 </resources>

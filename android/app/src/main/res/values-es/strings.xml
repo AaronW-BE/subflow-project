@@ -387,4 +387,41 @@
     <string name="whats_new_item_1">Desliza una suscripción a la derecha para pausarla y otra vez para reanudarla.</string>
     <string name="whats_new_item_2">En Análisis, «Mensual»/«Anual» ahora cambia todas las cifras.</string>
     <string name="whats_new_item_3">Los informes CSV se abren en Excel con los acentos intactos.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">Importar CSV</string>
+    <string name="import_csv_sub">Desde una hoja de cálculo u otra app</string>
+    <string name="import_title">Importar desde CSV</string>
+    <string name="import_nothing_new">No hay nada nuevo que importar.</string>
+    <string name="import_paused_note">%1$d llegarán en pausa, porque la versión gratuita mantiene %2$d activas.</string>
+    <string name="import_line">Fila %1$d: %2$s</string>
+    <string name="import_problem_missing_name">sin nombre</string>
+    <string name="import_problem_bad_amount">«%s» no es un precio</string>
+    <string name="import_problem_bad_currency">«%s» no es una moneda compatible</string>
+    <string name="import_problem_bad_cycle">«%s» no es un ciclo de facturación</string>
+    <string name="import_problem_bad_date">«%s» no es una fecha</string>
+    <string name="import_missing_columns">La primera fila debe nombrar las columnas, y a este archivo le falta: %s.</string>
+    <string name="import_template_hint">Por ejemplo: %s</string>
+    <string name="import_empty">No se encontraron suscripciones en ese archivo.</string>
+    <string name="import_done_paused">%1$d suscripciones importadas. %2$d están en pausa, porque la versión gratuita mantiene %3$d activas.</string>
+    <plurals name="import_new">
+        <item quantity="one">%d suscripción nueva</item>
+        <item quantity="other">%d suscripciones nuevas</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%d ya está en SubFlow, se omite</item>
+        <item quantity="other">%d ya están en SubFlow, se omiten</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="one">%d fila no se pudo leer</item>
+        <item quantity="other">%d filas no se pudieron leer</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="one">Importar %d suscripción</item>
+        <item quantity="other">Importar %d suscripciones</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d suscripción importada.</item>
+        <item quantity="other">%d suscripciones importadas.</item>
+    </plurals>
 </resources>

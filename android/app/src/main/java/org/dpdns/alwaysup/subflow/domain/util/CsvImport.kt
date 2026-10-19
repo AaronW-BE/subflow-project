@@ -1,6 +1,7 @@
 package org.dpdns.alwaysup.subflow.domain.util
 
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
+import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import java.time.LocalDate
 import java.util.Locale
@@ -44,6 +45,12 @@ object CsvImport {
         val dayFirstSlashDates: Boolean,
         /** Cycle names in the interface language, e.g. 每月 -> MONTHLY. */
         val extraCycleAliases: Map<String, BillingCycle> = emptyMap(),
+        /**
+         * Column names in the interface language - the add form's own field
+         * labels, so a sheet headed 名称, 价格, 首次扣费日期 reads the same as
+         * one headed Name, Price, First Payment Date.
+         */
+        val extraHeaderAliases: Map<String, Field> = emptyMap(),
         val today: LocalDate = LocalDate.now(),
         val newId: () -> String = { "sub_" + UUID.randomUUID().toString().take(10) }
     )
@@ -83,7 +90,7 @@ object CsvImport {
         if (records.isEmpty()) return Result.Empty
 
         val (_, header) = records.first()
-        val columns = mapHeader(header)
+        val columns = mapHeader(header, options.extraHeaderAliases)
         val missing = REQUIRED - columns.keys
         if (missing.isNotEmpty()) return Result.MissingColumns(missing)
         if (records.size == 1) return Result.Empty
@@ -182,6 +189,20 @@ object CsvImport {
         )
     }
 
+    /**
+     * Gives an imported subscription the colour and icon of the preset it
+     * names, as picking that preset in the add form would have. A Netflix row
+     * from a spreadsheet should look like every other Netflix in the list,
+     * not like a custom service someone invented.
+     */
+    fun withPresetLooks(subscription: Subscription, presets: List<PresetService>): Subscription {
+        val key = normaliseName(subscription.name)
+        val preset = presets.firstOrNull {
+            normaliseName(it.name) == key || normaliseName(it.id) == key
+        } ?: return subscription
+        return subscription.copy(colorHex = preset.brandColor, iconUrl = preset.iconUrl)
+    }
+
     private fun duplicateKey(s: Subscription): String =
         listOf(
             normaliseName(s.name),
@@ -210,10 +231,15 @@ object CsvImport {
     }
 
     /** Column index for each field the header names; the first match wins. */
-    internal fun mapHeader(header: List<String>): Map<Field, Int> {
+    internal fun mapHeader(
+        header: List<String>,
+        extra: Map<String, Field> = emptyMap()
+    ): Map<Field, Int> {
+        val extraByKey = extra.mapKeys { normaliseKey(it.key) }
         val out = linkedMapOf<Field, Int>()
         header.forEachIndexed { index, raw ->
-            val field = HEADER_ALIASES[normaliseKey(raw)] ?: return@forEachIndexed
+            val key = normaliseKey(raw)
+            val field = HEADER_ALIASES[key] ?: extraByKey[key] ?: return@forEachIndexed
             out.putIfAbsent(field, index)
         }
         return out

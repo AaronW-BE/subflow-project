@@ -383,4 +383,36 @@
     <string name="whats_new_item_1">向右滑动订阅即可暂停，再向右滑动即可恢复。</string>
     <string name="whats_new_item_2">分析页在“按月”和“按年”之间切换时，所有数字都会随之变化。</string>
     <string name="whats_new_item_3">导出的 CSV 报表用 Excel 打开时不再乱码。</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">导入 CSV</string>
+    <string name="import_csv_sub">从表格或其他应用导入</string>
+    <string name="import_title">从 CSV 导入</string>
+    <string name="import_nothing_new">没有可导入的新订阅。</string>
+    <string name="import_paused_note">其中 %1$d 个将以暂停状态导入：免费版最多保留 %2$d 项进行中的订阅。</string>
+    <string name="import_line">第 %1$d 行：%2$s</string>
+    <string name="import_problem_missing_name">缺少名称</string>
+    <string name="import_problem_bad_amount">“%s”不是有效的价格</string>
+    <string name="import_problem_bad_currency">“%s”不是支持的货币</string>
+    <string name="import_problem_bad_cycle">“%s”不是有效的计费周期</string>
+    <string name="import_problem_bad_date">“%s”不是有效的日期</string>
+    <string name="import_missing_columns">文件第一行应为列名，这个文件缺少：%s。</string>
+    <string name="import_template_hint">例如：%s</string>
+    <string name="import_empty">这个文件里没有找到订阅。</string>
+    <string name="import_done_paused">已导入 %1$d 个订阅，其中 %2$d 个已暂停：免费版最多保留 %3$d 项进行中的订阅。</string>
+    <plurals name="import_new">
+        <item quantity="other">%d 个新订阅</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="other">%d 个已在 SubFlow 中，将跳过</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="other">%d 行无法读取</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="other">导入 %d 个订阅</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="other">已导入 %d 个订阅。</item>
+    </plurals>
 </resources>
