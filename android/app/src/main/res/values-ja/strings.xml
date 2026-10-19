@@ -19,6 +19,11 @@
     <string name="filter_cloud">クラウド</string>
     <string name="filter_utilities">生活</string>
     <string name="filter_health">健康</string>
+    <string name="filter_finance">ファイナンス</string>
+    <string name="filter_gaming">ゲーム</string>
+    <string name="filter_education">教育</string>
+    <string name="filter_lifestyle">ライフスタイル</string>
+    <string name="filter_news">ニュース</string>
     <string name="add_subscription">サブスクを追加</string>
     <string name="back_to_top">先頭に戻る</string>
     <string name="upgrade_to_pro">Pro にアップグレード</string>

@@ -26,6 +26,11 @@
     <string name="filter_cloud">雲端服務</string>
     <string name="filter_utilities">生活工具</string>
     <string name="filter_health">健康</string>
+    <string name="filter_finance">財經</string>
+    <string name="filter_gaming">遊戲</string>
+    <string name="filter_education">教育</string>
+    <string name="filter_lifestyle">生活風格</string>
+    <string name="filter_news">新聞</string>
     <string name="add_subscription">新增訂閱</string>
     <string name="back_to_top">回到頂部</string>
     <string name="upgrade_to_pro">升級 Pro</string>

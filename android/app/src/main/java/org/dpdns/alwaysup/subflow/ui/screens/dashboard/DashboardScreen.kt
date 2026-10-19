@@ -1509,5 +1509,10 @@ fun localizedCategory(category: String): String = when (category.lowercase()) {
     "cloud" -> stringResource(R.string.filter_cloud)
     "utilities" -> stringResource(R.string.filter_utilities)
     "health" -> stringResource(R.string.filter_health)
+    "finance" -> stringResource(R.string.filter_finance)
+    "gaming" -> stringResource(R.string.filter_gaming)
+    "education" -> stringResource(R.string.filter_education)
+    "lifestyle" -> stringResource(R.string.filter_lifestyle)
+    "news" -> stringResource(R.string.filter_news)
     else -> category
 }
