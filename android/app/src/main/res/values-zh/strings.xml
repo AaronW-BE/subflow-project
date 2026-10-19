@@ -415,4 +415,24 @@
     <plurals name="import_done">
         <item quantity="other">已导入 %d 个订阅。</item>
     </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">选择</string>
+    <string name="select_all">全选</string>
+    <string name="exit_selection">取消选择</string>
+    <string name="bulk_resumed_partial">已恢复 %1$d 个，%2$d 个仍为暂停：免费版最多保留 %3$d 项进行中的订阅。</string>
+    <string name="bulk_resume_full">免费版最多保留 %d 项进行中的订阅，这些仍为暂停。</string>
+    <string name="bulk_resumed_converted">已恢复 %1$d 个，其中 %2$d 个已取消的试用将按原价计费。</string>
+    <plurals name="selection_count">
+        <item quantity="other">已选 %d 项</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="other">已暂停 %d 个订阅</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="other">已恢复 %d 个订阅</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="other">已删除 %d 个订阅</item>
+    </plurals>
 </resources>

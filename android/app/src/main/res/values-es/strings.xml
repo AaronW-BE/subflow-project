@@ -424,4 +424,28 @@
         <item quantity="one">%d suscripción importada.</item>
         <item quantity="other">%d suscripciones importadas.</item>
     </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">Seleccionar</string>
+    <string name="select_all">Seleccionar todo</string>
+    <string name="exit_selection">Cancelar selección</string>
+    <string name="bulk_resumed_partial">%1$d reanudadas. %2$d siguen en pausa, porque la versión gratuita mantiene %3$d activas.</string>
+    <string name="bulk_resume_full">La versión gratuita mantiene %d activas, así que estas siguen en pausa.</string>
+    <string name="bulk_resumed_converted">%1$d reanudadas. %2$d pruebas canceladas ahora se cobran a precio completo.</string>
+    <plurals name="selection_count">
+        <item quantity="one">%d seleccionada</item>
+        <item quantity="other">%d seleccionadas</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="one">%d suscripción pausada</item>
+        <item quantity="other">%d suscripciones pausadas</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="one">%d suscripción reanudada</item>
+        <item quantity="other">%d suscripciones reanudadas</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d suscripción eliminada</item>
+        <item quantity="other">%d suscripciones eliminadas</item>
+    </plurals>
 </resources>

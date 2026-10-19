@@ -422,4 +422,24 @@
     <plurals name="import_done">
         <item quantity="other">已匯入 %d 筆訂閱。</item>
     </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">選取</string>
+    <string name="select_all">全選</string>
+    <string name="exit_selection">取消選取</string>
+    <string name="bulk_resumed_partial">已恢復 %1$d 筆，%2$d 筆仍為暫停：免費版最多保留 %3$d 筆進行中的訂閱。</string>
+    <string name="bulk_resume_full">免費版最多保留 %d 筆進行中的訂閱，這些仍為暫停。</string>
+    <string name="bulk_resumed_converted">已恢復 %1$d 筆，其中 %2$d 筆已取消的試用將按原價計費。</string>
+    <plurals name="selection_count">
+        <item quantity="other">已選取 %d 項</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="other">已暫停 %d 筆訂閱</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="other">已恢復 %d 筆訂閱</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="other">已刪除 %d 筆訂閱</item>
+    </plurals>
 </resources>

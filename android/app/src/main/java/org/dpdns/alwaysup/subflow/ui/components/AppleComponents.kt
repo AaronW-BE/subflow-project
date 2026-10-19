@@ -11,10 +11,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -81,6 +83,7 @@ import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.theme.AppleIndigo
 import org.dpdns.alwaysup.subflow.ui.util.rememberHaptics
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppleCard(
     modifier: Modifier = Modifier,
@@ -97,6 +100,9 @@ fun AppleCard(
      * overwritten by this card's own clickable.
      */
     role: Role = Role.Button,
+    /** A long press; how a subscription row starts multi-select. */
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -118,7 +124,23 @@ fun AppleCard(
             .scale(scale)
             .clip(shape)
             .then(
-                if (onClick != null) {
+                if (onClick != null && onLongClick != null) {
+                    Modifier.combinedClickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClickLabel = onClickLabel,
+                        role = role,
+                        onLongClickLabel = onLongClickLabel,
+                        onLongClick = {
+                            haptics.confirm()
+                            onLongClick()
+                        },
+                        onClick = {
+                            haptics.tick()
+                            onClick()
+                        }
+                    )
+                } else if (onClick != null) {
                     Modifier.clickable(
                         interactionSource = interactionSource,
                         indication = null,
@@ -210,6 +232,15 @@ fun SwipeableSubscriptionCard(
     onTogglePaused: (() -> Unit)? = null,
     /** Whether this subscription is running, which is what names that action. */
     isActive: Boolean = true,
+    /**
+     * Multi-select is on. Both swipes are off while it is: a sideways drag
+     * that deletes or pauses one row in the middle of choosing several is the
+     * last thing someone picking rows expects, and a tap toggles instead.
+     */
+    selectionMode: Boolean = false,
+    selected: Boolean = false,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
     content: @Composable () -> Unit
 ) {
     val haptics = rememberHaptics()
@@ -273,8 +304,8 @@ fun SwipeableSubscriptionCard(
 
     SwipeToDismissBox(
         state = dismissState,
-        enableDismissFromStartToEnd = onTogglePaused != null,
-        enableDismissFromEndToStart = true,
+        enableDismissFromStartToEnd = onTogglePaused != null && !selectionMode,
+        enableDismissFromEndToStart = !selectionMode,
         backgroundContent = {
             if (!moved) return@SwipeToDismissBox
             Box(
@@ -331,20 +362,32 @@ fun SwipeableSubscriptionCard(
                     if (contentDescription != null) {
                         this.contentDescription = contentDescription
                     }
-                    customActions = listOfNotNull(
-                        onTogglePaused?.let { toggle ->
-                            CustomAccessibilityAction(pauseLabel) {
-                                toggle()
+                    if (selectionMode) {
+                        this.selected = selected
+                    } else {
+                        customActions = listOfNotNull(
+                            onTogglePaused?.let { toggle ->
+                                CustomAccessibilityAction(pauseLabel) {
+                                    toggle()
+                                    true
+                                }
+                            },
+                            CustomAccessibilityAction(deleteLabel) {
+                                onDelete()
                                 true
                             }
-                        },
-                        CustomAccessibilityAction(deleteLabel) {
-                            onDelete()
-                            true
-                        }
-                    )
+                        )
+                    }
                 },
-            onClick = onClick
+            border = if (selectionMode && selected) {
+                BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+            } else {
+                BorderStroke(Dp.Hairline, MaterialTheme.colorScheme.outline)
+            },
+            role = if (selectionMode) Role.Checkbox else Role.Button,
+            onClick = onClick,
+            onLongClick = if (selectionMode) null else onLongClick,
+            onLongClickLabel = onLongClickLabel
         ) {
             content()
         }
