@@ -295,4 +295,39 @@ class CsvImportTest {
         assertEquals('\t', CsvImport.detectDelimiter("Name\tAmount\tDate"))
         assertEquals(';', CsvImport.detectDelimiter("\"Name, full\";Amount;Date"))
     }
+
+    // --------------------------------------------------- interface language
+
+    @Test
+    fun `a sheet headed in the interface language reads like an English one`() {
+        val zh = options().copy(
+            extraHeaderAliases = mapOf(
+                "名称" to Field.NAME,
+                "价格" to Field.AMOUNT,
+                "首次扣费日期" to Field.FIRST_BILL_DATE,
+                "计费周期" to Field.CYCLE
+            )
+        )
+        val result = CsvImport.parse("名称,价格,首次扣费日期,计费周期\n奈飞,15.49,2026-03-01,每年\n", zh)
+        val s = ((result as CsvImport.Result.Rows).rows.single() as CsvImport.Parsed).subscription
+        assertEquals("奈飞", s.name)
+        assertEquals(15.49, s.amount, 0.0)
+        assertEquals(BillingCycle.ANNUALLY, s.cycle)
+    }
+
+    @Test
+    fun `an imported row that names a preset looks like that preset`() {
+        val presets = listOf(
+            org.dpdns.alwaysup.subflow.domain.model.PresetService(
+                id = "disney", name = "Disney+", category = "Streaming",
+                brandColor = "#113CCF", iconUrl = "disney", defaultAmountUSD = 15.99
+            )
+        )
+        val imported = parsed("Name,Amount,FirstBillDate\ndisney +,13.99,2026-01-01\nMy Gym,40,2026-01-01\n")
+        val looks = imported.map { CsvImport.withPresetLooks(it, presets) }
+        assertEquals("#113CCF", looks[0].colorHex)
+        assertEquals("disney", looks[0].iconUrl)
+        // Not a preset: left as it came.
+        assertEquals(imported[1], looks[1])
+    }
 }

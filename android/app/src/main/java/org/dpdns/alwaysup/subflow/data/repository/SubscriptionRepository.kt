@@ -3,6 +3,7 @@ package org.dpdns.alwaysup.subflow.data.repository
 import android.content.Context
 import android.util.Log
 import org.dpdns.alwaysup.subflow.data.local.SubFlowDatabase
+import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
 import org.dpdns.alwaysup.subflow.data.local.SubscriptionEntity
 import org.dpdns.alwaysup.subflow.data.remote.SubFlowApiService
 import org.dpdns.alwaysup.subflow.data.remote.SubscriptionDto
@@ -245,6 +246,36 @@ class SubscriptionRepository(
         }
     } catch (e: Exception) {
         Result.failure(e)
+    }
+
+    /**
+     * Writes subscriptions read out of a CSV file.
+     *
+     * The same free-plan rule as a restore: what does not fit comes in paused.
+     * A 3- or 7-day reminder in the file is a Pro lead, so a free user's row
+     * keeps the one-day reminder instead - the subscription is right either
+     * way, and the file is not a way round the lead any more than the limit.
+     */
+    suspend fun importSubscriptions(incoming: List<Subscription>, isPro: Boolean): RestoreOutcome {
+        val now = System.currentTimeMillis()
+        val prepared = incoming.map { sub ->
+            sub.copy(
+                updatedAt = now,
+                isDeleted = false,
+                reminderDaysBefore = if (!isPro && ReminderLead.forDays(sub.reminderDaysBefore).isPro) {
+                    ReminderLead.ONE_DAY.days
+                } else {
+                    sub.reminderDaysBefore
+                }
+            )
+        }
+        val activeOnDevice = dao.getActiveSubscriptions()
+            .filter { it.isActive }
+            .map { it.id }
+            .toSet()
+        val fit = fitToFreeLimit(prepared, activeOnDevice, isPro)
+        dao.insertAll(fit.subscriptions.map { SubscriptionEntity.fromDomain(it) })
+        return RestoreOutcome(fit.subscriptions.size, fit.pausedByLimit)
     }
 
     /**

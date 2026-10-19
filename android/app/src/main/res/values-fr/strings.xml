@@ -387,4 +387,41 @@
     <string name="whats_new_item_1">Balayez un abonnement vers la droite pour le mettre en pause, puis encore pour le reprendre.</string>
     <string name="whats_new_item_2">Dans Analyse, « Mensuel »/« Annuel » change désormais tous les chiffres.</string>
     <string name="whats_new_item_3">Les rapports CSV s’ouvrent dans Excel avec les accents intacts.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">Importer un CSV</string>
+    <string name="import_csv_sub">Depuis un tableur ou une autre app</string>
+    <string name="import_title">Importer depuis un CSV</string>
+    <string name="import_nothing_new">Rien de nouveau à importer.</string>
+    <string name="import_paused_note">%1$d arriveront en pause, car la version gratuite en garde %2$d actifs.</string>
+    <string name="import_line">Ligne %1$d : %2$s</string>
+    <string name="import_problem_missing_name">aucun nom</string>
+    <string name="import_problem_bad_amount">« %s » n’est pas un prix</string>
+    <string name="import_problem_bad_currency">« %s » n’est pas une devise prise en charge</string>
+    <string name="import_problem_bad_cycle">« %s » n’est pas une périodicité</string>
+    <string name="import_problem_bad_date">« %s » n’est pas une date</string>
+    <string name="import_missing_columns">La première ligne doit nommer les colonnes, et il manque à ce fichier : %s.</string>
+    <string name="import_template_hint">Par exemple : %s</string>
+    <string name="import_empty">Aucun abonnement trouvé dans ce fichier.</string>
+    <string name="import_done_paused">%1$d abonnements importés. %2$d sont en pause, car la version gratuite en garde %3$d actifs.</string>
+    <plurals name="import_new">
+        <item quantity="one">%d nouvel abonnement</item>
+        <item quantity="other">%d nouveaux abonnements</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%d déjà dans SubFlow, ignoré</item>
+        <item quantity="other">%d déjà dans SubFlow, ignorés</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="one">%d ligne illisible</item>
+        <item quantity="other">%d lignes illisibles</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="one">Importer %d abonnement</item>
+        <item quantity="other">Importer %d abonnements</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d abonnement importé.</item>
+        <item quantity="other">%d abonnements importés.</item>
+    </plurals>
 </resources>

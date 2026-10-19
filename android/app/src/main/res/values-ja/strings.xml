@@ -383,4 +383,36 @@
     <string name="whats_new_item_1">サブスクを右にスワイプすると停止、もう一度右にスワイプすると再開できます。</string>
     <string name="whats_new_item_2">分析画面で「月間」と「年間」を切り替えると、すべての数値が変わります。</string>
     <string name="whats_new_item_3">CSV レポートを Excel で開いても文字化けしなくなりました。</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">CSV をインポート</string>
+    <string name="import_csv_sub">表計算ソフトや他のアプリから</string>
+    <string name="import_title">CSV からインポート</string>
+    <string name="import_nothing_new">インポートできる新しいサブスクはありません。</string>
+    <string name="import_paused_note">無料版で利用できるのは %2$d 件までのため、%1$d 件は停止中としてインポートされます。</string>
+    <string name="import_line">%1$d 行目：%2$s</string>
+    <string name="import_problem_missing_name">名前がありません</string>
+    <string name="import_problem_bad_amount">「%s」は金額として読み取れません</string>
+    <string name="import_problem_bad_currency">「%s」は対応している通貨ではありません</string>
+    <string name="import_problem_bad_cycle">「%s」は請求サイクルとして読み取れません</string>
+    <string name="import_problem_bad_date">「%s」は日付として読み取れません</string>
+    <string name="import_missing_columns">1 行目には列名が必要です。このファイルには次の列がありません：%s</string>
+    <string name="import_template_hint">例：%s</string>
+    <string name="import_empty">このファイルにサブスクが見つかりませんでした。</string>
+    <string name="import_done_paused">%1$d 件をインポートしました。無料版で利用できるのは %3$d 件までのため、%2$d 件は停止中です。</string>
+    <plurals name="import_new">
+        <item quantity="other">新しいサブスク %d 件</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="other">SubFlow に登録済み %d 件（スキップ）</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="other">読み取れなかった行 %d 件</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="other">%d 件をインポート</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="other">%d 件をインポートしました。</item>
+    </plurals>
 </resources>
