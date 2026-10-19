@@ -19,6 +19,11 @@
     <string name="filter_cloud">Nube</string>
     <string name="filter_utilities">Servicios</string>
     <string name="filter_health">Salud</string>
+    <string name="filter_finance">Finanzas</string>
+    <string name="filter_gaming">Videojuegos</string>
+    <string name="filter_education">Educación</string>
+    <string name="filter_lifestyle">Estilo de vida</string>
+    <string name="filter_news">Noticias</string>
     <string name="add_subscription">Añadir suscripción</string>
     <string name="back_to_top">Volver arriba</string>
     <string name="upgrade_to_pro">Pasar a Pro</string>

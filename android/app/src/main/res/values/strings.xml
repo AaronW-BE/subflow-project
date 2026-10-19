@@ -19,6 +19,11 @@
     <string name="filter_cloud">Cloud</string>
     <string name="filter_utilities">Utilities</string>
     <string name="filter_health">Health</string>
+    <string name="filter_finance">Finance</string>
+    <string name="filter_gaming">Gaming</string>
+    <string name="filter_education">Education</string>
+    <string name="filter_lifestyle">Lifestyle</string>
+    <string name="filter_news">News</string>
     <string name="add_subscription">Add subscription</string>
     <string name="back_to_top">Back to top</string>
     <string name="upgrade_to_pro">Upgrade to Pro</string>
