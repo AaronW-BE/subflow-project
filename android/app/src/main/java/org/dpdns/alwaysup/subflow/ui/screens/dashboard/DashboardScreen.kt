@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.runtime.saveable.Saver
 import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
+import androidx.compose.material.icons.filled.MoreVert
+import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -173,6 +175,8 @@ fun DashboardScreen(
     onSetActiveMany: suspend (List<String>, Boolean) -> BulkActiveChange = { _, _ ->
         BulkActiveChange(emptyList(), 0)
     },
+    /** Writes several edited records as given; also what undoes the edit. */
+    onSaveSubscriptions: suspend (List<Subscription>) -> Unit = {},
     onPaywallClick: () -> Unit,
     showSwipeHint: Boolean = false,
     onSwipeHintSeen: () -> Unit = {}
@@ -206,6 +210,7 @@ fun DashboardScreen(
         mutableStateOf(emptySet<String>())
     }
     val selectionMode = selectedIds.isNotEmpty()
+    var bulkSheet by remember { mutableStateOf<BulkSheet?>(null) }
 
     val categories = remember(subscriptions, selectedCategory) {
         categoryFilters(subscriptions, selectedCategory)
@@ -381,6 +386,22 @@ fun DashboardScreen(
             confirmWithUndo(message) {
                 scope.launch { result.changes.forEach { onRevertSubscription(it.previous) } }
             }
+        }
+    }
+
+    /**
+     * Rewrites every chosen subscription with [change], undoably. The records
+     * are kept whole, before and after, so undo puts back exactly what was
+     * there rather than guessing at the old value of one field.
+     */
+    fun bulkRewrite(message: String, change: (Subscription) -> Subscription) {
+        val before = selectedSubs
+        val after = before.map(change)
+        selectedIds = emptySet()
+        bulkSheet = null
+        scope.launch {
+            onSaveSubscriptions(after)
+            confirmWithUndo(message) { scope.launch { onSaveSubscriptions(before) } }
         }
     }
 
@@ -682,10 +703,67 @@ fun DashboardScreen(
                         selectedIds = selectedIds + visible.map { it.id }
                     },
                     onToggleActive = ::bulkSetActive,
-                    onDelete = ::bulkDelete
+                    onDelete = ::bulkDelete,
+                    onChangeCategory = { bulkSheet = BulkSheet.CATEGORY },
+                    onChangeReminder = { bulkSheet = BulkSheet.REMINDER }
                 )
             }
         }
+    }
+
+    when (bulkSheet) {
+        BulkSheet.CATEGORY -> SubFlowPickerSheet(
+            title = stringResource(R.string.change_category),
+            items = SUBSCRIPTION_CATEGORIES,
+            key = { it },
+            onDismiss = { bulkSheet = null }
+        ) { cat ->
+            val label = localizedCategory(cat)
+            SubFlowPickerRow(
+                title = label,
+                selected = selectedSubs.isNotEmpty() && selectedSubs.all { it.category.equals(cat, ignoreCase = true) },
+                onClick = {
+                    val n = selectedSubs.size
+                    bulkRewrite(
+                        context.resources.getQuantityString(R.plurals.bulk_category_changed, n, n, label)
+                    ) { it.copy(category = cat) }
+                }
+            )
+        }
+
+        BulkSheet.REMINDER -> SubFlowPickerSheet(
+            title = stringResource(R.string.change_reminder),
+            items = listOf(0) + ReminderLead.entries.map { it.days },
+            key = { it },
+            onDismiss = { bulkSheet = null }
+        ) { days ->
+            // 3 and 7 days are Pro on every subscription, so they are here
+            // too, marked - and choosing one is a way to the plan, not a
+            // quiet failure.
+            val locked = days > 0 && ReminderLead.forDays(days).isPro && !isPro
+            SubFlowPickerRow(
+                title = when (days) {
+                    0 -> stringResource(R.string.detail_reminder_off)
+                    1 -> stringResource(R.string.reminder_lead_one)
+                    else -> stringResource(R.string.reminder_lead_value, days)
+                },
+                subtitle = if (locked) "Pro" else null,
+                selected = selectedSubs.isNotEmpty() && selectedSubs.all { it.reminderDaysBefore == days },
+                onClick = {
+                    if (locked) {
+                        bulkSheet = null
+                        onPaywallClick()
+                    } else {
+                        val n = selectedSubs.size
+                        bulkRewrite(
+                            context.resources.getQuantityString(R.plurals.bulk_reminder_changed, n, n)
+                        ) { it.copy(reminderDaysBefore = days) }
+                    }
+                }
+            )
+        }
+
+        null -> Unit
     }
 
     if (showSortSheet) {
@@ -1715,8 +1793,11 @@ private fun SelectionBar(
     onClose: () -> Unit,
     onSelectAll: () -> Unit,
     onToggleActive: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onChangeCategory: () -> Unit,
+    onChangeReminder: () -> Unit
 ) {
+    var menuOpen by remember { mutableStateOf(false) }
     Surface(
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 2.dp,
@@ -1761,6 +1842,32 @@ private fun SelectionBar(
                     tint = MaterialTheme.colorScheme.error
                 )
             }
+            // The rarer edits sit behind a menu so the bar keeps room for the
+            // count on a narrow phone in a wordy language.
+            Box {
+                IconButton(onClick = { menuOpen = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_actions))
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.change_category)) },
+                        onClick = {
+                            menuOpen = false
+                            onChangeCategory()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.change_reminder)) },
+                        onClick = {
+                            menuOpen = false
+                            onChangeReminder()
+                        }
+                    )
+                }
+            }
         }
     }
 }
+
+/** Which multi-select edit is open, if any. */
+private enum class BulkSheet { CATEGORY, REMINDER }

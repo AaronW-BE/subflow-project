@@ -442,4 +442,15 @@
     <plurals name="bulk_deleted">
         <item quantity="other">已刪除 %d 筆訂閱</item>
     </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">變更分類</string>
+    <string name="change_reminder">變更提醒</string>
+    <string name="more_actions">更多動作</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="other">已將 %1$d 筆訂閱移到「%2$s」</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="other">已更新 %d 筆訂閱的提醒</item>
+    </plurals>
 </resources>

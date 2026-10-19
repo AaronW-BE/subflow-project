@@ -448,4 +448,17 @@
         <item quantity="one">%d abonnement supprimé</item>
         <item quantity="other">%d abonnements supprimés</item>
     </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">Changer de catégorie</string>
+    <string name="change_reminder">Changer le rappel</string>
+    <string name="more_actions">Plus d’actions</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="one">%1$d abonnement déplacé vers « %2$s »</item>
+        <item quantity="other">%1$d abonnements déplacés vers « %2$s »</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="one">Rappel mis à jour pour %d abonnement</item>
+        <item quantity="other">Rappel mis à jour pour %d abonnements</item>
+    </plurals>
 </resources>
