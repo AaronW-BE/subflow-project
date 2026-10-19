@@ -184,6 +184,22 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions {
+        unitTests {
+            // Robolectric reads the real resources, so the UI tests see the
+            // same strings, plurals and themes the app ships.
+            isIncludeAndroidResources = true
+            // Robolectric reaches into JDK internals to fake file
+            // descriptors; JDK 17+ closes them off unless the test JVM is
+            // told to export them. Only the unit-test JVM, never the app.
+            all {
+                it.jvmArgs(
+                    "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
+                    "--add-opens=java.base/java.io=ALL-UNNAMED"
+                )
+            }
+        }
+    }
     packaging {
         resources {
             excludes += setOf(
@@ -250,4 +266,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
+
+    // Compose UI tests on the JVM: Robolectric stands in for the device, so
+    // they run with the unit tests in CI, in seconds, with no emulator.
+    testImplementation(libs.robolectric)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
