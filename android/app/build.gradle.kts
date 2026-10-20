@@ -57,7 +57,12 @@ android {
         // changes every figure, a CSV export Excel opens with its accents
         // intact, a cancelled trial that resumes as paid, restores that keep
         // the best plan owned, and a long run of layout fixes for large text,
-        // narrow phones and wide screens.
+        // narrow phones and wide screens. 9 follows the upload of 8: importing
+        // subscriptions from a CSV file with a preview, choosing several on
+        // the home screen to pause, resume, delete or recategorise together,
+        // a filter chip for every category in use and all ten categories
+        // translated, a what's-new sheet with a way to send feedback, a
+        // restore that keeps to the free plan's limit, and portrait only.
         //
         // 1.1.0 rather than 1.0.1: trial tracking is a feature someone can go
         // looking for, not a correction to one that shipped. 1.2.0 for the
@@ -67,8 +72,9 @@ android {
         // 1.3.1 is a patch: nothing new to find, a fix to something that shipped.
         // 1.3.2 likewise: a tighter Settings header and a new support address.
         // 1.4.0 is a minor bump again: swipe-to-pause is a new gesture to find.
-        versionCode = 8
-        versionName = "1.4.0"
+        // 1.5.0 likewise: CSV import and multi-select are both things to find.
+        versionCode = 9
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

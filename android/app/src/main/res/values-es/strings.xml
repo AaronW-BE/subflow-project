@@ -384,9 +384,9 @@
     <string name="whats_new_version">Versión %1$s</string>
     <string name="whats_new_done">Entendido</string>
     <string name="whats_new_feedback">Enviar comentarios</string>
-    <string name="whats_new_item_1">Desliza una suscripción a la derecha para pausarla y otra vez para reanudarla.</string>
-    <string name="whats_new_item_2">En Análisis, «Mensual»/«Anual» ahora cambia todas las cifras.</string>
-    <string name="whats_new_item_3">Los informes CSV se abren en Excel con los acentos intactos.</string>
+    <string name="whats_new_item_1">Importa suscripciones desde un CSV en Ajustes → Datos.</string>
+    <string name="whats_new_item_2">Mantén pulsada una suscripción para seleccionar varias y cambiarlas a la vez.</string>
+    <string name="whats_new_item_3">Cada categoría que usas tiene ahora su propio filtro.</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">Importar CSV</string>

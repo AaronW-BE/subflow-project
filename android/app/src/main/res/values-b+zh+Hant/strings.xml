@@ -387,9 +387,9 @@
     <string name="whats_new_version">版本 %1$s</string>
     <string name="whats_new_done">知道了</string>
     <string name="whats_new_feedback">傳送意見</string>
-    <string name="whats_new_item_1">將訂閱向右滑動即可暫停，再向右滑動即可恢復。</string>
-    <string name="whats_new_item_2">分析頁在「依月」和「依年」之間切換時，所有數字都會跟著變動。</string>
-    <string name="whats_new_item_3">匯出的 CSV 報表用 Excel 開啟時不再變成亂碼。</string>
+    <string name="whats_new_item_1">可在 設定 → 資料 中從 CSV 檔案匯入訂閱。</string>
+    <string name="whats_new_item_2">長按訂閱即可多選，並一次修改。</string>
+    <string name="whats_new_item_3">你用到的每個分類都有了自己的篩選標籤。</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">匯入 CSV</string>

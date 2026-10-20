@@ -15,6 +15,83 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.5.0 (versionCode 9): release notes
+
+Changes since 1.4.0 (versionCode 8):
+
+| Change | Source |
+|---|---|
+| Import subscriptions from a CSV file, with a preview before anything is written | BIN-65, PR #68, #71 |
+| Long-press to choose several subscriptions; pause, resume, delete, change category or reminder together | BIN-66, PR #72, #73 |
+| A dashboard filter chip for every category in use; Finance, Gaming, Education, Lifestyle and News translated | BIN-69, BIN-70; PR #69, #70 |
+| What's new sheet after an update, with Send feedback | BIN-60, PR #63 |
+| Restoring a backup keeps to the free plan's limit (the rest come in paused) | BIN-64, PR #67 |
+| Portrait only | BIN-63, PR #66 |
+| Not user-visible: CI, lint clean-up, UI tests | BIN-61, BIN-62, BIN-67; PR #64, #65, #74 |
+
+A minor release: CSV import and multi-select are both new things to find. The
+paths use each app's own words: *Settings → Data → Import CSV* is 设置 → 数据 →
+导入 CSV · 設定 → 資料 → 匯入 CSV · *Einstellungen → Daten → CSV importieren* ·
+*Réglages → Données → Importer un CSV* · *Ajustes → Datos → Importar CSV* ·
+設定 → データ → CSV をインポート. The restore limit and portrait lock are left
+out of the notes: neither is something to go and find.
+
+The in-app what's-new lines (`whats_new_item_1..3`) were rewritten for this
+release from the first three bullets.
+
+```
+<en-US>
+• Import subscriptions from a CSV file: Settings → Data → Import CSV. You see what will be added before anything changes.
+• Long-press a subscription to select several, then pause, resume, delete, or change their category or reminder at once.
+• The home screen now has a filter for every category you use.
+• After an update, a short What’s new appears, with a quick way to send feedback.
+</en-US>
+<zh-CN>
+• 可以从 CSV 文件导入订阅：设置 → 数据 → 导入 CSV。写入前会先预览将添加哪些内容。
+• 长按订阅即可多选，然后一次性暂停、恢复、删除，或更改分类和提醒。
+• 首页会为你用到的每个分类显示筛选标签，所有分类名称都已有中文。
+• 更新后会显示简短的“更新内容”，并可直接发送反馈。
+</zh-CN>
+<zh-TW>
+• 可以從 CSV 檔案匯入訂閱：設定 → 資料 → 匯入 CSV。寫入前會先預覽將新增哪些內容。
+• 長按訂閱即可多選，然後一次暫停、恢復、刪除，或變更分類與提醒。
+• 首頁會為你用到的每個分類顯示篩選標籤，所有分類名稱都已有中文。
+• 更新後會顯示簡短的「更新內容」，並可直接傳送意見。
+</zh-TW>
+<zh-HK>
+• 可以從 CSV 檔案匯入訂閱：設定 → 資料 → 匯入 CSV。寫入前會先預覽將新增哪些內容。
+• 長按訂閱即可多選，然後一次暫停、恢復、刪除，或變更分類與提醒。
+• 首頁會為你用到的每個分類顯示篩選標籤，所有分類名稱都已有中文。
+• 更新後會顯示簡短的「更新內容」，並可直接傳送意見。
+</zh-HK>
+<de-DE>
+• Importiere Abos aus einer CSV-Datei: Einstellungen → Daten → CSV importieren. Du siehst vorher, was hinzugefügt wird.
+• Halte ein Abo gedrückt, um mehrere auszuwählen – dann pausieren, fortsetzen, löschen oder Kategorie und Erinnerung gemeinsam ändern.
+• Für jede Kategorie, die du nutzt, gibt es jetzt einen Filter, und alle Kategorien sind übersetzt.
+• Nach einem Update zeigt „Was ist neu“ die Änderungen, mit „Feedback senden“.
+</de-DE>
+<fr-FR>
+• Importez des abonnements depuis un CSV : Réglages → Données → Importer un CSV. Vous voyez ce qui sera ajouté avant tout changement.
+• Appuyez longuement sur un abonnement pour en sélectionner plusieurs, puis les mettre en pause, reprendre, supprimer ou changer leur catégorie ou rappel.
+• Chaque catégorie utilisée a son filtre, et toutes sont traduites.
+• Après une mise à jour, « Nouveautés » résume les changements.
+</fr-FR>
+<es-ES>
+• Importa suscripciones desde un CSV: Ajustes → Datos → Importar CSV. Ves lo que se añadirá antes de cambiar nada.
+• Mantén pulsada una suscripción para seleccionar varias y pausarlas, reanudarlas, eliminarlas o cambiar su categoría o recordatorio a la vez.
+• Cada categoría que usas tiene su filtro, y todas están traducidas.
+• Tras una actualización, «Novedades» resume los cambios, con «Enviar comentarios».
+</es-ES>
+<ja-JP>
+• CSV ファイルからサブスクをインポートできます：設定 → データ → CSV をインポート。追加される内容を事前に確認できます。
+• サブスクを長押しすると複数選択でき、停止・再開・削除やカテゴリ・通知の変更をまとめて行えます。
+• 使っているカテゴリごとにフィルタが表示され、すべてのカテゴリ名が日本語になりました。
+• アップデート後に「新着情報」が表示され、そこからフィードバックを送れます。
+</ja-JP>
+```
+
+---
+
 ## 1.4.0 (versionCode 8): release notes
 
 Changes since 1.3.2 (versionCode 7):
@@ -823,31 +900,28 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 8 / versionName 1.4.0**. 7 is used up.
-- [ ] **Release notes**: paste the whole 1.4.0 block, all languages.
-- [ ] **Check billing on a real device before promoting past internal
-      testing.** Two changes here (PR #56, #61) could not run on the emulator,
-      which has no Play Billing. With a license-tester account: (1) own two
-      products (e.g. Lifetime plus a running subscription) and tap *Restore
-      purchases*: Pro must show the Lifetime tier; (2) on the paywall, try to
-      buy a plan the account already owns: expect "Pro restored." and the
-      already-Pro card; (3) with billing unreachable, the "billing is
-      unavailable" message must appear on the paywall, never on the home screen.
-- [ ] **Screenshots: optional refresh, none wrong.** Since 1.3.2, `01-dashboard`
-      and `02-dashboard-dark` would show the category row fading at its edge
-      instead of a chip cut off. `04-add` would show "Pro adds 3 and 7 days"
-      under Renewal alert instead of "Notify before the charge lands". Nothing
-      in the current shots is false; retake them only if you want them current.
-- [ ] **Store listing text: no change.** Re-checked every row of *What each
-      claim rests on*: 34 presets, free limit 5, 1-day reminder free with 3/7 on
-      Pro, trial reminders, 40 currencies, four `ProGate`s plus gated CSV export,
-      7 languages, and `BACKEND_ENABLED` false in release (no
-      `subflow.apiBaseUrl` set). Swipe-to-pause isn't named in any listing, so
-      nothing is contradicted. The open listing work from 1.3.x (replacing the
-      en-US text, adding the six translations) still applies if not yet done.
-- [ ] **Data safety: no changes.** Since v1.3.2 there are no changes to the
-      manifest, dependencies or network endpoints. The CSV byte-order mark and
-      the billing fixes change no data collected or shared.
+- [ ] **versionCode 9 / versionName 1.5.0**. 8 is used up.
+- [ ] **Release notes**: paste the whole 1.5.0 block, all languages.
+- [ ] **Track: closed testing.** Production access was refused, so this goes
+      to the closed test the reapplication depends on. It is the first build
+      whose what's-new sheet testers will see on updating, and the sheet's
+      Send feedback writes to bin-tech@outlook.com.
+- [ ] **Still owed from 1.4.0: billing on a real device** (PR #56, #61), with
+      a license tester - restore with two products owned, buy an owned plan,
+      and the billing-unavailable message only on the paywall.
+- [ ] **Store listing text: no change needed.** Re-checked every row of
+      *What each claim rests on*: 34 presets, free limit 5, 1-day reminder
+      free with 3/7 on Pro, 40 currencies, four `ProGate`s plus gated CSV
+      export, 7 languages, `BACKEND_ENABLED` false in release. CSV import and
+      multi-select are not named in any listing, so nothing is contradicted;
+      adding them to the full descriptions is optional.
+- [ ] **Data safety: no changes.** The manifest gains only the portrait lock.
+      CSV import reads a file the user picks through the system picker - no
+      permission, nothing sent anywhere. The new dependencies (Robolectric,
+      Compose UI test) are test-only and not in the release build.
+- [ ] **Screenshots: optional refresh.** `01-dashboard` and
+      `02-dashboard-dark` would now show only the category chips in use.
+      Nothing in the current shots is false.
 
 ### How the screenshots were taken
 
