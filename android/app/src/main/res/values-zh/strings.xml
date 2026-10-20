@@ -380,9 +380,9 @@
     <string name="whats_new_version">版本 %1$s</string>
     <string name="whats_new_done">知道了</string>
     <string name="whats_new_feedback">发送反馈</string>
-    <string name="whats_new_item_1">向右滑动订阅即可暂停，再向右滑动即可恢复。</string>
-    <string name="whats_new_item_2">分析页在“按月”和“按年”之间切换时，所有数字都会随之变化。</string>
-    <string name="whats_new_item_3">导出的 CSV 报表用 Excel 打开时不再乱码。</string>
+    <string name="whats_new_item_1">可在 设置 → 数据 中从 CSV 文件导入订阅。</string>
+    <string name="whats_new_item_2">长按订阅即可多选，并一次性修改。</string>
+    <string name="whats_new_item_3">你用到的每个分类都有了自己的筛选标签。</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">导入 CSV</string>
