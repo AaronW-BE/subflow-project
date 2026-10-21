@@ -103,15 +103,13 @@
     <!-- Paywall -->
     <string name="subflow_pro">SUBFLOW PRO</string>
     <string name="paywall_headline">すべてのサブスクを把握する</string>
-    <string name="paywall_subhead">登録数は無制限。請求される前に通知が届き、広告もありません。</string>
+    <string name="paywall_subhead">早めの通知、無制限の登録、月の予算、詳しい分析。広告もありません。</string>
     <string name="feat_unlimited">サブスクを無制限に登録</string>
     <string name="feat_unlimited_sub">無料プランは 5 件まで</string>
-    <string name="feat_push_alerts">1 日・3 日・7 日前の更新通知</string>
-    <string name="feat_push_alerts_sub">請求された後ではなく、前に解約できます</string>
-    <string name="feat_rates">複数通貨をまとめて集計</string>
-    <string name="feat_rates_sub">最新レートで基準通貨に換算</string>
+    <string name="feat_push_alerts">3 日前・7 日前の通知</string>
+    <string name="feat_push_alerts_sub">無料プランの通知は前日のみ。1 週間前なら解約が間に合います。</string>
     <string name="feat_analytics">支出分析のすべて</string>
-    <string name="feat_analytics_sub">推移・カテゴリ内訳・CSV 書き出し</string>
+    <string name="feat_analytics_sub">推移・カテゴリ内訳・請求予測・CSV 書き出し</string>
     <string name="feat_no_ads">広告なし</string>
     <string name="feat_no_ads_sub">アップグレードした瞬間にバナーが消えます</string>
     <string name="plan_annual">年額</string>
@@ -130,7 +128,6 @@
     <string name="btn_start_trial">%d 日間無料で試す</string>
     <string name="btn_continue">続ける</string>
     <string name="btn_restore">購入を復元</string>
-    <string name="trial_footnote">%1$d 日間は無料、その後 %2$s。Google Play でいつでも解約できます。</string>
     <string name="sub_footnote">%s（Google Play 経由の請求）。いつでも解約できます。</string>
     <string name="lifetime_footnote">%s の 1 回のみの支払いです。自動更新はありません。</string>
     <string name="terms_of_service">利用規約</string>
@@ -456,10 +453,21 @@
     <string name="budget_left">残り %1$s（予算 %2$s）</string>
     <string name="budget_over">予算 %2$s を %1$s 超えています</string>
     <string name="feat_budget">月の予算</string>
-    <string name="feat_budget_sub">上限まであといくらかを確認</string>
+    <string name="feat_budget_sub">合計の横に予算の進捗を表示し、新しいサブスクで超えそうなときは事前にお知らせ</string>
 
     <!-- Over-budget notices (BIN-68) -->
     <string name="budget_after_add_over">これを追加すると予算 %2$s を %1$s 超えます</string>
     <string name="budget_after_add_left">追加後、予算 %2$s の残りは %1$s です</string>
     <string name="budget_now_over">予算 %2$s を %1$s 超えました。</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">%d 件を超えて、すべてのサブスクを登録</string>
+    <string name="paywall_headline_alerts">すべての請求を 1 週間前に把握</string>
+    <string name="paywall_headline_budget">月の予算内に収める</string>
+    <string name="paywall_headline_analytics">お金の行き先がひと目でわかる</string>
+    <string name="feat_unlimited_used">無料プランで %1$d / %2$d 件を登録中</string>
+    <string name="paywall_free_for_all">どのプランでも無料：複数通貨の合計、無料体験の管理、CSV インポート、バックアップ。</string>
+    <string name="trial_footnote_until">%1$s まで無料、その後 %2$s。それまでに Google Play で解約すれば請求されません。</string>
+    <string name="reminder_pro_preview">Pro なら %1$s（請求の %2$d 日前）に通知します。</string>
+    <string name="reminder_pro_preview_undated">Pro なら毎回の請求の %1$d 日前に通知します。</string>
 </resources>

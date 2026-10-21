@@ -1,5 +1,6 @@
 package org.dpdns.alwaysup.subflow.ui.screens.settings
 
+import org.dpdns.alwaysup.subflow.ui.screens.paywall.PaywallReason
 import org.dpdns.alwaysup.subflow.ui.support.openSupportEmail
 
 import android.content.Context
@@ -113,7 +114,8 @@ fun SettingsScreen(
     onSignInClick: () -> Unit,
     onSignOutClick: () -> Unit,
     onSyncClick: () -> Unit,
-    onPaywallClick: () -> Unit,
+    /** Opens the paywall, saying which feature the tap was about. */
+    onPaywallClick: (PaywallReason) -> Unit,
     onManageSubscription: () -> Unit,
     onRestorePurchases: () -> Unit,
     onPrivacyOptionsClick: () -> Unit,
@@ -207,7 +209,7 @@ fun SettingsScreen(
                             user = user,
                             isPro = isPro,
                             isGoogleSignInAvailable = isGoogleSignInAvailable,
-                            onPaywallClick = onPaywallClick,
+                            onPaywallClick = { onPaywallClick(PaywallReason.GENERAL) },
                             onSignInClick = onSignInClick,
                             onSignOutClick = onSignOutClick
                         )
@@ -315,7 +317,7 @@ fun SettingsScreen(
                         onCurrencyClick = { showCurrencySheet = true },
                         onThemeClick = { showThemeSheet = true },
                         onLanguageClick = { showLanguageSheet = true },
-                        onPaywallClick = onPaywallClick
+                        onPaywallClick = { onPaywallClick(PaywallReason.BUDGET) }
                     )
                 }
 
@@ -324,7 +326,7 @@ fun SettingsScreen(
                         preferencesManager = preferencesManager,
                         isPro = isPro,
                         notificationsEnabled = notificationsEnabled,
-                        onPaywallClick = onPaywallClick,
+                        onPaywallClick = { onPaywallClick(PaywallReason.ALERTS) },
                         onTestNotification = onTestNotification
                     )
                 }

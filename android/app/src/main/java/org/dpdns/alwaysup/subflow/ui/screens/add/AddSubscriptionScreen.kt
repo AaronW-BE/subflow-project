@@ -1010,6 +1010,8 @@ fun AddSubscriptionScreen(
                                 ReminderLeadPicker(
                                     selectedDays = reminderDays,
                                     isPro = isPro,
+                                    nextBillDate = nextRenewal,
+                                    locale = locale,
                                     onSelect = {
                                         haptics.tick()
                                         reminderDays = it
@@ -1388,9 +1390,17 @@ private fun RowDivider() {
 private fun ReminderLeadPicker(
     selectedDays: Int,
     isPro: Boolean,
+    /** The charge the reminder is for, as an ISO date. */
+    nextBillDate: String,
+    locale: Locale,
     onSelect: (Int) -> Unit,
     onUpgrade: () -> Unit
 ) {
+    // A locked chip used to go straight to the paywall. Now it first says
+    // what it would do for this subscription - the actual day the reminder
+    // would come - and the paywall is one more tap, by choice (BIN-74).
+    var previewDays by rememberSaveable { mutableStateOf<Int?>(null) }
+
     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1412,7 +1422,14 @@ private fun ReminderLeadPicker(
                         selected -> MaterialTheme.colorScheme.primary
                         else -> MaterialTheme.colorScheme.surfaceVariant
                     },
-                    onClick = { if (locked) onUpgrade() else onSelect(lead.days) }
+                    onClick = {
+                        if (locked) {
+                            previewDays = lead.days
+                        } else {
+                            previewDays = null
+                            onSelect(lead.days)
+                        }
+                    }
                 ) {
                     Row(
                         modifier = Modifier
@@ -1463,6 +1480,36 @@ private fun ReminderLeadPicker(
                         }
                     }
                 }
+            }
+        }
+
+        previewDays?.let { days ->
+            val date = DateCalculators.reminderDate(nextBillDate, days)
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = if (date != null) {
+                    stringResource(
+                        R.string.reminder_pro_preview,
+                        DateCalculators.formatMedium(date.toString(), locale),
+                        days
+                    )
+                } else {
+                    // Too close to the charge for that lead to land before it.
+                    stringResource(R.string.reminder_pro_preview_undated, days)
+                },
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, lineHeight = 17.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            TextButton(
+                onClick = onUpgrade,
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.unlock_with_pro),
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
     }

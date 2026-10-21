@@ -18,6 +18,8 @@ import org.dpdns.alwaysup.subflow.ui.theme.SubFlowTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import java.time.LocalDate
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +43,7 @@ class AddSubscriptionScreenTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private var saved: Subscription? = null
+    private var upgradeTaps = 0
 
     private fun show(
         existing: Subscription? = null,
@@ -57,7 +60,8 @@ class AddSubscriptionScreenTest {
                 monthlyBudget = budget,
                 otherMonthlyTotal = others,
                 onSaveSubscription = { saved = it },
-                onCancel = {}
+                onCancel = {},
+                onUpgradeClick = { upgradeTaps++ }
             )
         }
     }
@@ -144,5 +148,38 @@ class AddSubscriptionScreenTest {
         compose.onNodeWithText(
             context.getString(R.string.budget_after_add_over, usd(5.49), usd(100.0))
         ).assertDoesNotExist()
+    }
+
+    // ------------------------------------------------ locked reminder chips
+
+    @Test
+    fun `a locked reminder chip first says the day it would remind on`() {
+        show()
+        compose.onNodeWithText(context.getString(R.string.reminder_lead_value, 3)).performClick()
+        compose.waitForIdle()
+
+        // A new subscription starts today, so the charge is a month out.
+        val charge = DateCalculators.computeNextRenewalDate(LocalDate.now().toString(), BillingCycle.MONTHLY)
+        val day = DateCalculators.reminderDate(charge, 3) ?: throw AssertionError("no reminder day")
+        compose.onNodeWithText(
+            context.getString(
+                R.string.reminder_pro_preview,
+                DateCalculators.formatMedium(day.toString(), java.util.Locale.getDefault()),
+                3
+            )
+        ).assertExists()
+        assertEquals("the paywall waits for a second tap", 0, upgradeTaps)
+
+        compose.onNodeWithText(context.getString(R.string.unlock_with_pro)).performClick()
+        assertEquals(1, upgradeTaps)
+    }
+
+    @Test
+    fun `for a Pro user the same chip just picks the lead`() {
+        show(isPro = true)
+        compose.onNodeWithText(context.getString(R.string.reminder_lead_value, 3)).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText(context.getString(R.string.unlock_with_pro)).assertDoesNotExist()
+        assertEquals(0, upgradeTaps)
     }
 }

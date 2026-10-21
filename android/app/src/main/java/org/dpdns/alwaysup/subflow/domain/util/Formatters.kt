@@ -247,6 +247,20 @@ object DateCalculators {
             ?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
             ?: dateStr
 
+    /**
+     * The day a reminder [daysBefore] the bill on [nextBillDateStr] would
+     * arrive, or null when that day is already today or gone - there is no
+     * date worth naming then.
+     */
+    fun reminderDate(
+        nextBillDateStr: String,
+        daysBefore: Int,
+        today: LocalDate = LocalDate.now()
+    ): LocalDate? =
+        parseOrNull(nextBillDateStr)
+            ?.minusDays(daysBefore.toLong())
+            ?.takeIf { it.isAfter(today) }
+
     fun advance(date: LocalDate, cycle: BillingCycle): LocalDate = when (cycle) {
         BillingCycle.WEEKLY -> date.plusWeeks(1)
         BillingCycle.MONTHLY -> date.plusMonths(1)

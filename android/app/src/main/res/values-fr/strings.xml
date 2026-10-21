@@ -103,15 +103,13 @@
     <!-- Paywall -->
     <string name="subflow_pro">SUBFLOW PRO</string>
     <string name="paywall_headline">Tous vos abonnements sous contrôle</string>
-    <string name="paywall_subhead">Suivi illimité, rappels avant chaque prélèvement, et aucune publicité.</string>
+    <string name="paywall_subhead">Rappels plus tôt, suivi illimité, budget mensuel et analyse complète. Sans publicité.</string>
     <string name="feat_unlimited">Abonnements illimités</string>
     <string name="feat_unlimited_sub">La version gratuite s’arrête à 5</string>
-    <string name="feat_push_alerts">Rappels 1, 3 et 7 jours avant</string>
-    <string name="feat_push_alerts_sub">Résilier avant le prélèvement, pas après</string>
-    <string name="feat_rates">Totaux multidevises</string>
-    <string name="feat_rates_sub">Taux à jour, une seule devise de référence</string>
+    <string name="feat_push_alerts">Rappels 3 et 7 jours avant</string>
+    <string name="feat_push_alerts_sub">La version gratuite vous prévient la veille. Une semaine laisse le temps de résilier.</string>
     <string name="feat_analytics">Analyse complète des dépenses</string>
-    <string name="feat_analytics_sub">Historique, catégories et export CSV</string>
+    <string name="feat_analytics_sub">Historique, catégories, prévisions et export CSV</string>
     <string name="feat_no_ads">Aucune publicité</string>
     <string name="feat_no_ads_sub">La bannière disparaît dès le passage à Pro</string>
     <string name="plan_annual">Annuel</string>
@@ -130,7 +128,6 @@
     <string name="btn_start_trial">Essayer %d jours gratuitement</string>
     <string name="btn_continue">Continuer</string>
     <string name="btn_restore">Restaurer les achats</string>
-    <string name="trial_footnote">Gratuit pendant %1$d jours, puis %2$s. Résiliable à tout moment dans Google Play.</string>
     <string name="sub_footnote">%s, facturé via Google Play. Résiliable à tout moment.</string>
     <string name="lifetime_footnote">%s prélevé une seule fois. Aucune facturation récurrente.</string>
     <string name="terms_of_service">Conditions d’utilisation</string>
@@ -471,10 +468,21 @@
     <string name="budget_left">%1$s restants sur %2$s</string>
     <string name="budget_over">%1$s au-delà de votre budget de %2$s</string>
     <string name="feat_budget">Budget mensuel</string>
-    <string name="feat_budget_sub">Voyez ce qu’il reste de votre limite</string>
+    <string name="feat_budget_sub">Une jauge sur votre total, et un avertissement avant qu’un nouvel abonnement ne le dépasse</string>
 
     <!-- Over-budget notices (BIN-68) -->
     <string name="budget_after_add_over">Avec celui-ci, vous dépassez votre budget de %2$s de %1$s</string>
     <string name="budget_after_add_left">Il vous restera %1$s sur votre budget de %2$s</string>
     <string name="budget_now_over">Vous dépassez maintenant votre budget de %2$s de %1$s.</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">Suivez tous vos abonnements, pas seulement %d</string>
+    <string name="paywall_headline_alerts">Chaque prélèvement, une semaine à l’avance</string>
+    <string name="paywall_headline_budget">Restez dans votre budget mensuel</string>
+    <string name="paywall_headline_analytics">Voyez où part votre argent</string>
+    <string name="feat_unlimited_used">Vous en suivez %1$d sur %2$d avec la version gratuite</string>
+    <string name="paywall_free_for_all">Gratuit dans toutes les versions : totaux multidevises, suivi des essais, import CSV et sauvegardes.</string>
+    <string name="trial_footnote_until">Gratuit jusqu’au %1$s, puis %2$s. Résiliez dans Google Play avant cette date et vous ne serez pas prélevé.</string>
+    <string name="reminder_pro_preview">Avec Pro, vous seriez prévenu le %1$s, %2$d jours avant ce prélèvement.</string>
+    <string name="reminder_pro_preview_undated">Avec Pro, vous seriez prévenu %1$d jours avant chaque prélèvement.</string>
 </resources>

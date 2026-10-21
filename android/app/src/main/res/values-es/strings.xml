@@ -103,15 +103,13 @@
     <!-- Paywall -->
     <string name="subflow_pro">SUBFLOW PRO</string>
     <string name="paywall_headline">Todas tus suscripciones bajo control</string>
-    <string name="paywall_subhead">Seguimiento ilimitado, avisos antes de cada cobro y sin publicidad.</string>
+    <string name="paywall_subhead">Avisos con más antelación, seguimiento ilimitado, presupuesto mensual y análisis completo. Sin publicidad.</string>
     <string name="feat_unlimited">Suscripciones ilimitadas</string>
     <string name="feat_unlimited_sub">El plan gratuito se detiene en 5</string>
-    <string name="feat_push_alerts">Avisos 1, 3 y 7 días antes</string>
-    <string name="feat_push_alerts_sub">Cancela antes del cobro, no después</string>
-    <string name="feat_rates">Totales en varias monedas</string>
-    <string name="feat_rates_sub">Tipos actualizados, una sola moneda base</string>
+    <string name="feat_push_alerts">Avisos 3 y 7 días antes</string>
+    <string name="feat_push_alerts_sub">El plan gratuito te avisa el día antes. Una semana da tiempo para cancelar.</string>
     <string name="feat_analytics">Análisis de gasto completo</string>
-    <string name="feat_analytics_sub">Histórico, categorías y exportación CSV</string>
+    <string name="feat_analytics_sub">Histórico, categorías, previsión y exportación CSV</string>
     <string name="feat_no_ads">Sin publicidad, nunca</string>
     <string name="feat_no_ads_sub">El banner desaparece al pasar a Pro</string>
     <string name="plan_annual">Anual</string>
@@ -130,7 +128,6 @@
     <string name="btn_start_trial">Probar %d días gratis</string>
     <string name="btn_continue">Continuar</string>
     <string name="btn_restore">Restaurar compras</string>
-    <string name="trial_footnote">Gratis durante %1$d días y después %2$s. Cancela cuando quieras en Google Play.</string>
     <string name="sub_footnote">%s, facturado a través de Google Play. Cancela cuando quieras.</string>
     <string name="lifetime_footnote">%s en un solo cargo. Sin cobros recurrentes.</string>
     <string name="terms_of_service">Términos del servicio</string>
@@ -471,10 +468,21 @@
     <string name="budget_left">Quedan %1$s de %2$s</string>
     <string name="budget_over">%1$s por encima de tu presupuesto de %2$s</string>
     <string name="feat_budget">Presupuesto mensual</string>
-    <string name="feat_budget_sub">Mira cuánto te queda de tu límite</string>
+    <string name="feat_budget_sub">Un indicador junto a tu total y un aviso antes de que una nueva suscripción lo supere</string>
 
     <!-- Over-budget notices (BIN-68) -->
     <string name="budget_after_add_over">Con esta, superas tu presupuesto de %2$s en %1$s</string>
     <string name="budget_after_add_left">Te quedarán %1$s de tu presupuesto de %2$s</string>
     <string name="budget_now_over">Ahora superas tu presupuesto de %2$s en %1$s.</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">Controla todas tus suscripciones, no solo %d</string>
+    <string name="paywall_headline_alerts">Entérate de cada cobro con una semana de antelación</string>
+    <string name="paywall_headline_budget">Mantente dentro de tu presupuesto mensual</string>
+    <string name="paywall_headline_analytics">Descubre en qué se va tu dinero</string>
+    <string name="feat_unlimited_used">Llevas %1$d de %2$d en el plan gratuito</string>
+    <string name="paywall_free_for_all">Gratis en todos los planes: totales en varias monedas, seguimiento de pruebas, importación CSV y copias de seguridad.</string>
+    <string name="trial_footnote_until">Gratis hasta el %1$s y después %2$s. Si cancelas en Google Play antes de esa fecha, no se te cobrará nada.</string>
+    <string name="reminder_pro_preview">Con Pro te avisaríamos el %1$s, %2$d días antes de este cobro.</string>
+    <string name="reminder_pro_preview_undated">Con Pro te avisaríamos %1$d días antes de cada cobro.</string>
 </resources>

@@ -76,6 +76,7 @@ import org.dpdns.alwaysup.subflow.ui.screens.analytics.AnalyticsScreen
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.DashboardScreen
 import org.dpdns.alwaysup.subflow.ui.screens.detail.SubscriptionDetailScreen
 import org.dpdns.alwaysup.subflow.ui.screens.onboarding.OnboardingScreen
+import org.dpdns.alwaysup.subflow.ui.screens.paywall.PaywallReason
 import org.dpdns.alwaysup.subflow.ui.screens.paywall.PaywallScreen
 import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsPage
 import org.dpdns.alwaysup.subflow.ui.screens.settings.SettingsScreen
@@ -148,6 +149,15 @@ fun SubFlowNavHost(
     val catalogueLoaded by billingManager.catalogueLoaded.collectAsState()
 
     var presets by remember { mutableStateOf<List<PresetService>>(emptyList()) }
+
+    // Why the paywall is open, so it can lead with that feature (BIN-74).
+    // Kept here rather than in the route: the route is compared by name in
+    // several places, and a reason is not worth a deep-linkable argument.
+    var paywallReason by rememberSaveable { mutableStateOf(PaywallReason.GENERAL) }
+    fun openPaywall(reason: PaywallReason) {
+        paywallReason = reason
+        navController.navigate(Screen.Paywall.route)
+    }
 
     LaunchedEffect(Unit) {
         if (currentUser == null) authRepository.signInAsGuest()
@@ -467,7 +477,7 @@ fun SubFlowNavHost(
                     )
                 }
             },
-            onPaywallClick = { navController.navigate(Screen.Paywall.route) },
+            onPaywallClick = { reason -> openPaywall(reason) },
             onManageSubscription = {
                 openUrl(billingManager.manageSubscriptionUrl(skuFor(proTier)))
             },
@@ -621,7 +631,7 @@ fun SubFlowNavHost(
                         navController.navigate(Screen.Dashboard.route) {
                             popUpTo(Screen.Onboarding.route) { inclusive = true }
                         }
-                        navController.navigate(Screen.Paywall.route)
+                        openPaywall(PaywallReason.GENERAL)
                     }
                 )
             }
@@ -638,7 +648,7 @@ fun SubFlowNavHost(
                         if (!isPro && subscriptions.count { it.isActive && !it.isDeleted } >=
                             SubscriptionRepository.FREE_TIER_LIMIT
                         ) {
-                            navController.navigate(Screen.Paywall.route)
+                            openPaywall(PaywallReason.LIMIT)
                         } else {
                             navController.navigate(Screen.AddSubscription.route)
                         }
@@ -660,7 +670,7 @@ fun SubFlowNavHost(
                     onSetActive = { id, active ->
                         val result = subscriptionRepository.setActive(id, active, isPro)
                         if (result.exceptionOrNull() is QuotaReachedException) {
-                            navController.navigate(Screen.Paywall.route)
+                            openPaywall(PaywallReason.LIMIT)
                         }
                         result.getOrNull()
                     },
@@ -681,7 +691,7 @@ fun SubFlowNavHost(
                         list.forEach { subscriptionRepository.revertTo(it, isPro) }
                     },
                     monthlyBudget = monthlyBudget,
-                    onPaywallClick = { navController.navigate(Screen.Paywall.route) },
+                    onPaywallClick = { reason -> openPaywall(reason) },
                     showSwipeHint = !swipeHintSeen,
                     onSwipeHintSeen = { preferencesManager.markSwipeHintSeen() }
                 )
@@ -694,7 +704,7 @@ fun SubFlowNavHost(
                     subscriptions = subscriptions,
                     isPro = isPro,
                     primaryCurrency = primaryCurrency,
-                    onPaywallClick = { navController.navigate(Screen.Paywall.route) },
+                    onPaywallClick = { openPaywall(PaywallReason.ANALYTICS) },
                     onExportCsv = {
                         val active = subscriptions.filter { it.isActive && !it.isDeleted }
                         val intent = ExportUtils.shareIntent(
@@ -751,12 +761,12 @@ fun SubFlowNavHost(
                                 )
                             } else if (res.exceptionOrNull() is QuotaReachedException) {
                                 navController.popBackStack()
-                                navController.navigate(Screen.Paywall.route)
+                                openPaywall(PaywallReason.LIMIT)
                             }
                         }
                     },
                     onCancel = { navController.popBackStack() },
-                    onUpgradeClick = { navController.navigate(Screen.Paywall.route) }
+                    onUpgradeClick = { openPaywall(PaywallReason.ALERTS) }
                 )
             }
 
@@ -810,7 +820,7 @@ fun SubFlowNavHost(
                                 // resuming the sixth is where the free tier
                                 // ends - the same wall adding one runs into.
                                 res.exceptionOrNull() is QuotaReachedException ->
-                                    navController.navigate(Screen.Paywall.route)
+                                    openPaywall(PaywallReason.LIMIT)
                             }
                         }
                     }
@@ -845,7 +855,7 @@ fun SubFlowNavHost(
                             }
                         },
                         onCancel = { navController.popBackStack() },
-                        onUpgradeClick = { navController.navigate(Screen.Paywall.route) }
+                        onUpgradeClick = { openPaywall(PaywallReason.ALERTS) }
                     )
                 }
             }
@@ -874,7 +884,9 @@ fun SubFlowNavHost(
                         openUrl(billingManager.manageSubscriptionUrl(skuFor(proTier)))
                     },
                     onRetry = { billingManager.refresh() },
-                    onOpenUrl = ::openUrl
+                    onOpenUrl = ::openUrl,
+                    reason = paywallReason,
+                    trackedCount = subscriptions.count { it.isActive && !it.isDeleted }
                 )
             }
         }
