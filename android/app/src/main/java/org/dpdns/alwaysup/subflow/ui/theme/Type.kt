@@ -4,6 +4,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.sp
 
 /**
@@ -82,3 +83,36 @@ val AppleTypography = Typography(
         letterSpacing = 0.5.sp
     )
 )
+
+/**
+ * The type scale for an interface [language].
+ *
+ * Korean puts spaces between words and breaks lines at them, but Android's
+ * default line breaker treats Hangul like Chinese and breaks between any two
+ * syllables, so "충분해요" could end one line as "충분" and start the next
+ * with "해요" (BIN-78). Phrase breaking keeps words whole where the platform
+ * supports it (Android 13+); older versions ignore it and wrap as before.
+ * Every other language keeps the default.
+ */
+fun Typography.forLanguage(language: String): Typography {
+    if (language != "ko") return this
+    val byWord = LineBreak.Paragraph.copy(wordBreak = LineBreak.WordBreak.Phrase)
+    fun TextStyle.keepWords() = copy(lineBreak = byWord)
+    return copy(
+        displayLarge = displayLarge.keepWords(),
+        displayMedium = displayMedium.keepWords(),
+        displaySmall = displaySmall.keepWords(),
+        headlineLarge = headlineLarge.keepWords(),
+        headlineMedium = headlineMedium.keepWords(),
+        headlineSmall = headlineSmall.keepWords(),
+        titleLarge = titleLarge.keepWords(),
+        titleMedium = titleMedium.keepWords(),
+        titleSmall = titleSmall.keepWords(),
+        bodyLarge = bodyLarge.keepWords(),
+        bodyMedium = bodyMedium.keepWords(),
+        bodySmall = bodySmall.keepWords(),
+        labelLarge = labelLarge.keepWords(),
+        labelMedium = labelMedium.keepWords(),
+        labelSmall = labelSmall.keepWords()
+    )
+}

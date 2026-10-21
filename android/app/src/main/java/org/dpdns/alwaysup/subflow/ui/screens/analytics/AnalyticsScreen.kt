@@ -1,5 +1,6 @@
 package org.dpdns.alwaysup.subflow.ui.screens.analytics
 
+import android.os.Build
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -490,7 +491,7 @@ private fun ProGate(
             modifier = Modifier
                 .matchParentSize()
                 .clip(RoundedCornerShape(14.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = lockedCoverAlpha(Build.VERSION.SDK_INT))),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -527,6 +528,18 @@ private fun ProGate(
         }
     }
 }
+
+/**
+ * How opaque the cover over a locked chart is.
+ *
+ * On Android 12+ the chart under it is blurred, so a light cover is enough:
+ * the shapes say "there is something here" without being readable. Below 12
+ * `Modifier.blur` draws nothing at all, and under the same cover the free
+ * user's chart showed through sharp at about a quarter strength (BIN-79). A
+ * nearly solid cover keeps it a hint there too.
+ */
+internal fun lockedCoverAlpha(sdkInt: Int): Float =
+    if (sdkInt >= Build.VERSION_CODES.S) 0.72f else 0.93f
 
 /** The grey small print under a chart, saying what it is measuring. */
 @Composable

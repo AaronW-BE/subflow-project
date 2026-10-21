@@ -19,8 +19,8 @@ since the last upload" is `git log <last tag>..main`.
 
 Changes since 1.4.0 (versionCode 8):
 
-Not in this upload: pt-BR, ko-KR. (Portuguese and Korean were added after
-1.5.0 went up; their first release notes are 1.6.0's.)
+Not in this upload: pt-BR, ko-KR, it-IT. (Portuguese, Korean and Italian
+were added after 1.5.0 went up; their first release notes are 1.6.0's.)
 
 | Change | Source |
 |---|---|
@@ -432,9 +432,9 @@ One listing per language. Add each under **Main store listing → Manage
 translations**, then paste its three fields. Hong Kong (`zh-HK`) uses the zh-TW
 text.
 
-**With the 1.6.0 upload (first build with Portuguese and Korean):** add the
-pt-BR and ko-KR listings below, and add both languages to the language line
-of every other listing (*In English, … and Spanish*). Until that build is live, the other
+**With the 1.6.0 upload (first build with Portuguese, Korean and Italian):**
+add the pt-BR, ko-KR and it-IT listings below, and make the language line of
+every listing name all ten languages (*In English, … and Spanish*). Until that build is live, the other
 listings must not claim it.
 
 All seven listings say the same thing. zh-TW was written first from the
@@ -651,6 +651,76 @@ SUBFLOW PRO
 월간, 연간, 평생 1회 구매 중에서 고를 수 있으며 모두 Google Play로 결제돼요. 구독은 언제든 해지할 수 있어요.
 
 SubFlow는 관리하고 알려 드릴 뿐, 대신 해지하지는 않아요. 해지하려면 해당 서비스의 계정 페이지로 가세요. 잘 알려진 서비스는 앱에서 바로 열어 드려요.
+```
+
+### it-IT Italiano
+
+Added with BIN-77, for the first build that ships `values-it`. Add it in the
+Console with that upload, not before. Addressed as tu, as in the app; terms
+match its UI (*abbonamento*, *addebito*, *rinnovo*, *valuta principale*,
+*prova gratuita*).
+
+**Titolo dell’app** (≤30)
+
+```
+SubFlow: Gestione Abbonamenti
+```
+
+**Descrizione breve** (≤80)
+
+```
+Tutti i tuoi abbonamenti in un posto, con un avviso prima di ogni addebito.
+```
+
+**Descrizione completa** (≤4000)
+
+```
+Netflix, Spotify, spazio cloud, palestra… quanto ti costano davvero gli abbonamenti ogni mese? SubFlow li raccoglie in un unico posto, ti mostra il vero totale mensile e ti avvisa prima dell’addebito, quando sei ancora in tempo per disdire ciò che non usi più.
+
+SEGUI OGNI ABBONAMENTO
+• 34 servizi popolari già inclusi, con il loro logo: scegline uno ed è aggiunto
+• Oppure creane uno tuo, con nome, colore e icona personalizzati
+• Addebiti settimanali, mensili, trimestrali e annuali, tutti convertiti in totali mensili e annui
+• Ordina per data di rinnovo, prezzo o nome; filtra per categoria e cerca
+• Scorri una scheda a sinistra per eliminarla, a destra per metterla in pausa
+• Tieni premuto per selezionarne diversi e metterli in pausa, riprenderli, eliminarli o cambiarne la categoria tutti insieme
+• Metti in pausa un abbonamento che non paghi più: conserva i dettagli ma esce dai totali e dai promemoria
+• Un widget nella schermata Home mostra il totale del mese e i prossimi rinnovi
+
+UN AVVISO PRIMA DELL’ADDEBITO
+• Un promemoria 1 giorno prima di ogni rinnovo (Pro aggiunge 3 e 7 giorni)
+• Se il telefono ha perso un promemoria mentre era inattivo, aprendo l’app lo recuperi
+
+SEGUI LE PROVE GRATUITE
+• Segna un abbonamento come prova gratuita, con la data di fine e il prezzo successivo
+• Ricevi un promemoria prima che la prova finisca, in tutti i piani
+• Alla fine, registra se è diventato a pagamento, se l’hai disdetto o se è stato esteso
+
+TANTE VALUTE, UN SOLO TOTALE
+• 40 valute: registra ogni abbonamento nella valuta in cui viene addebitato
+• Tutto viene convertito nella tua valuta principale ai tassi di cambio aggiornati. Offline usa gli ultimi tassi scaricati, o quelli integrati se l’app non è mai stata online
+
+ANALISI DELLA SPESA
+• Totale mensile, totale annuo e media al giorno
+• Pro: storico di 6 mesi, spesa per categoria, mappa della spesa, previsione degli addebiti mese per mese ed esportazione CSV
+
+I TUOI DATI RESTANO SUL TELEFONO
+• Nessun account necessario: tutto è salvato sul dispositivo
+• Esporta un backup JSON e ripristinalo quando vuoi
+• Importa abbonamenti da un file CSV — una tua esportazione o un foglio di calcolo — con un’anteprima prima di aggiungere qualsiasi cosa
+• Tema scuro (nero vero) e feedback aptico
+• In italiano, inglese, cinese semplificato, cinese tradizionale, giapponese, coreano, tedesco, francese, spagnolo e portoghese
+
+SUBFLOW PRO
+Il piano gratuito segue fino a 5 abbonamenti e mostra un banner pubblicitario. Pro ti offre:
+• Abbonamenti illimitati
+• Promemoria 3 e 7 giorni prima del rinnovo
+• L’analisi completa della spesa e l’esportazione CSV
+• Un budget mensile, con un indicatore sul totale e un avviso prima che un abbonamento ti faccia sforare
+• Mai pubblicità
+Scegli tra mensile, annuale o un acquisto unico a vita, tutto addebitato tramite Google Play. Gli abbonamenti si possono disdire in qualsiasi momento.
+
+SubFlow monitora e avvisa; non disdice nulla al posto tuo. Per disdire, vai alla pagina dell’account del servizio. Per i servizi più noti, l’app la apre per te.
 ```
 
 ### zh-CN 中文（简体）
