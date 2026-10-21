@@ -15,6 +15,97 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.6.0 (versionCode 10): release notes
+
+Changes since 1.5.0 (versionCode 9):
+
+| Change | Source |
+|---|---|
+| Portuguese (Brazil), Korean and Italian; Korean wraps at spaces | BIN-75, BIN-76, BIN-77, BIN-78; PR #82, #83, #84 |
+| Pro monthly budget: meter on the total, a warning in the add form, an over-budget note after a save or resume | BIN-68, BIN-71; PR #76, #77, #78 |
+| Paywall leads with what was tapped, lists only what Pro adds, names the trial's end date; locked reminder chips preview their date | BIN-74, PR #81 |
+| In-app Play rating prompt, after a save, for settled users only | BIN-72, PR #79 |
+| Locked charts stay a hint on Android 8–11 | BIN-79, PR #84 |
+| Not in the app: store listing refresh and screenshots | BIN-73, PR #80 |
+
+A minor release: three languages and the budget are all things to find. The
+rating prompt is left out of the notes: Play decides whether it appears at
+all. The budget path uses each app's own words.
+
+The in-app what's-new lines (`whats_new_item_1..3`) were rewritten for this
+release in all ten languages: the new languages, the budget, the Pro page.
+
+```
+<en-US>
+• SubFlow is now available in Portuguese, Korean and Italian.
+• Pro: set a monthly budget in Settings → Preferences → Monthly budget. Your total shows how much is left, and you hear about it before a subscription takes you over.
+• A clearer Pro page: it lists only what Pro adds, and a free trial shows the date it would end.
+• Tapping a locked 3- or 7-day reminder shows the day it would arrive.
+</en-US>
+<zh-CN>
+• 新增葡萄牙语、韩语和意大利语。
+• Pro：可在 设置 → 偏好设置 → 月度预算 中设定每月预算。总支出旁显示还剩多少，新订阅将超出预算时会提前提醒。
+• Pro 介绍页更清楚：只列出 Pro 真正增加的功能，免费试用会写明到哪天结束。
+• 点按锁定的 3 天或 7 天提醒，会显示提醒将在哪天送达。
+</zh-CN>
+<zh-TW>
+• 新增葡萄牙文、韓文與義大利文。
+• Pro：可在 設定 → 偏好設定 → 每月預算 中設定預算。總支出旁顯示還剩多少，新訂閱將超出預算時會事先提醒。
+• Pro 介紹頁更清楚：只列出 Pro 實際增加的功能，免費試用會寫明到哪天結束。
+• 點按鎖定的 3 天或 7 天提醒，會顯示提醒將在哪天送達。
+</zh-TW>
+<zh-HK>
+• 新增葡萄牙文、韓文與義大利文。
+• Pro：可在 設定 → 偏好設定 → 每月預算 中設定預算。總支出旁顯示還剩多少，新訂閱將超出預算時會事先提醒。
+• Pro 介紹頁更清楚：只列出 Pro 實際增加的功能，免費試用會寫明到哪天結束。
+• 點按鎖定的 3 天或 7 天提醒，會顯示提醒將在哪天送達。
+</zh-HK>
+<de-DE>
+• SubFlow gibt es jetzt auch auf Portugiesisch, Koreanisch und Italienisch.
+• Pro: Lege unter Einstellungen → Allgemein → Monatsbudget ein Budget fest. Bei deiner Summe siehst du, wie viel übrig ist, und ein Hinweis kommt, bevor ein Abo dich darüber bringt.
+• Klarere Pro-Seite: nur, was Pro hinzufügt, und bei einer Testphase das Enddatum.
+• Ein gesperrter 3- oder 7-Tage-Hinweis zeigt, an welchem Tag er käme.
+</de-DE>
+<fr-FR>
+• SubFlow est désormais disponible en portugais, coréen et italien.
+• Pro : définissez un budget dans Réglages → Préférences → Budget mensuel. Votre total indique ce qu’il reste, et vous êtes prévenu avant qu’un abonnement ne le dépasse.
+• Page Pro plus claire : seulement ce que Pro ajoute, et la date de fin d’un essai gratuit.
+• Un rappel 3 ou 7 jours verrouillé indique le jour où il arriverait.
+</fr-FR>
+<es-ES>
+• SubFlow ya está disponible en portugués, coreano e italiano.
+• Pro: fija un presupuesto en Ajustes → Preferencias → Presupuesto mensual. Tu total muestra cuánto te queda y te avisa antes de que una suscripción lo supere.
+• Página Pro más clara: solo lo que añade Pro y la fecha en que termina una prueba gratis.
+• Un aviso de 3 o 7 días bloqueado muestra el día en que llegaría.
+</es-ES>
+<it-IT>
+• SubFlow ora è disponibile in portoghese, coreano e italiano.
+• Pro: imposta un budget in Impostazioni → Preferenze → Budget mensile. Il totale mostra quanto resta e ti avvisa prima che un abbonamento ti faccia sforare.
+• Pagina Pro più chiara: solo ciò che Pro aggiunge, e la data in cui finirebbe una prova gratuita.
+• Toccando un promemoria bloccato di 3 o 7 giorni vedi il giorno in cui arriverebbe.
+</it-IT>
+<pt-BR>
+• Agora o SubFlow está em português, coreano e italiano.
+• Pro: defina um orçamento em Configurações → Preferências → Orçamento mensal. O total mostra quanto resta, e você é avisado antes que uma assinatura passe do limite.
+• Página do Pro mais clara: só o que o Pro acrescenta, e a data em que um teste grátis terminaria.
+• Tocar em um lembrete bloqueado de 3 ou 7 dias mostra o dia em que ele chegaria.
+</pt-BR>
+<ja-JP>
+• ポルトガル語・韓国語・イタリア語に対応しました。
+• Pro：設定 → 環境設定 → 月の予算 で予算を設定できます。合計の横に残りが表示され、サブスクで予算を超えそうなときは事前にお知らせします。
+• Pro の紹介ページを改善：Pro で増える機能だけを表示し、無料体験の終了日も表示します。
+• ロックされた 3 日前・7 日前の通知をタップすると、通知が届く日を表示します。
+</ja-JP>
+<ko-KR>
+• 이제 포르투갈어, 한국어, 이탈리아어를 지원해요.
+• Pro: 설정 → 환경설정 → 월 예산에서 예산을 정할 수 있어요. 합계 옆에 남은 금액이 보이고, 구독으로 예산을 넘기 전에 알려 드려요.
+• Pro 안내 화면이 더 명확해졌어요. Pro에서 추가되는 기능만 보여 주고, 무료 체험이 끝나는 날짜도 알려 드려요.
+• 잠긴 3일 전·7일 전 알림을 누르면 알림이 오는 날짜를 보여 드려요.
+</ko-KR>
+```
+
+---
+
 ## 1.5.0 (versionCode 9): release notes
 
 Changes since 1.4.0 (versionCode 8):
@@ -432,12 +523,11 @@ One listing per language. Add each under **Main store listing → Manage
 translations**, then paste its three fields. Hong Kong (`zh-HK`) uses the zh-TW
 text.
 
-**With the 1.6.0 upload (first build with Portuguese, Korean and Italian):**
-add the pt-BR, ko-KR and it-IT listings below, and make the language line of
-every listing name all ten languages (*In English, … and Spanish*). Until that build is live, the other
-listings must not claim it.
+**1.6.0 added Portuguese, Korean and Italian.** Their listings (pt-BR, ko-KR,
+it-IT) go into the Console with that upload, and every listing's language
+line names all ten languages from then on.
 
-All seven listings say the same thing. zh-TW was written first from the
+All ten listings say the same thing. zh-TW was written first from the
 features in the code (see *What each claim rests on*), and the others
 translate it. Terms match what each language's app UI shows (German
 *Hauptwährung*, French *devise principale*, Japanese *基準通貨*, Simplified
@@ -500,7 +590,7 @@ YOUR DATA STAYS ON YOUR PHONE
 • Export a JSON backup and restore it at any time
 • Import subscriptions from a CSV file — your own export or a spreadsheet — with a preview before anything is added
 • Dark mode (true black) and haptic feedback
-• In English, Simplified Chinese, Traditional Chinese, Japanese, German, French and Spanish
+• In English, Simplified Chinese, Traditional Chinese, Japanese, Korean, German, French, Spanish, Italian and Portuguese
 
 SUBFLOW PRO
 The free plan tracks up to 5 subscriptions and shows a banner ad. Pro gives you:
@@ -516,9 +606,7 @@ SubFlow tracks and reminds; it doesn't cancel anything for you. To cancel, go to
 
 ### pt-BR Português (Brasil)
 
-Added with BIN-75, for the first build that ships `values-pt` (1.6.0). Add it
-in the Console with that upload, not before: until then the app itself would
-not be in Portuguese. Address is você, as in the app; terms match its UI
+Added with BIN-75; first shipped in 1.6.0. Address is você, as in the app; terms match its UI
 (*assinatura*, *cobrança*, *moeda principal*, *teste grátis*).
 
 **Título do app** (≤30)
@@ -570,7 +658,7 @@ SEUS DADOS FICAM NO SEU CELULAR
 • Exporte um backup em JSON e restaure quando quiser
 • Importe assinaturas de um arquivo CSV — sua própria exportação ou uma planilha — com uma prévia antes de adicionar qualquer coisa
 • Modo escuro (preto de verdade) e resposta tátil
-• Em português, inglês, chinês simplificado, chinês tradicional, japonês, alemão, francês e espanhol
+• Em português, inglês, chinês simplificado, chinês tradicional, japonês, coreano, alemão, francês, espanhol e italiano
 
 SUBFLOW PRO
 O plano gratuito acompanha até 5 assinaturas e mostra um banner de anúncio. O Pro oferece:
@@ -586,8 +674,7 @@ O SubFlow acompanha e avisa; ele não cancela nada por você. Para cancelar, ace
 
 ### ko-KR 한국어
 
-Added with BIN-76, for the first build that ships `values-ko`. Add it in the
-Console with that upload, not before. Sentences in 해요체 as in the app; terms
+Added with BIN-76; first shipped in 1.6.0. Sentences in 해요체 as in the app; terms
 match its UI (*구독*, *결제*, *갱신*, *기본 통화*, *무료 체험*).
 
 **앱 이름** (≤30)
@@ -639,7 +726,7 @@ Netflix, Spotify, 클라우드 저장공간, 헬스장… 구독료를 다 합�
 • JSON 백업을 내보내고 언제든 복원
 • CSV 파일(직접 내보낸 파일이나 스프레드시트)에서 구독을 가져오기, 추가 전에 미리보기 제공
 • 다크 모드(완전한 검은색)와 햅틱 피드백
-• 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 독일어, 프랑스어, 스페인어, 포르투갈어 지원
+• 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 독일어, 프랑스어, 스페인어, 이탈리아어, 포르투갈어 지원
 
 SUBFLOW PRO
 무료 플랜은 구독 5개까지 관리할 수 있고 배너 광고가 표시돼요. Pro에서는:
@@ -655,8 +742,7 @@ SubFlow는 관리하고 알려 드릴 뿐, 대신 해지하지는 않아요. 해
 
 ### it-IT Italiano
 
-Added with BIN-77, for the first build that ships `values-it`. Add it in the
-Console with that upload, not before. Addressed as tu, as in the app; terms
+Added with BIN-77; first shipped in 1.6.0. Addressed as tu, as in the app; terms
 match its UI (*abbonamento*, *addebito*, *rinnovo*, *valuta principale*,
 *prova gratuita*).
 
@@ -774,7 +860,7 @@ Netflix、Spotify、云存储、健身房……每个月的订阅费加起来到
 • 可导出 JSON 备份，随时从备份恢复
 • 可从 CSV 文件导入订阅（本应用导出的文件或自己做的表格），添加前会先预览
 • 支持深色模式（纯黑）和触感反馈
-• 界面支持简体中文、繁体中文、英语、日语、德语、法语和西班牙语
+• 界面支持简体中文、繁体中文、英语、日语、韩语、德语、法语、西班牙语、意大利语和葡萄牙语
 
 【SubFlow Pro】
 免费版可记录 5 个订阅，并显示横幅广告。升级 Pro 可以：
@@ -839,7 +925,7 @@ Netflix、Spotify、雲端空間、健身房……每個月的訂閱費用加起
 • 可匯出 JSON 備份，並隨時從備份還原
 • 可從 CSV 檔案匯入訂閱（本 App 匯出的檔案或自己做的試算表），新增前會先預覽
 • 支援深色模式（純黑）與觸覺回饋
-• 介面支援繁體中文、簡體中文、英文、日文、德文、法文與西班牙文
+• 介面支援繁體中文、簡體中文、英文、日文、韓文、德文、法文、西班牙文、義大利文與葡萄牙文
 
 【SubFlow Pro】
 免費版可記錄 5 筆訂閱，並顯示橫幅廣告。升級 Pro 可以：
@@ -904,7 +990,7 @@ DEINE DATEN BLEIBEN AUF DEINEM GERÄT
 • JSON-Backup exportieren und jederzeit wiederherstellen
 • Abos aus einer CSV-Datei importieren – dem eigenen Export oder einer Tabelle –, mit Vorschau, bevor etwas hinzukommt
 • Dunkelmodus (echtes Schwarz) und haptisches Feedback
-• Auf Deutsch, Englisch, Französisch, Spanisch, Japanisch sowie in vereinfachtem und traditionellem Chinesisch
+• Auf Deutsch, Englisch, Französisch, Spanisch, Italienisch, Portugiesisch, Japanisch, Koreanisch sowie in vereinfachtem und traditionellem Chinesisch
 
 SUBFLOW PRO
 Die kostenlose Version erfasst bis zu 5 Abos und zeigt ein Werbebanner. Mit Pro bekommst du:
@@ -969,7 +1055,7 @@ VOS DONNÉES RESTENT SUR VOTRE TÉLÉPHONE
 • Exportez une sauvegarde JSON et restaurez-la à tout moment
 • Importez des abonnements depuis un fichier CSV – votre export ou un tableur – avec un aperçu avant tout ajout
 • Mode sombre (noir intégral) et retour haptique
-• Disponible en français, anglais, allemand, espagnol, japonais, chinois simplifié et chinois traditionnel
+• Disponible en français, anglais, allemand, espagnol, italien, portugais, japonais, coréen, chinois simplifié et chinois traditionnel
 
 SUBFLOW PRO
 La version gratuite suit jusqu’à 5 abonnements et affiche une bannière publicitaire. Avec Pro :
@@ -1034,7 +1120,7 @@ TUS DATOS SE QUEDAN EN TU MÓVIL
 • Exporta una copia de seguridad JSON y restáurala cuando quieras
 • Importa suscripciones desde un archivo CSV –tu exportación o una hoja de cálculo– con una vista previa antes de añadir nada
 • Modo oscuro (negro puro) y respuesta háptica
-• En español, inglés, alemán, francés, japonés, chino simplificado y chino tradicional
+• En español, inglés, alemán, francés, italiano, portugués, japonés, coreano, chino simplificado y chino tradicional
 
 SUBFLOW PRO
 El plan gratuito registra hasta 5 suscripciones y muestra un banner publicitario. Con Pro tienes:
@@ -1099,7 +1185,7 @@ Netflix、Spotify、クラウドストレージ、ジム……毎月のサブス
 • JSON 形式でバックアップを書き出し、いつでも復元できます
 • CSV ファイルからサブスクをインポート（このアプリの書き出しファイルや自作の表）。追加前にプレビューで確認できます
 • ダークモード（純黒）と触覚フィードバックに対応
-• 日本語、英語、ドイツ語、フランス語、スペイン語、簡体字中国語、繁体字中国語に対応
+• 日本語、英語、韓国語、ドイツ語、フランス語、スペイン語、イタリア語、ポルトガル語、簡体字中国語、繁体字中国語に対応
 
 【SubFlow Pro】
 無料プランでは 5 件までサブスクを記録でき、バナー広告が表示されます。Pro にアップグレードすると：
@@ -1125,7 +1211,7 @@ What each claim rests on:
 | 40 currencies, live rates, last-fetched cache, then a built-in fallback | `SupportedCurrencies`; `ExchangeRateRepository` (prefs cache); `fallbackRatesToUSD` |
 | Pro analytics | the four `ProGate`s in `AnalyticsScreen.kt` + gated CSV export |
 | No account, stored locally | release build has `BACKEND_ENABLED = false` |
-| 7 languages | `SupportedLanguages` |
+| 10 languages | `SupportedLanguages` (pt, ko, it added in 1.6.0) |
 | Totals and daily average free | outside the `ProGate`s (`item(key = "metrics")`) |
 | Pause instead of delete; out of totals and reminders; every plan | `Subscription.isActive`, `SubscriptionRepository.setActive` (no `ProGate`); BIN-29 |
 | Home screen widget: monthly total and upcoming renewals; every plan | `widget/SubFlowWidget.kt`, `summariseForWidget` (not gated); BIN-30, BIN-32 |
@@ -1141,55 +1227,32 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 9 / versionName 1.5.0**. 8 is used up.
-- [ ] **Release notes**: paste the whole 1.5.0 block, all languages.
-- [ ] **Track: closed testing.** Production access was refused, so this goes
-      to the closed test the reapplication depends on. It is the first build
-      whose what's-new sheet testers will see on updating, and the sheet's
-      Send feedback writes to bin-tech@outlook.com.
+- [ ] **versionCode 10 / versionName 1.6.0**. 9 is used up.
+- [ ] **Track: closed testing**, as 1.5.0. Production access was refused, so
+      this goes to the closed test the reapplication depends on.
+- [ ] **Release notes**: paste the whole 1.6.0 block, all eleven tags.
+- [ ] **Three new listing languages** under Main store listing → Manage
+      translations: pt-BR, ko-KR and it-IT, each with its title, short and
+      full description from *Store listings*.
+- [ ] **Re-paste the full description of the seven existing listings.** Each
+      one's language line now names all ten languages. (If the BIN-73 refresh
+      was never pasted, this pastes it too: the text below is the current
+      one.)
+- [ ] **Screenshots: no change.** The eight English shots from BIN-73 serve
+      every language, as before; none of the screens shown changed.
+- [ ] **Data safety: re-check for the in-app review library** (BIN-72,
+      `com.google.android.play:review-ktx` 2.0.2). The app sends nothing new:
+      the review flow is shown and handled by the Play Store app, and the app
+      learns nothing about whether or how the user rated. No new permission,
+      no new endpoint, no new stored personal data. Expected answer: no change
+      to the form; confirm in the Console that it asks nothing new.
+- [ ] **After the upload, on a tester's Play-installed copy:** the rating
+      dialog can only appear there (never on a debug build), and only once
+      the conditions in `ReviewPolicy` hold.
 - [ ] **Still owed from 1.4.0: billing on a real device** (PR #56, #61), with
       a license tester - restore with two products owned, buy an owned plan,
-      and the billing-unavailable message only on the paywall.
-- [ ] **Store listing text: no change needed.** Re-checked every row of
-      *What each claim rests on*: 34 presets, free limit 5, 1-day reminder
-      free with 3/7 on Pro, 40 currencies, four `ProGate`s plus gated CSV
-      export, 7 languages, `BACKEND_ENABLED` false in release. CSV import and
-      multi-select are not named in any listing, so nothing is contradicted;
-      adding them to the full descriptions is optional.
-- [ ] **Data safety: no changes.** The manifest gains only the portrait lock.
-      CSV import reads a file the user picks through the system picker - no
-      permission, nothing sent anywhere. The new dependencies (Robolectric,
-      Compose UI test) are test-only and not in the release build.
-- [ ] **Screenshots: optional refresh.** `01-dashboard` and
-      `02-dashboard-dark` would now show only the category chips in use.
-      Nothing in the current shots is false.
-
-## Store listing refresh (BIN-73)
-
-Not tied to a build: the listing text and screenshots can be updated in the
-Console at any time, and the change goes through Play review on its own.
-
-- [ ] **Full descriptions, all seven languages.** Paste each *Full
-      description* above. New since the last upload: swipe right to pause,
-      long-press multi-select, CSV import, and the monthly budget in the Pro
-      list. Titles and short descriptions are unchanged. Each new claim has a
-      row in *What each claim rests on*.
-- [ ] **Phone screenshots: replace all six with the eight below**, in this
-      order. Play shows the first three in search results, so the hero, trial
-      tracking and analytics go first.
-
-| # | File | Shows | Plan |
-|---|---|---|---|
-| 1 | `01-dashboard.png` | Total, trial badge, free-plan meter, swipe hint | Free |
-| 2 | `02-trial-detail.png` | Trial countdown, price after trial | Free |
-| 3 | `03-analytics.png` | 6-month trend, category split | Pro |
-| 4 | `04-add-budget.png` | Preset filled in, over-budget warning, 3/7-day reminders | Pro |
-| 5 | `05-multi-select.png` | Two selected, pause/delete, category/reminder menu | Free |
-| 6 | `06-csv-import.png` | Import preview, duplicate skipped | Free |
-| 7 | `07-services.png` | Preset picker with logos | Free |
-| 8 | `08-dashboard-dark.png` | Dark (OLED) theme | Free |
-
-The same English screenshots serve every language, as before.
+      and the billing-unavailable message only on the paywall. Now also: the
+      paywall's dated trial footnote with a real offer.
 
 ### How the screenshots were taken
 

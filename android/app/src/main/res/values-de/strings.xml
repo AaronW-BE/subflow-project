@@ -381,9 +381,9 @@
     <string name="whats_new_version">Version %1$s</string>
     <string name="whats_new_done">Alles klar</string>
     <string name="whats_new_feedback">Feedback senden</string>
-    <string name="whats_new_item_1">Importiere Abos aus einer CSV-Datei unter Einstellungen → Daten.</string>
-    <string name="whats_new_item_2">Halte ein Abo gedrückt, um mehrere auszuwählen und gemeinsam zu ändern.</string>
-    <string name="whats_new_item_3">Jede Kategorie, die du nutzt, hat jetzt einen eigenen Filter.</string>
+    <string name="whats_new_item_1">SubFlow gibt es jetzt auf Portugiesisch, Koreanisch und Italienisch.</string>
+    <string name="whats_new_item_2">Pro: Lege unter Einstellungen → Allgemein ein Monatsbudget fest und sieh, wie viel übrig ist.</string>
+    <string name="whats_new_item_3">Eine klarere Pro-Seite, mit dem Enddatum einer Testphase.</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">CSV importieren</string>
