@@ -257,6 +257,17 @@ class PreferencesManager(context: Context) {
         if (isPro) _reminderLeads.value else setOf(ReminderLead.ONE_DAY.days)
 
     /** Incremented once per cold start; drives the "ask for a review" moment. */
+    /** How many times the app has been opened, this one included once [recordLaunch] has run. */
+    fun launchCount(): Int = prefs.getInt(KEY_LAUNCH_COUNT, 0)
+
+    /** When a Play rating was last asked for, or null if it never has been. */
+    val reviewLastAskedAt: Long?
+        get() = prefs.getLong(KEY_REVIEW_ASKED_AT, 0L).takeIf { it > 0L }
+
+    fun markReviewAsked(atMillis: Long) {
+        prefs.edit().putLong(KEY_REVIEW_ASKED_AT, atMillis).apply()
+    }
+
     fun recordLaunch(): Int {
         val next = prefs.getInt(KEY_LAUNCH_COUNT, 0) + 1
         prefs.edit().putInt(KEY_LAUNCH_COUNT, next).apply()
@@ -337,6 +348,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_BUDGET_AMOUNT = "monthly_budget_amount"
         private const val KEY_BUDGET_CURRENCY = "monthly_budget_currency"
         private const val KEY_LAUNCH_COUNT = "launch_count"
+        private const val KEY_REVIEW_ASKED_AT = "review_last_asked_at"
         private const val KEY_LAST_SEEN_VERSION = "last_seen_version_code"
 
         /**

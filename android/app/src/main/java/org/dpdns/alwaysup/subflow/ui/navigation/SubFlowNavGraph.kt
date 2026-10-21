@@ -48,6 +48,7 @@ import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import org.dpdns.alwaysup.subflow.BuildConfig
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.data.review.ReviewPrompter
 import androidx.core.app.LocaleManagerCompat
 import org.dpdns.alwaysup.subflow.data.preferences.SupportedCurrencies
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
@@ -126,6 +127,7 @@ fun SubFlowNavHost(
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
     val snackbarHostState = remember { SnackbarHostState() }
+    val reviewPrompter = remember { ReviewPrompter(context.applicationContext, preferencesManager) }
 
     // `null` until Room emits, so the dashboard can tell "loading" from "empty".
     val subscriptionsOrNull by subscriptionRepository.activeSubscriptions
@@ -740,6 +742,13 @@ fun SubFlowNavHost(
                             if (res.isSuccess) {
                                 navController.popBackStack()
                                 showMessage(savedMessage(newSub, before))
+                                // A good moment to ask for a rating, if this
+                                // person has been here long enough to have
+                                // one (BIN-72). Usually it does nothing.
+                                reviewPrompter.maybeAsk(
+                                    activity,
+                                    runningSubscriptions = before.count { it.isActive && !it.isDeleted } + 1
+                                )
                             } else if (res.exceptionOrNull() is QuotaReachedException) {
                                 navController.popBackStack()
                                 navController.navigate(Screen.Paywall.route)

@@ -258,6 +258,8 @@ dependencies {
     implementation(libs.play.billing)
     implementation(libs.play.services.ads)
     implementation(libs.play.services.ump)
+    // In-app review (BIN-72): asks for a Play rating without leaving the app.
+    implementation(libs.play.review.ktx)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services)
     implementation(libs.googleid)
