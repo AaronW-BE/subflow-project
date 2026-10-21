@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Korean (BIN-76). Sentences in 해요체, labels and buttons as nouns. -->
+<resources>
+    <string name="app_name">SubFlow</string>
+    <string name="nav_subscriptions">구독</string>
+    <string name="nav_analytics">분석</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- Dashboard -->
+    <string name="total_monthly_spend">월 총 지출</string>
+    <string name="projected_annual_spend">예상 연간 지출</string>
+    <string name="switch_to_annual">연 단위로 보기</string>
+    <string name="switch_to_monthly">월 단위로 보기</string>
+    <string name="projected_yearly">예상: 연 %s</string>
+    <string name="next_renewal_in">다음 갱신까지 %s</string>
+    <string name="days_count">%d일</string>
+    <string name="filter_all">전체</string>
+    <string name="filter_streaming">스트리밍</string>
+    <string name="filter_productivity">생산성</string>
+    <string name="filter_cloud">클라우드</string>
+    <string name="filter_utilities">유틸리티</string>
+    <string name="filter_health">건강</string>
+    <string name="filter_finance">금융</string>
+    <string name="filter_gaming">게임</string>
+    <string name="filter_education">교육</string>
+    <string name="filter_lifestyle">라이프스타일</string>
+    <string name="filter_news">뉴스</string>
+    <string name="add_subscription">구독 추가</string>
+    <string name="back_to_top">맨 위로</string>
+    <string name="upgrade_to_pro">Pro로 업그레이드</string>
+    <string name="clear_search">검색어 지우기</string>
+    <string name="clear_name">이름 지우기</string>
+    <string name="choose_custom_logo">로고 선택</string>
+    <string name="remove_custom_logo">로고 삭제</string>
+    <string name="search_currency_hint">통화 또는 코드 검색</string>
+    <string name="rates_updated_on">%1$s 업데이트</string>
+    <string name="rates_offline_snapshot">저장된 환율 (오프라인)</string>
+    <string name="search">검색</string>
+    <string name="empty_title">아직 구독이 없어요</string>
+    <string name="empty_body">결제 중인 서비스를 추가하면 SubFlow가 합계와 갱신일을 한곳에서 관리해요.</string>
+    <string name="empty_cta">첫 구독 추가하기</string>
+    <string name="empty_search_title">검색 결과 없음</string>
+    <string name="empty_search_body">“%s”와 일치하는 항목이 없어요.</string>
+    <string name="clear_search_action">검색어 지우기</string>
+    <string name="empty_filter_body">“%s”에 구독이 없어요.</string>
+    <string name="empty_filter_search_body">“%2$s”에서 “%1$s”와 일치하는 항목이 없어요.</string>
+    <string name="clear_filters_action">필터 지우기</string>
+    <string name="deleted_item">“%s” 삭제됨</string>
+    <string name="delete_action">삭제</string>
+    <string name="swipe_hint">카드를 왼쪽으로 밀면 삭제, 오른쪽으로 밀면 일시정지</string>
+    <string name="swipe_hint_dismiss">안내 닫기</string>
+
+    <!-- Free quota -->
+    <string name="quota_label">무료 플랜</string>
+    <string name="quota_progress">%2$d개 중 %1$d개 사용</string>
+    <string name="quota_nudge_title">무료 플랜에 한 자리 남았어요</string>
+    <string name="quota_nudge_title_full">무료 플랜이 가득 찼어요</string>
+    <string name="quota_nudge_cta">Pro 보기</string>
+
+    <!-- Add Subscription -->
+    <string name="title_new_subscription">새 구독</string>
+    <string name="title_edit_subscription">구독 편집</string>
+    <string name="cancel">취소</string>
+    <string name="save">저장</string>
+    <string name="delete">삭제</string>
+    <string name="search_presets">서비스 검색 (Netflix, Spotify)</string>
+    <string name="field_service">서비스</string>
+    <string name="choose_service">서비스 선택</string>
+    <string name="custom_service">직접 입력</string>
+    <string name="custom_service_hint">이름, 색상, 로고를 직접 지정</string>
+    <string name="custom_subscription">직접 입력한 구독</string>
+    <string name="service_name">서비스 이름</string>
+    <string name="category">카테고리</string>
+    <string name="amount">금액</string>
+    <string name="billing_cycle">결제 주기</string>
+    <string name="first_bill_date">첫 결제일</string>
+    <string name="cycle_weekly">매주</string>
+    <string name="cycle_monthly">매월</string>
+    <string name="cycle_quarterly">분기별</string>
+    <string name="cycle_yearly">매년</string>
+    <string name="renewal_alerts">갱신 알림</string>
+    <string name="remind_before_renewal">결제되기 전에 알려 드려요</string>
+    <string name="live_preview">미리보기</string>
+    <string name="accent_colour_own_mark">이 서비스는 자체 컬러 아이콘이 있어서 강조 색상으로 바뀌지 않아요. 강조 색상은 지출 지도에서 이 서비스를 칠하는 데 쓰여요.</string>
+    <string name="brand_accent_color">강조 색상</string>
+    <string name="subscription_details">상세 정보</string>
+    <string name="field_name">이름</string>
+    <string name="field_price">가격</string>
+    <string name="field_category">카테고리</string>
+    <string name="field_notes">메모</string>
+    <string name="field_notes_hint">메모 (선택)</string>
+    <string name="field_currency">통화</string>
+    <string name="renews_next_on">다음 갱신일 %s</string>
+    <string name="reminder_lead_value">%d일 전</string>
+    <string name="reminder_lead_one">1일 전</string>
+    <string name="price_invalid">0보다 큰 가격을 입력하세요</string>
+    <string name="name_required">구독 이름을 입력하세요</string>
+    <string name="discard_changes_title">변경 사항을 버릴까요?</string>
+    <string name="discard_changes_body">이 구독에서 수정한 내용은 저장되지 않아요.</string>
+    <string name="discard">버리기</string>
+    <string name="keep_editing">계속 편집</string>
+    <string name="saved_subscription">“%s” 저장됨</string>
+
+    <!-- Paywall -->
+    <string name="subflow_pro">SUBFLOW PRO</string>
+    <string name="paywall_headline">모든 구독을 한눈에 관리하세요</string>
+    <string name="paywall_subhead">더 빠른 알림, 무제한 구독, 월 예산, 전체 분석. 광고 없이.</string>
+    <string name="feat_unlimited">구독 무제한</string>
+    <string name="feat_unlimited_sub">무료 플랜은 5개까지예요</string>
+    <string name="feat_push_alerts">3일 전·7일 전 알림</string>
+    <string name="feat_push_alerts_sub">무료 플랜은 하루 전에 알려 드려요. 일주일이면 해지할 시간이 충분해요.</string>
+    <string name="feat_analytics">전체 지출 분석</string>
+    <string name="feat_analytics_sub">추이, 카테고리, 결제 예측, CSV 내보내기</string>
+    <string name="feat_no_ads">광고 없음</string>
+    <string name="feat_no_ads_sub">업그레이드하는 즉시 배너가 사라져요</string>
+    <string name="plan_annual">연간</string>
+    <string name="plan_monthly">월간</string>
+    <string name="plan_lifetime">평생</string>
+    <string name="plan_annual_note">1년에 한 번 결제</string>
+    <string name="plan_monthly_note">언제든 해지 가능</string>
+    <string name="plan_lifetime_note">한 번 결제로 계속 사용</string>
+    <string name="plan_per_month">%s / 월</string>
+    <string name="plan_per_year">%s / 년</string>
+    <string name="plan_one_time">%s 1회 결제</string>
+    <string name="plan_effective_monthly">%s / 월</string>
+    <string name="badge_best_value">가장 저렴</string>
+    <string name="badge_save_percent">%d%% 할인</string>
+    <string name="badge_free_trial">%d일 무료 체험</string>
+    <string name="btn_start_trial">%d일 무료 체험 시작</string>
+    <string name="btn_continue">계속</string>
+    <string name="btn_restore">구매 복원</string>
+    <string name="sub_footnote">%s, Google Play에서 결제돼요. 언제든 해지할 수 있어요.</string>
+    <string name="lifetime_footnote">%s 1회만 결제돼요. 정기 결제가 없어요.</string>
+    <string name="terms_of_service">이용약관</string>
+    <string name="privacy_policy">개인정보처리방침</string>
+    <string name="close">닫기</string>
+    <string name="loading_plans">요금제 불러오는 중</string>
+    <string name="plans_unavailable">지금은 Google Play 결제를 사용할 수 없어요. 연결 상태를 확인하고 다시 시도하세요.</string>
+    <string name="retry">다시 시도</string>
+    <string name="already_pro_title">SubFlow Pro 사용 중</string>
+    <string name="already_pro_body">감사합니다. 이 계정에서 모든 기능이 열려 있어요.</string>
+    <string name="manage_subscription">구독 관리</string>
+    <string name="restore_none_found">이 Google 계정에서 이전 구매 내역을 찾지 못했어요.</string>
+    <string name="restore_success">Pro가 복원됐어요.</string>
+    <string name="purchase_success">SubFlow Pro에 오신 것을 환영해요.</string>
+    <string name="purchase_cancelled">구매가 취소됐어요.</string>
+    <string name="purchase_failed">구매를 완료하지 못했어요. 결제된 금액은 없어요.</string>
+    <string name="purchase_pending">결제 대기 중이에요. Google Play에서 확인되는 즉시 Pro가 열려요.</string>
+    <string name="quota_reached_title">무료 플랜이 가득 찼어요</string>
+    <string name="quota_reached_desc">구독 5개를 관리하고 있어요. 더 추가하려면 업그레이드하세요.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">건너뛰기</string>
+    <string name="onboarding_next">다음</string>
+    <string name="onboarding_start">시작하기</string>
+    <string name="onboarding_1_title">실제로 얼마를 내는지 확인하세요</string>
+    <string name="onboarding_1_body">구독을 한 번만 추가하면, SubFlow가 주간·월간·연간 요금을 정확한 월 합계로 바꿔 드려요.</string>
+    <string name="onboarding_2_title">더 이상 깜짝 결제는 없어요</string>
+    <string name="onboarding_2_body">결제 전에 알림이 와서, 아직 비용이 들지 않을 때 해지할 수 있어요.</string>
+    <string name="onboarding_3_title">데이터는 휴대폰에만 저장돼요</string>
+    <string name="onboarding_3_body">계정이 필요 없어요. 모든 데이터는 기기에 저장되고, 클라우드 백업은 원할 때만 사용해요.</string>
+    <string name="onboarding_manage_title">추가, 수정, 삭제</string>
+    <string name="onboarding_manage_add">오른쪽 아래 + 를 눌러 구독을 추가하세요</string>
+    <string name="onboarding_manage_edit">카드를 누르면 편집할 수 있어요</string>
+    <string name="onboarding_manage_delete">카드를 왼쪽으로 밀거나, 열어서 삭제를 누르세요</string>
+    <string name="onboarding_replay">안내 다시 보기</string>
+    <string name="onboarding_replay_sub">처음 실행 시 소개를 다시 봐요</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">분석</string>
+    <string name="avg_monthly">월 평균</string>
+    <string name="annual_forecast">연간 지출 예측</string>
+    <string name="category_breakdown">카테고리별</string>
+    <string name="top_expenses">지출이 큰 구독</string>
+    <string name="export_report">CSV 보고서 내보내기</string>
+    <string name="export_report_sub_pro">전체 스프레드시트를 공유하거나 저장해요</string>
+    <string name="export_report_sub_free">SubFlow Pro로 열기</string>
+    <string name="segment_monthly">월간</string>
+    <string name="segment_annual">연간</string>
+    <string name="metric_monthly_commitment">월 고정 지출</string>
+    <string name="metric_annual_run_rate">연간 예상</string>
+    <string name="metric_daily_avg">하루</string>
+    <string name="metric_top_share">최대 항목</string>
+    <string name="metric_tracked">관리 중</string>
+    <string name="metric_share_percent">%d%%</string>
+    <string name="metric_top_share_spoken">%1$s, 월 합계의 %2$d%%</string>
+    <string name="spend_map">지출 지도</string>
+    <string name="spend_map_caption">칸 하나가 구독 하나이고, 면적은 월 합계에서 차지하는 비율이에요</string>
+    <string name="spend_map_caption_annual">칸 하나가 구독 하나이고, 면적은 연 합계에서 차지하는 비율이에요</string>
+    <string name="spend_map_other">나머지</string>
+    <string name="spend_map_summary">지출 지도: 구독 %2$d개, %1$s, 가장 큰 항목은 %3$s</string>
+    <string name="billing_forecast">결제 예측</string>
+    <string name="billing_forecast_caption">각 달에 실제로 결제되는 금액이에요. 연간 요금제는 열두 달로 나뉘지 않고 하루에 한꺼번에 결제돼요.</string>
+    <string name="forecast_peak">%1$s이 가장 많이 나가는 달이에요 (%2$s)</string>
+    <string name="forecast_even">앞으로 6개월은 매달 약 %1$s로 비슷해요</string>
+    <string name="forecast_average_line">점선: 월 평균</string>
+    <string name="history_caption">지금 내고 있는 구독의 최근 6개월, 각 구독을 시작한 때부터</string>
+    <string name="analytics_empty">구독을 추가하면 지출 분석을 볼 수 있어요.</string>
+    <string name="pro_locked_analytics">차트와 상세 분석은 Pro 기능이에요.</string>
+    <string name="unlock_with_pro">Pro로 열기</string>
+    <string name="export_ready">CSV를 공유할 준비가 됐어요</string>
+    <string name="export_failed">CSV 파일을 만들지 못했어요.</string>
+
+    <!-- Detail -->
+    <string name="detail_days_left">일 남음</string>
+    <string name="detail_due_today">오늘 결제</string>
+    <string name="detail_overdue">갱신일이 지났어요</string>
+    <string name="detail_billing_details">결제</string>
+    <string name="detail_cycle">결제 주기</string>
+    <string name="detail_next_renewal">다음 갱신</string>
+    <string name="detail_first_payment">첫 결제</string>
+    <string name="detail_monthly_equivalent">월 환산</string>
+    <string name="detail_yearly_commitment">연간 지출</string>
+    <string name="detail_paid_so_far">첫 결제 이후 지불액</string>
+    <string name="detail_notes">메모</string>
+    <string name="detail_reminder">알림</string>
+    <string name="detail_reminder_off">끔</string>
+    <string name="detail_manage_official">서비스에서 관리하거나 해지하기</string>
+    <string name="detail_manage_official_sub">서비스의 계정 페이지를 열어요</string>
+    <string name="detail_remove">구독 삭제</string>
+    <string name="paused">일시정지됨</string>
+    <string name="detail_pause">이 구독 일시정지</string>
+    <string name="detail_resume">이 구독 다시 시작</string>
+    <string name="detail_paused_note">일시정지한 구독은 알림을 보내지 않고 합계에서도 빠져요. 삭제되는 것은 없어요.</string>
+    <string name="dashboard_paused_header">일시정지됨 (%d)</string>
+    <string name="paused_item">“%s” 일시정지됨</string>
+    <string name="resumed_item">“%s” 다시 시작됨</string>
+    <string name="resumed_as_paid">“%1$s” %2$s로 다시 시작됨</string>
+    <string name="pause_action">일시정지</string>
+    <string name="resume_action">다시 시작</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">이번 달 합계와 다가오는 갱신.</string>
+    <string name="widget_preview_when_1">2일 남음</string>
+    <string name="widget_preview_when_2">체험: 3일 남음</string>
+    <string name="widget_preview_when_3">9일 남음</string>
+    <string name="detail_billed_cycle">%s 결제</string>
+    <string name="delete_confirm_title">%s 삭제할까요?</string>
+    <string name="delete_confirm_body">관리 목록에서만 삭제돼요. 서비스의 구독이 해지되지는 않아요.</string>
+    <string name="edit">편집</string>
+    <string name="back">뒤로</string>
+    <string name="not_found">구독을 찾을 수 없어요</string>
+
+    <!-- Settings -->
+    <string name="settings_title">설정</string>
+    <string name="settings_page_preferences">환경설정</string>
+    <string name="settings_page_notifications">알림</string>
+    <string name="settings_page_data">데이터</string>
+    <string name="settings_page_about">정보</string>
+    <string name="settings_page_notifications_sub">갱신 알림 · 체험 알림</string>
+    <string name="settings_page_data_sub">백업 · 복원</string>
+    <string name="settings_page_about_sub">개인정보 · 약관 · 지원</string>
+    <string name="primary_currency">기본 통화</string>
+    <string name="appearance">화면 모드</string>
+    <string name="theme_system">시스템</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크 (OLED)</string>
+    <string name="language">언어</string>
+    <string name="language_system">시스템 기본값</string>
+    <string name="cloud_backup">클라우드 백업 및 동기화</string>
+    <string name="cloud_backup_sub">눌러서 지금 동기화</string>
+    <string name="sign_in_google">Google로 로그인</string>
+    <string name="sign_out">로그아웃</string>
+    <string name="signed_in_as">%s(으)로 로그인됨</string>
+    <string name="guest_vault">로컬 보관함, 계정 없음</string>
+    <string name="search_subscriptions">구독 검색</string>
+    <string name="sort_options">정렬</string>
+    <string name="sort_renewal_date">갱신일</string>
+    <string name="sort_price_high">가격: 높은 순</string>
+    <string name="sort_price_low">가격: 낮은 순</string>
+    <string name="sort_name_asc">이름순</string>
+    <string name="section_preferences">환경설정</string>
+    <string name="section_notifications">알림</string>
+    <string name="data_portability">데이터</string>
+    <string name="backup_json">백업 내보내기 (JSON)</string>
+    <string name="backup_json_sub">관리 중인 모든 항목의 사본을 저장해요</string>
+    <string name="restore_json">백업에서 복원</string>
+    <string name="restore_json_sub">이전에 내보낸 파일을 가져와요</string>
+    <string name="legal_and_support">정보</string>
+    <string name="contact_support">고객 지원</string>
+    <string name="contact_support_sub">문의, 버그, 기능 제안</string>
+    <string name="rate_app">SubFlow 평가하기</string>
+    <string name="rate_app_sub">평가가 정말 큰 도움이 돼요</string>
+    <string name="share_app">SubFlow 공유하기</string>
+    <string name="clear_all_data">모든 데이터 지우기</string>
+    <string name="clear_all_data_sub">이 기기의 구독을 모두 삭제해요</string>
+    <string name="haptics">햅틱 피드백</string>
+    <string name="haptics_sub">조작할 때 가벼운 진동</string>
+    <string name="reminder_lead_title">갱신 전에 알림 받기</string>
+    <string name="reminder_lead_sub_free">Pro는 3일 전·7일 전 추가</string>
+    <string name="test_notification">테스트 알림 보내기</string>
+    <string name="test_notification_sub">알림이 제대로 오는지 확인해요</string>
+    <string name="test_notification_sent">테스트 알림을 보냈어요.</string>
+    <string name="notifications_blocked">SubFlow 알림이 꺼져 있어요.</string>
+    <string name="open_settings">설정 열기</string>
+    <string name="undo">실행취소</string>
+    <string name="renewal_today">오늘 결제</string>
+    <plurals name="renewal_days_left">
+        <item quantity="other">%d일 남음</item>
+    </plurals>
+    <string name="renewal_days_short">%d일</string>
+    <string name="renewal_overdue">기한 지남</string>
+    <string name="cycle_short_weekly">/주</string>
+    <string name="cycle_short_monthly">/월</string>
+    <string name="cycle_short_quarterly">/분기</string>
+    <string name="cycle_short_yearly">/년</string>
+    <string name="app_version">버전 %s</string>
+    <string name="restore_success_count">구독 %d개를 복원했어요.</string>
+    <string name="restore_success_paused">구독 %1$d개를 복원했어요. 무료 플랜은 %3$d개만 활성 상태로 유지하므로 %2$d개는 일시정지됐어요.</string>
+    <string name="restore_failed">SubFlow 백업 파일이 아닌 것 같아요.</string>
+    <string name="reset_dialog_title">모든 데이터를 지울까요?</string>
+    <string name="reset_dialog_body">이 기기의 모든 구독이 영구적으로 삭제돼요. Pro 구매에는 영향이 없어요.</string>
+    <string name="reset_confirm">모두 지우기</string>
+    <string name="reset_done">모든 구독 데이터를 지웠어요.</string>
+    <string name="sync_complete">동기화 완료, %d개 항목</string>
+    <string name="sync_offline">오프라인이에요. 데이터는 이 기기에 안전하게 있어요.</string>
+    <string name="sign_in_unavailable">이 빌드에는 Google 로그인이 설정되어 있지 않아요.</string>
+    <string name="sign_in_cancelled">로그인이 취소됐어요.</string>
+    <string name="sign_in_failed">로그인하지 못했어요. 계정 없이도 SubFlow를 계속 쓸 수 있어요.</string>
+    <string name="share_app_text">SubFlow로 결제 중인 구독을 한곳에서 관리하고, 갱신 전에 알림을 받아요. %s</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_renewal">갱신 알림</string>
+    <string name="notif_channel_renewal_desc">구독이 갱신되기 전에 받는 알림</string>
+    <string name="notif_renewal_title_today">%s 오늘 갱신</string>
+    <string name="notif_renewal_title">%1$s %2$d일 후 갱신</string>
+    <string name="notif_renewal_body">%2$s에 %1$s이(가) 결제돼요. 더 이상 쓰지 않는다면 지금 해지하세요.</string>
+    <string name="notif_trial_title_today">%s 무료 체험 오늘 종료</string>
+    <string name="notif_trial_title">%1$s 무료 체험 %2$d일 후 종료</string>
+    <string name="notif_trial_body_converts">%2$s에 유료로 전환되고 %1$s이(가) 결제돼요. 결제를 피하려면 그 전에 해지하세요.</string>
+    <string name="notif_trial_body_free">무료 체험은 %s에 끝나요. 결제되는 금액은 없어요.</string>
+    <string name="notif_test_title">알림이 잘 작동해요</string>
+    <string name="notif_test_body">다음 갱신 전에 SubFlow가 알려 드릴게요.</string>
+    <plurals name="active_subscriptions_count">
+        <item quantity="other">활성 구독 %d개</item>
+    </plurals>
+    <plurals name="metric_services">
+        <item quantity="other">서비스 %d개</item>
+    </plurals>
+    <string name="cd_advertisement">광고</string>
+    <string name="cd_accent_colour">강조 색상 %s</string>
+    <string name="ad_privacy_options">광고 개인정보 설정</string>
+    <string name="restore_read_failed">파일을 읽지 못했어요.</string>
+    <string name="section_danger">주의</string>
+    <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">체험</string>
+    <string name="trial_toggle">무료 체험</string>
+    <string name="trial_toggle_sub">아직 결제하지 않는 구독이에요</string>
+    <string name="trial_end_date">체험 종료일</string>
+    <string name="trial_end_date_invalid">체험 종료일은 시작일 이후여야 해요</string>
+    <string name="trial_converts">종료 후 유료로 전환</string>
+    <string name="trial_converts_sub">그냥 끝나는 체험이면 꺼 두세요</string>
+    <string name="field_price_after_trial">체험 후 가격</string>
+    <string name="trial_free_amount">무료</string>
+    <string name="trial_ends_today">오늘 종료</string>
+    <string name="trial_ended">체험 종료</string>
+    <string name="trial_then_amount">이후 %s</string>
+    <string name="trial_no_charge">결제 없음</string>
+    <string name="detail_trial_end">체험 종료일</string>
+    <string name="detail_trial_price">체험 후 가격</string>
+    <string name="trial_ended_prompt">체험이 끝났어요. 어떻게 됐나요?</string>
+    <string name="trial_action_converted">유료로 전환됨</string>
+    <string name="trial_action_cancelled">해지했어요</string>
+    <string name="trial_action_extend">체험 연장</string>
+    <string name="trial_reminders_unavailable">알림이 꺼져 있어서 SubFlow가 체험 종료 전에 알려 드릴 수 없어요. 남은 기간은 여기에서 계속 볼 수 있어요.</string>
+    <string name="trial_alert_summary">종료 %s일 전에 알림</string>
+    <string name="trial_alert_off">종료 전 알림 없음</string>
+    <string name="trial_reminder_value">%s일 전</string>
+    <string name="settings_trial_leads_title">체험 알림</string>
+    <string name="settings_trial_leads_sub">무료 체험이 끝나기 전. 모든 플랜에 포함돼요.</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">체험: %d일 남음</item>
+    </plurals>
+
+    <!-- What's new sheet (BIN-60); rewritten for each release -->
+    <string name="whats_new_title">새로운 기능</string>
+    <string name="whats_new_version">버전 %1$s</string>
+    <string name="whats_new_done">확인</string>
+    <string name="whats_new_feedback">의견 보내기</string>
+    <string name="whats_new_item_1">설정 → 데이터에서 CSV 파일로 구독을 가져올 수 있어요.</string>
+    <string name="whats_new_item_2">구독을 길게 누르면 여러 개를 선택해 한 번에 바꿀 수 있어요.</string>
+    <string name="whats_new_item_3">사용하는 카테고리마다 필터가 생겼어요.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">CSV 가져오기</string>
+    <string name="import_csv_sub">스프레드시트나 다른 앱에서</string>
+    <string name="import_title">CSV에서 가져오기</string>
+    <string name="import_nothing_new">새로 가져올 항목이 없어요.</string>
+    <string name="import_paused_note">무료 플랜은 %2$d개만 활성 상태로 유지하므로 %1$d개는 일시정지 상태로 추가돼요.</string>
+    <string name="import_line">%1$d번째 줄: %2$s</string>
+    <string name="import_problem_missing_name">이름 없음</string>
+    <string name="import_problem_bad_amount">“%s”은(는) 가격이 아니에요</string>
+    <string name="import_problem_bad_currency">“%s”은(는) 지원하는 통화가 아니에요</string>
+    <string name="import_problem_bad_cycle">“%s”은(는) 결제 주기가 아니에요</string>
+    <string name="import_problem_bad_date">“%s”은(는) 날짜가 아니에요</string>
+    <string name="import_missing_columns">첫 줄에는 열 이름이 있어야 하는데, 이 파일에는 다음이 없어요: %s.</string>
+    <string name="import_template_hint">예: %s</string>
+    <string name="import_empty">이 파일에서 구독을 찾지 못했어요.</string>
+    <string name="import_done_paused">구독 %1$d개를 가져왔어요. 무료 플랜은 %3$d개만 활성 상태로 유지하므로 %2$d개는 일시정지됐어요.</string>
+    <plurals name="import_new">
+        <item quantity="other">새 구독 %d개</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="other">%d개는 이미 SubFlow에 있어서 건너뜀</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="other">%d개 줄을 읽지 못함</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="other">구독 %d개 가져오기</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="other">구독 %d개를 가져왔어요.</item>
+    </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">선택</string>
+    <string name="select_all">모두 선택</string>
+    <string name="exit_selection">선택 취소</string>
+    <string name="bulk_resumed_partial">%1$d개를 다시 시작했어요. 무료 플랜은 %3$d개만 활성 상태로 유지하므로 %2$d개는 일시정지 상태로 남아요.</string>
+    <string name="bulk_resume_full">무료 플랜은 %d개만 활성 상태로 유지하므로 이 구독들은 일시정지 상태로 남아요.</string>
+    <string name="bulk_resumed_converted">%1$d개를 다시 시작했어요. 해지했던 체험 %2$d개는 이제 정가로 결제돼요.</string>
+    <plurals name="selection_count">
+        <item quantity="other">%d개 선택됨</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="other">구독 %d개 일시정지됨</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="other">구독 %d개 다시 시작됨</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="other">구독 %d개 삭제됨</item>
+    </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">카테고리 변경</string>
+    <string name="change_reminder">알림 변경</string>
+    <string name="more_actions">더보기</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="other">구독 %1$d개를 %2$s(으)로 옮겼어요</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="other">구독 %d개의 알림을 바꿨어요</item>
+    </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">월 예산</string>
+    <string name="monthly_budget_sub">구독이 예산에서 얼마나 차지하는지 확인해요</string>
+    <string name="monthly_budget_off">설정 안 함</string>
+    <string name="monthly_budget_hint">%s 금액</string>
+    <string name="budget_remove">삭제</string>
+    <string name="budget_left">%2$s 중 %1$s 남음</string>
+    <string name="budget_over">%2$s 예산에서 %1$s 초과</string>
+    <string name="feat_budget">월 예산</string>
+    <string name="feat_budget_sub">합계 옆에 예산 게이지를 보여 주고, 새 구독으로 예산을 넘기 전에 알려 드려요</string>
+
+    <!-- Over-budget notices (BIN-68) -->
+    <string name="budget_after_add_over">추가하면 %2$s 예산을 %1$s 초과해요</string>
+    <string name="budget_after_add_left">추가해도 %2$s 예산 중 %1$s 남아요</string>
+    <string name="budget_now_over">이제 %2$s 예산을 %1$s 초과했어요.</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">%d개가 아니라 모든 구독을 관리하세요</string>
+    <string name="paywall_headline_alerts">모든 결제를 일주일 전에 알 수 있어요</string>
+    <string name="paywall_headline_budget">월 예산 안에서 지출하세요</string>
+    <string name="paywall_headline_analytics">돈이 어디로 가는지 확인하세요</string>
+    <string name="feat_unlimited_used">무료 플랜에서 %2$d개 중 %1$d개 사용 중</string>
+    <string name="paywall_free_for_all">모든 플랜에서 무료: 여러 통화 합계, 무료 체험 관리, CSV 가져오기, 백업.</string>
+    <string name="trial_footnote_until">%1$s까지 무료, 이후 %2$s. 그 전에 Google Play에서 해지하면 결제되지 않아요.</string>
+    <string name="reminder_pro_preview">Pro를 사용하면 결제 %2$d일 전인 %1$s에 알림을 받아요.</string>
+    <string name="reminder_pro_preview_undated">Pro를 사용하면 매 결제 %1$d일 전에 알림을 받아요.</string>
+</resources>
