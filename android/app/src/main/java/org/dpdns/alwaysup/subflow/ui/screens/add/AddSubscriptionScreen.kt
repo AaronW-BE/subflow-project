@@ -60,6 +60,9 @@ import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
+import org.dpdns.alwaysup.subflow.domain.util.Budget
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
+import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
@@ -83,7 +86,11 @@ fun AddSubscriptionScreen(
     existingSubscription: Subscription? = null,
     onSaveSubscription: (Subscription) -> Unit,
     onCancel: () -> Unit,
-    onUpgradeClick: () -> Unit = {}
+    onUpgradeClick: () -> Unit = {},
+    /** The Pro budget, if one is set (BIN-68). */
+    monthlyBudget: MonthlyBudget? = null,
+    /** What every other running subscription costs a month, in [primaryCurrency]. */
+    otherMonthlyTotal: Double = 0.0
 ) {
     val haptics = rememberHaptics()
     val context = LocalContext.current
@@ -170,6 +177,20 @@ fun AddSubscriptionScreen(
         if (isTrial) trialEndDate else DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
     }
     val previewAmount = amountText.parseAmount()
+    // Where this subscription would leave the budget - said before saving,
+    // while it is still a decision. Not for a trial, which costs nothing
+    // yet, nor for a paused one being edited, which costs nothing either.
+    val budgetAfter = remember(
+        monthlyBudget, otherMonthlyTotal, previewAmount, cycle, currency, isTrial, isPro, primaryCurrency
+    ) {
+        val running = existingSubscription?.isActive ?: true
+        if (!isPro || monthlyBudget == null || !running || isTrial || previewAmount <= 0.0) {
+            null
+        } else {
+            val thisOne = CurrencyConverter.convert(cycle.toMonthly(previewAmount), currency, primaryCurrency)
+            Budget.progress(otherMonthlyTotal + thisOne, monthlyBudget, primaryCurrency)
+        }
+    }
     // The same renewal wording the saved row will use, so the preview is a
     // preview. The exact date is not repeated here: it already has a line of
     // its own under the First Payment Date field, and spelling it out in full
@@ -491,6 +512,32 @@ fun AddSubscriptionScreen(
                                     }
                             )
                         }
+                    }
+                    budgetAfter?.let { after ->
+                        val limit = CurrencyFormatter.format(after.limit, primaryCurrency, locale)
+                        Text(
+                            text = if (after.over) {
+                                stringResource(
+                                    R.string.budget_after_add_over,
+                                    CurrencyFormatter.format(after.overBy, primaryCurrency, locale),
+                                    limit
+                                )
+                            } else {
+                                stringResource(
+                                    R.string.budget_after_add_left,
+                                    CurrencyFormatter.format(after.remaining, primaryCurrency, locale),
+                                    limit
+                                )
+                            },
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                            color = if (after.over) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            fontWeight = if (after.over) FontWeight.SemiBold else FontWeight.Normal,
+                            modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+                        )
                     }
                 }
             }

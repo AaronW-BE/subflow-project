@@ -457,4 +457,9 @@
     <string name="budget_over">予算 %2$s を %1$s 超えています</string>
     <string name="feat_budget">月の予算</string>
     <string name="feat_budget_sub">上限まであといくらかを確認</string>
+
+    <!-- Over-budget notices (BIN-68) -->
+    <string name="budget_after_add_over">これを追加すると予算 %2$s を %1$s 超えます</string>
+    <string name="budget_after_add_left">追加後、予算 %2$s の残りは %1$s です</string>
+    <string name="budget_now_over">予算 %2$s を %1$s 超えました。</string>
 </resources>

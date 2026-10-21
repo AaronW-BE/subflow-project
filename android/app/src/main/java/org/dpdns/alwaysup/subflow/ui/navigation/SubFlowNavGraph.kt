@@ -63,6 +63,8 @@ import org.dpdns.alwaysup.subflow.data.repository.QuotaReachedException
 import org.dpdns.alwaysup.subflow.data.repository.SignInCancelledException
 import org.dpdns.alwaysup.subflow.data.repository.SignInNotConfiguredException
 import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
+import org.dpdns.alwaysup.subflow.domain.util.Budget
+import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
@@ -265,6 +267,27 @@ fun SubFlowNavHost(
             // No Custom Tabs provider on the device at all.
             runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
         }
+    }
+
+    /**
+     * "Saved", and - when the save took a Pro user's monthly total up and
+     * over their budget - by how much, while they are still thinking about
+     * the subscription they just added.
+     */
+    fun savedMessage(saved: Subscription, before: List<Subscription>): String {
+        val base = context.getString(R.string.saved_subscription, saved.name)
+        val over = Budget.newlyOver(
+            before = Budget.monthlyTotal(before, primaryCurrency),
+            after = Budget.monthlyTotal(before.filter { it.id != saved.id } + saved, primaryCurrency),
+            budget = monthlyBudget,
+            homeCurrency = primaryCurrency,
+            isPro = isPro
+        ) ?: return base
+        return base + " " + context.getString(
+            R.string.budget_now_over,
+            CurrencyFormatter.format(over.overBy, primaryCurrency, locale),
+            CurrencyFormatter.format(over.limit, primaryCurrency, locale)
+        )
     }
 
     fun showMessage(message: String) {
@@ -703,12 +726,15 @@ fun SubFlowNavHost(
                     presets = presets,
                     primaryCurrency = primaryCurrency,
                     isPro = isPro,
+                    monthlyBudget = monthlyBudget,
+                    otherMonthlyTotal = Budget.monthlyTotal(subscriptions, primaryCurrency),
                     onSaveSubscription = { newSub ->
                         scope.launch {
+                            val before = subscriptions
                             val res = subscriptionRepository.saveSubscription(newSub, isPro)
                             if (res.isSuccess) {
                                 navController.popBackStack()
-                                showMessage(context.getString(R.string.saved_subscription, newSub.name))
+                                showMessage(savedMessage(newSub, before))
                             } else if (res.exceptionOrNull() is QuotaReachedException) {
                                 navController.popBackStack()
                                 navController.navigate(Screen.Paywall.route)
@@ -791,11 +817,17 @@ fun SubFlowNavHost(
                         primaryCurrency = primaryCurrency,
                         isPro = isPro,
                         existingSubscription = sub,
+                        monthlyBudget = monthlyBudget,
+                        otherMonthlyTotal = Budget.monthlyTotal(
+                            subscriptions.filter { it.id != sub.id },
+                            primaryCurrency
+                        ),
                         onSaveSubscription = { updatedSub ->
                             scope.launch {
+                                val before = subscriptions
                                 subscriptionRepository.saveSubscription(updatedSub, isPro)
                                 navController.popBackStack()
-                                showMessage(context.getString(R.string.saved_subscription, updatedSub.name))
+                                showMessage(savedMessage(updatedSub, before))
                             }
                         },
                         onCancel = { navController.popBackStack() },

@@ -300,6 +300,23 @@ fun DashboardScreen(
         }
     }
 
+    /**
+     * A sentence to add when a resume takes a Pro user's monthly total up and
+     * over their budget. [added] is what the resumed ones cost a month.
+     */
+    fun budgetNote(added: Double): String? {
+        val over = Budget.newlyOver(totalMonthly, totalMonthly + added, monthlyBudget, primaryCurrency, isPro)
+            ?: return null
+        return context.getString(
+            R.string.budget_now_over,
+            CurrencyFormatter.format(over.overBy, primaryCurrency, locale),
+            CurrencyFormatter.format(over.limit, primaryCurrency, locale)
+        )
+    }
+
+    fun monthlyInHome(sub: Subscription) =
+        CurrencyConverter.convert(sub.monthlyAmount, sub.currency, primaryCurrency)
+
     fun togglePaused(sub: Subscription) {
         val name = sub.name
         val resuming = !sub.isActive
@@ -324,6 +341,9 @@ fun DashboardScreen(
                 )
                 resuming -> context.getString(R.string.resumed_item, name)
                 else -> context.getString(R.string.paused_item, name)
+            }.let { base ->
+                val note = if (resuming) budgetNote(monthlyInHome(change.updated)) else null
+                if (note == null) base else "$base $note"
             }
             // Writes the whole record back rather than flipping the flag: a
             // conversion also moved the amount, the cycle, the first-bill date
@@ -394,6 +414,9 @@ fun DashboardScreen(
                 // charge, and that must not happen without a word.
                 converted > 0 -> context.getString(R.string.bulk_resumed_converted, done, converted)
                 else -> context.resources.getQuantityString(R.plurals.bulk_resumed, done, done)
+            }.let { base ->
+                val note = if (resume) budgetNote(result.changes.sumOf { monthlyInHome(it.updated) }) else null
+                if (note == null) base else "$base $note"
             }
             confirmWithUndo(message) {
                 scope.launch { result.changes.forEach { onRevertSubscription(it.previous) } }

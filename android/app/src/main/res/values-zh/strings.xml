@@ -457,4 +457,9 @@
     <string name="budget_over">已超出 %2$s 的预算 %1$s</string>
     <string name="feat_budget">月度预算</string>
     <string name="feat_budget_sub">随时知道还剩多少额度</string>
+
+    <!-- Over-budget notices (BIN-68) -->
+    <string name="budget_after_add_over">加上它，将超出 %2$s 的预算 %1$s</string>
+    <string name="budget_after_add_left">加上它后，%2$s 的预算还剩 %1$s</string>
+    <string name="budget_now_over">现已超出 %2$s 的预算 %1$s。</string>
 </resources>

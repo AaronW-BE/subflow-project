@@ -57,4 +57,40 @@ class BudgetTest {
     fun `a zero limit reads as full rather than dividing by zero`() {
         assertEquals(1f, BudgetProgress(spent = 0.0, limit = 0.0).fraction, 0f)
     }
+
+    // ------------------------------------------------- totals and notices
+
+    private fun sub(id: String, amount: Double, active: Boolean = true, deleted: Boolean = false) =
+        org.dpdns.alwaysup.subflow.domain.model.Subscription(
+            id = id, name = id, amount = amount, currency = "USD",
+            firstBillDate = "2026-01-01", nextBillDate = "2026-11-01",
+            isActive = active, isDeleted = deleted
+        )
+
+    @Test
+    fun `the monthly total counts only running subscriptions`() {
+        val subs = listOf(sub("a", 10.0), sub("b", 5.0, active = false), sub("c", 7.0, deleted = true))
+        assertEquals(10.0, Budget.monthlyTotal(subs, "USD"), 1e-9)
+    }
+
+    @Test
+    fun `a change that ends over the budget and raised the total is worth a word`() {
+        val over = Budget.newlyOver(90.0, 110.0, MonthlyBudget(100.0, "USD"), "USD", isPro = true)
+        assertEquals(10.0, over!!.overBy, 1e-9)
+    }
+
+    @Test
+    fun `already over and adding more still says by how much`() {
+        val over = Budget.newlyOver(120.0, 130.0, MonthlyBudget(100.0, "USD"), "USD", isPro = true)
+        assertEquals(30.0, over!!.overBy, 1e-9)
+    }
+
+    @Test
+    fun `staying under, lowering the total, no budget, or no Pro says nothing`() {
+        val b = MonthlyBudget(100.0, "USD")
+        org.junit.Assert.assertNull(Budget.newlyOver(50.0, 90.0, b, "USD", isPro = true))
+        org.junit.Assert.assertNull(Budget.newlyOver(130.0, 120.0, b, "USD", isPro = true))
+        org.junit.Assert.assertNull(Budget.newlyOver(90.0, 110.0, null, "USD", isPro = true))
+        org.junit.Assert.assertNull(Budget.newlyOver(90.0, 110.0, b, "USD", isPro = false))
+    }
 }
