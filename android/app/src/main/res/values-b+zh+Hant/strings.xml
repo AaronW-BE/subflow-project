@@ -453,4 +453,15 @@
     <plurals name="bulk_reminder_changed">
         <item quantity="other">已更新 %d 筆訂閱的提醒</item>
     </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">每月預算</string>
+    <string name="monthly_budget_sub">看看訂閱用掉了多少</string>
+    <string name="monthly_budget_off">未設定</string>
+    <string name="monthly_budget_hint">金額（%s）</string>
+    <string name="budget_remove">移除</string>
+    <string name="budget_left">還剩 %1$s，預算 %2$s</string>
+    <string name="budget_over">已超出 %2$s 的預算 %1$s</string>
+    <string name="feat_budget">每月預算</string>
+    <string name="feat_budget_sub">隨時掌握還剩多少額度</string>
 </resources>

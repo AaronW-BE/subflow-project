@@ -13,6 +13,9 @@ import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.runtime.saveable.Saver
 import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
+import org.dpdns.alwaysup.subflow.domain.util.Budget
+import org.dpdns.alwaysup.subflow.domain.util.BudgetProgress
+import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import androidx.compose.material.icons.filled.MoreVert
 import org.dpdns.alwaysup.subflow.data.preferences.ReminderLead
 import androidx.compose.animation.AnimatedContent
@@ -177,6 +180,8 @@ fun DashboardScreen(
     },
     /** Writes several edited records as given; also what undoes the edit. */
     onSaveSubscriptions: suspend (List<Subscription>) -> Unit = {},
+    /** The monthly budget, shown against the total for Pro users (BIN-68). */
+    monthlyBudget: MonthlyBudget? = null,
     onPaywallClick: () -> Unit,
     showSwipeHint: Boolean = false,
     onSwipeHintSeen: () -> Unit = {}
@@ -222,6 +227,13 @@ fun DashboardScreen(
         activeSubs.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
     }
     val totalYearly = totalMonthly * 12.0
+    // Pro only, like the setting: a budget set on Pro and kept after it
+    // lapsed is not shown rather than shown as a feature they no longer have.
+    val budgetProgress = remember(monthlyBudget, totalMonthly, primaryCurrency, isAnnualView, isPro) {
+        if (!isPro) null else monthlyBudget?.let {
+            Budget.progress(totalMonthly, it, primaryCurrency, annual = isAnnualView)
+        }
+    }
 
     val filteredSubs = remember(activeSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
         activeSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
@@ -505,7 +517,8 @@ fun DashboardScreen(
                         activeCount = activeSubs.size,
                         nextRenewalSub = nextRenewalSub,
                         nextRenewalDays = nextRenewalDays,
-                        isLoading = isLoading
+                        isLoading = isLoading,
+                        budget = budgetProgress
                     )
                 }
 
@@ -978,7 +991,8 @@ private fun HeroSpendCard(
     activeCount: Int,
     nextRenewalSub: Subscription?,
     nextRenewalDays: Long?,
-    isLoading: Boolean
+    isLoading: Boolean,
+    budget: BudgetProgress? = null
 ) {
     AppleCard(
         modifier = Modifier.fillMaxWidth(),
@@ -1047,6 +1061,11 @@ private fun HeroSpendCard(
                         style = HeroAmountStyle
                     )
                 }
+            }
+
+            if (budget != null && !isLoading) {
+                Spacer(modifier = Modifier.height(12.dp))
+                BudgetMeter(progress = budget, currencyCode = primaryCurrency)
             }
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -1871,3 +1890,55 @@ private fun SelectionBar(
 
 /** Which multi-select edit is open, if any. */
 private enum class BulkSheet { CATEGORY, REMINDER }
+
+/**
+ * The total against the monthly budget: a meter, and in words how much is
+ * left - or by how much it is over, in the error colour, since that is the
+ * one thing the budget exists to say.
+ */
+@Composable
+private fun BudgetMeter(progress: BudgetProgress, currencyCode: String) {
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
+    val color = if (progress.over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+    val fraction by animateFloatAsState(
+        targetValue = progress.fraction,
+        animationSpec = spring(dampingRatio = 0.8f, stiffness = 260f),
+        label = "budgetProgress"
+    )
+    val limit = CurrencyFormatter.format(progress.limit, currencyCode, locale)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        LinearProgressIndicator(
+            progress = { fraction },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp)),
+            color = color,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+            gapSize = 0.dp,
+            drawStopIndicator = {}
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = if (progress.over) {
+                stringResource(
+                    R.string.budget_over,
+                    CurrencyFormatter.format(progress.overBy, currencyCode, locale),
+                    limit
+                )
+            } else {
+                stringResource(
+                    R.string.budget_left,
+                    CurrencyFormatter.format(progress.remaining, currencyCode, locale),
+                    limit
+                )
+            },
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+            color = if (progress.over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = if (progress.over) FontWeight.SemiBold else FontWeight.Normal
+        )
+    }
+}

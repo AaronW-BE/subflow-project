@@ -63,6 +63,10 @@ import org.dpdns.alwaysup.subflow.ui.components.CircleIconButton
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
+import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import org.dpdns.alwaysup.subflow.domain.util.localizedCurrencies
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerRow
 import org.dpdns.alwaysup.subflow.ui.components.SubFlowPickerSheet
@@ -307,9 +311,11 @@ fun SettingsScreen(
                 SettingsPage.PREFERENCES -> item(key = "preferences") {
                     PreferencesSection(
                         preferencesManager = preferencesManager,
+                        isPro = isPro,
                         onCurrencyClick = { showCurrencySheet = true },
                         onThemeClick = { showThemeSheet = true },
-                        onLanguageClick = { showLanguageSheet = true }
+                        onLanguageClick = { showLanguageSheet = true },
+                        onPaywallClick = onPaywallClick
                     )
                 }
 
@@ -614,14 +620,20 @@ private fun SettingsPageLinks(
 @Composable
 private fun PreferencesSection(
     preferencesManager: PreferencesManager,
+    isPro: Boolean,
     onCurrencyClick: () -> Unit,
     onThemeClick: () -> Unit,
-    onLanguageClick: () -> Unit
+    onLanguageClick: () -> Unit,
+    onPaywallClick: () -> Unit
 ) {
     val currentCurrency by preferencesManager.currency.collectAsState()
     val currentThemeMode by preferencesManager.themeMode.collectAsState()
     val currentLang by preferencesManager.language.collectAsState()
     val hapticsEnabled by preferencesManager.hapticsEnabled.collectAsState()
+    val budget by preferencesManager.monthlyBudget.collectAsState()
+    var editingBudget by remember { mutableStateOf(false) }
+    val configuration = LocalConfiguration.current
+    val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         AppleGroupedCard(modifier = Modifier.fillMaxWidth()) {
@@ -631,6 +643,23 @@ private fun PreferencesSection(
                 icon = Icons.Default.AttachMoney,
                 iconTint = MaterialTheme.colorScheme.secondary,
                 onClick = onCurrencyClick
+            )
+
+            // Next to the home currency it is measured in. Pro: a free user
+            // sees the row, and the badge, and a tap opens the plan.
+            AppleListRow(
+                title = stringResource(R.string.monthly_budget),
+                subtitle = stringResource(R.string.monthly_budget_sub),
+                valueText = if (isPro) {
+                    budget?.let { CurrencyFormatter.format(it.amount, it.currency, locale) }
+                        ?: stringResource(R.string.monthly_budget_off)
+                } else {
+                    null
+                },
+                icon = Icons.Default.Savings,
+                iconTint = SubFlowAccents.mint,
+                trailingContent = if (isPro) null else ({ ProBadge() }),
+                onClick = { if (isPro) editingBudget = true else onPaywallClick() }
             )
 
             AppleListRow(
@@ -666,6 +695,73 @@ private fun PreferencesSection(
             )
         }
     }
+
+    if (editingBudget) {
+        BudgetDialog(
+            current = budget,
+            homeCurrency = currentCurrency,
+            onSave = {
+                preferencesManager.setMonthlyBudget(it)
+                editingBudget = false
+            },
+            onDismiss = { editingBudget = false }
+        )
+    }
+}
+
+/**
+ * Sets, changes or removes the monthly budget.
+ *
+ * A budget is entered in the home currency of the moment and stored with it,
+ * so a later change of home currency converts it instead of reinterpreting
+ * the number. An existing budget in another currency is shown converted.
+ */
+@Composable
+private fun BudgetDialog(
+    current: MonthlyBudget?,
+    homeCurrency: String,
+    onSave: (MonthlyBudget?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val initial = current?.let { CurrencyConverter.convert(it.amount, it.currency, homeCurrency) }
+    var text by remember {
+        mutableStateOf(initial?.let { String.format(Locale.US, "%.2f", it).removeSuffix(".00") }.orEmpty())
+    }
+    val amount = text.trim().replace(',', '.').toDoubleOrNull()
+    val valid = amount != null && amount > 0.0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(20.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text(stringResource(R.string.monthly_budget), fontWeight = FontWeight.Bold) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                singleLine = true,
+                label = { Text(stringResource(R.string.monthly_budget_hint, homeCurrency)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                isError = text.isNotBlank() && !valid
+            )
+        },
+        confirmButton = {
+            TextButton(
+                enabled = valid,
+                onClick = { onSave(MonthlyBudget(amount!!, homeCurrency)) }
+            ) { Text(stringResource(R.string.save)) }
+        },
+        dismissButton = {
+            Row {
+                if (current != null) {
+                    TextButton(onClick = { onSave(null) }) {
+                        Text(stringResource(R.string.budget_remove), color = MaterialTheme.colorScheme.error)
+                    }
+                }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            }
+        }
+    )
 }
 
 @Composable

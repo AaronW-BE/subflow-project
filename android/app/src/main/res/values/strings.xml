@@ -471,4 +471,15 @@
         <item quantity="one">Updated the reminder for %d subscription</item>
         <item quantity="other">Updated the reminder for %d subscriptions</item>
     </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">Monthly budget</string>
+    <string name="monthly_budget_sub">See how much of it your subscriptions take</string>
+    <string name="monthly_budget_off">Not set</string>
+    <string name="monthly_budget_hint">Amount in %s</string>
+    <string name="budget_remove">Remove</string>
+    <string name="budget_left">%1$s left of %2$s</string>
+    <string name="budget_over">%1$s over your %2$s budget</string>
+    <string name="feat_budget">Monthly budget</string>
+    <string name="feat_budget_sub">See how much of your limit is left</string>
 </resources>

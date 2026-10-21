@@ -461,4 +461,15 @@
         <item quantity="one">Rappel mis à jour pour %d abonnement</item>
         <item quantity="other">Rappel mis à jour pour %d abonnements</item>
     </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">Budget mensuel</string>
+    <string name="monthly_budget_sub">Voyez quelle part vos abonnements en prennent</string>
+    <string name="monthly_budget_off">Non défini</string>
+    <string name="monthly_budget_hint">Montant en %s</string>
+    <string name="budget_remove">Supprimer</string>
+    <string name="budget_left">%1$s restants sur %2$s</string>
+    <string name="budget_over">%1$s au-delà de votre budget de %2$s</string>
+    <string name="feat_budget">Budget mensuel</string>
+    <string name="feat_budget_sub">Voyez ce qu’il reste de votre limite</string>
 </resources>
