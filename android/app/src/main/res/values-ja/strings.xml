@@ -377,9 +377,9 @@
     <string name="whats_new_version">バージョン %1$s</string>
     <string name="whats_new_done">わかりました</string>
     <string name="whats_new_feedback">フィードバックを送る</string>
-    <string name="whats_new_item_1">設定 → データ から CSV ファイルのサブスクをインポートできます。</string>
-    <string name="whats_new_item_2">サブスクを長押しすると複数選択して、まとめて変更できます。</string>
-    <string name="whats_new_item_3">使っているカテゴリごとにフィルタが表示されるようになりました。</string>
+    <string name="whats_new_item_1">ポルトガル語・韓国語・イタリア語に対応しました。</string>
+    <string name="whats_new_item_2">Pro：設定 → 環境設定 で月の予算を設定し、残りを確認できます。</string>
+    <string name="whats_new_item_3">Pro の紹介ページを改善し、無料体験の終了日を表示します。</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">CSV をインポート</string>

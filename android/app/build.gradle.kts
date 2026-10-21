@@ -73,8 +73,10 @@ android {
         // 1.3.2 likewise: a tighter Settings header and a new support address.
         // 1.4.0 is a minor bump again: swipe-to-pause is a new gesture to find.
         // 1.5.0 likewise: CSV import and multi-select are both things to find.
-        versionCode = 9
-        versionName = "1.5.0"
+        // 1.6.0 (10): three new languages (Portuguese, Korean, Italian), the
+        // Pro monthly budget, and a paywall that sells only what Pro adds.
+        versionCode = 10
+        versionName = "1.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
