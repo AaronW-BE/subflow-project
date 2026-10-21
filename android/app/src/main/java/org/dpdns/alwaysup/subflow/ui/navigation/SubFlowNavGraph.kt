@@ -134,6 +134,7 @@ fun SubFlowNavHost(
     val proTier by authRepository.proTier.collectAsState()
     val currentUser by authRepository.currentUser.collectAsState()
     val primaryCurrency by preferencesManager.currency.collectAsState()
+    val monthlyBudget by preferencesManager.monthlyBudget.collectAsState()
     val appLanguage by preferencesManager.language.collectAsState()
     val onboardingComplete by preferencesManager.onboardingComplete.collectAsState()
     val swipeHintSeen by preferencesManager.swipeHintSeen.collectAsState()
@@ -649,6 +650,7 @@ fun SubFlowNavHost(
                     onSaveSubscriptions = { list ->
                         list.forEach { subscriptionRepository.revertTo(it, isPro) }
                     },
+                    monthlyBudget = monthlyBudget,
                     onPaywallClick = { navController.navigate(Screen.Paywall.route) },
                     showSwipeHint = !swipeHintSeen,
                     onSwipeHintSeen = { preferencesManager.markSwipeHintSeen() }

@@ -1,5 +1,6 @@
 package org.dpdns.alwaysup.subflow.data.preferences
 
+import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import android.content.Context
 import android.content.res.Resources
 import androidx.core.app.LocaleManagerCompat
@@ -122,6 +123,10 @@ class PreferencesManager(context: Context) {
     private val _currency = MutableStateFlow(resolveCurrency(context))
     val currency: StateFlow<String> = _currency.asStateFlow()
 
+    // A Pro feature (BIN-68). Null is "no budget", which is the default.
+    private val _monthlyBudget = MutableStateFlow(readBudget())
+    val monthlyBudget: StateFlow<MonthlyBudget?> = _monthlyBudget.asStateFlow()
+
     private val _themeMode = MutableStateFlow(ThemeMode.fromKey(prefs.getString("theme_mode", "system") ?: "system"))
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
@@ -154,6 +159,26 @@ class PreferencesManager(context: Context) {
     fun setCurrency(code: String) {
         _currency.value = code
         prefs.edit().putString(KEY_CURRENCY, code).apply()
+    }
+
+    /** Null removes the budget. The amount is stored as text so it reads back exactly. */
+    fun setMonthlyBudget(budget: MonthlyBudget?) {
+        _monthlyBudget.value = budget
+        prefs.edit().apply {
+            if (budget == null) {
+                remove(KEY_BUDGET_AMOUNT)
+                remove(KEY_BUDGET_CURRENCY)
+            } else {
+                putString(KEY_BUDGET_AMOUNT, budget.amount.toString())
+                putString(KEY_BUDGET_CURRENCY, budget.currency)
+            }
+        }.apply()
+    }
+
+    private fun readBudget(): MonthlyBudget? {
+        val amount = prefs.getString(KEY_BUDGET_AMOUNT, null)?.toDoubleOrNull() ?: return null
+        val currency = prefs.getString(KEY_BUDGET_CURRENCY, null) ?: return null
+        return MonthlyBudget(amount, currency).takeIf { amount > 0.0 }
     }
 
     fun setThemeMode(mode: ThemeMode) {
@@ -309,6 +334,8 @@ class PreferencesManager(context: Context) {
         private const val KEY_TRIAL_LEADS = "trial_reminder_lead_days"
         private const val KEY_SWIPE_HINT = "swipe_hint_seen"
         private const val KEY_CURRENCY = "primary_currency"
+        private const val KEY_BUDGET_AMOUNT = "monthly_budget_amount"
+        private const val KEY_BUDGET_CURRENCY = "monthly_budget_currency"
         private const val KEY_LAUNCH_COUNT = "launch_count"
         private const val KEY_LAST_SEEN_VERSION = "last_seen_version_code"
 

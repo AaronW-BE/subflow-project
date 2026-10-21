@@ -461,4 +461,15 @@
         <item quantity="one">Erinnerung für %d Abo aktualisiert</item>
         <item quantity="other">Erinnerung für %d Abos aktualisiert</item>
     </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">Monatsbudget</string>
+    <string name="monthly_budget_sub">Sieh, wie viel davon deine Abos brauchen</string>
+    <string name="monthly_budget_off">Nicht festgelegt</string>
+    <string name="monthly_budget_hint">Betrag in %s</string>
+    <string name="budget_remove">Entfernen</string>
+    <string name="budget_left">Noch %1$s von %2$s</string>
+    <string name="budget_over">%1$s über deinem Budget von %2$s</string>
+    <string name="feat_budget">Monatsbudget</string>
+    <string name="feat_budget_sub">Sieh, wie viel von deinem Limit übrig ist</string>
 </resources>

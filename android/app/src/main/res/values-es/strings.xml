@@ -461,4 +461,15 @@
         <item quantity="one">Recordatorio actualizado para %d suscripción</item>
         <item quantity="other">Recordatorio actualizado para %d suscripciones</item>
     </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">Presupuesto mensual</string>
+    <string name="monthly_budget_sub">Mira cuánto ocupan tus suscripciones</string>
+    <string name="monthly_budget_off">Sin definir</string>
+    <string name="monthly_budget_hint">Importe en %s</string>
+    <string name="budget_remove">Quitar</string>
+    <string name="budget_left">Quedan %1$s de %2$s</string>
+    <string name="budget_over">%1$s por encima de tu presupuesto de %2$s</string>
+    <string name="feat_budget">Presupuesto mensual</string>
+    <string name="feat_budget_sub">Mira cuánto te queda de tu límite</string>
 </resources>

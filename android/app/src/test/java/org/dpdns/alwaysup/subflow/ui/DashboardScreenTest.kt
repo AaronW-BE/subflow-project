@@ -19,6 +19,8 @@ import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.repository.ActiveChange
 import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.DashboardScreen
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowTheme
 import org.junit.Assert.assertEquals
@@ -71,11 +73,15 @@ class DashboardScreenTest {
         nextBillDate = "2099-01-10"
     )
 
-    private fun show(subscriptions: List<Subscription> = listOf(netflix, spotify, icloud)) =
+    private fun show(
+        subscriptions: List<Subscription> = listOf(netflix, spotify, icloud),
+        budget: MonthlyBudget? = null
+    ) =
         compose.setContent {
             SubFlowTheme {
                 DashboardScreen(
                     subscriptions = subscriptions,
+                    monthlyBudget = budget,
                     // Pro, so no ad banner: the tests are about the list.
                     isPro = true,
                     isLoading = false,
@@ -215,5 +221,22 @@ class DashboardScreenTest {
             )
         ).assertDoesNotExist()
         assertTrue(deleted.isEmpty() && bulkActive.isEmpty())
+    }
+
+    // --------------------------------------------------------------- budget
+
+    private fun usd(amount: Double) = CurrencyFormatter.format(amount, "USD", java.util.Locale.getDefault())
+
+    @Test
+    fun `a budget shows what is left of it`() {
+        // 15.49 + 11.99 + 2.99 = 30.47 a month against 100.
+        show(budget = MonthlyBudget(100.0, "USD"))
+        compose.onNodeWithText(str(R.string.budget_left, usd(69.53), usd(100.0))).assertIsDisplayed()
+    }
+
+    @Test
+    fun `over budget says by how much`() {
+        show(budget = MonthlyBudget(20.0, "USD"))
+        compose.onNodeWithText(str(R.string.budget_over, usd(10.47), usd(20.0))).assertIsDisplayed()
     }
 }

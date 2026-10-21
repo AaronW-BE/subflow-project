@@ -55,6 +55,7 @@ private val PRO_FEATURES = listOf(
     ProFeature(R.string.feat_unlimited, R.string.feat_unlimited_sub),
     ProFeature(R.string.feat_push_alerts, R.string.feat_push_alerts_sub),
     ProFeature(R.string.feat_analytics, R.string.feat_analytics_sub),
+    ProFeature(R.string.feat_budget, R.string.feat_budget_sub),
     ProFeature(R.string.feat_rates, R.string.feat_rates_sub),
     ProFeature(R.string.feat_no_ads, R.string.feat_no_ads_sub)
 )
