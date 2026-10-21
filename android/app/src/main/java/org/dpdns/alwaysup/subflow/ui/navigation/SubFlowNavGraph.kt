@@ -64,6 +64,7 @@ import org.dpdns.alwaysup.subflow.data.repository.SignInCancelledException
 import org.dpdns.alwaysup.subflow.data.repository.SignInNotConfiguredException
 import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
 import org.dpdns.alwaysup.subflow.domain.util.Budget
+import org.dpdns.alwaysup.subflow.domain.util.joinSentences
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.model.PresetService
@@ -283,10 +284,14 @@ fun SubFlowNavHost(
             homeCurrency = primaryCurrency,
             isPro = isPro
         ) ?: return base
-        return base + " " + context.getString(
-            R.string.budget_now_over,
-            CurrencyFormatter.format(over.overBy, primaryCurrency, locale),
-            CurrencyFormatter.format(over.limit, primaryCurrency, locale)
+        return joinSentences(
+            base,
+            context.getString(
+                R.string.budget_now_over,
+                CurrencyFormatter.format(over.overBy, primaryCurrency, locale),
+                CurrencyFormatter.format(over.limit, primaryCurrency, locale)
+            ),
+            locale
         )
     }
 

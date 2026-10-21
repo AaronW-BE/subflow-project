@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.runtime.saveable.Saver
 import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
 import org.dpdns.alwaysup.subflow.domain.util.Budget
+import org.dpdns.alwaysup.subflow.domain.util.joinSentences
 import org.dpdns.alwaysup.subflow.domain.util.BudgetProgress
 import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import androidx.compose.material.icons.filled.MoreVert
@@ -343,7 +344,7 @@ fun DashboardScreen(
                 else -> context.getString(R.string.paused_item, name)
             }.let { base ->
                 val note = if (resuming) budgetNote(monthlyInHome(change.updated)) else null
-                if (note == null) base else "$base $note"
+                if (note == null) base else joinSentences(base, note, locale)
             }
             // Writes the whole record back rather than flipping the flag: a
             // conversion also moved the amount, the cycle, the first-bill date
@@ -416,7 +417,7 @@ fun DashboardScreen(
                 else -> context.resources.getQuantityString(R.plurals.bulk_resumed, done, done)
             }.let { base ->
                 val note = if (resume) budgetNote(result.changes.sumOf { monthlyInHome(it.updated) }) else null
-                if (note == null) base else "$base $note"
+                if (note == null) base else joinSentences(base, note, locale)
             }
             confirmWithUndo(message) {
                 scope.launch { result.changes.forEach { onRevertSubscription(it.previous) } }

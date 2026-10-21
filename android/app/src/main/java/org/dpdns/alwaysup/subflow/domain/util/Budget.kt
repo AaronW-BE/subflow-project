@@ -67,3 +67,20 @@ object Budget {
         return BudgetProgress(spent = totalMonthly * factor, limit = limitMonthly * factor)
     }
 }
+
+/**
+ * Two sentences as one message, whichever language they are in.
+ *
+ * The messages a budget note is added to do not agree on how they end - some
+ * close with a full stop, some ("“Gym” saved") do not - and run together the
+ * second sentence read as part of the first. Chinese and Japanese close with
+ * a full-width 。 and take no space after it.
+ */
+fun joinSentences(first: String, second: String, locale: java.util.Locale): String {
+    val cjk = locale.language in setOf("zh", "ja")
+    val head = first.trimEnd()
+    val closed = if (head.lastOrNull() in SENTENCE_ENDS) head else head + if (cjk) "。" else "."
+    return if (cjk) closed + second else "$closed $second"
+}
+
+private val SENTENCE_ENDS = setOf('.', '!', '?', '。', '！', '？')

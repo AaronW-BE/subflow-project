@@ -20,6 +20,7 @@ import org.dpdns.alwaysup.subflow.data.repository.ActiveChange
 import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
+import org.dpdns.alwaysup.subflow.domain.util.joinSentences
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.DashboardScreen
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowTheme
@@ -251,8 +252,11 @@ class DashboardScreenTest {
         compose.waitForIdle()
         row("iCloud+").customAction(str(R.string.resume_action))
 
-        val expected = str(R.string.resumed_item, "iCloud+") + " " +
-            str(R.string.budget_now_over, usd(0.47), usd(30.0))
+        val expected = joinSentences(
+            str(R.string.resumed_item, "iCloud+"),
+            str(R.string.budget_now_over, usd(0.47), usd(30.0)),
+            java.util.Locale.getDefault()
+        )
         compose.onNodeWithText(expected).assertIsDisplayed()
     }
 }

@@ -93,4 +93,42 @@ class BudgetTest {
         org.junit.Assert.assertNull(Budget.newlyOver(90.0, 110.0, null, "USD", isPro = true))
         org.junit.Assert.assertNull(Budget.newlyOver(90.0, 110.0, b, "USD", isPro = false))
     }
+
+    // ---------------------------------------------------- joining sentences
+
+    @Test
+    fun `a sentence without a full stop gets one before the next`() {
+        assertEquals(
+            "“Gym” saved. Now $3.97 over your $100.00 budget.",
+            org.dpdns.alwaysup.subflow.domain.util.joinSentences(
+                "“Gym” saved", "Now $3.97 over your $100.00 budget.", java.util.Locale.US
+            )
+        )
+    }
+
+    @Test
+    fun `a sentence that already ends is not given a second full stop`() {
+        assertEquals(
+            "Resumed 2. 1 stays paused. Now $1.00 over.",
+            org.dpdns.alwaysup.subflow.domain.util.joinSentences(
+                "Resumed 2. 1 stays paused.", "Now $1.00 over.", java.util.Locale.US
+            )
+        )
+    }
+
+    @Test
+    fun `Chinese and Japanese close with a full-width stop and no space`() {
+        assertEquals(
+            "已保存“Gym”。现已超出预算。",
+            org.dpdns.alwaysup.subflow.domain.util.joinSentences(
+                "已保存“Gym”", "现已超出预算。", java.util.Locale.SIMPLIFIED_CHINESE
+            )
+        )
+        assertEquals(
+            "「Gym」を保存しました。予算を超えました。",
+            org.dpdns.alwaysup.subflow.domain.util.joinSentences(
+                "「Gym」を保存しました", "予算を超えました。", java.util.Locale.JAPANESE
+            )
+        )
+    }
 }
