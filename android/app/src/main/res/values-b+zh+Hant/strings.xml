@@ -110,15 +110,13 @@
     <!-- Paywall -->
     <string name="subflow_pro">SUBFLOW PRO</string>
     <string name="paywall_headline">每一筆訂閱都在掌握之中</string>
-    <string name="paywall_subhead">無限筆數、扣款前的續訂提醒，完全沒有廣告。</string>
+    <string name="paywall_subhead">更早的提醒、不限筆數、每月預算和完整分析，而且沒有廣告。</string>
     <string name="feat_unlimited">不限訂閱數量</string>
     <string name="feat_unlimited_sub">免費版上限為 5 筆</string>
-    <string name="feat_push_alerts">提前 1、3、7 天的續訂提醒</string>
-    <string name="feat_push_alerts_sub">在扣款之前取消，而不是之後</string>
-    <string name="feat_rates">多幣別合併統計</string>
-    <string name="feat_rates_sub">即時匯率，統一換算成主要貨幣</string>
+    <string name="feat_push_alerts">提前 3 天和 7 天提醒</string>
+    <string name="feat_push_alerts_sub">免費版只在前一天提醒。提前一週，才來得及取消。</string>
     <string name="feat_analytics">完整的支出分析</string>
-    <string name="feat_analytics_sub">歷史趨勢、類別佔比與 CSV 匯出</string>
+    <string name="feat_analytics_sub">歷史趨勢、類別佔比、扣款預測與 CSV 匯出</string>
     <string name="feat_no_ads">永久移除廣告</string>
     <string name="feat_no_ads_sub">升級後橫幅廣告立即消失</string>
     <string name="plan_annual">年繳</string>
@@ -137,7 +135,6 @@
     <string name="btn_start_trial">開始 %d 天免費試用</string>
     <string name="btn_continue">繼續</string>
     <string name="btn_restore">回復購買</string>
-    <string name="trial_footnote">前 %1$d 天免費，之後以 %2$s 計費。可隨時在 Google Play 取消。</string>
     <string name="sub_footnote">%s，透過 Google Play 計費，可隨時取消。</string>
     <string name="lifetime_footnote">%s 一次付清，不會自動續訂。</string>
     <string name="terms_of_service">服務條款</string>
@@ -463,10 +460,21 @@
     <string name="budget_left">還剩 %1$s，預算 %2$s</string>
     <string name="budget_over">已超出 %2$s 的預算 %1$s</string>
     <string name="feat_budget">每月預算</string>
-    <string name="feat_budget_sub">隨時掌握還剩多少額度</string>
+    <string name="feat_budget_sub">總支出旁顯示預算進度，新訂閱將超出預算時事先告訴你</string>
 
     <!-- Over-budget notices (BIN-68) -->
     <string name="budget_after_add_over">加上它，將超出 %2$s 的預算 %1$s</string>
     <string name="budget_after_add_left">加上它後，%2$s 的預算還剩 %1$s</string>
     <string name="budget_now_over">現已超出 %2$s 的預算 %1$s。</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">記錄所有訂閱，不只 %d 筆</string>
+    <string name="paywall_headline_alerts">每筆扣款，提前一週知道</string>
+    <string name="paywall_headline_budget">把支出控制在每月預算內</string>
+    <string name="paywall_headline_analytics">看清錢都花到哪裡去了</string>
+    <string name="feat_unlimited_used">免費版已記錄 %1$d / %2$d 筆</string>
+    <string name="paywall_free_for_all">所有版本皆免費：多幣別加總、試用追蹤、CSV 匯入與備份。</string>
+    <string name="trial_footnote_until">免費至 %1$s，之後以 %2$s 計費。在此之前於 Google Play 取消，就不會扣款。</string>
+    <string name="reminder_pro_preview">升級 Pro 後，會在 %1$s 提醒你，也就是扣款前 %2$d 天。</string>
+    <string name="reminder_pro_preview_undated">升級 Pro 後，會在每次扣款前 %1$d 天提醒你。</string>
 </resources>

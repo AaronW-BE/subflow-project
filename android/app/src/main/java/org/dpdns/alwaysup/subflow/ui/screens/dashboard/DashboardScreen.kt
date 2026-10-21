@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.PlayCircleOutline
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.runtime.saveable.Saver
+import org.dpdns.alwaysup.subflow.ui.screens.paywall.PaywallReason
 import org.dpdns.alwaysup.subflow.data.repository.BulkActiveChange
 import org.dpdns.alwaysup.subflow.domain.util.Budget
 import org.dpdns.alwaysup.subflow.domain.util.joinSentences
@@ -183,7 +184,8 @@ fun DashboardScreen(
     onSaveSubscriptions: suspend (List<Subscription>) -> Unit = {},
     /** The monthly budget, shown against the total for Pro users (BIN-68). */
     monthlyBudget: MonthlyBudget? = null,
-    onPaywallClick: () -> Unit,
+    /** Opens the paywall, saying which feature the tap was about. */
+    onPaywallClick: (PaywallReason) -> Unit,
     showSwipeHint: Boolean = false,
     onSwipeHintSeen: () -> Unit = {}
 ) {
@@ -398,7 +400,7 @@ fun DashboardScreen(
                         actionLabel = context.getString(R.string.quota_nudge_cta),
                         duration = SnackbarDuration.Long
                     )
-                    if (choice == SnackbarResult.ActionPerformed) onPaywallClick()
+                    if (choice == SnackbarResult.ActionPerformed) onPaywallClick(PaywallReason.LIMIT)
                 }
                 return@launch
             }
@@ -523,7 +525,7 @@ fun DashboardScreen(
                     DashboardHeader(
                         dateLabel = todayFormatted,
                         isPro = isPro,
-                        onPaywallClick = onPaywallClick
+                        onPaywallClick = { onPaywallClick(PaywallReason.GENERAL) }
                     )
                 }
 
@@ -553,7 +555,7 @@ fun DashboardScreen(
                         QuotaMeter(
                             used = activeSubs.size,
                             limit = SubscriptionRepository.FREE_TIER_LIMIT,
-                            onUpgrade = onPaywallClick
+                            onUpgrade = { onPaywallClick(PaywallReason.LIMIT) }
                         )
                     }
                 }
@@ -789,7 +791,7 @@ fun DashboardScreen(
                 onClick = {
                     if (locked) {
                         bulkSheet = null
-                        onPaywallClick()
+                        onPaywallClick(PaywallReason.ALERTS)
                     } else {
                         val n = selectedSubs.size
                         bulkRewrite(

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.data.billing.BillingConnectionState
 import org.dpdns.alwaysup.subflow.data.billing.ProPlan
+import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
 import org.dpdns.alwaysup.subflow.domain.model.ProTier
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.components.AppleCard
@@ -47,18 +48,27 @@ import org.dpdns.alwaysup.subflow.ui.components.contentGutter
 import org.dpdns.alwaysup.subflow.ui.components.PrimaryButton
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
 import org.dpdns.alwaysup.subflow.ui.components.ShimmerBox
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
-private data class ProFeature(val titleRes: Int, val subtitleRes: Int)
+private fun ProFeatureKey.titleRes(): Int = when (this) {
+    ProFeatureKey.ALERTS -> R.string.feat_push_alerts
+    ProFeatureKey.UNLIMITED -> R.string.feat_unlimited
+    ProFeatureKey.BUDGET -> R.string.feat_budget
+    ProFeatureKey.ANALYTICS -> R.string.feat_analytics
+    ProFeatureKey.NO_ADS -> R.string.feat_no_ads
+}
 
-private val PRO_FEATURES = listOf(
-    ProFeature(R.string.feat_unlimited, R.string.feat_unlimited_sub),
-    ProFeature(R.string.feat_push_alerts, R.string.feat_push_alerts_sub),
-    ProFeature(R.string.feat_analytics, R.string.feat_analytics_sub),
-    ProFeature(R.string.feat_budget, R.string.feat_budget_sub),
-    ProFeature(R.string.feat_rates, R.string.feat_rates_sub),
-    ProFeature(R.string.feat_no_ads, R.string.feat_no_ads_sub)
-)
+@Composable
+private fun headline(reason: PaywallReason): String = when (reason) {
+    PaywallReason.GENERAL -> stringResource(R.string.paywall_headline)
+    PaywallReason.LIMIT -> stringResource(R.string.paywall_headline_limit, SubscriptionRepository.FREE_TIER_LIMIT)
+    PaywallReason.ALERTS -> stringResource(R.string.paywall_headline_alerts)
+    PaywallReason.BUDGET -> stringResource(R.string.paywall_headline_budget)
+    PaywallReason.ANALYTICS -> stringResource(R.string.paywall_headline_analytics)
+}
 
 /**
  * Pro paywall.
@@ -81,7 +91,13 @@ fun PaywallScreen(
     onRestorePurchases: () -> Unit,
     onManageSubscription: () -> Unit,
     onRetry: () -> Unit,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
+    /** Which tap opened the paywall; its feature goes first. */
+    reason: PaywallReason = PaywallReason.GENERAL,
+    /** Active subscriptions now, for "you track 4 of 5". */
+    trackedCount: Int = 0,
+    /** The day a trial is counted from. A parameter so tests can fix it. */
+    today: LocalDate = LocalDate.now()
 ) {
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
@@ -158,7 +174,7 @@ fun PaywallScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = stringResource(R.string.paywall_headline),
+                    text = headline(reason),
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontSize = 27.sp,
                         lineHeight = 33.sp,
@@ -219,7 +235,27 @@ fun PaywallScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
-                FeatureList()
+                FeatureList(
+                    order = PaywallContent.featureOrder(reason),
+                    highlightFirst = PaywallContent.leadFeature(reason) != null,
+                    trackedCount = if (isPro) null else trackedCount
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // What stays free, said outright. Someone deciding whether to
+                // pay is also deciding what they lose by not paying, and the
+                // answer is less than a paywall usually lets on.
+                Text(
+                    text = stringResource(R.string.paywall_free_for_all),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 12.sp,
+                        lineHeight = 17.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -267,7 +303,7 @@ fun PaywallScreen(
                             exit = fadeOut()
                         ) {
                             Text(
-                                text = legalFootnote(selectedPlan),
+                                text = legalFootnote(selectedPlan, today, locale),
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontSize = 11.sp,
                                     lineHeight = 15.sp,
@@ -296,7 +332,7 @@ fun PaywallScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            LegalDot()
+                            LegalDot(Modifier.align(Alignment.CenterVertically))
                         }
                         TextButton(onClick = { onOpenUrl(TERMS_URL) }) {
                             Text(
@@ -305,7 +341,7 @@ fun PaywallScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
                         }
-                        LegalDot()
+                        LegalDot(Modifier.align(Alignment.CenterVertically))
                         TextButton(onClick = { onOpenUrl(PRIVACY_URL) }) {
                             Text(
                                 text = stringResource(R.string.privacy_policy),
@@ -320,10 +356,15 @@ fun PaywallScreen(
     }
 }
 
+/**
+ * The dot between two links. Centred on the row by its caller: on its own it
+ * sat at the top of the 48dp the buttons beside it take, above the words.
+ */
 @Composable
-private fun LegalDot() {
+private fun LegalDot(modifier: Modifier = Modifier) {
     Text(
         text = "·",
+        modifier = modifier,
         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 11.sp),
         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
     )
@@ -365,14 +406,32 @@ private fun ProBadgeHeader() {
 }
 
 @Composable
-private fun FeatureList() {
+private fun FeatureList(
+    order: List<ProFeatureKey>,
+    /** Sets off the first row: it is the feature the user tapped on. */
+    highlightFirst: Boolean,
+    /** Active subscriptions on the free plan, or null for a Pro user. */
+    trackedCount: Int?
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        PRO_FEATURES.forEach { feature ->
+        order.forEachIndexed { index, feature ->
+            val highlighted = highlightFirst && index == 0
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (highlighted) {
+                            Modifier
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+                                .padding(12.dp)
+                        } else {
+                            Modifier
+                        }
+                    ),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -393,14 +452,16 @@ private fun FeatureList() {
                 }
                 Column {
                     Text(
-                        text = stringResource(feature.titleRes),
+                        text = stringResource(feature.titleRes()),
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = stringResource(feature.subtitleRes),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                        text = featureSubtitle(feature, trackedCount),
+                        // Set to the font: the theme's taller line left a gap
+                        // like a paragraph break wherever a line wrapped.
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, lineHeight = 16.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -660,6 +721,23 @@ private fun AlreadyProCard(proTier: ProTier, onManageSubscription: () -> Unit) {
 
 // ---------------------------------------------------------------- helpers
 
+/**
+ * The line under a feature. For the limit it is the user's own count when
+ * there is one: "you track 4 of 5" is about them, "stops at 5" is about us.
+ */
+@Composable
+private fun featureSubtitle(feature: ProFeatureKey, trackedCount: Int?): String = when (feature) {
+    ProFeatureKey.ALERTS -> stringResource(R.string.feat_push_alerts_sub)
+    ProFeatureKey.UNLIMITED -> if (trackedCount != null && trackedCount > 0) {
+        stringResource(R.string.feat_unlimited_used, trackedCount, SubscriptionRepository.FREE_TIER_LIMIT)
+    } else {
+        stringResource(R.string.feat_unlimited_sub)
+    }
+    ProFeatureKey.BUDGET -> stringResource(R.string.feat_budget_sub)
+    ProFeatureKey.ANALYTICS -> stringResource(R.string.feat_analytics_sub)
+    ProFeatureKey.NO_ADS -> stringResource(R.string.feat_no_ads_sub)
+}
+
 private const val TERMS_URL = "https://subflow.alwaysup.dpdns.org/terms.html"
 private const val PRIVACY_URL = "https://subflow.alwaysup.dpdns.org/privacy.html"
 
@@ -671,11 +749,15 @@ private fun ctaLabel(plan: ProPlan?): String = when {
 }
 
 @Composable
-private fun legalFootnote(plan: ProPlan?): String = when {
+private fun legalFootnote(plan: ProPlan?, today: LocalDate, locale: Locale): String = when {
     plan == null -> ""
+    // The date the first charge lands, not only how many days away it is:
+    // the date is what goes in a calendar, and what Play's trial terms ask
+    // to be clear about.
     plan.hasFreeTrial -> stringResource(
-        R.string.trial_footnote,
-        plan.freeTrialDays,
+        R.string.trial_footnote_until,
+        PaywallContent.trialEnds(today, plan.freeTrialDays)
+            .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)),
         recurringPriceLabel(plan)
     )
     plan.tier == ProTier.LIFETIME -> stringResource(R.string.lifetime_footnote, plan.formattedPrice)

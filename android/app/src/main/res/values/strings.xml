@@ -107,15 +107,13 @@
     <!-- Paywall -->
     <string name="subflow_pro">SUBFLOW PRO</string>
     <string name="paywall_headline">Every subscription, under control</string>
-    <string name="paywall_subhead">Unlimited tracking, renewal alerts before you get charged, and no ads.</string>
+    <string name="paywall_subhead">Earlier alerts, unlimited tracking, a monthly budget and full analytics. No ads.</string>
     <string name="feat_unlimited">Unlimited subscriptions</string>
     <string name="feat_unlimited_sub">The free plan stops at 5</string>
-    <string name="feat_push_alerts">Renewal alerts 1, 3 and 7 days ahead</string>
-    <string name="feat_push_alerts_sub">Cancel before the charge, not after</string>
-    <string name="feat_rates">Multi-currency totals</string>
-    <string name="feat_rates_sub">Live rates, one home currency</string>
+    <string name="feat_push_alerts">Alerts 3 and 7 days ahead</string>
+    <string name="feat_push_alerts_sub">The free plan warns you the day before. A week is time to cancel.</string>
     <string name="feat_analytics">Full spending analytics</string>
-    <string name="feat_analytics_sub">History, categories and CSV export</string>
+    <string name="feat_analytics_sub">History, categories, forecast and CSV export</string>
     <string name="feat_no_ads">No ads, ever</string>
     <string name="feat_no_ads_sub">The banner disappears the moment you upgrade</string>
     <string name="plan_annual">Annual</string>
@@ -134,7 +132,6 @@
     <string name="btn_start_trial">Start %d-day free trial</string>
     <string name="btn_continue">Continue</string>
     <string name="btn_restore">Restore purchases</string>
-    <string name="trial_footnote">Free for %1$d days, then %2$s. Cancel anytime in Google Play.</string>
     <string name="sub_footnote">%s, billed through Google Play. Cancel anytime.</string>
     <string name="lifetime_footnote">%s charged once. No recurring billing.</string>
     <string name="terms_of_service">Terms of Service</string>
@@ -481,10 +478,21 @@
     <string name="budget_left">%1$s left of %2$s</string>
     <string name="budget_over">%1$s over your %2$s budget</string>
     <string name="feat_budget">Monthly budget</string>
-    <string name="feat_budget_sub">See how much of your limit is left</string>
+    <string name="feat_budget_sub">A meter on your total, and a warning before a new one takes you over</string>
 
     <!-- Over-budget notices (BIN-68) -->
     <string name="budget_after_add_over">This puts you %1$s over your %2$s budget</string>
     <string name="budget_after_add_left">%1$s of your %2$s budget left after this</string>
     <string name="budget_now_over">Now %1$s over your %2$s budget.</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">Track every subscription, not just %d</string>
+    <string name="paywall_headline_alerts">Hear about every charge a week ahead</string>
+    <string name="paywall_headline_budget">Stay inside your monthly budget</string>
+    <string name="paywall_headline_analytics">See where your money goes</string>
+    <string name="feat_unlimited_used">You track %1$d of %2$d on the free plan</string>
+    <string name="paywall_free_for_all">Free on every plan: multi-currency totals, trial tracking, CSV import and backups.</string>
+    <string name="trial_footnote_until">Free until %1$s, then %2$s. Cancel in Google Play before then and you will not be charged.</string>
+    <string name="reminder_pro_preview">With Pro you would be reminded on %1$s, %2$d days before this charge.</string>
+    <string name="reminder_pro_preview_undated">With Pro you would be reminded %1$d days before each charge.</string>
 </resources>
