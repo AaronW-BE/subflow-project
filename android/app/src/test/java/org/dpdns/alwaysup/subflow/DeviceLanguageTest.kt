@@ -56,6 +56,7 @@ class DeviceLanguageTest {
         assertEquals("de", DeviceLanguage.firstSupported(device("de-AT"), shipped))
         assertEquals("fr", DeviceLanguage.firstSupported(device("fr-CA"), shipped))
         assertEquals("ja", DeviceLanguage.firstSupported(device("ja-JP"), shipped))
+        assertEquals("ko", DeviceLanguage.firstSupported(device("ko-KR"), shipped))
     }
 
     @Test

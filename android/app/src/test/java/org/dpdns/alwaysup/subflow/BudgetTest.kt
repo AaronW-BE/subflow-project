@@ -131,4 +131,14 @@ class BudgetTest {
             )
         )
     }
+
+    @Test
+    fun `Korean closes with a full stop and a space, as Western text does`() {
+        assertEquals(
+            "“Gym” 저장됨. 이제 예산을 초과했어요.",
+            org.dpdns.alwaysup.subflow.domain.util.joinSentences(
+                "“Gym” 저장됨", "이제 예산을 초과했어요.", java.util.Locale.KOREAN
+            )
+        )
+    }
 }

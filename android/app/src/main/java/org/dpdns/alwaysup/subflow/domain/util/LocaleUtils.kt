@@ -19,6 +19,7 @@ fun localeForLanguageCode(code: String): Locale = when (
     // Macau write too, and resolves to values-b+zh+Hant rather than values-zh.
     TRADITIONAL_CHINESE.lowercase() -> Locale.forLanguageTag(TRADITIONAL_CHINESE)
     "ja" -> Locale.JAPANESE
+    "ko" -> Locale.KOREAN
     "de" -> Locale.GERMAN
     "fr" -> Locale.FRENCH
     "es" -> Locale("es")

@@ -19,8 +19,8 @@ since the last upload" is `git log <last tag>..main`.
 
 Changes since 1.4.0 (versionCode 8):
 
-Not in this upload: pt-BR. (Portuguese was added after 1.5.0 went up; its
-first release notes are 1.6.0's.)
+Not in this upload: pt-BR, ko-KR. (Portuguese and Korean were added after
+1.5.0 went up; their first release notes are 1.6.0's.)
 
 | Change | Source |
 |---|---|
@@ -432,9 +432,9 @@ One listing per language. Add each under **Main store listing → Manage
 translations**, then paste its three fields. Hong Kong (`zh-HK`) uses the zh-TW
 text.
 
-**With the 1.6.0 upload (first build with Portuguese):** add the pt-BR
-listing below, and add Portuguese to the language line of every other
-listing (*In English, … and Spanish*). Until that build is live, the other
+**With the 1.6.0 upload (first build with Portuguese and Korean):** add the
+pt-BR and ko-KR listings below, and add both languages to the language line
+of every other listing (*In English, … and Spanish*). Until that build is live, the other
 listings must not claim it.
 
 All seven listings say the same thing. zh-TW was written first from the
@@ -582,6 +582,75 @@ O plano gratuito acompanha até 5 assinaturas e mostra um banner de anúncio. O 
 Escolha mensal, anual ou uma compra vitalícia única, tudo cobrado pelo Google Play. As assinaturas podem ser canceladas a qualquer momento.
 
 O SubFlow acompanha e avisa; ele não cancela nada por você. Para cancelar, acesse a página da conta no serviço. Nos serviços mais conhecidos, o app abre essa página para você.
+```
+
+### ko-KR 한국어
+
+Added with BIN-76, for the first build that ships `values-ko`. Add it in the
+Console with that upload, not before. Sentences in 해요체 as in the app; terms
+match its UI (*구독*, *결제*, *갱신*, *기본 통화*, *무료 체험*).
+
+**앱 이름** (≤30)
+
+```
+SubFlow: 구독 관리 및 결제 알림
+```
+
+**간단한 설명** (≤80)
+
+```
+모든 구독을 한곳에서. 결제되기 전에 알려 드려요.
+```
+
+**자세한 설명** (≤4000)
+
+```
+Netflix, Spotify, 클라우드 저장공간, 헬스장… 구독료를 다 합치면 한 달에 얼마일까요? SubFlow는 구독을 한곳에 모아 실제 월 합계를 보여 주고, 결제되기 전에 알려 드려요. 더 이상 쓰지 않는 구독을 해지할 시간이 아직 있을 때요.
+
+모든 구독을 관리
+• 인기 서비스 34개가 로고와 함께 준비되어 있어요. 고르기만 하면 추가돼요
+• 이름, 색상, 아이콘을 직접 정해 만들 수도 있어요
+• 매주, 매월, 분기별, 매년 결제를 모두 월·연 합계로 환산
+• 갱신일, 가격, 이름순 정렬, 카테고리 필터와 검색
+• 카드를 왼쪽으로 밀면 삭제, 오른쪽으로 밀면 일시정지
+• 길게 눌러 여러 개를 선택하고 한 번에 일시정지, 다시 시작, 삭제, 카테고리 변경
+• 결제를 멈춘 구독은 일시정지: 정보는 남기고 합계와 알림에서만 빠져요
+• 홈 화면 위젯으로 이번 달 합계와 다가오는 갱신을 확인
+
+결제 전에 알림
+• 매 갱신 하루 전에 알림 (Pro는 3일 전·7일 전 추가)
+• 휴대폰이 대기 중이라 알림을 놓쳤다면 앱을 열 때 다시 알려 드려요
+
+무료 체험 관리
+• 구독을 무료 체험으로 표시하고 종료일과 이후 가격을 기록
+• 체험이 끝나기 전에 알림, 모든 플랜에서 제공
+• 끝나면 유료 전환, 해지, 연장 중 어떻게 됐는지 기록
+
+여러 통화, 하나의 합계
+• 40개 통화: 실제로 결제되는 통화로 각 구독을 기록
+• 모두 실시간 환율로 기본 통화로 환산돼요. 오프라인일 때는 마지막으로 받은 환율을, 한 번도 온라인이었던 적이 없으면 내장 환율을 사용해요
+
+지출 분석
+• 월 합계, 연 합계, 하루 평균
+• Pro: 6개월 지출 추이, 카테고리별 분석, 지출 지도, 월별 결제 예측, CSV 내보내기
+
+데이터는 휴대폰에
+• 계정 필요 없음: 모든 데이터는 기기에 저장돼요
+• JSON 백업을 내보내고 언제든 복원
+• CSV 파일(직접 내보낸 파일이나 스프레드시트)에서 구독을 가져오기, 추가 전에 미리보기 제공
+• 다크 모드(완전한 검은색)와 햅틱 피드백
+• 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 독일어, 프랑스어, 스페인어, 포르투갈어 지원
+
+SUBFLOW PRO
+무료 플랜은 구독 5개까지 관리할 수 있고 배너 광고가 표시돼요. Pro에서는:
+• 구독 무제한
+• 갱신 3일 전·7일 전 알림
+• 전체 지출 분석과 CSV 내보내기
+• 월 예산: 합계 옆에 예산 게이지를 보여 주고, 구독으로 예산을 넘기 전에 알려 드려요
+• 광고 없음
+월간, 연간, 평생 1회 구매 중에서 고를 수 있으며 모두 Google Play로 결제돼요. 구독은 언제든 해지할 수 있어요.
+
+SubFlow는 관리하고 알려 드릴 뿐, 대신 해지하지는 않아요. 해지하려면 해당 서비스의 계정 페이지로 가세요. 잘 알려진 서비스는 앱에서 바로 열어 드려요.
 ```
 
 ### zh-CN 中文（简体）

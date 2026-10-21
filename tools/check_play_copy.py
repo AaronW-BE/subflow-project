@@ -38,6 +38,7 @@ PLAY_CODES = {
     "values-es": ["es-ES"],
     "values-pt": ["pt-BR"],
     "values-ja": ["ja-JP"],
+    "values-ko": ["ko-KR"],
 }
 SIMPLIFIED = {"zh-CN"}
 TRADITIONAL = {"zh-TW", "zh-HK"}
