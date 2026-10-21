@@ -11,6 +11,8 @@ import androidx.test.core.app.ApplicationProvider
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
+import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
+import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.ui.screens.add.AddSubscriptionScreen
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowTheme
 import org.junit.Assert.assertEquals
@@ -40,13 +42,20 @@ class AddSubscriptionScreenTest {
 
     private var saved: Subscription? = null
 
-    private fun show(existing: Subscription? = null) = compose.setContent {
+    private fun show(
+        existing: Subscription? = null,
+        isPro: Boolean = false,
+        budget: MonthlyBudget? = null,
+        others: Double = 0.0
+    ) = compose.setContent {
         SubFlowTheme {
             AddSubscriptionScreen(
                 presets = emptyList(),
                 primaryCurrency = "USD",
-                isPro = false,
+                isPro = isPro,
                 existingSubscription = existing,
+                monthlyBudget = budget,
+                otherMonthlyTotal = others,
                 onSaveSubscription = { saved = it },
                 onCancel = {}
             )
@@ -104,5 +113,36 @@ class AddSubscriptionScreenTest {
         assertEquals("Spotify", s.name)
         assertEquals(11.99, s.amount, 0.0)
         assertEquals("2026-01-10", s.firstBillDate)
+    }
+
+    // --------------------------------------------------------------- budget
+
+    private fun usd(amount: Double) = CurrencyFormatter.format(amount, "USD", java.util.Locale.getDefault())
+
+    @Test
+    fun `before saving, it says the budget this would go over`() {
+        show(isPro = true, budget = MonthlyBudget(100.0, "USD"), others = 90.0)
+        field(1).performTextInput("15.49")
+        compose.onNodeWithText(
+            context.getString(R.string.budget_after_add_over, usd(5.49), usd(100.0))
+        ).assertExists()
+    }
+
+    @Test
+    fun `and what would be left when it fits`() {
+        show(isPro = true, budget = MonthlyBudget(100.0, "USD"), others = 50.0)
+        field(1).performTextInput("15.49")
+        compose.onNodeWithText(
+            context.getString(R.string.budget_after_add_left, usd(34.51), usd(100.0))
+        ).assertExists()
+    }
+
+    @Test
+    fun `a free user sees no budget line`() {
+        show(isPro = false, budget = MonthlyBudget(100.0, "USD"), others = 90.0)
+        field(1).performTextInput("15.49")
+        compose.onNodeWithText(
+            context.getString(R.string.budget_after_add_over, usd(5.49), usd(100.0))
+        ).assertDoesNotExist()
     }
 }

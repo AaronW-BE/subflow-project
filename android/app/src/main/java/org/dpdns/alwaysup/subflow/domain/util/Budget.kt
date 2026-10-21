@@ -1,5 +1,7 @@
 package org.dpdns.alwaysup.subflow.domain.util
 
+import org.dpdns.alwaysup.subflow.domain.model.Subscription
+
 /**
  * A monthly spending limit, in the currency it was set in.
  *
@@ -20,6 +22,33 @@ data class BudgetProgress(val spent: Double, val limit: Double) {
 }
 
 object Budget {
+
+    /** What the running subscriptions cost a month, in [homeCurrency]. Paused and deleted ones cost nothing. */
+    fun monthlyTotal(subscriptions: List<Subscription>, homeCurrency: String): Double =
+        subscriptions
+            .filter { it.isActive && !it.isDeleted }
+            .sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, homeCurrency) }
+
+    /**
+     * The budget's state after a change from [before] to [after] a month, when
+     * that change is worth a word: the total went up and is now over the
+     * budget. Null otherwise - a change that lowers the total, or keeps it
+     * under, says nothing, and neither does a free user, who has no budget.
+     *
+     * "Went up and is over" rather than "crossed the line": someone already
+     * over who adds another subscription is exactly who should hear by how
+     * much they now are.
+     */
+    fun newlyOver(
+        before: Double,
+        after: Double,
+        budget: MonthlyBudget?,
+        homeCurrency: String,
+        isPro: Boolean
+    ): BudgetProgress? {
+        if (!isPro || budget == null || after <= before + 0.005) return null
+        return progress(after, budget, homeCurrency).takeIf { it.over }
+    }
 
     /**
      * [totalMonthly] - already in [homeCurrency] - against [budget].

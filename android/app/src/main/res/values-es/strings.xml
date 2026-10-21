@@ -472,4 +472,9 @@
     <string name="budget_over">%1$s por encima de tu presupuesto de %2$s</string>
     <string name="feat_budget">Presupuesto mensual</string>
     <string name="feat_budget_sub">Mira cuánto te queda de tu límite</string>
+
+    <!-- Over-budget notices (BIN-68) -->
+    <string name="budget_after_add_over">Con esta, superas tu presupuesto de %2$s en %1$s</string>
+    <string name="budget_after_add_left">Te quedarán %1$s de tu presupuesto de %2$s</string>
+    <string name="budget_now_over">Ahora superas tu presupuesto de %2$s en %1$s.</string>
 </resources>

@@ -239,4 +239,20 @@ class DashboardScreenTest {
         show(budget = MonthlyBudget(20.0, "USD"))
         compose.onNodeWithText(str(R.string.budget_over, usd(10.47), usd(20.0))).assertIsDisplayed()
     }
+
+    @Test
+    fun `resuming over the budget says so alongside the undo`() {
+        // Running: 15.49 + 11.99 = 27.48 against 30; resuming iCloud+ adds 2.99.
+        show(
+            subscriptions = listOf(netflix, spotify, icloud.copy(isActive = false)),
+            budget = MonthlyBudget(30.0, "USD")
+        )
+        compose.onNodeWithText(context.resources.getString(R.string.dashboard_paused_header, 1)).performClick()
+        compose.waitForIdle()
+        row("iCloud+").customAction(str(R.string.resume_action))
+
+        val expected = str(R.string.resumed_item, "iCloud+") + " " +
+            str(R.string.budget_now_over, usd(0.47), usd(30.0))
+        compose.onNodeWithText(expected).assertIsDisplayed()
+    }
 }
