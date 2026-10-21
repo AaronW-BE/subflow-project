@@ -465,7 +465,8 @@ TRACK EVERY SUBSCRIPTION
 • Or create your own, with a custom name, color and icon
 • Weekly, monthly, quarterly and yearly billing, all converted into monthly and yearly totals
 • Sort by renewal date, price or name; filter by category and search
-• Swipe a card left to delete it
+• Swipe a card left to delete it, or right to pause it
+• Long-press to select several and pause, resume, delete or recategorize them at once
 • Pause a subscription you've stopped paying for: it keeps its details but drops out of your totals and reminders
 • A home screen widget shows your monthly total and the renewals coming up
 
@@ -489,6 +490,7 @@ SPENDING ANALYSIS
 YOUR DATA STAYS ON YOUR PHONE
 • No account needed: everything is stored on your device
 • Export a JSON backup and restore it at any time
+• Import subscriptions from a CSV file — your own export or a spreadsheet — with a preview before anything is added
 • Dark mode (true black) and haptic feedback
 • In English, Simplified Chinese, Traditional Chinese, Japanese, German, French and Spanish
 
@@ -497,6 +499,7 @@ The free plan tracks up to 5 subscriptions and shows a banner ad. Pro gives you:
 • Unlimited subscriptions
 • Reminders 3 and 7 days before renewal
 • The full spending analysis and CSV export
+• A monthly budget, with a meter on your total and a heads-up before a subscription takes you over
 • No ads, ever
 Choose monthly, annual or a one-time lifetime purchase, all billed through Google Play. Subscriptions can be cancelled at any time.
 
@@ -527,7 +530,8 @@ Netflix、Spotify、云存储、健身房……每个月的订阅费加起来到
 • 也可以自定义服务名称、颜色和图标
 • 支持每周、每月、每季度、每年四种计费周期，自动折算成每月和每年支出
 • 按续费日期、价格或名称排序，可按分类筛选和搜索
-• 向左滑动卡片即可删除
+• 向左滑动卡片即可删除，向右滑动即可暂停
+• 长按可多选，一次性暂停、恢复、删除或更改分类
 • 不再付费的订阅可以暂停：记录保留，但不再提醒，也不计入总支出
 • 桌面小组件，随时查看每月总支出和即将到来的续费
 
@@ -551,6 +555,7 @@ Netflix、Spotify、云存储、健身房……每个月的订阅费加起来到
 【你的数据只留在你的手机上】
 • 无需注册账号，所有订阅数据都存储在本机
 • 可导出 JSON 备份，随时从备份恢复
+• 可从 CSV 文件导入订阅（本应用导出的文件或自己做的表格），添加前会先预览
 • 支持深色模式（纯黑）和触感反馈
 • 界面支持简体中文、繁体中文、英语、日语、德语、法语和西班牙语
 
@@ -559,6 +564,7 @@ Netflix、Spotify、云存储、健身房……每个月的订阅费加起来到
 • 不限订阅数量
 • 增加提前 3 天和 7 天的续费提醒
 • 解锁完整的支出分析和 CSV 导出
+• 月度预算：总支出旁显示进度条，订阅将超出预算时提前提醒
 • 永久去除广告
 提供月付、年付和买断三种方案，均通过 Google Play 付款，订阅方案可随时取消。
 
@@ -589,7 +595,8 @@ Netflix、Spotify、雲端空間、健身房……每個月的訂閱費用加起
 • 也可以自訂服務名稱、顏色與圖示
 • 支援每週、每月、每季、每年四種計費週期，自動換算成每月與每年支出
 • 依續訂日期、價格或名稱排序，並可依類別篩選與搜尋
-• 向左滑動卡片即可刪除
+• 向左滑動卡片即可刪除，向右滑動即可暫停
+• 長按可多選，一次暫停、恢復、刪除或變更分類
 • 不再付費的訂閱可以暫停：保留紀錄，但不再提醒，也不計入總支出
 • 主畫面小工具，隨時查看每月總支出與即將到來的續訂
 
@@ -613,6 +620,7 @@ Netflix、Spotify、雲端空間、健身房……每個月的訂閱費用加起
 【你的資料留在你的手機上】
 • 不需要註冊帳號，所有訂閱資料都儲存在本機
 • 可匯出 JSON 備份，並隨時從備份還原
+• 可從 CSV 檔案匯入訂閱（本 App 匯出的檔案或自己做的試算表），新增前會先預覽
 • 支援深色模式（純黑）與觸覺回饋
 • 介面支援繁體中文、簡體中文、英文、日文、德文、法文與西班牙文
 
@@ -621,6 +629,7 @@ Netflix、Spotify、雲端空間、健身房……每個月的訂閱費用加起
 • 不限訂閱數量
 • 增加提前 3 天與 7 天的續訂提醒
 • 解鎖完整的支出分析與 CSV 匯出
+• 每月預算：總支出旁顯示進度條，訂閱將超出預算時事先提醒
 • 永久移除廣告
 提供月繳、年繳與一次買斷方案，皆透過 Google Play 付款，訂閱方案可隨時取消。
 
@@ -651,7 +660,8 @@ ALLE ABOS IM BLICK
 • Oder eigene Dienste mit Name, Farbe und Symbol anlegen
 • Wöchentliche, monatliche, vierteljährliche und jährliche Abrechnung, umgerechnet in Monats- und Jahressummen
 • Nach Verlängerungsdatum, Preis oder Name sortieren, nach Kategorie filtern und suchen
-• Karte nach links wischen zum Löschen
+• Karte nach links wischen zum Löschen, nach rechts zum Pausieren
+• Lange drücken, um mehrere auszuwählen und gemeinsam zu pausieren, fortzusetzen, zu löschen oder neu einzuordnen
 • Ein Abo, das du nicht mehr bezahlst, pausieren: Die Daten bleiben, aber es zählt nicht mehr zu den Summen und erinnert dich nicht
 • Ein Widget für den Startbildschirm zeigt deine Monatssumme und die anstehenden Verlängerungen
 
@@ -675,6 +685,7 @@ AUSGABEN AUSWERTEN
 DEINE DATEN BLEIBEN AUF DEINEM GERÄT
 • Kein Konto nötig: alles wird auf deinem Gerät gespeichert
 • JSON-Backup exportieren und jederzeit wiederherstellen
+• Abos aus einer CSV-Datei importieren – dem eigenen Export oder einer Tabelle –, mit Vorschau, bevor etwas hinzukommt
 • Dunkelmodus (echtes Schwarz) und haptisches Feedback
 • Auf Deutsch, Englisch, Französisch, Spanisch, Japanisch sowie in vereinfachtem und traditionellem Chinesisch
 
@@ -683,6 +694,7 @@ Die kostenlose Version erfasst bis zu 5 Abos und zeigt ein Werbebanner. Mit Pro 
 • Unbegrenzt viele Abos
 • Erinnerungen 3 und 7 Tage vor der Verlängerung
 • Die komplette Auswertung und den CSV-Export
+• Ein Monatsbudget mit Anzeige bei deiner Summe und einem Hinweis, bevor ein Abo dich darüber bringt
 • Keine Werbung, nie
 Monatlich, jährlich oder als Einmalkauf, abgerechnet über Google Play. Abos sind jederzeit kündbar.
 
@@ -713,7 +725,8 @@ TOUS VOS ABONNEMENTS
 • Ou créez votre propre service, avec son nom, sa couleur et son icône
 • Facturation hebdomadaire, mensuelle, trimestrielle ou annuelle, convertie en totaux mensuels et annuels
 • Tri par date de renouvellement, prix ou nom ; filtre par catégorie et recherche
-• Balayez une carte vers la gauche pour la supprimer
+• Balayez une carte vers la gauche pour la supprimer, vers la droite pour la mettre en pause
+• Appui long pour en sélectionner plusieurs et les mettre en pause, reprendre, supprimer ou changer de catégorie en une fois
 • Mettez en pause un abonnement que vous ne payez plus : ses informations restent, mais il sort des totaux et des rappels
 • Un widget pour l’écran d’accueil affiche votre total mensuel et les prochains renouvellements
 
@@ -737,6 +750,7 @@ ANALYSE DES DÉPENSES
 VOS DONNÉES RESTENT SUR VOTRE TÉLÉPHONE
 • Aucun compte nécessaire : tout est enregistré sur votre appareil
 • Exportez une sauvegarde JSON et restaurez-la à tout moment
+• Importez des abonnements depuis un fichier CSV – votre export ou un tableur – avec un aperçu avant tout ajout
 • Mode sombre (noir intégral) et retour haptique
 • Disponible en français, anglais, allemand, espagnol, japonais, chinois simplifié et chinois traditionnel
 
@@ -745,6 +759,7 @@ La version gratuite suit jusqu’à 5 abonnements et affiche une bannière publi
 • Des abonnements illimités
 • Des rappels 3 et 7 jours avant le renouvellement
 • L’analyse complète des dépenses et l’export CSV
+• Un budget mensuel, avec une jauge sur votre total et un avertissement avant qu’un abonnement ne le dépasse
 • Aucune publicité
 Mensuel, annuel ou achat unique à vie, facturé via Google Play. Les abonnements sont résiliables à tout moment.
 
@@ -775,7 +790,8 @@ TODAS TUS SUSCRIPCIONES
 • O crea el tuyo con nombre, color e icono propios
 • Facturación semanal, mensual, trimestral o anual, convertida en totales mensuales y anuales
 • Ordena por fecha de renovación, precio o nombre; filtra por categoría y busca
-• Desliza una tarjeta a la izquierda para eliminarla
+• Desliza una tarjeta a la izquierda para eliminarla o a la derecha para pausarla
+• Mantén pulsado para seleccionar varias y pausarlas, reanudarlas, eliminarlas o cambiar su categoría a la vez
 • Pausa una suscripción que ya no pagas: conserva sus datos, pero deja de contar en los totales y de avisarte
 • Un widget para la pantalla de inicio muestra tu total mensual y las próximas renovaciones
 
@@ -799,6 +815,7 @@ ANÁLISIS DE GASTOS
 TUS DATOS SE QUEDAN EN TU MÓVIL
 • Sin cuenta: todo se guarda en tu dispositivo
 • Exporta una copia de seguridad JSON y restáurala cuando quieras
+• Importa suscripciones desde un archivo CSV –tu exportación o una hoja de cálculo– con una vista previa antes de añadir nada
 • Modo oscuro (negro puro) y respuesta háptica
 • En español, inglés, alemán, francés, japonés, chino simplificado y chino tradicional
 
@@ -807,6 +824,7 @@ El plan gratuito registra hasta 5 suscripciones y muestra un banner publicitario
 • Suscripciones ilimitadas
 • Avisos 3 y 7 días antes de la renovación
 • El análisis de gastos completo y la exportación CSV
+• Un presupuesto mensual, con un indicador junto a tu total y un aviso antes de que una suscripción lo supere
 • Sin publicidad, nunca
 Mensual, anual o pago único de por vida, cobrado a través de Google Play. Las suscripciones se pueden cancelar en cualquier momento.
 
@@ -837,7 +855,8 @@ Netflix、Spotify、クラウドストレージ、ジム……毎月のサブス
 • 名前・色・アイコンを自由に設定できるカスタムサービスにも対応
 • 週・月・四半期・年ごとの請求に対応し、月額と年額に自動で換算
 • 更新日・金額・名前で並べ替え、カテゴリでの絞り込みと検索も可能
-• カードを左にスワイプして削除
+• カードを左にスワイプで削除、右にスワイプで停止
+• 長押しで複数選択し、停止・再開・削除やカテゴリ変更をまとめて実行
 • 支払いをやめたサブスクは削除せずに停止できます。記録は残したまま、通知と合計の対象から外れます
 • ホーム画面ウィジェットで、月額合計とこれからの更新をいつでも確認できます
 
@@ -861,6 +880,7 @@ Netflix、Spotify、クラウドストレージ、ジム……毎月のサブス
 【データは端末の中だけに】
 • アカウント登録は不要。データはすべて端末に保存されます
 • JSON 形式でバックアップを書き出し、いつでも復元できます
+• CSV ファイルからサブスクをインポート（このアプリの書き出しファイルや自作の表）。追加前にプレビューで確認できます
 • ダークモード（純黒）と触覚フィードバックに対応
 • 日本語、英語、ドイツ語、フランス語、スペイン語、簡体字中国語、繁体字中国語に対応
 
@@ -869,6 +889,7 @@ Netflix、Spotify、クラウドストレージ、ジム……毎月のサブス
 • サブスクを無制限に登録
 • 更新 3 日前・7 日前の通知
 • すべての支出分析と CSV 書き出し
+• 月の予算：合計の横に進捗バーを表示し、予算を超えそうなときに事前にお知らせ
 • 広告なし
 月額・年額・買い切りの 3 プランから選べます。お支払いは Google Play で行われ、サブスクリプションはいつでも解約できます。
 
@@ -891,6 +912,9 @@ What each claim rests on:
 | Totals and daily average free | outside the `ProGate`s (`item(key = "metrics")`) |
 | Pause instead of delete; out of totals and reminders; every plan | `Subscription.isActive`, `SubscriptionRepository.setActive` (no `ProGate`); BIN-29 |
 | Home screen widget: monthly total and upcoming renewals; every plan | `widget/SubFlowWidget.kt`, `summariseForWidget` (not gated); BIN-30, BIN-32 |
+| Swipe right to pause; long-press multi-select (pause, resume, delete, category); every plan | `SwipeableSubscriptionCard` StartToEnd, `DashboardScreen` selection mode (not gated); BIN-41, BIN-66 |
+| CSV import with a preview; every plan | `domain/util/CsvImport.kt`, `ImportPreviewSheet`, Settings → Data (not gated); BIN-65 |
+| Monthly budget with a meter and an over-budget heads-up; Pro | `PreferencesManager.monthlyBudget`, `domain/util/Budget.kt`, shown only when `isPro`; BIN-68 |
 | Opening the service's account page | `cancellationUrlFor()`: known services get their own page; everything else gets Google Play's subscriptions page, so the copy says "常見服務" |
 
 **Deliberately not claimed:** cloud sync. The release build has no backend,
@@ -923,17 +947,71 @@ so the feature isn't there.
       `02-dashboard-dark` would now show only the category chips in use.
       Nothing in the current shots is false.
 
+## Store listing refresh (BIN-73)
+
+Not tied to a build: the listing text and screenshots can be updated in the
+Console at any time, and the change goes through Play review on its own.
+
+- [ ] **Full descriptions, all seven languages.** Paste each *Full
+      description* above. New since the last upload: swipe right to pause,
+      long-press multi-select, CSV import, and the monthly budget in the Pro
+      list. Titles and short descriptions are unchanged. Each new claim has a
+      row in *What each claim rests on*.
+- [ ] **Phone screenshots: replace all six with the eight below**, in this
+      order. Play shows the first three in search results, so the hero, trial
+      tracking and analytics go first.
+
+| # | File | Shows | Plan |
+|---|---|---|---|
+| 1 | `01-dashboard.png` | Total, trial badge, free-plan meter, swipe hint | Free |
+| 2 | `02-trial-detail.png` | Trial countdown, price after trial | Free |
+| 3 | `03-analytics.png` | 6-month trend, category split | Pro |
+| 4 | `04-add-budget.png` | Preset filled in, over-budget warning, 3/7-day reminders | Pro |
+| 5 | `05-multi-select.png` | Two selected, pause/delete, category/reminder menu | Free |
+| 6 | `06-csv-import.png` | Import preview, duplicate skipped | Free |
+| 7 | `07-services.png` | Preset picker with logos | Free |
+| 8 | `08-dashboard-dark.png` | Dark (OLED) theme | Free |
+
+The same English screenshots serve every language, as before.
+
 ### How the screenshots were taken
 
-So the next set matches rather than drifting. On the Pixel_8a emulator:
+So the next set matches rather than drifting. On a Pixel 8a emulator
+(1080x2400, 420 dpi, Android 15):
 
-- `adb shell wm size 1080x2160` — the capture is then already at the ratio Play
-  accepts, with nothing cropped away.
+- **Use an emulator of its own.** `emulator-5554` is shared with another
+  project's session, which brought its own app to the front partway through
+  the 2026-10-21 shoot. The set was taken on a separate AVD,
+  `Pixel_8a_Shots`, started with `-port 5580`.
+- `adb shell wm size 1080x2160`: the capture is then already at the ratio
+  Play accepts, with nothing cropped away.
 - `cmd locale set-app-locales <pkg> --locales en-US`, home currency USD.
-- Seed three active subscriptions and one paused, **not four** — at four the
-  "one slot left on the free plan" card fills half the screen. One of the three
-  is a running trial, which is what puts trial tracking in the frame.
+- Seed three active subscriptions and one paused, **not four**. At four, the
+  "one slot left on the free plan" card fills half the screen. One of the
+  three is a running trial, which is what puts trial tracking in the frame:
+  Perplexity Pro (trial, 4 days left, then $20), Spotify $11.99 and Netflix
+  $15.49, plus Adobe Creative Cloud paused.
 - **Airplane mode on.** Otherwise the AdMob *test* banner renders into the
   bottom of every shot, and a Play Billing error snackbar covers a row.
-- The app's own Appearance setting drives dark mode, not `cmd uimode night` —
-  the setting overrides the system.
+- **SystemUI demo mode** for the status bar: clock 9:41, full battery, no
+  notification icons
+  (`settings put global sysui_demo_allowed 1`, then
+  `am broadcast -a com.android.systemui.demo -e command clock -e hhmm 0941`
+  and the same for `battery` and `notifications`). Exit it with
+  `-e command exit`.
+- Dark mode comes from the app's own Appearance setting, not
+  `cmd uimode night`, because the setting overrides the system.
+- **Pro shots (3 and 4).** The emulator has no Play Billing, so for these
+  `val isPro` in `SubFlowNavGraph` was temporarily set to `true`, marked
+  `TEMP-`, then reverted. `grep -rl 'TEMP-\|isPro || true' android/app/src/`
+  printed nothing before the commit.
+  - Shot 4: monthly budget $40, then Disney+ picked in the add form.
+  - Shot 3: the analytics shot is the only one on a larger set, eight
+    subscriptions with staggered start dates. With three, the trend line is
+    flat. A Pro user has no limit of five, so that set is one a Pro user
+    could have.
+- **CSV import (6).** The file was three rows with headers
+  `Name,Amount,Currency,Cycle,Category,FirstBillDate`: Netflix, already
+  tracked, so it is skipped; Disney+; and ChatGPT Plus. Five rows would make
+  the preview say two come in paused under the free limit. That is true, but
+  it is not what this shot is selling.

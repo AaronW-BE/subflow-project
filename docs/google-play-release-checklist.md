@@ -233,7 +233,7 @@ critical path for: 隐私权政策 declaration, 数据安全, and the store list
 | 详细联系信息 | **DONE.** Email `zmtzwb@gmail.com`. Phone and website left blank — `subflow.app` is not live. |
 | 商品详情 (en-US) | **DRAFT saved.** Name `SubFlow: Subscription Tracker` (29/30), short description 74/80, full description 2119/4000. |
 | Store graphics | Icon + feature graphic **generated**, see `play-assets/`. Not yet uploaded. |
-| Screenshots | **5 captured**, `play-assets/screenshots/`. 1080×2160 each — note 1080×2400 (the Pixel 8a default) is **rejected**, because Play caps the long side at 2× the short side. |
+| Screenshots | **8 captured** (refreshed 2026-10-21, BIN-73; order and method in `play-store-copy.md`), `play-assets/screenshots/`. 1080×2160 each — note 1080×2400 (the Pixel 8a default) is **rejected**, because Play caps the long side at 2× the short side. |
 
 #### Claims verified before going into the public listing
 
