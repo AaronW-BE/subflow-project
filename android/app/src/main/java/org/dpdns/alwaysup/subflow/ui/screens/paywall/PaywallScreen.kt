@@ -618,7 +618,10 @@ private fun PlanCard(
                 }
                 Text(
                     text = supportLine,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
+                    // Line height set to the font, as in the feature list: a
+                    // note that wraps beside a long price read as two lines
+                    // a paragraph apart.
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp, lineHeight = 16.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

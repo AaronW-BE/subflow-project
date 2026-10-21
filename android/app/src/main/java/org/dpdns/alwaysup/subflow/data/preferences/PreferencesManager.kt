@@ -98,6 +98,8 @@ val SupportedLanguages = listOf(
     LanguageOption("de", "German", "Deutsch"),
     LanguageOption("fr", "French", "Français"),
     LanguageOption("es", "Spanish", "Español"),
+    // Written in Brazilian usage; also what a Portugal device gets (BIN-75).
+    LanguageOption("pt", "Portuguese (Brazil)", "Português (Brasil)"),
     LanguageOption("ja", "Japanese", "日本語"),
     LanguageOption("zh", "Simplified Chinese", "简体中文"),
     LanguageOption(TRADITIONAL_CHINESE, "Traditional Chinese", "繁體中文")

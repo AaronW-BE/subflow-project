@@ -19,6 +19,9 @@ since the last upload" is `git log <last tag>..main`.
 
 Changes since 1.4.0 (versionCode 8):
 
+Not in this upload: pt-BR. (Portuguese was added after 1.5.0 went up; its
+first release notes are 1.6.0's.)
+
 | Change | Source |
 |---|---|
 | Import subscriptions from a CSV file, with a preview before anything is written | BIN-65, PR #68, #71 |
@@ -429,6 +432,11 @@ One listing per language. Add each under **Main store listing → Manage
 translations**, then paste its three fields. Hong Kong (`zh-HK`) uses the zh-TW
 text.
 
+**With the 1.6.0 upload (first build with Portuguese):** add the pt-BR
+listing below, and add Portuguese to the language line of every other
+listing (*In English, … and Spanish*). Until that build is live, the other
+listings must not claim it.
+
 All seven listings say the same thing. zh-TW was written first from the
 features in the code (see *What each claim rests on*), and the others
 translate it. Terms match what each language's app UI shows (German
@@ -504,6 +512,76 @@ The free plan tracks up to 5 subscriptions and shows a banner ad. Pro gives you:
 Choose monthly, annual or a one-time lifetime purchase, all billed through Google Play. Subscriptions can be cancelled at any time.
 
 SubFlow tracks and reminds; it doesn't cancel anything for you. To cancel, go to the service's account page. For well-known services, the app opens it for you.
+```
+
+### pt-BR Português (Brasil)
+
+Added with BIN-75, for the first build that ships `values-pt` (1.6.0). Add it
+in the Console with that upload, not before: until then the app itself would
+not be in Portuguese. Address is você, as in the app; terms match its UI
+(*assinatura*, *cobrança*, *moeda principal*, *teste grátis*).
+
+**Título do app** (≤30)
+
+```
+SubFlow: Gerenciar Assinaturas
+```
+
+**Descrição curta** (≤80)
+
+```
+Todas as suas assinaturas em um só lugar, com um aviso antes de cada cobrança.
+```
+
+**Descrição completa** (≤4000)
+
+```
+Netflix, Spotify, armazenamento na nuvem, academia… quanto suas assinaturas somam de verdade por mês? O SubFlow reúne todas em um só lugar, mostra o total mensal real e avisa antes da cobrança, enquanto ainda dá tempo de cancelar o que você não usa mais.
+
+ACOMPANHE TODAS AS ASSINATURAS
+• 34 serviços populares já incluídos, com logo: escolha um e pronto
+• Ou crie o seu, com nome, cor e ícone próprios
+• Cobrança semanal, mensal, trimestral e anual, tudo convertido em totais por mês e por ano
+• Ordene por data de renovação, preço ou nome; filtre por categoria e busque
+• Deslize um cartão para a esquerda para excluir, ou para a direita para pausar
+• Toque e segure para selecionar várias e pausar, retomar, excluir ou mudar a categoria de uma vez
+• Pause uma assinatura que você parou de pagar: os dados ficam, mas ela sai dos totais e dos lembretes
+• Um widget na tela inicial mostra o total do mês e as próximas renovações
+
+UM AVISO ANTES DA COBRANÇA
+• Um lembrete 1 dia antes de cada renovação (o Pro inclui 3 e 7 dias)
+• Se o celular perdeu um lembrete enquanto estava parado, abrir o app recupera o aviso
+
+ACOMPANHE TESTES GRÁTIS
+• Marque uma assinatura como teste grátis, com a data de término e o preço que vem depois
+• Receba um lembrete antes do fim do teste, em todos os planos
+• Quando terminar, registre se virou pago, se você cancelou ou se foi estendido
+
+VÁRIAS MOEDAS, UM SÓ TOTAL
+• 40 moedas: registre cada assinatura na moeda em que é cobrada
+• Tudo é convertido para a sua moeda principal com cotações atualizadas. Offline, usa as últimas cotações baixadas, ou cotações embutidas se o app nunca esteve online
+
+ANÁLISE DE GASTOS
+• Total mensal, total anual e média por dia
+• Pro: histórico de 6 meses, gastos por categoria, mapa de gastos, previsão de cobranças mês a mês e exportação em CSV
+
+SEUS DADOS FICAM NO SEU CELULAR
+• Não precisa de conta: tudo fica salvo no aparelho
+• Exporte um backup em JSON e restaure quando quiser
+• Importe assinaturas de um arquivo CSV — sua própria exportação ou uma planilha — com uma prévia antes de adicionar qualquer coisa
+• Modo escuro (preto de verdade) e resposta tátil
+• Em português, inglês, chinês simplificado, chinês tradicional, japonês, alemão, francês e espanhol
+
+SUBFLOW PRO
+O plano gratuito acompanha até 5 assinaturas e mostra um banner de anúncio. O Pro oferece:
+• Assinaturas ilimitadas
+• Lembretes 3 e 7 dias antes da renovação
+• A análise de gastos completa e a exportação em CSV
+• Um orçamento mensal, com um medidor no seu total e um aviso antes que uma assinatura passe do limite
+• Sem anúncios, nunca
+Escolha mensal, anual ou uma compra vitalícia única, tudo cobrado pelo Google Play. As assinaturas podem ser canceladas a qualquer momento.
+
+O SubFlow acompanha e avisa; ele não cancela nada por você. Para cancelar, acesse a página da conta no serviço. Nos serviços mais conhecidos, o app abre essa página para você.
 ```
 
 ### zh-CN 中文（简体）

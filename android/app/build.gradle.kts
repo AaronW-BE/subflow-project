@@ -84,7 +84,7 @@ android {
         // Traditional Chinese is named by its own qualifier: "zh" matches
         // values-zh and nothing else, and on its own it silently stripped
         // values-b+zh+Hant from the release build (BIN-27).
-        resourceConfigurations += listOf("en", "de", "fr", "es", "ja", "zh", "b+zh+Hant")
+        resourceConfigurations += listOf("en", "de", "fr", "es", "pt", "ja", "zh", "b+zh+Hant")
     }
 
     signingConfigs {

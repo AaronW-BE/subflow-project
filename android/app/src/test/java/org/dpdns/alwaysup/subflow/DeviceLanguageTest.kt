@@ -60,14 +60,22 @@ class DeviceLanguageTest {
 
     @Test
     fun `the device's order of preference is kept, skipping what the app does not ship`() {
-        // Portuguese first, which the app does not ship, then Taiwanese Chinese.
-        assertEquals(TRADITIONAL_CHINESE, DeviceLanguage.firstSupported(device("pt-BR", "zh-TW", "en-US"), shipped))
+        // Dutch first, which the app does not ship, then Taiwanese Chinese.
+        assertEquals(TRADITIONAL_CHINESE, DeviceLanguage.firstSupported(device("nl-NL", "zh-TW", "en-US"), shipped))
         assertEquals("en", DeviceLanguage.firstSupported(device("en-GB", "zh-TW"), shipped))
     }
 
     @Test
     fun `nothing shipped means no answer, and the caller falls back`() {
-        assertNull(DeviceLanguage.firstSupported(device("pt-BR", "ko-KR"), shipped))
+        assertNull(DeviceLanguage.firstSupported(device("nl-NL", "sv-SE"), shipped))
+    }
+
+    @Test
+    fun `Brazil and Portugal both read Portuguese, shown the Brazilian way`() {
+        for (tag in listOf("pt-BR", "pt-PT", "pt")) {
+            assertEquals(tag, "pt", DeviceLanguage.firstSupported(device(tag), shipped))
+        }
+        assertEquals(Locale.forLanguageTag("pt-BR"), localeForLanguageCode("pt"))
     }
 
     @Test
