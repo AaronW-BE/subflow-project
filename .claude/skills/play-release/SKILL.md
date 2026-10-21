@@ -58,15 +58,16 @@ Play's paste-in format covering every shipped language:
 | `values-de` / `-fr` / `-es` / `-ja` | de-DE / fr-FR / es-ES / ja-JP |
 | `values-pt` | pt-BR (Brazilian usage; also what Portugal is shown) |
 | `values-ko` | ko-KR |
+| `values-it` | it-IT |
 
 Rules that came from getting it wrong once:
 
 - **Use the app's own words.** Read the actual strings in each locale's
   `strings.xml` and use them: German Settings pages are *Allgemein*, not
   *Einstellungen*; home currency is 本币 / 主要貨幣 / Hauptwährung / devise
-  principale / moneda principal / moeda principal / 基準通貨 / 기본 통화.
-- **Match the app's form of address**: du (de), vous (fr), tú (es), você
-  (pt-BR), です/ます (ja), 해요체 (ko). zh-TW in Taiwan usage (設定, 資料, 帳號, 扣款), not character conversion.
+  principale / moneda principal / moeda principal / valuta principale / 基準通貨 / 기본 통화.
+- **Match the app's form of address**: du (de), vous (fr), tú (es), tu (it),
+  você (pt-BR), です/ます (ja), 해요체 (ko). zh-TW in Taiwan usage (設定, 資料, 帳號, 扣款), not character conversion.
 - Write for the user, not the developer: say what they'll see, not how the
   code changed. Around 3–5 bullets; 500 characters is the hard limit.
 - The Console box pre-fills only the store listing's languages, but it

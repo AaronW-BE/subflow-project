@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Italian (BIN-77). Addressed as tu, as the app's German and Spanish are. -->
+<resources>
+    <string name="app_name">SubFlow</string>
+    <string name="nav_subscriptions">Abbonamenti</string>
+    <string name="nav_analytics">Analisi</string>
+    <string name="nav_settings">Impostazioni</string>
+
+    <!-- Dashboard -->
+    <string name="total_monthly_spend">Spesa mensile totale</string>
+    <string name="projected_annual_spend">Spesa annua prevista</string>
+    <string name="switch_to_annual">Vedi annuale</string>
+    <string name="switch_to_monthly">Vedi mensile</string>
+    <string name="projected_yearly">Previsione: %s/anno</string>
+    <string name="next_renewal_in">Prossimo rinnovo tra %s</string>
+    <string name="days_count">%d giorni</string>
+    <string name="filter_all">Tutti</string>
+    <string name="filter_streaming">Streaming</string>
+    <string name="filter_productivity">Produttività</string>
+    <string name="filter_cloud">Cloud</string>
+    <string name="filter_utilities">Utenze</string>
+    <string name="filter_health">Salute</string>
+    <string name="filter_finance">Finanza</string>
+    <string name="filter_gaming">Giochi</string>
+    <string name="filter_education">Istruzione</string>
+    <string name="filter_lifestyle">Stile di vita</string>
+    <string name="filter_news">Notizie</string>
+    <string name="add_subscription">Aggiungi abbonamento</string>
+    <string name="back_to_top">Torna su</string>
+    <string name="upgrade_to_pro">Passa a Pro</string>
+    <string name="clear_search">Cancella ricerca</string>
+    <string name="clear_name">Cancella nome</string>
+    <string name="choose_custom_logo">Scegli un logo</string>
+    <string name="remove_custom_logo">Rimuovi logo</string>
+    <string name="search_currency_hint">Cerca valuta o codice</string>
+    <string name="rates_updated_on">Aggiornato il %1$s</string>
+    <string name="rates_offline_snapshot">Tassi salvati (offline)</string>
+    <string name="search">Cerca</string>
+    <string name="empty_title">Ancora nessun abbonamento</string>
+    <string name="empty_body">Aggiungi i servizi che paghi e SubFlow tiene totali e date di rinnovo in un unico posto.</string>
+    <string name="empty_cta">Aggiungi il primo abbonamento</string>
+    <string name="empty_search_title">Nessun risultato</string>
+    <string name="empty_search_body">Nessuna corrispondenza per “%s”.</string>
+    <string name="clear_search_action">Cancella ricerca</string>
+    <string name="empty_filter_body">Non hai abbonamenti in “%s”.</string>
+    <string name="empty_filter_search_body">Nessuna corrispondenza per “%1$s” in “%2$s”.</string>
+    <string name="clear_filters_action">Cancella filtri</string>
+    <string name="deleted_item">“%s” eliminato</string>
+    <string name="delete_action">Elimina</string>
+    <string name="swipe_hint">Scorri una scheda a sinistra per eliminarla, a destra per metterla in pausa</string>
+    <string name="swipe_hint_dismiss">Chiudi suggerimento</string>
+
+    <!-- Free quota -->
+    <string name="quota_label">Piano gratuito</string>
+    <string name="quota_progress">%1$d di %2$d in uso</string>
+    <string name="quota_nudge_title">Ti resta un posto nel piano gratuito</string>
+    <string name="quota_nudge_title_full">Il piano gratuito è pieno</string>
+    <string name="quota_nudge_cta">Scopri Pro</string>
+
+    <!-- Add Subscription -->
+    <string name="title_new_subscription">Nuovo abbonamento</string>
+    <string name="title_edit_subscription">Modifica abbonamento</string>
+    <string name="cancel">Annulla</string>
+    <string name="save">Salva</string>
+    <string name="delete">Elimina</string>
+    <string name="search_presets">Cerca servizi (Netflix, Spotify)</string>
+    <string name="field_service">Servizio</string>
+    <string name="choose_service">Scegli un servizio</string>
+    <string name="custom_service">Servizio personalizzato</string>
+    <string name="custom_service_hint">Nome, colore e logo a tua scelta</string>
+    <string name="custom_subscription">Abbonamento personalizzato</string>
+    <string name="service_name">Nome del servizio</string>
+    <string name="category">Categoria</string>
+    <string name="amount">Importo</string>
+    <string name="billing_cycle">CICLO DI ADDEBITO</string>
+    <string name="first_bill_date">Data del primo pagamento</string>
+    <string name="cycle_weekly">Settimanale</string>
+    <string name="cycle_monthly">Mensile</string>
+    <string name="cycle_quarterly">Trimestrale</string>
+    <string name="cycle_yearly">Annuale</string>
+    <string name="renewal_alerts">Avviso di rinnovo</string>
+    <string name="remind_before_renewal">Avvisami prima dell’addebito</string>
+    <string name="live_preview">ANTEPRIMA</string>
+    <string name="accent_colour_own_mark">Questo servizio ha già un’icona a colori, che il colore di accento non cambia. Il colore serve a evidenziare il servizio nella mappa della spesa.</string>
+    <string name="brand_accent_color">COLORE DI ACCENTO</string>
+    <string name="subscription_details">DETTAGLI</string>
+    <string name="field_name">Nome</string>
+    <string name="field_price">Prezzo</string>
+    <string name="field_category">Categoria</string>
+    <string name="field_notes">Note</string>
+    <string name="field_notes_hint">Promemoria facoltativo</string>
+    <string name="field_currency">Valuta</string>
+    <string name="renews_next_on">Prossimo rinnovo il %s</string>
+    <string name="reminder_lead_value">%d giorni prima</string>
+    <string name="reminder_lead_one">1 giorno prima</string>
+    <string name="price_invalid">Inserisci un prezzo maggiore di 0</string>
+    <string name="name_required">Dai un nome all’abbonamento</string>
+    <string name="discard_changes_title">Annullare le modifiche?</string>
+    <string name="discard_changes_body">Le modifiche a questo abbonamento non verranno salvate.</string>
+    <string name="discard">Annulla modifiche</string>
+    <string name="keep_editing">Continua a modificare</string>
+    <string name="saved_subscription">“%s” salvato</string>
+
+    <!-- Paywall -->
+    <string name="subflow_pro">SUBFLOW PRO</string>
+    <string name="paywall_headline">Tutti gli abbonamenti sotto controllo</string>
+    <string name="paywall_subhead">Avvisi in anticipo, abbonamenti illimitati, budget mensile e analisi complete. Senza pubblicità.</string>
+    <string name="feat_unlimited">Abbonamenti illimitati</string>
+    <string name="feat_unlimited_sub">Il piano gratuito arriva a 5</string>
+    <string name="feat_push_alerts">Avvisi 3 e 7 giorni prima</string>
+    <string name="feat_push_alerts_sub">Il piano gratuito avvisa il giorno prima. Una settimana ti dà il tempo di disdire.</string>
+    <string name="feat_analytics">Analisi complete della spesa</string>
+    <string name="feat_analytics_sub">Storico, categorie, previsione ed esportazione CSV</string>
+    <string name="feat_no_ads">Mai pubblicità</string>
+    <string name="feat_no_ads_sub">Il banner sparisce appena passi a Pro</string>
+    <string name="plan_annual">Annuale</string>
+    <string name="plan_monthly">Mensile</string>
+    <string name="plan_lifetime">A vita</string>
+    <string name="plan_annual_note">Addebitato una volta l’anno</string>
+    <string name="plan_monthly_note">Disdici quando vuoi</string>
+    <string name="plan_lifetime_note">Un solo pagamento, tuo per sempre</string>
+    <string name="plan_per_month">%s / mese</string>
+    <string name="plan_per_year">%s / anno</string>
+    <string name="plan_one_time">%s una tantum</string>
+    <string name="plan_effective_monthly">%s / mese</string>
+    <string name="badge_best_value">PIÙ CONVENIENTE</string>
+    <string name="badge_save_percent">RISPARMI IL %d%%</string>
+    <string name="badge_free_trial">%d GIORNI GRATIS</string>
+    <string name="btn_start_trial">Inizia %d giorni gratis</string>
+    <string name="btn_continue">Continua</string>
+    <string name="btn_restore">Ripristina acquisti</string>
+    <string name="sub_footnote">%s, addebitato tramite Google Play. Disdici quando vuoi.</string>
+    <string name="lifetime_footnote">%s addebitato una sola volta. Nessun addebito ricorrente.</string>
+    <string name="terms_of_service">Termini</string>
+    <string name="privacy_policy">Privacy</string>
+    <string name="close">Chiudi</string>
+    <string name="loading_plans">Caricamento dei piani</string>
+    <string name="plans_unavailable">La fatturazione di Google Play non è disponibile al momento. Controlla la connessione e riprova.</string>
+    <string name="retry">Riprova</string>
+    <string name="already_pro_title">Hai SubFlow Pro</string>
+    <string name="already_pro_body">Grazie. Su questo account è tutto sbloccato.</string>
+    <string name="manage_subscription">Gestisci abbonamento</string>
+    <string name="restore_none_found">Nessun acquisto precedente trovato su questo account Google.</string>
+    <string name="restore_success">Pro ripristinato.</string>
+    <string name="purchase_success">Benvenuto in SubFlow Pro.</string>
+    <string name="purchase_cancelled">Acquisto annullato.</string>
+    <string name="purchase_failed">Impossibile completare l’acquisto. Non è stato addebitato nulla.</string>
+    <string name="purchase_pending">Pagamento in sospeso. Pro si sblocca appena Google Play lo conferma.</string>
+    <string name="quota_reached_title">Il piano gratuito è pieno</string>
+    <string name="quota_reached_desc">Stai seguendo 5 abbonamenti. Passa a Pro per aggiungerne altri.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Salta</string>
+    <string name="onboarding_next">Avanti</string>
+    <string name="onboarding_start">Inizia</string>
+    <string name="onboarding_1_title">Scopri quanto paghi davvero</string>
+    <string name="onboarding_1_body">Aggiungi i tuoi abbonamenti una volta. SubFlow trasforma piani settimanali, mensili e annuali in un unico totale mensile onesto.</string>
+    <string name="onboarding_2_title">Niente più sorprese</string>
+    <string name="onboarding_2_body">L’avviso arriva prima dell’addebito, così puoi disdire finché non costa ancora nulla.</string>
+    <string name="onboarding_3_title">I tuoi dati restano sul telefono</string>
+    <string name="onboarding_3_body">Nessun account richiesto. Tutto è salvato sul dispositivo, e il backup sul cloud è una tua scelta.</string>
+    <string name="onboarding_manage_title">Aggiungi, modifica, rimuovi</string>
+    <string name="onboarding_manage_add">Tocca + in basso a destra per aggiungere un abbonamento</string>
+    <string name="onboarding_manage_edit">Tocca una scheda per modificarla</string>
+    <string name="onboarding_manage_delete">Scorri una scheda a sinistra per eliminarla, oppure aprila e tocca Elimina</string>
+    <string name="onboarding_replay">Rivedi la presentazione</string>
+    <string name="onboarding_replay_sub">Ripeti l’introduzione iniziale</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">Analisi</string>
+    <string name="avg_monthly">Media mensile</string>
+    <string name="annual_forecast">Previsione della spesa annua</string>
+    <string name="category_breakdown">Per categoria</string>
+    <string name="top_expenses">Spese maggiori</string>
+    <string name="export_report">Esporta report CSV</string>
+    <string name="export_report_sub_pro">Condividi o salva un foglio di calcolo completo</string>
+    <string name="export_report_sub_free">Sblocca con SubFlow Pro</string>
+    <string name="segment_monthly">Mensile</string>
+    <string name="segment_annual">Annuale</string>
+    <string name="metric_monthly_commitment">SPESA MENSILE</string>
+    <string name="metric_annual_run_rate">PROIEZIONE ANNUA</string>
+    <string name="metric_daily_avg">Al giorno</string>
+    <string name="metric_top_share">Voce principale</string>
+    <string name="metric_tracked">Monitorati</string>
+    <string name="metric_share_percent">%d%%</string>
+    <string name="metric_top_share_spoken">%1$s, il %2$d%% del totale mensile</string>
+    <string name="spend_map">Mappa della spesa</string>
+    <string name="spend_map_caption">Ogni riquadro è un abbonamento; l’area è la sua quota del totale mensile</string>
+    <string name="spend_map_caption_annual">Ogni riquadro è un abbonamento; l’area è la sua quota del totale annuo</string>
+    <string name="spend_map_other">Tutto il resto</string>
+    <string name="spend_map_summary">Mappa della spesa: %1$s su %2$d abbonamenti, il più grande è %3$s</string>
+    <string name="billing_forecast">Previsione degli addebiti</string>
+    <string name="billing_forecast_caption">Quanto viene addebitato davvero ogni mese. Un piano annuale arriva tutto in un giorno, invece di essere distribuito su dodici mesi.</string>
+    <string name="forecast_peak">%1$s è il mese più pesante, con %2$s</string>
+    <string name="forecast_even">I prossimi sei mesi sono simili, circa %1$s ciascuno</string>
+    <string name="forecast_average_line">Linea tratteggiata: media mensile</string>
+    <string name="history_caption">Ultimi 6 mesi di ciò che paghi oggi, da quando è iniziato ciascuno</string>
+    <string name="analytics_empty">Aggiungi un abbonamento per vedere il dettaglio della spesa.</string>
+    <string name="pro_locked_analytics">Grafici e dettagli fanno parte di Pro.</string>
+    <string name="unlock_with_pro">Sblocca con Pro</string>
+    <string name="export_ready">CSV pronto da condividere</string>
+    <string name="export_failed">Impossibile creare il file CSV.</string>
+
+    <!-- Detail -->
+    <string name="detail_days_left">giorni rimasti</string>
+    <string name="detail_due_today">Scade oggi</string>
+    <string name="detail_overdue">La data di rinnovo è passata</string>
+    <string name="detail_billing_details">ADDEBITO</string>
+    <string name="detail_cycle">Ciclo di addebito</string>
+    <string name="detail_next_renewal">Prossimo rinnovo</string>
+    <string name="detail_first_payment">Primo pagamento</string>
+    <string name="detail_monthly_equivalent">Equivalente mensile</string>
+    <string name="detail_yearly_commitment">Spesa annua</string>
+    <string name="detail_paid_so_far">Pagato dal primo addebito</string>
+    <string name="detail_notes">Note</string>
+    <string name="detail_reminder">Promemoria</string>
+    <string name="detail_reminder_off">Disattivato</string>
+    <string name="detail_manage_official">Gestisci o disdici presso il fornitore</string>
+    <string name="detail_manage_official_sub">Apre la pagina dell’account del fornitore</string>
+    <string name="detail_remove">Rimuovi abbonamento</string>
+    <string name="paused">In pausa</string>
+    <string name="detail_pause">Metti in pausa</string>
+    <string name="detail_resume">Riprendi questo abbonamento</string>
+    <string name="detail_paused_note">Un abbonamento in pausa non invia promemoria ed è escluso dai totali. Non viene eliminato nulla.</string>
+    <string name="dashboard_paused_header">In pausa (%d)</string>
+    <string name="paused_item">“%s” in pausa</string>
+    <string name="resumed_item">“%s” ripreso</string>
+    <string name="resumed_as_paid">“%1$s” ripreso a %2$s</string>
+    <string name="pause_action">Pausa</string>
+    <string name="resume_action">Riprendi</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">Il totale del mese e i prossimi rinnovi.</string>
+    <string name="widget_preview_when_1">Mancano 2 giorni</string>
+    <string name="widget_preview_when_2">Prova: mancano 3 giorni</string>
+    <string name="widget_preview_when_3">Mancano 9 giorni</string>
+    <string name="detail_billed_cycle">Addebito %s</string>
+    <string name="delete_confirm_title">Rimuovere %s?</string>
+    <string name="delete_confirm_body">Lo rimuove dal tuo monitoraggio. Non disdice l’abbonamento presso il fornitore.</string>
+    <string name="edit">Modifica</string>
+    <string name="back">Indietro</string>
+    <string name="not_found">Abbonamento non trovato</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_page_preferences">Preferenze</string>
+    <string name="settings_page_notifications">Notifiche</string>
+    <string name="settings_page_data">Dati</string>
+    <string name="settings_page_about">Informazioni</string>
+    <string name="settings_page_notifications_sub">Avvisi di rinnovo · Promemoria prove</string>
+    <string name="settings_page_data_sub">Backup · Ripristino</string>
+    <string name="settings_page_about_sub">Privacy · Termini · Assistenza</string>
+    <string name="primary_currency">Valuta principale</string>
+    <string name="appearance">Aspetto</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro (OLED)</string>
+    <string name="language">Lingua</string>
+    <string name="language_system">Predefinita di sistema</string>
+    <string name="cloud_backup">Backup e sincronizzazione cloud</string>
+    <string name="cloud_backup_sub">Tocca per sincronizzare ora</string>
+    <string name="sign_in_google">Accedi con Google</string>
+    <string name="sign_out">Esci</string>
+    <string name="signed_in_as">Accesso effettuato come %s</string>
+    <string name="guest_vault">Archivio locale, nessun account</string>
+    <string name="search_subscriptions">Cerca abbonamenti</string>
+    <string name="sort_options">Ordina per</string>
+    <string name="sort_renewal_date">Data di rinnovo</string>
+    <string name="sort_price_high">Prezzo: dal più alto</string>
+    <string name="sort_price_low">Prezzo: dal più basso</string>
+    <string name="sort_name_asc">Nome: A–Z</string>
+    <string name="section_preferences">PREFERENZE</string>
+    <string name="section_notifications">NOTIFICHE</string>
+    <string name="data_portability">DATI</string>
+    <string name="backup_json">Esporta backup (JSON)</string>
+    <string name="backup_json_sub">Salva una copia di tutto ciò che monitori</string>
+    <string name="restore_json">Ripristina da backup</string>
+    <string name="restore_json_sub">Importa un file esportato in precedenza</string>
+    <string name="legal_and_support">INFORMAZIONI</string>
+    <string name="contact_support">Contatta l’assistenza</string>
+    <string name="contact_support_sub">Domande, bug e richieste di funzioni</string>
+    <string name="rate_app">Valuta SubFlow</string>
+    <string name="rate_app_sub">Una recensione aiuta davvero</string>
+    <string name="share_app">Condividi SubFlow</string>
+    <string name="clear_all_data">Cancella tutti i dati</string>
+    <string name="clear_all_data_sub">Elimina tutti gli abbonamenti da questo dispositivo</string>
+    <string name="haptics">Feedback aptico</string>
+    <string name="haptics_sub">Leggera vibrazione al tocco</string>
+    <string name="reminder_lead_title">Avvisami prima del rinnovo</string>
+    <string name="reminder_lead_sub_free">Pro aggiunge 3 e 7 giorni</string>
+    <string name="test_notification">Invia un avviso di prova</string>
+    <string name="test_notification_sub">Verifica che le notifiche ti arrivino</string>
+    <string name="test_notification_sent">Avviso di prova inviato.</string>
+    <string name="notifications_blocked">Le notifiche di SubFlow sono disattivate.</string>
+    <string name="open_settings">Apri impostazioni</string>
+    <string name="undo">Annulla</string>
+    <string name="renewal_today">Scade oggi</string>
+    <plurals name="renewal_days_left">
+        <item quantity="one">Manca %d giorno</item>
+        <item quantity="many">Mancano %d giorni</item>
+        <item quantity="other">Mancano %d giorni</item>
+    </plurals>
+    <string name="renewal_days_short">%d g</string>
+    <string name="renewal_overdue">Scaduto</string>
+    <string name="cycle_short_weekly">/sett.</string>
+    <string name="cycle_short_monthly">/mese</string>
+    <string name="cycle_short_quarterly">/trim.</string>
+    <string name="cycle_short_yearly">/anno</string>
+    <string name="app_version">Versione %s</string>
+    <string name="restore_success_count">%d abbonamenti ripristinati.</string>
+    <string name="restore_success_paused">%1$d abbonamenti ripristinati. %2$d sono in pausa, perché il piano gratuito ne tiene attivi %3$d.</string>
+    <string name="restore_failed">Questo non sembra un backup di SubFlow.</string>
+    <string name="reset_dialog_title">Cancellare tutti i dati?</string>
+    <string name="reset_dialog_body">Tutti gli abbonamenti su questo dispositivo vengono eliminati definitivamente. L’acquisto di Pro non viene toccato.</string>
+    <string name="reset_confirm">Cancella tutto</string>
+    <string name="reset_done">Tutti i dati degli abbonamenti sono stati cancellati.</string>
+    <string name="sync_complete">Sincronizzazione completata, %d elementi</string>
+    <string name="sync_offline">Offline. I tuoi dati sono al sicuro su questo dispositivo.</string>
+    <string name="sign_in_unavailable">L’accesso con Google non è configurato in questa build.</string>
+    <string name="sign_in_cancelled">Accesso annullato.</string>
+    <string name="sign_in_failed">Accesso non riuscito. Puoi continuare a usare SubFlow senza account.</string>
+    <string name="share_app_text">SubFlow tiene in un unico posto tutti gli abbonamenti che pago e mi avvisa prima dei rinnovi. %s</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_renewal">Avvisi di rinnovo</string>
+    <string name="notif_channel_renewal_desc">Promemoria prima del rinnovo di un abbonamento</string>
+    <string name="notif_renewal_title_today">%s si rinnova oggi</string>
+    <string name="notif_renewal_title">%1$s si rinnova tra %2$d giorni</string>
+    <string name="notif_renewal_body">Ti verranno addebitati %1$s il %2$s. Disdici ora se non lo usi più.</string>
+    <string name="notif_trial_title_today">La prova di %s termina oggi</string>
+    <string name="notif_trial_title">La prova di %1$s termina tra %2$d giorni</string>
+    <string name="notif_trial_body_converts">Diventa a pagamento il %2$s e ti verranno addebitati %1$s. Disdici prima per evitarlo.</string>
+    <string name="notif_trial_body_free">La prova termina il %s. Non verrà addebitato nulla.</string>
+    <string name="notif_test_title">Le notifiche funzionano</string>
+    <string name="notif_test_body">SubFlow ti avviserà prima del prossimo rinnovo.</string>
+    <plurals name="active_subscriptions_count">
+        <item quantity="one">%d abbonamento attivo</item>
+        <item quantity="many">%d abbonamenti attivi</item>
+        <item quantity="other">%d abbonamenti attivi</item>
+    </plurals>
+    <plurals name="metric_services">
+        <item quantity="one">%d servizio</item>
+        <item quantity="many">%d servizi</item>
+        <item quantity="other">%d servizi</item>
+    </plurals>
+    <string name="cd_advertisement">Pubblicità</string>
+    <string name="cd_accent_colour">Colore di accento %s</string>
+    <string name="ad_privacy_options">Opzioni privacy degli annunci</string>
+    <string name="restore_read_failed">Impossibile leggere il file.</string>
+    <string name="section_danger">ZONA PERICOLOSA</string>
+    <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">Prova</string>
+    <string name="trial_toggle">Prova gratuita</string>
+    <string name="trial_toggle_sub">Non lo stai ancora pagando</string>
+    <string name="trial_end_date">Fine della prova</string>
+    <string name="trial_end_date_invalid">La prova deve finire dopo la data di inizio</string>
+    <string name="trial_converts">Diventa a pagamento alla fine</string>
+    <string name="trial_converts_sub">Disattiva se semplicemente si interrompe</string>
+    <string name="field_price_after_trial">Prezzo dopo la prova</string>
+    <string name="trial_free_amount">Gratis</string>
+    <string name="trial_ends_today">Termina oggi</string>
+    <string name="trial_ended">Prova terminata</string>
+    <string name="trial_then_amount">poi %s</string>
+    <string name="trial_no_charge">Nessun addebito</string>
+    <string name="detail_trial_end">Fine della prova</string>
+    <string name="detail_trial_price">Prezzo dopo la prova</string>
+    <string name="trial_ended_prompt">Questa prova è terminata. Com’è andata?</string>
+    <string name="trial_action_converted">È diventata a pagamento</string>
+    <string name="trial_action_cancelled">L’ho disdetta</string>
+    <string name="trial_action_extend">Estendi la prova</string>
+    <string name="trial_reminders_unavailable">Le notifiche sono disattivate, quindi SubFlow non può avvisarti prima della fine di questa prova. Il conto alla rovescia resta comunque qui.</string>
+    <string name="trial_alert_summary">Avviso %s giorni prima della fine</string>
+    <string name="trial_alert_off">Nessun promemoria prima della fine</string>
+    <string name="trial_reminder_value">%s giorni prima</string>
+    <string name="settings_trial_leads_title">Promemoria delle prove</string>
+    <string name="settings_trial_leads_sub">Prima della fine di una prova gratuita. Incluso in tutti i piani.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Prova: manca %d giorno</item>
+        <item quantity="many">Prova: mancano %d giorni</item>
+        <item quantity="other">Prova: mancano %d giorni</item>
+    </plurals>
+
+    <!-- What's new sheet (BIN-60); rewritten for each release -->
+    <string name="whats_new_title">Novità</string>
+    <string name="whats_new_version">Versione %1$s</string>
+    <string name="whats_new_done">Ho capito</string>
+    <string name="whats_new_feedback">Invia feedback</string>
+    <string name="whats_new_item_1">Importa abbonamenti da un file CSV in Impostazioni → Dati.</string>
+    <string name="whats_new_item_2">Tieni premuto un abbonamento per selezionarne diversi e modificarli insieme.</string>
+    <string name="whats_new_item_3">Ogni categoria che usi ora ha il suo filtro.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">Importa CSV</string>
+    <string name="import_csv_sub">Da un foglio di calcolo o da un’altra app</string>
+    <string name="import_title">Importa da CSV</string>
+    <string name="import_nothing_new">Niente di nuovo da importare.</string>
+    <string name="import_paused_note">%1$d verranno aggiunti in pausa, perché il piano gratuito ne tiene attivi %2$d.</string>
+    <string name="import_line">Riga %1$d: %2$s</string>
+    <string name="import_problem_missing_name">senza nome</string>
+    <string name="import_problem_bad_amount">“%s” non è un prezzo</string>
+    <string name="import_problem_bad_currency">“%s” non è una valuta supportata</string>
+    <string name="import_problem_bad_cycle">“%s” non è un ciclo di addebito</string>
+    <string name="import_problem_bad_date">“%s” non è una data</string>
+    <string name="import_missing_columns">La prima riga deve indicare le colonne, e in questo file manca: %s.</string>
+    <string name="import_template_hint">Per esempio: %s</string>
+    <string name="import_empty">Nessun abbonamento trovato nel file.</string>
+    <string name="import_done_paused">%1$d abbonamenti importati. %2$d sono in pausa, perché il piano gratuito ne tiene attivi %3$d.</string>
+    <plurals name="import_new">
+        <item quantity="one">%d nuovo abbonamento</item>
+        <item quantity="many">%d nuovi abbonamenti</item>
+        <item quantity="other">%d nuovi abbonamenti</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%d già presente in SubFlow, saltato</item>
+        <item quantity="many">%d già presenti in SubFlow, saltati</item>
+        <item quantity="other">%d già presenti in SubFlow, saltati</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="one">%d riga non leggibile</item>
+        <item quantity="many">%d righe non leggibili</item>
+        <item quantity="other">%d righe non leggibili</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="one">Importa %d abbonamento</item>
+        <item quantity="many">Importa %d abbonamenti</item>
+        <item quantity="other">Importa %d abbonamenti</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d abbonamento importato.</item>
+        <item quantity="many">%d abbonamenti importati.</item>
+        <item quantity="other">%d abbonamenti importati.</item>
+    </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">Seleziona</string>
+    <string name="select_all">Seleziona tutto</string>
+    <string name="exit_selection">Annulla selezione</string>
+    <string name="bulk_resumed_partial">%1$d ripresi. %2$d restano in pausa, perché il piano gratuito ne tiene attivi %3$d.</string>
+    <string name="bulk_resume_full">Il piano gratuito ne tiene attivi %d, quindi questi restano in pausa.</string>
+    <string name="bulk_resumed_converted">%1$d ripresi. %2$d prove disdette ora vengono addebitate a prezzo pieno.</string>
+    <plurals name="selection_count">
+        <item quantity="one">%d selezionato</item>
+        <item quantity="many">%d selezionati</item>
+        <item quantity="other">%d selezionati</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="one">%d abbonamento in pausa</item>
+        <item quantity="many">%d abbonamenti in pausa</item>
+        <item quantity="other">%d abbonamenti in pausa</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="one">%d abbonamento ripreso</item>
+        <item quantity="many">%d abbonamenti ripresi</item>
+        <item quantity="other">%d abbonamenti ripresi</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d abbonamento eliminato</item>
+        <item quantity="many">%d abbonamenti eliminati</item>
+        <item quantity="other">%d abbonamenti eliminati</item>
+    </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">Cambia categoria</string>
+    <string name="change_reminder">Cambia promemoria</string>
+    <string name="more_actions">Altre azioni</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="one">%1$d abbonamento spostato in %2$s</item>
+        <item quantity="many">%1$d abbonamenti spostati in %2$s</item>
+        <item quantity="other">%1$d abbonamenti spostati in %2$s</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="one">Promemoria aggiornato per %d abbonamento</item>
+        <item quantity="many">Promemoria aggiornato per %d abbonamenti</item>
+        <item quantity="other">Promemoria aggiornato per %d abbonamenti</item>
+    </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">Budget mensile</string>
+    <string name="monthly_budget_sub">Scopri quanto ne usano i tuoi abbonamenti</string>
+    <string name="monthly_budget_off">Non impostato</string>
+    <string name="monthly_budget_hint">Importo in %s</string>
+    <string name="budget_remove">Rimuovi</string>
+    <string name="budget_left">Restano %1$s di %2$s</string>
+    <string name="budget_over">%1$s oltre il budget di %2$s</string>
+    <string name="feat_budget">Budget mensile</string>
+    <string name="feat_budget_sub">Un indicatore sul totale e un avviso prima che un nuovo abbonamento ti faccia sforare</string>
+
+    <!-- Over-budget notices (BIN-68) -->
+    <string name="budget_after_add_over">Con questo superi di %1$s il budget di %2$s</string>
+    <string name="budget_after_add_left">Dopo questo restano %1$s del budget di %2$s</string>
+    <string name="budget_now_over">Ora sei %1$s oltre il budget di %2$s.</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">Segui tutti gli abbonamenti, non solo %d</string>
+    <string name="paywall_headline_alerts">Ogni addebito, una settimana prima</string>
+    <string name="paywall_headline_budget">Resta nel tuo budget mensile</string>
+    <string name="paywall_headline_analytics">Scopri dove vanno i tuoi soldi</string>
+    <string name="feat_unlimited_used">Ne segui %1$d su %2$d con il piano gratuito</string>
+    <string name="paywall_free_for_all">Gratis in tutti i piani: totali in più valute, monitoraggio delle prove, importazione CSV e backup.</string>
+    <string name="trial_footnote_until">Gratis fino al %1$s, poi %2$s. Disdici su Google Play prima di quella data e non ti verrà addebitato nulla.</string>
+    <string name="reminder_pro_preview">Con Pro riceveresti un promemoria il %1$s, %2$d giorni prima di questo addebito.</string>
+    <string name="reminder_pro_preview_undated">Con Pro riceveresti un promemoria %1$d giorni prima di ogni addebito.</string>
+</resources>
