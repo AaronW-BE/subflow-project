@@ -36,6 +36,7 @@ PLAY_CODES = {
     "values-de": ["de-DE"],
     "values-fr": ["fr-FR"],
     "values-es": ["es-ES"],
+    "values-pt": ["pt-BR"],
     "values-ja": ["ja-JP"],
 }
 SIMPLIFIED = {"zh-CN"}
@@ -100,9 +101,17 @@ def main():
         end = headings[1].start() if len(headings) > 1 else len(copy)
         section = copy[newest.start():end]
         notes = dict(re.findall(r"<([a-z]{2}-[A-Z]{2})>\n(.*?)\n</\1>", section, re.S))
+        # A language added after these notes were uploaded is named on a
+        # "Not in this upload:" line; the next release's notes must cover it.
+        exempt = set()
+        for line in re.findall(r"^Not in this upload: (.+)$", section, re.M):
+            exempt.update(c.strip(" .") for c in line.split("(")[0].split(","))
         print(f"release notes {name} (versionCode {code}):")
         for play_code in shipped_codes():
             text = notes.get(play_code)
+            if text is None and play_code in exempt:
+                print(f"  {play_code:6}    -      added after this upload")
+                continue
             if text is None:
                 fail(f"release notes: no <{play_code}> for a shipped language")
                 continue
