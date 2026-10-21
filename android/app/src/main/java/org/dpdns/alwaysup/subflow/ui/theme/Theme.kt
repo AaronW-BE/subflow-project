@@ -7,7 +7,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import org.dpdns.alwaysup.subflow.data.preferences.ThemeMode
@@ -105,9 +107,14 @@ fun SubFlowTheme(
         }
     }
 
+    // The interface language, not the device's: the app applies its own
+    // language choice to the configuration.
+    val language = LocalConfiguration.current.locales[0]?.language.orEmpty()
+    val typography = remember(language) { AppleTypography.forLanguage(language) }
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = AppleTypography,
+        typography = typography,
         content = content
     )
 }
