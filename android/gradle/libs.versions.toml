@@ -21,6 +21,7 @@ splashscreen = "1.0.1"
 browser = "1.8.0"
 googleid = "1.1.1"
 ump = "4.0.0"
+playReview = "2.0.2"
 junit = "4.13.2"
 robolectric = "4.17"
 
@@ -67,6 +68,7 @@ androidx-glance-material3 = { group = "androidx.glance", name = "glance-material
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]
