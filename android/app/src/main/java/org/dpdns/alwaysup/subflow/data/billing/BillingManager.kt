@@ -148,19 +148,49 @@ class BillingManager(
     /** True from startConnection() until Play answers, so retries do not overlap. */
     private val connecting = AtomicBoolean(false)
 
+    /**
+     * True once Play has answered a handshake with OK.
+     *
+     * Not `billingClient.isReady`: with enableAutoServiceReconnection() that is
+     * true from the moment the client is built, before any connection exists.
+     * Trusting it, startConnection() never called Play at all -
+     * onBillingSetupFinished never ran, the state never left CONNECTING, and
+     * every query had the library connect behind our back, five at once on a
+     * cold start ("already in the process of connecting", BIN-82). Once set,
+     * it stays set: a later drop is the library's to reconnect, on the next
+     * call.
+     */
+    @Volatile private var setUp = false
+
+    // A query already in flight answers whoever asks next; starting a second
+    // one only raced the first. On every cold start the connect callback's
+    // queries and onResume's refresh() overlapped, and the log showed five
+    // calls at once meeting "already in the process of connecting" (BIN-82).
+    private val productsInFlight = AtomicBoolean(false)
+    private val purchasesInFlight = AtomicBoolean(false)
+
+    /**
+     * Tells instances apart in the log. Each line below is one per launch or per
+     * tap, so they stay in release builds: the cold-start collisions of BIN-82
+     * could not be explained without a timeline of who called what.
+     */
+    private val logId = Integer.toHexString(System.identityHashCode(this))
+
+    private fun trace(message: String) = Log.i(TAG, "[$logId] $message")
+
     /** Purchase tokens with an acknowledgement under way, so none is sent twice. */
     private val acknowledging: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     // ---------------------------------------------------------------- lifecycle
 
     fun startConnection() {
-        if (billingClient.isReady) {
+        trace("startConnection setUp=$setUp connecting=${connecting.get()}")
+        if (setUp) {
             queryExistingPurchases()
             return
         }
-        // `isReady` is false for the whole handshake, so guarding on it alone let
-        // init, onResume and the reconnect timer all call startConnection() while
-        // one was already in flight. Play answers the extras with DEVELOPER_ERROR,
+        // Init, onResume and the reconnect timer can all call this while a
+        // handshake is already in flight. Play answers the extras with DEVELOPER_ERROR,
         // and the old code treated that as a real failure: it flipped the state to
         // UNAVAILABLE and set catalogueLoaded, so the paywall could show its
         // "billing unavailable" copy while a perfectly good connection was still
@@ -176,12 +206,18 @@ class BillingManager(
     }
 
     override fun onBillingSetupFinished(billingResult: BillingResult) {
+        trace("setup finished code=${billingResult.responseCode}")
         connecting.set(false)
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+            setUp = true
             reconnectDelayMs = 1_000L
             _connectionState.value = BillingConnectionState.READY
-            queryAvailableProducts()
-            queryExistingPurchases()
+            // After this callback has returned rather than from inside it, so
+            // the client has finished the handshake before it is asked anything.
+            scope.launch {
+                queryAvailableProducts()
+                queryExistingPurchases()
+            }
         } else {
             Log.e(TAG, "Billing setup failed (${billingResult.responseCode}): ${billingResult.debugMessage}")
             _connectionState.value = BillingConnectionState.UNAVAILABLE
@@ -216,17 +252,19 @@ class BillingManager(
         scope.launch {
             delay(delayMs)
             // Route through startConnection so the in-flight guard applies here too.
-            if (!billingClient.isReady) startConnection()
+            if (!setUp) startConnection()
         }
     }
 
     fun endConnection() {
-        if (billingClient.isReady) billingClient.endConnection()
+        trace("endConnection setUp=$setUp")
+        if (setUp || connecting.get()) billingClient.endConnection()
     }
 
     /** Call from Activity.onResume: catches purchases made outside the app. */
     fun refresh() {
-        if (billingClient.isReady) {
+        trace("refresh setUp=$setUp plans=${_plans.value.size}")
+        if (setUp) {
             if (_plans.value.isEmpty()) queryAvailableProducts()
             queryExistingPurchases()
         } else {
@@ -237,6 +275,11 @@ class BillingManager(
     // ---------------------------------------------------------------- catalogue
 
     private fun queryAvailableProducts() {
+        if (!productsInFlight.compareAndSet(false, true)) {
+            trace("products query already running")
+            return
+        }
+        trace("querying products")
         subsQueryDone = false
         inappQueryDone = false
         _catalogueLoaded.value = false
@@ -299,7 +342,10 @@ class BillingManager(
     }
 
     private fun markCatalogueLoadedIfComplete() {
-        if (subsQueryDone && inappQueryDone) _catalogueLoaded.value = true
+        if (subsQueryDone && inappQueryDone) {
+            productsInFlight.set(false)
+            _catalogueLoaded.value = true
+        }
     }
 
     private fun mergePlans(newPlans: List<ProPlan>) {
@@ -377,7 +423,7 @@ class BillingManager(
             // the entitlement away for free to anyone who opens the paywall offline.
             Log.w(TAG, "No product details for $tier; cannot start purchase")
             _events.tryEmit(BillingEvent.PlansUnavailable)
-            if (!billingClient.isReady) startConnection() else queryAvailableProducts()
+            if (!setUp) startConnection() else queryAvailableProducts()
             return
         }
 
@@ -509,10 +555,17 @@ class BillingManager(
 
     fun restorePurchases() {
         restoreRequested.set(true)
-        if (billingClient.isReady) queryExistingPurchases() else startConnection()
+        if (setUp) queryExistingPurchases() else startConnection()
     }
 
     fun queryExistingPurchases() {
+        // A restore asked for while one is running is answered by that one:
+        // restoreRequested is read when it finishes.
+        if (!purchasesInFlight.compareAndSet(false, true)) {
+            trace("purchases query already running")
+            return
+        }
+        trace("querying purchases")
         // The two callbacks can arrive on different threads, like the product
         // queries above. Unguarded, both could miss the other's "done" and
         // never finish, or the list could lose one side - the Lifetime purchase
@@ -526,6 +579,7 @@ class BillingManager(
 
         fun finishIfComplete() {
             if (!(subsDone && inappDone)) return
+            purchasesInFlight.set(false)
             val activeTier = highestTier(
                 owned
                     .filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
