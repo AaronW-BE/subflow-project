@@ -15,6 +15,72 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.6.1 (versionCode 11): release notes
+
+Changes since 1.6.0 (versionCode 10):
+
+| Change | Source |
+|---|---|
+| Play billing really connects: `isReady` was true before any handshake, so `startConnection()` never called Play and every query connected behind the app's back | BIN-82, PR #86 |
+| A failed purchase acknowledgement retries on its own (2 s … 60 s, six tries) instead of waiting for the next resume | BIN-80, PR #86 |
+| The paywall headline breaks into balanced lines ("…掌控之 / 中" no longer) | BIN-81, PR #86 |
+
+A patch release. Testers still on 1.5.0 can go straight to 1.6.1 and never
+see 1.6.0's notes, so the second bullet carries 1.6.0's news. The headline
+fix is too small for the notes.
+
+`whats_new_item_3` now names the billing fix in all ten languages; items 1
+and 2 keep 1.6.0's languages and budget lines for the same reason.
+
+```
+<en-US>
+• Purchases and Restore purchases now connect to Google Play reliably, and a purchase is confirmed even when Google Play's first reply is an error.
+• Also new since 1.5.0: Portuguese, Korean and Italian, the Pro monthly budget, and a clearer Pro page.
+</en-US>
+<zh-CN>
+• 购买和“恢复购买”与 Google Play 的连接更可靠；即使 Google Play 第一次返回错误，购买也会被正确确认。
+• 1.5.0 以来的其他更新：新增葡萄牙语、韩语和意大利语，Pro 月度预算，以及更清楚的 Pro 介绍页。
+</zh-CN>
+<zh-TW>
+• 購買和「回復購買」與 Google Play 的連線更可靠；即使 Google Play 第一次回傳錯誤，購買也會被正確確認。
+• 1.5.0 以來的其他更新：新增葡萄牙文、韓文與義大利文、Pro 每月預算，以及更清楚的 Pro 介紹頁。
+</zh-TW>
+<zh-HK>
+• 購買和「回復購買」與 Google Play 的連線更可靠；即使 Google Play 第一次回傳錯誤，購買也會被正確確認。
+• 1.5.0 以來的其他更新：新增葡萄牙文、韓文與義大利文、Pro 每月預算，以及更清楚的 Pro 介紹頁。
+</zh-HK>
+<de-DE>
+• Käufe und „Käufe wiederherstellen“ verbinden sich jetzt zuverlässig mit Google Play, und ein Kauf wird auch bestätigt, wenn Google Play zuerst mit einem Fehler antwortet.
+• Außerdem neu seit 1.5.0: Portugiesisch, Koreanisch und Italienisch, das Pro-Monatsbudget und eine klarere Pro-Seite.
+</de-DE>
+<fr-FR>
+• Les achats et « Restaurer les achats » se connectent désormais de façon fiable à Google Play, et un achat est confirmé même si Google Play répond d’abord par une erreur.
+• Aussi nouveau depuis la 1.5.0 : portugais, coréen et italien, le budget mensuel Pro et une page Pro plus claire.
+</fr-FR>
+<es-ES>
+• Las compras y «Restaurar compras» se conectan ahora con Google Play de forma fiable, y una compra se confirma aunque Google Play responda primero con un error.
+• También nuevo desde la 1.5.0: portugués, coreano e italiano, el presupuesto mensual Pro y una página Pro más clara.
+</es-ES>
+<it-IT>
+• Gli acquisti e «Ripristina acquisti» ora si collegano a Google Play in modo affidabile, e un acquisto viene confermato anche se Google Play risponde prima con un errore.
+• Novità anche dalla 1.5.0: portoghese, coreano e italiano, il budget mensile Pro e una pagina Pro più chiara.
+</it-IT>
+<pt-BR>
+• As compras e “Restaurar compras” agora se conectam ao Google Play de forma confiável, e uma compra é confirmada mesmo quando o Google Play responde primeiro com um erro.
+• Também novo desde a 1.5.0: português, coreano e italiano, o orçamento mensal do Pro e uma página do Pro mais clara.
+</pt-BR>
+<ja-JP>
+• 購入と「購入を復元」が Google Play に安定して接続されるようになり、Google Play が最初にエラーを返した場合でも購入が確実に確定されます。
+• 1.5.0 以降のその他の新機能：ポルトガル語・韓国語・イタリア語への対応、Pro の月の予算、わかりやすくなった Pro の紹介ページ。
+</ja-JP>
+<ko-KR>
+• 구매와 '구매 복원'이 Google Play에 안정적으로 연결되고, Google Play가 처음에 오류를 보내도 구매가 제대로 확정돼요.
+• 1.5.0 이후 새로운 기능: 포르투갈어·한국어·이탈리아어 지원, Pro 월 예산, 더 명확해진 Pro 안내 화면.
+</ko-KR>
+```
+
+---
+
 ## 1.6.0 (versionCode 10): release notes
 
 Changes since 1.5.0 (versionCode 9):
@@ -1227,32 +1293,21 @@ so the feature isn't there.
 
 ## Other Console items for this release
 
-- [ ] **versionCode 10 / versionName 1.6.0**. 9 is used up.
-- [ ] **Track: closed testing**, as 1.5.0. Production access was refused, so
-      this goes to the closed test the reapplication depends on.
-- [ ] **Release notes**: paste the whole 1.6.0 block, all eleven tags.
-- [ ] **Three new listing languages** under Main store listing → Manage
-      translations: pt-BR, ko-KR and it-IT, each with its title, short and
-      full description from *Store listings*.
-- [ ] **Re-paste the full description of the seven existing listings.** Each
-      one's language line now names all ten languages. (If the BIN-73 refresh
-      was never pasted, this pastes it too: the text below is the current
-      one.)
-- [ ] **Screenshots: no change.** The eight English shots from BIN-73 serve
-      every language, as before; none of the screens shown changed.
-- [ ] **Data safety: re-check for the in-app review library** (BIN-72,
-      `com.google.android.play:review-ktx` 2.0.2). The app sends nothing new:
-      the review flow is shown and handled by the Play Store app, and the app
-      learns nothing about whether or how the user rated. No new permission,
-      no new endpoint, no new stored personal data. Expected answer: no change
-      to the form; confirm in the Console that it asks nothing new.
-- [ ] **After the upload, on a tester's Play-installed copy:** the rating
-      dialog can only appear there (never on a debug build), and only once
-      the conditions in `ReviewPolicy` hold.
-- [ ] **Still owed from 1.4.0: billing on a real device** (PR #56, #61), with
-      a license tester - restore with two products owned, buy an owned plan,
-      and the billing-unavailable message only on the paywall. Now also: the
-      paywall's dated trial footnote with a real offer.
+- [ ] **versionCode 11 / versionName 1.6.1**. 10 is used up.
+- [ ] **Track: closed testing**, as 1.6.0.
+- [ ] **Release notes**: paste the whole 1.6.1 block, all eleven tags.
+- [ ] **Store listings: no change.** Every claim in *What each claim rests
+      on* is unchanged by a billing fix. (If 1.6.0's new listings pt-BR,
+      ko-KR, it-IT and the ten-language lines were not pasted yet, do that
+      now: the text below is current.)
+- [ ] **Screenshots: no change.**
+- [ ] **Data safety: no change.** No new permission, SDK, endpoint or
+      stored data; the billing changes only alter when the app talks to
+      Play's existing billing service.
+- [ ] **After the upload:** on the license-tester phone, the cold-start log
+      should read `startConnection` → `setup finished code=0` → one
+      products and one purchases query, with no "already in the process of
+      connecting" warnings (adb logcat -s SubFlowBilling BillingClient).
 
 ### How the screenshots were taken
 

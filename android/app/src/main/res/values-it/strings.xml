@@ -388,7 +388,7 @@
     <string name="whats_new_feedback">Invia feedback</string>
     <string name="whats_new_item_1">SubFlow ora parla portoghese, coreano e italiano.</string>
     <string name="whats_new_item_2">Pro: imposta un budget mensile in Impostazioni → Preferenze e vedi quanto resta.</string>
-    <string name="whats_new_item_3">Una pagina Pro più chiara, con la data di fine di una prova gratuita.</string>
+    <string name="whats_new_item_3">Gli acquisti si collegano a Google Play in modo più affidabile.</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">Importa CSV</string>
