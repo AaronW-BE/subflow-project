@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -175,10 +176,13 @@ fun PaywallScreen(
 
                 Text(
                     text = headline(reason),
+                    // Balanced lines, so a two-line headline does not end on a
+                    // single character: Chinese wrapped "…掌控之 / 中" (BIN-81).
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontSize = 27.sp,
                         lineHeight = 33.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        lineBreak = LineBreak.Heading
                     ),
                     color = MaterialTheme.colorScheme.onBackground
                 )
