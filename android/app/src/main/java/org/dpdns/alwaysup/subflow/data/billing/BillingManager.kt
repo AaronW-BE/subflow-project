@@ -70,6 +70,16 @@ class BillingManager(
 
         private const val MAX_RECONNECT_DELAY_MS = 60_000L
 
+        /** Tries of one acknowledgement before leaving it to the next resume. */
+        internal const val MAX_ACK_ATTEMPTS = 6
+
+        /**
+         * Wait before acknowledgement try [attempt] + 2: 2 s, 4 s, 8 s ... capped
+         * at a minute, so six tries span about two minutes (BIN-80).
+         */
+        internal fun ackRetryDelayMs(attempt: Int): Long =
+            (2_000L shl attempt.coerceIn(0, 10)).coerceAtMost(60_000L)
+
         internal fun tierFor(productId: String): ProTier? = when (productId) {
             SKU_MONTHLY -> ProTier.MONTHLY
             SKU_ANNUAL -> ProTier.ANNUAL
@@ -137,6 +147,9 @@ class BillingManager(
 
     /** True from startConnection() until Play answers, so retries do not overlap. */
     private val connecting = AtomicBoolean(false)
+
+    /** Purchase tokens with an acknowledgement under way, so none is sent twice. */
+    private val acknowledging: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     // ---------------------------------------------------------------- lifecycle
 
@@ -446,18 +459,7 @@ class BillingManager(
 
         return when (purchase.purchaseState) {
             Purchase.PurchaseState.PURCHASED -> {
-                if (!purchase.isAcknowledged) {
-                    val params = AcknowledgePurchaseParams.newBuilder()
-                        .setPurchaseToken(purchase.purchaseToken)
-                        .build()
-                    billingClient.acknowledgePurchase(params) { ack ->
-                        if (ack.responseCode != BillingClient.BillingResponseCode.OK) {
-                            // Unacknowledged purchases are auto-refunded after 3 days,
-                            // so a failure here has to be retried on the next launch.
-                            Log.e(TAG, "Acknowledge failed: ${ack.debugMessage}")
-                        }
-                    }
-                }
+                if (!purchase.isAcknowledged) acknowledge(purchase.purchaseToken)
                 // Best-effort server-side record; entitlement is never blocked on it.
                 scope.launch {
                     authRepository.reportPurchase(
@@ -470,6 +472,36 @@ class BillingManager(
             }
             Purchase.PurchaseState.PENDING -> PurchaseOutcome.PENDING
             else -> PurchaseOutcome.IGNORED
+        }
+    }
+
+    /**
+     * Acknowledges a purchase, retrying on its own when Play refuses.
+     *
+     * Play refunds a purchase that is never acknowledged, after 3 days for a
+     * real buyer and much sooner for a license tester. A failure used to be
+     * logged and left for the next onResume, so someone who bought and stayed
+     * in the app was relying on a resume they might not make (BIN-80: seen on
+     * a real device as "Server error, please try again" right after a
+     * purchase). The resume path stays as the backstop after the last try.
+     */
+    private fun acknowledge(token: String, attempt: Int = 0) {
+        if (attempt == 0 && !acknowledging.add(token)) return
+        val params = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(token).build()
+        billingClient.acknowledgePurchase(params) { ack ->
+            if (ack.responseCode == BillingClient.BillingResponseCode.OK) {
+                acknowledging.remove(token)
+                return@acknowledgePurchase
+            }
+            Log.e(TAG, "Acknowledge failed (try ${attempt + 1}/$MAX_ACK_ATTEMPTS): ${ack.debugMessage}")
+            if (attempt + 1 >= MAX_ACK_ATTEMPTS) {
+                acknowledging.remove(token)
+                return@acknowledgePurchase
+            }
+            scope.launch {
+                delay(ackRetryDelayMs(attempt))
+                acknowledge(token, attempt + 1)
+            }
         }
     }
 
