@@ -75,8 +75,11 @@ android {
         // 1.5.0 likewise: CSV import and multi-select are both things to find.
         // 1.6.0 (10): three new languages (Portuguese, Korean, Italian), the
         // Pro monthly budget, and a paywall that sells only what Pro adds.
-        versionCode = 10
-        versionName = "1.6.0"
+        // 1.6.1 (11) is a patch: Play billing now really connects (isReady
+        // was trusted and the handshake never ran), and a failed
+        // acknowledgement retries on its own.
+        versionCode = 11
+        versionName = "1.6.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
