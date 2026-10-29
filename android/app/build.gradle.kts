@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+
+    alias(libs.plugins.googleServices)
 }
 
 // Release signing is read from android/keystore.properties (never committed).
@@ -78,8 +80,9 @@ android {
         // 1.6.1 (11) is a patch: Play billing now really connects (isReady
         // was trusted and the handshake never ran), and a failed
         // acknowledgement retries on its own.
-        versionCode = 11
-        versionName = "1.6.1"
+        // 1.6.2 (12) is a patch: Integrate firebase sdk
+        versionCode = 12
+        versionName = "1.6.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -286,4 +289,7 @@ dependencies {
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }
