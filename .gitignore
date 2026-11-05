@@ -7,6 +7,7 @@ keystore.properties
 local.properties
 .env
 .env.*
+google-services.json
 
 # Server configuration. It holds the JWT signing secret, the admin token and
 # the exchange rate API key, so only the example template is tracked.
