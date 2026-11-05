@@ -778,6 +778,7 @@ private fun NotificationsSection(
     val reminderLeads by preferencesManager.reminderLeads.collectAsState()
     val trialReminderLeads by preferencesManager.trialReminderLeads.collectAsState()
 
+
     Column(modifier = Modifier.fillMaxWidth()) {
 
         AnimatedVisibility(visible = !notificationsEnabled) {
@@ -999,6 +1000,8 @@ private fun NotificationsSection(
                     }
                 }
             }
+
+            org.dpdns.alwaysup.subflow.ui.components.TrialFinalDaySettings(preferencesManager)
 
             // 62dp so it lines up with the separators of the icon rows
             // above and below, not 16dp.

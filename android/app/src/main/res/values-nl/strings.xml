@@ -486,6 +486,31 @@
     <string name="reminder_pro_preview">Met Pro krijg je op %1$s een herinnering, %2$d dagen vóór deze afschrijving.</string>
     <string name="reminder_pro_preview_undated">Met Pro krijg je %1$d dagen vóór elke afschrijving een herinnering.</string>
 
+    <string name="notif_channel_trial_final">Proefperiode controleren</string>
+    <string name="notif_channel_trial_final_desc">Controles op de laatste dag van automatisch verlengende proefperiodes</string>
+    <string name="notif_trial_final_title">%1$s: proefperiode eindigt vandaag</string>
+    <string name="notif_trial_final_body">Controleer je opzegbeslissing bij de aanbieder. Er kan al geld zijn afgeschreven; deze herinnering zegt de dienst niet op.</string>
 
     <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Opzegcontrole op de laatste dag</string>
+    <string name="trial_final_check_sub">Gratis voor iedereen. Controleert onbesliste proefperiodes die betaald worden, volgens hun herinneringsinstelling. Eerdere herinneringen blijven gelijk.</string>
+    <string name="trial_final_time">Herinneringstijd · %1$s</string>
+    <string name="trial_final_exact">Precieze timing (optioneel)</string>
+    <string name="trial_final_access_yes">Precieze timing: toegang beschikbaar</string>
+    <string name="trial_final_access_no">Precieze timing: geen toegang</string>
+    <string name="trial_final_precise">Precieze timing gekozen; bezorging blijft afhankelijk van het systeem.</string>
+    <string name="trial_final_ordinary">Gewone herinnering: het systeem kan deze vertragen.</string>
+    <string name="trial_final_notifications_blocked">App-meldingen of het kanaal voor de laatste dag staan uit.</string>
+    <string name="trial_final_settings_unavailable">Systeeminstellingen konden niet worden geopend. Gewone herinneringen blijven beschikbaar.</string>
+    <string name="trial_final_caution">De einddatum is niet het werkelijke afschrijfmoment. Behoud eerdere herinneringen en zeg tijdig op bij de aanbieder.</string>
+    <string name="trial_decision_title">Dit abonnement behouden?</string>
+    <string name="trial_kept">Je hebt besloten het te behouden</string>
+    <string name="trial_keep_explanation">Alleen de controle op de laatste dag stopt. De gratis proefperiode en eerdere herinneringen blijven gelijk. Een andere einddatum wist deze keuze.</string>
+    <string name="trial_keep">Dit abonnement behouden</string>
+    <string name="trial_undo_keep">Keuze ongedaan maken</string>
+    <string name="trial_provider_cancelled">Ik heb opgezegd bij de aanbieder</string>
+    <string name="trial_cancel_confirm_title">Opzegging bij de aanbieder bevestigen?</string>
+    <string name="trial_cancel_confirm_body">SubFlow werkt alleen dit lokale item bij en pauzeert het. De app neemt geen contact op met de aanbieder en draait geen afschrijvingen terug.</string>
+    <string name="trial_cancel_confirm">Opzegging bevestigen</string>
+    <string name="trial_cancel_back">Terug</string>
 </resources>

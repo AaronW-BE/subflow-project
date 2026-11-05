@@ -33,7 +33,8 @@ data class SubscriptionEntity(
     @ColumnInfo(name = "trial_converts", defaultValue = "1") val trialConverts: Boolean = true,
     @ColumnInfo(name = "post_trial_amount", defaultValue = "0") val postTrialAmount: Double = 0.0,
     @ColumnInfo(name = "post_trial_cycle", defaultValue = "'monthly'") val postTrialCycle: String = "monthly",
-    @ColumnInfo(name = "trial_outcome", defaultValue = "''") val trialOutcome: String = ""
+    @ColumnInfo(name = "trial_outcome", defaultValue = "''") val trialOutcome: String = "",
+    @ColumnInfo(name = "trial_keep_end_date", defaultValue = "''") val trialKeepEndDate: String = ""
 ) {
     fun toDomain(): Subscription = Subscription(
         id = id,
@@ -56,6 +57,7 @@ data class SubscriptionEntity(
         trialConverts = trialConverts,
         postTrialAmount = postTrialAmount,
         postTrialCycle = BillingCycle.fromKey(postTrialCycle),
+        trialKeepEndDate = trialKeepEndDate,
         trialOutcome = TrialOutcome.fromKey(trialOutcome)
     )
 
@@ -81,6 +83,7 @@ data class SubscriptionEntity(
             trialConverts = d.trialConverts,
             postTrialAmount = d.postTrialAmount,
             postTrialCycle = d.postTrialCycle.key,
+            trialKeepEndDate = d.trialKeepEndDate,
             trialOutcome = d.trialOutcome.key
         )
     }
@@ -119,7 +122,7 @@ interface SubscriptionDao {
     suspend fun getModifiedSince(sinceTimestamp: Long): List<SubscriptionEntity>
 }
 
-@Database(entities = [SubscriptionEntity::class], version = 2, exportSchema = false)
+@Database(entities = [SubscriptionEntity::class], version = 3, exportSchema = false)
 abstract class SubFlowDatabase : RoomDatabase() {
     abstract fun subscriptionDao(): SubscriptionDao
 
@@ -142,6 +145,13 @@ abstract class SubFlowDatabase : RoomDatabase() {
             }
         }
 
+        /** Date-bound keep intent; existing rows remain undecided. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE subscriptions ADD COLUMN trial_keep_end_date TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         fun getDatabase(context: Context): SubFlowDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -153,7 +163,7 @@ abstract class SubFlowDatabase : RoomDatabase() {
                     // database is the user's own record of what they pay for
                     // and there is no copy of it anywhere else. A migration
                     // bug has to fail loudly, not quietly empty the app.
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance

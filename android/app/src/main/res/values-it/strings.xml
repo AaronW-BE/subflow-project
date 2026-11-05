@@ -501,4 +501,32 @@
     <string name="trial_footnote_until">Gratis fino al %1$s, poi %2$s. Disdici su Google Play prima di quella data e non ti verrà addebitato nulla.</string>
     <string name="reminder_pro_preview">Con Pro riceveresti un promemoria il %1$s, %2$d giorni prima di questo addebito.</string>
     <string name="reminder_pro_preview_undated">Con Pro riceveresti un promemoria %1$d giorni prima di ogni addebito.</string>
+
+    <string name="notif_channel_trial_final">Controllo cancellazione prova</string>
+    <string name="notif_channel_trial_final_desc">Controlli l’ultimo giorno delle prove a rinnovo automatico</string>
+    <string name="notif_trial_final_title">%1$s: la prova termina oggi</string>
+    <string name="notif_trial_final_body">Verifica la decisione di disdire con il fornitore. Potresti aver già ricevuto un addebito; questo promemoria non disdice il servizio.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Verifica dell’ultimo giorno</string>
+    <string name="trial_final_check_sub">Gratis per tutti. Controlla le prove senza decisione che diventano a pagamento, rispettandone le impostazioni di promemoria. Gli avvisi anticipati non cambiano.</string>
+    <string name="trial_final_time">Ora del promemoria · %1$s</string>
+    <string name="trial_final_exact">Orario preciso (facoltativo)</string>
+    <string name="trial_final_access_yes">Accesso all’orario preciso: disponibile</string>
+    <string name="trial_final_access_no">Accesso all’orario preciso: non concesso</string>
+    <string name="trial_final_precise">Orario preciso selezionato; la consegna dipende comunque dal sistema.</string>
+    <string name="trial_final_ordinary">Promemoria normale: il sistema potrebbe ritardarlo.</string>
+    <string name="trial_final_notifications_blocked">Le notifiche dell’app o del canale dell’ultimo giorno sono disattivate.</string>
+    <string name="trial_final_settings_unavailable">Impossibile aprire le impostazioni di sistema. I promemoria normali restano disponibili.</string>
+    <string name="trial_final_caution">La data di fine non è l’orario effettivo dell’addebito. Mantieni gli avvisi anticipati e disdici per tempo presso il fornitore.</string>
+    <string name="trial_decision_title">Vuoi mantenere l’abbonamento?</string>
+    <string name="trial_kept">Hai deciso di mantenerlo</string>
+    <string name="trial_keep_explanation">Si interrompe solo la verifica dell’ultimo giorno. La prova gratuita e gli avvisi anticipati non cambiano. Modificare la data di fine azzera questa decisione.</string>
+    <string name="trial_keep">Mantieni l’abbonamento</string>
+    <string name="trial_undo_keep">Annulla la decisione</string>
+    <string name="trial_provider_cancelled">Ho disdetto presso il fornitore</string>
+    <string name="trial_cancel_confirm_title">Confermi la disdetta presso il fornitore?</string>
+    <string name="trial_cancel_confirm_body">SubFlow aggiorna solo questa voce locale e la mette in pausa. Non contatta il fornitore e non annulla gli addebiti.</string>
+    <string name="trial_cancel_confirm">Conferma disdetta</string>
+    <string name="trial_cancel_back">Indietro</string>
 </resources>

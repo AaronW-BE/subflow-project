@@ -16,4 +16,6 @@ Dutch uses Netherlands wording and informal je/jij. Both Netherlands and Belgian
 
 A supported language must be available consistently in the in-app picker, locale resolution, Android per-app language settings and release resources. Missing translations must not silently turn a listed supported language into English. Every translatable string and applicable plural form preserves its formatting arguments; provider-mandated nontranslatable attribution remains inherited.
 
+`python tools/check_android_locales.py` validates complete translatable keys and formatting parity across shipped locales. Plural placeholders are checked per quantity, allowing language-specific categories rather than requiring every language to copy English's quantity inventory.
+
 Store copy describes uploaded capabilities, not merely the working tree. A new language's listing stays a draft until an upload includes its resources; only then are every listing's language claims and release notes updated. Adding a language alone does not increment the app version or change currency preferences.

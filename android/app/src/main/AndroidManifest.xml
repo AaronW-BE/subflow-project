@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="com.android.vending.BILLING" />
     <!-- Required by Google Mobile Ads on targetSdk 33+. Declared in the Play
          Data Safety form as "advertising ID, used for advertising". -->
@@ -62,6 +63,17 @@
                 <data android:scheme="subflow" android:host="subscription" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".data.notifications.TrialFinalDayReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="org.dpdns.alwaysup.subflow.TRIAL_FINAL_DAY" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Home screen widget: this month's total and the next renewal.
              Not exported to anyone but the launcher, which is what

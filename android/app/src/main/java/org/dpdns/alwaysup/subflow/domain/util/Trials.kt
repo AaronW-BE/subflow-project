@@ -32,6 +32,13 @@ data class TrialReminderDecision(
  */
 object Trials {
 
+    /** Record intent only: no conversion, billing, outcome or reminder changes. */
+    fun keep(subscription: Subscription): Subscription =
+        subscription.copy(trialKeepEndDate = subscription.trialEndDate)
+
+    fun undoKeep(subscription: Subscription): Subscription =
+        subscription.copy(trialKeepEndDate = "")
+
     /** Lead times in days before the trial ends. */
     val DefaultLeads = setOf(7, 3, 1)
 
@@ -134,5 +141,5 @@ object Trials {
      * keyed by that date; there is no queue here to rebuild.
      */
     fun extendTo(subscription: Subscription, newEndDate: String): Subscription =
-        subscription.copy(trialEndDate = newEndDate, nextBillDate = newEndDate)
+        subscription.copy(trialEndDate = newEndDate, nextBillDate = newEndDate, trialKeepEndDate = "")
 }

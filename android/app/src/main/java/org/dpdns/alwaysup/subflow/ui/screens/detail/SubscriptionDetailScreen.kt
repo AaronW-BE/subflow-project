@@ -92,6 +92,13 @@ fun SubscriptionDetailScreen(
     // asks a question rather than reporting one.
     val isTrial = subscription.isTrialPending
     val trialOver = isTrial && daysLeft < 0L
+    var confirmTrialCancel by remember(subscription.id) { mutableStateOf(false) }
+    if (confirmTrialCancel) {
+        org.dpdns.alwaysup.subflow.ui.components.TrialCancelDialog(
+            onDismiss = { confirmTrialCancel = false },
+            onConfirm = { confirmTrialCancel = false; onUpdate(Trials.cancel(subscription)) }
+        )
+    }
     val trialLeads = remember(context) { PreferencesManager.readTrialLeadsStatic(context) }
 
     val cyclesPaid = remember(subscription) {
@@ -367,6 +374,12 @@ fun SubscriptionDetailScreen(
                 }
             }
 
+            if (subscription.isActive && subscription.isTrialPending && subscription.trialConverts &&
+                (Trials.daysRemaining(subscription)?.let { it >= 0 } == true)) {
+                item(key = "trial_decision") {
+                    org.dpdns.alwaysup.subflow.ui.components.TrialDecisionCard(subscription, onUpdate)
+                }
+            }
             if (trialOver) {
                 item(key = "trial_actions") {
                     // Three answers, because two would not include the true
@@ -422,7 +435,7 @@ fun SubscriptionDetailScreen(
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Button(
-                                onClick = { onUpdate(Trials.cancel(subscription)) },
+                                onClick = { confirmTrialCancel = true },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(48.dp),
@@ -433,7 +446,7 @@ fun SubscriptionDetailScreen(
                                 shape = RoundedCornerShape(14.dp)
                             ) {
                                 Text(
-                                    text = stringResource(R.string.trial_action_cancelled),
+                                    text = stringResource(R.string.trial_provider_cancelled),
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.bodyLarge

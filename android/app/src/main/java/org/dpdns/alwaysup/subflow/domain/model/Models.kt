@@ -81,10 +81,16 @@ data class Subscription(
     val trialConverts: Boolean = true,
     val postTrialAmount: Double = 0.0,
     val postTrialCycle: BillingCycle = BillingCycle.MONTHLY,
-    val trialOutcome: TrialOutcome = TrialOutcome.PENDING
+    val trialOutcome: TrialOutcome = TrialOutcome.PENDING,
+    /** End date for which the user chose to keep the trial; not a paid outcome. */
+    val trialKeepEndDate: String = ""
 ) {
     val monthlyAmount: Double get() = cycle.toMonthly(amount)
     val yearlyAmount: Double get() = cycle.toYearly(amount)
+
+    /** A keep decision applies only to the pending trial end date it recorded. */
+    val isTrialKept: Boolean get() = isTrialPending &&
+        trialKeepEndDate.isNotBlank() && trialKeepEndDate == trialEndDate
 
     /** A trial the user has not yet told us the ending of. */
     val isTrialPending: Boolean get() = isTrial && trialOutcome == TrialOutcome.PENDING

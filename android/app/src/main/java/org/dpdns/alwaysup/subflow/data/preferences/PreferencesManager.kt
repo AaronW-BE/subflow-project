@@ -161,6 +161,33 @@ class PreferencesManager(context: Context) {
     private val _trialReminderLeads = MutableStateFlow(readTrialLeads())
     val trialReminderLeads: StateFlow<Set<Int>> = _trialReminderLeads.asStateFlow()
 
+    private val _trialFinalDayEnabled = MutableStateFlow(readTrialFinalDayEnabled(context))
+    val trialFinalDayEnabled: StateFlow<Boolean> = _trialFinalDayEnabled.asStateFlow()
+
+    fun setTrialFinalDayEnabled(value: Boolean) {
+        val next = value
+        _trialFinalDayEnabled.value = next
+        prefs.edit().putBoolean(KEY_TRIAL_FINAL_DAY_ENABLED, next).apply()
+    }
+
+    private val _trialFinalDayMinuteOfDay = MutableStateFlow(readTrialFinalDayMinuteOfDay(context))
+    val trialFinalDayMinuteOfDay: StateFlow<Int> = _trialFinalDayMinuteOfDay.asStateFlow()
+
+    fun setTrialFinalDayMinuteOfDay(value: Int) {
+        val next = value.coerceIn(0, 1439)
+        _trialFinalDayMinuteOfDay.value = next
+        prefs.edit().putInt(KEY_TRIAL_FINAL_DAY_MINUTE, next).apply()
+    }
+
+    private val _trialFinalDayExactEnabled = MutableStateFlow(readTrialFinalDayExactEnabled(context))
+    val trialFinalDayExactEnabled: StateFlow<Boolean> = _trialFinalDayExactEnabled.asStateFlow()
+
+    fun setTrialFinalDayExactEnabled(value: Boolean) {
+        val next = value
+        _trialFinalDayExactEnabled.value = next
+        prefs.edit().putBoolean(KEY_TRIAL_FINAL_DAY_EXACT, next).apply()
+    }
+
     fun setCurrency(code: String) {
         _currency.value = code
         prefs.edit().putString(KEY_CURRENCY, code).apply()
@@ -345,6 +372,21 @@ class PreferencesManager(context: Context) {
     }
 
     companion object {
+        private const val KEY_TRIAL_FINAL_DAY_ENABLED = "trial_final_day_enabled"
+        fun readTrialFinalDayEnabled(context: Context): Boolean =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_TRIAL_FINAL_DAY_ENABLED, false)
+
+        private const val KEY_TRIAL_FINAL_DAY_MINUTE = "trial_final_day_minute_of_day"
+        fun readTrialFinalDayMinuteOfDay(context: Context): Int =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getInt(KEY_TRIAL_FINAL_DAY_MINUTE, 540).coerceIn(0, 1439)
+
+        private const val KEY_TRIAL_FINAL_DAY_EXACT = "trial_final_day_exact_enabled"
+        fun readTrialFinalDayExactEnabled(context: Context): Boolean =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_TRIAL_FINAL_DAY_EXACT, false)
+
         const val PREFS_NAME = "subflow_user_preferences"
         private const val KEY_LEADS = "reminder_lead_days"
         private const val KEY_TRIAL_LEADS = "trial_reminder_lead_days"

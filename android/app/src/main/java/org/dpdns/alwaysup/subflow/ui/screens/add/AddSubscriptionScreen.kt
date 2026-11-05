@@ -396,6 +396,7 @@ fun AddSubscriptionScreen(
                                 // Turning a resolved trial back into a running
                                 // one starts its story over; keeping the old
                                 // outcome would hide the prompt at its new end.
+                                trialKeepEndDate = preservedTrialKeepDate(existingSubscription, isTrial, trialEndDate),
                                 trialOutcome = TrialOutcome.PENDING
                             )
                         )
@@ -1646,3 +1647,8 @@ private fun String.parseAmount(): Double = trim().toDoubleOrNull() ?: 0.0
 private fun trimAmount(value: Double): String =
     if (value % 1.0 == 0.0) value.toLong().toString()
     else String.format(Locale.US, "%.2f", value)
+
+/** Basic edits retain a decision; a new trial or changed end date starts undecided. */
+internal fun preservedTrialKeepDate(existing: Subscription?, isTrial: Boolean, endDate: String): String =
+    existing?.takeIf { isTrial && it.isTrialPending && it.trialEndDate == endDate }
+        ?.trialKeepEndDate.orEmpty()

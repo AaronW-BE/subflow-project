@@ -19,11 +19,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
+import java.util.Locale
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import org.dpdns.alwaysup.subflow.data.ads.AdsConsentManager
 import org.dpdns.alwaysup.subflow.data.ads.LocalAdsConsent
 import org.dpdns.alwaysup.subflow.data.billing.BillingManager
 import org.dpdns.alwaysup.subflow.data.notifications.RenewalNotificationWorker
+import org.dpdns.alwaysup.subflow.data.notifications.TrialFinalDayScheduler
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.preferences.SYSTEM_LANGUAGE
 import org.dpdns.alwaysup.subflow.data.repository.AuthRepository
@@ -32,7 +39,6 @@ import org.dpdns.alwaysup.subflow.domain.util.localeForLanguageCode
 import org.dpdns.alwaysup.subflow.ui.navigation.SubFlowNavHost
 import org.dpdns.alwaysup.subflow.ui.theme.SubFlowTheme
 import org.dpdns.alwaysup.subflow.ui.util.LocalHapticsEnabled
-import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
@@ -110,6 +116,18 @@ class MainActivity : ComponentActivity() {
         billingManager = BillingManager(this, authRepository)
         adsConsentManager = AdsConsentManager(applicationContext)
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                combine(
+                    subscriptionRepository.activeSubscriptions,
+                    preferencesManager.trialFinalDayEnabled,
+                    preferencesManager.trialFinalDayMinuteOfDay,
+                    preferencesManager.trialFinalDayExactEnabled
+                ) { _, _, _, _ -> Unit }.collect {
+                    TrialFinalDayScheduler.reconcile(applicationContext)
+                }
+            }
+        }
         billingManager.startConnection()
         preferencesManager.recordLaunch()
         handleDeepLink(intent)
@@ -179,6 +197,7 @@ class MainActivity : ComponentActivity() {
         // Catches purchases, cancellations and refunds that happened elsewhere -
         // for example a subscription cancelled directly in the Play Store.
         billingManager.refresh()
+        lifecycleScope.launch { TrialFinalDayScheduler.reconcile(applicationContext) }
     }
 
     override fun onDestroy() {
