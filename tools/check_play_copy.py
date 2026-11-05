@@ -37,6 +37,7 @@ PLAY_CODES = {
     "values-fr": ["fr-FR"],
     "values-es": ["es-ES"],
     "values-it": ["it-IT"],
+    "values-nl": ["nl-NL"],
     "values-pt": ["pt-BR"],
     "values-ja": ["ja-JP"],
     "values-ko": ["ko-KR"],

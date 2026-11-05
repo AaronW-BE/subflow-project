@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SubFlow</string>
+    <string name="nav_subscriptions">Abonnementen</string>
+    <string name="nav_analytics">Inzichten</string>
+    <string name="nav_settings">Instellingen</string>
+
+    <!-- Dashboard -->
+    <string name="total_monthly_spend">Totale maanduitgaven</string>
+    <string name="projected_annual_spend">Verwachte jaaruitgaven</string>
+    <string name="switch_to_annual">Toon per jaar</string>
+    <string name="switch_to_monthly">Toon per maand</string>
+    <string name="projected_yearly">Verwacht: %s/jaar</string>
+    <string name="next_renewal_in">Volgende verlenging over %s</string>
+    <string name="days_count">%d dagen</string>
+    <string name="filter_all">Alles</string>
+    <string name="filter_streaming">Streaming</string>
+    <string name="filter_productivity">Productiviteit</string>
+    <string name="filter_cloud">Cloud</string>
+    <string name="filter_utilities">Hulpmiddelen</string>
+    <string name="filter_health">Gezondheid</string>
+    <string name="filter_finance">Financiën</string>
+    <string name="filter_gaming">Gaming</string>
+    <string name="filter_education">Onderwijs</string>
+    <string name="filter_lifestyle">Lifestyle</string>
+    <string name="filter_news">Nieuws</string>
+    <string name="add_subscription">Abonnement toevoegen</string>
+    <string name="back_to_top">Terug naar boven</string>
+    <string name="upgrade_to_pro">Upgrade naar Pro</string>
+    <string name="clear_search">Zoekopdracht wissen</string>
+    <string name="clear_name">Naam wissen</string>
+    <string name="choose_custom_logo">Logo kiezen</string>
+    <string name="remove_custom_logo">Logo verwijderen</string>
+    <string name="search_currency_hint">Zoek op valuta of code</string>
+    <string name="rates_updated_on">Bijgewerkt op %1$s</string>
+    <string name="rates_offline_snapshot">Offline koersgegevens</string>
+    <string name="search">Zoeken</string>
+    <string name="empty_title">Nog geen abonnementen</string>
+    <string name="empty_body">Voeg de diensten toe waarvoor je betaalt. SubFlow houdt je totalen en verlengdatums op één plek bij.</string>
+    <string name="empty_cta">Voeg je eerste abonnement toe</string>
+    <string name="empty_search_title">Geen resultaten</string>
+    <string name="empty_search_body">Geen resultaten voor ‘%s’.</string>
+    <string name="clear_search_action">Zoekopdracht wissen</string>
+    <string name="empty_filter_body">Je hebt geen abonnementen in ‘%s’.</string>
+    <string name="empty_filter_search_body">Geen resultaten voor ‘%1$s’ in ‘%2$s’.</string>
+    <string name="clear_filters_action">Filters wissen</string>
+    <string name="deleted_item">‘%s’ verwijderd</string>
+    <string name="delete_action">Verwijderen</string>
+    <string name="swipe_hint">Veeg een kaart naar links om te verwijderen, naar rechts om te pauzeren</string>
+    <string name="swipe_hint_dismiss">Tip sluiten</string>
+
+    <!-- Free quota -->
+    <string name="quota_label">Gratis versie</string>
+    <string name="quota_progress">%1$d van %2$d bijgehouden</string>
+    <string name="quota_nudge_title">Nog één plek in de gratis versie</string>
+    <string name="quota_nudge_title_full">Je gratis versie zit vol</string>
+    <string name="quota_nudge_cta">Bekijk Pro</string>
+
+    <!-- Add Subscription -->
+    <string name="title_new_subscription">Nieuw abonnement</string>
+    <string name="title_edit_subscription">Abonnement bewerken</string>
+    <string name="cancel">Annuleren</string>
+    <string name="save">Opslaan</string>
+    <string name="delete">Verwijderen</string>
+    <string name="search_presets">Zoek diensten (Netflix, Spotify)</string>
+    <string name="field_service">Dienst</string>
+    <string name="choose_service">Kies een dienst</string>
+    <string name="custom_service">Eigen dienst</string>
+    <string name="custom_service_hint">Je eigen naam, kleur en logo</string>
+    <string name="custom_subscription">Eigen abonnement</string>
+    <string name="service_name">Naam van de dienst</string>
+    <string name="category">Categorie</string>
+    <string name="amount">Bedrag</string>
+    <string name="billing_cycle">FACTUURPERIODE</string>
+    <string name="first_bill_date">Eerste betaaldatum</string>
+    <string name="cycle_weekly">Wekelijks</string>
+    <string name="cycle_monthly">Maandelijks</string>
+    <string name="cycle_quarterly">Per kwartaal</string>
+    <string name="cycle_yearly">Jaarlijks</string>
+    <string name="renewal_alerts">Verlengingsmelding</string>
+    <string name="remind_before_renewal">Melding vóór de afschrijving</string>
+    <string name="live_preview">LIVE VOORBEELD</string>
+    <string name="accent_colour_own_mark">Deze dienst heeft een eigen kleurenlogo. De accentkleur verandert dat niet, maar kleurt de dienst in het uitgavenoverzicht.</string>
+    <string name="brand_accent_color">ACCENTKLEUR</string>
+    <string name="subscription_details">DETAILS</string>
+    <string name="field_name">Naam</string>
+    <string name="field_price">Prijs</string>
+    <string name="field_category">Categorie</string>
+    <string name="field_notes">Notities</string>
+    <string name="field_notes_hint">Optionele notitie</string>
+    <string name="field_currency">Valuta</string>
+    <string name="renews_next_on">Volgende verlenging op %s</string>
+    <string name="reminder_lead_value">%d dagen van tevoren</string>
+    <string name="reminder_lead_one">1 dag van tevoren</string>
+    <string name="price_invalid">Voer een prijs hoger dan 0 in</string>
+    <string name="name_required">Geef het abonnement een naam</string>
+    <string name="discard_changes_title">Wijzigingen verwerpen?</string>
+    <string name="discard_changes_body">Je wijzigingen aan dit abonnement worden niet opgeslagen.</string>
+    <string name="discard">Verwerpen</string>
+    <string name="keep_editing">Verder bewerken</string>
+    <string name="saved_subscription">‘%s’ opgeslagen</string>
+
+    <!-- Paywall -->
+    <string name="subflow_pro">SUBFLOW PRO</string>
+    <string name="paywall_headline">Elk abonnement onder controle</string>
+    <string name="paywall_subhead">Eerdere meldingen, onbeperkt bijhouden, een maandbudget en alle inzichten. Zonder advertenties.</string>
+    <string name="feat_unlimited">Onbeperkt abonnementen</string>
+    <string name="feat_unlimited_sub">De gratis versie gaat tot 5</string>
+    <string name="feat_push_alerts">Meldingen 3 en 7 dagen vooraf</string>
+    <string name="feat_push_alerts_sub">De gratis versie waarschuwt één dag vooraf. Met een week heb je tijd om op te zeggen.</string>
+    <string name="feat_analytics">Volledig inzicht in je uitgaven</string>
+    <string name="feat_analytics_sub">Geschiedenis, categorieën, prognose en CSV-export</string>
+    <string name="feat_no_ads">Nooit meer advertenties</string>
+    <string name="feat_no_ads_sub">De banner verdwijnt zodra je upgradet</string>
+    <string name="plan_annual">Jaarlijks</string>
+    <string name="plan_monthly">Maandelijks</string>
+    <string name="plan_lifetime">Levenslang</string>
+    <string name="plan_annual_note">Eenmaal per jaar gefactureerd</string>
+    <string name="plan_monthly_note">Altijd opzegbaar</string>
+    <string name="plan_lifetime_note">Eén betaling, voor altijd van jou</string>
+    <string name="plan_per_month">%s / maand</string>
+    <string name="plan_per_year">%s / jaar</string>
+    <string name="plan_one_time">%s eenmalig</string>
+    <string name="plan_effective_monthly">%s / maand</string>
+    <string name="badge_best_value">BESTE DEAL</string>
+    <string name="badge_save_percent">BESPAAR %d%%</string>
+    <string name="badge_free_trial">%d DAGEN GRATIS PROBEREN</string>
+    <string name="btn_start_trial">Probeer %d dagen gratis</string>
+    <string name="btn_continue">Doorgaan</string>
+    <string name="btn_restore">Aankopen herstellen</string>
+    <string name="sub_footnote">%s, gefactureerd via Google Play. Altijd opzegbaar.</string>
+    <string name="lifetime_footnote">%s eenmalig in rekening gebracht. Geen terugkerende betalingen.</string>
+    <string name="terms_of_service">Gebruiksvoorwaarden</string>
+    <string name="privacy_policy">Privacybeleid</string>
+    <string name="close">Sluiten</string>
+    <string name="loading_plans">Abonnementen laden</string>
+    <string name="plans_unavailable">Betalen via Google Play is nu niet beschikbaar. Controleer je verbinding en probeer het opnieuw.</string>
+    <string name="retry">Opnieuw proberen</string>
+    <string name="already_pro_title">Je hebt SubFlow Pro</string>
+    <string name="already_pro_body">Bedankt. Alles is ontgrendeld voor dit account.</string>
+    <string name="manage_subscription">Abonnement beheren</string>
+    <string name="restore_none_found">Geen eerdere aankoop gevonden voor dit Google-account.</string>
+    <string name="restore_success">Pro hersteld.</string>
+    <string name="purchase_success">Welkom bij SubFlow Pro.</string>
+    <string name="purchase_cancelled">Aankoop geannuleerd.</string>
+    <string name="purchase_failed">De aankoop kon niet worden voltooid. Er is niets in rekening gebracht.</string>
+    <string name="purchase_pending">Betaling in behandeling. Pro wordt ontgrendeld zodra Google Play de betaling bevestigt.</string>
+    <string name="quota_reached_title">Gratis versie zit vol</string>
+    <string name="quota_reached_desc">Je houdt 5 abonnementen bij. Upgrade om er meer toe te voegen.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Overslaan</string>
+    <string name="onboarding_next">Volgende</string>
+    <string name="onboarding_start">Aan de slag</string>
+    <string name="onboarding_1_title">Zie wat je echt betaalt</string>
+    <string name="onboarding_1_body">Voeg je abonnementen één keer toe. SubFlow rekent wekelijkse, maandelijkse en jaarlijkse abonnementen om naar één eerlijk maandtotaal.</string>
+    <string name="onboarding_2_title">Nooit meer verrassingen</string>
+    <string name="onboarding_2_body">Je krijgt een herinnering vóór de afschrijving, zodat je kunt opzeggen voordat het je iets kost.</string>
+    <string name="onboarding_3_title">Je gegevens blijven op je telefoon</string>
+    <string name="onboarding_3_body">Geen account nodig. Alles wordt lokaal opgeslagen en je kiest zelf of je een cloudback-up wilt.</string>
+    <string name="onboarding_manage_title">Toevoegen, wijzigen, verwijderen</string>
+    <string name="onboarding_manage_add">Tik rechtsonder op + om een abonnement toe te voegen</string>
+    <string name="onboarding_manage_edit">Tik op een kaart om die te bewerken</string>
+    <string name="onboarding_manage_delete">Veeg een kaart naar links om die te verwijderen, of open de kaart en tik op Verwijderen</string>
+    <string name="onboarding_replay">Rondleiding opnieuw tonen</string>
+    <string name="onboarding_replay_sub">Bekijk de introductie nog eens</string>
+
+    <!-- Analytics -->
+    <string name="analytics_title">Inzichten</string>
+    <string name="avg_monthly">Maandgemiddelde</string>
+    <string name="annual_forecast">Verwachte jaarlijkse verplichtingen</string>
+    <string name="category_breakdown">Per categorie</string>
+    <string name="top_expenses">Grootste verplichtingen</string>
+    <string name="export_report">CSV-rapport exporteren</string>
+    <string name="export_report_sub_pro">Deel of bewaar een volledig rekenblad</string>
+    <string name="export_report_sub_free">Ontgrendel met SubFlow Pro</string>
+    <string name="segment_monthly">Maandelijks</string>
+    <string name="segment_annual">Jaarlijks</string>
+    <string name="metric_monthly_commitment">MAANDELIJKSE VERPLICHTINGEN</string>
+    <string name="metric_annual_run_rate">OMGEREKEND PER JAAR</string>
+    <string name="metric_daily_avg">Per dag</string>
+    <string name="metric_top_share">Grootste post</string>
+    <string name="metric_tracked">Bijgehouden</string>
+    <string name="metric_share_percent">%d%%</string>
+    <string name="metric_top_share_spoken">%1$s, %2$d%% van je maandtotaal</string>
+    <string name="spend_map">Uitgavenoverzicht</string>
+    <string name="spend_map_caption">Elk vlak is één abonnement; de grootte toont het aandeel in het maandtotaal</string>
+    <string name="spend_map_caption_annual">Elk vlak is één abonnement; de grootte toont het aandeel in het jaartotaal</string>
+    <string name="spend_map_other">Al het overige</string>
+    <string name="spend_map_summary">Uitgavenoverzicht: %1$s voor %2$d abonnementen, het grootste is %3$s</string>
+    <string name="billing_forecast">Betalingsprognose</string>
+    <string name="billing_forecast_caption">Wat er elke maand echt wordt afgeschreven. Een jaarabonnement telt volledig mee op één dag, niet verspreid over twaalf maanden.</string>
+    <string name="forecast_peak">%1$s is de duurste maand met %2$s</string>
+    <string name="forecast_even">De komende zes maanden zijn gelijk, rond %1$s per maand</string>
+    <string name="forecast_average_line">Stippellijn: maandgemiddelde</string>
+    <string name="history_caption">De afgelopen 6 maanden van je huidige abonnementen, vanaf hun startdatum</string>
+    <string name="analytics_empty">Voeg een abonnement toe om je uitgavenverdeling te zien.</string>
+    <string name="pro_locked_analytics">De grafieken en uitsplitsingen horen bij Pro.</string>
+    <string name="unlock_with_pro">Ontgrendel met Pro</string>
+    <string name="export_ready">CSV klaar om te delen</string>
+    <string name="export_failed">Het CSV-bestand kon niet worden gemaakt.</string>
+
+    <!-- Detail -->
+    <string name="detail_days_left">dagen over</string>
+    <string name="detail_due_today">Vandaag verschuldigd</string>
+    <string name="detail_overdue">Verlengdatum verstreken</string>
+    <string name="detail_billing_details">FACTURERING</string>
+    <string name="detail_cycle">Factuurperiode</string>
+    <string name="detail_next_renewal">Volgende verlenging</string>
+    <string name="detail_first_payment">Eerste betaling</string>
+    <string name="detail_monthly_equivalent">Omgerekend per maand</string>
+    <string name="detail_yearly_commitment">Jaarlijkse verplichtingen</string>
+    <string name="detail_paid_so_far">Betaald sinds eerste factuur</string>
+    <string name="detail_notes">Notities</string>
+    <string name="detail_reminder">Herinnering</string>
+    <string name="detail_reminder_off">Uit</string>
+    <string name="detail_manage_official">Beheren of opzeggen bij de aanbieder</string>
+    <string name="detail_manage_official_sub">Opent je accountpagina bij de aanbieder</string>
+    <string name="detail_remove">Abonnement verwijderen</string>
+    <string name="paused">Gepauzeerd</string>
+    <string name="detail_pause">Dit abonnement pauzeren</string>
+    <string name="detail_resume">Dit abonnement hervatten</string>
+    <string name="detail_paused_note">Een gepauzeerd abonnement stuurt geen herinneringen en telt niet mee in je totalen. Er wordt niets verwijderd.</string>
+    <string name="dashboard_paused_header">Gepauzeerd (%d)</string>
+    <string name="paused_item">‘%s’ gepauzeerd</string>
+    <string name="resumed_item">‘%s’ hervat</string>
+    <string name="resumed_as_paid">‘%1$s’ hervat voor %2$s</string>
+    <string name="pause_action">Pauzeren</string>
+    <string name="resume_action">Hervatten</string>
+    <string name="widget_name">SubFlow</string>
+    <string name="widget_description">Het totaal van deze maand en de komende verlengingen.</string>
+    <string name="widget_preview_when_1">Nog 2 dagen</string>
+    <string name="widget_preview_when_2">Proefperiode: nog 3 dagen</string>
+    <string name="widget_preview_when_3">Nog 9 dagen</string>
+    <string name="detail_billed_cycle">Facturering: %s</string>
+    <string name="delete_confirm_title">%s verwijderen?</string>
+    <string name="delete_confirm_body">Hiermee verwijder je het abonnement uit je overzicht. Je zegt het abonnement bij de aanbieder niet op.</string>
+    <string name="edit">Bewerken</string>
+    <string name="back">Terug</string>
+    <string name="not_found">Abonnement niet gevonden</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_page_preferences">Voorkeuren</string>
+    <string name="settings_page_notifications">Meldingen</string>
+    <string name="settings_page_data">Gegevens</string>
+    <string name="settings_page_about">Over</string>
+    <string name="settings_page_notifications_sub">Verlengingsmeldingen · Proefperiodeherinneringen</string>
+    <string name="settings_page_data_sub">Back-up · Herstellen</string>
+    <string name="settings_page_about_sub">Privacy · Voorwaarden · Ondersteuning</string>
+    <string name="primary_currency">Standaardvaluta</string>
+    <string name="appearance">Weergave</string>
+    <string name="theme_system">Systeem</string>
+    <string name="theme_light">Licht</string>
+    <string name="theme_dark">Donker (OLED)</string>
+    <string name="language">Taal</string>
+    <string name="language_system">Systeemstandaard</string>
+    <string name="cloud_backup">Cloudback-up en synchronisatie</string>
+    <string name="cloud_backup_sub">Tik om nu te synchroniseren</string>
+    <string name="sign_in_google">Inloggen met Google</string>
+    <string name="sign_out">Uitloggen</string>
+    <string name="signed_in_as">Ingelogd als %s</string>
+    <string name="guest_vault">Lokale kluis, geen account</string>
+    <string name="search_subscriptions">Abonnementen zoeken</string>
+    <string name="sort_options">Sorteren op</string>
+    <string name="sort_renewal_date">Verlengdatum</string>
+    <string name="sort_price_high">Prijs: hoog naar laag</string>
+    <string name="sort_price_low">Prijs: laag naar hoog</string>
+    <string name="sort_name_asc">Naam: A tot Z</string>
+    <string name="section_preferences">VOORKEUREN</string>
+    <string name="section_notifications">MELDINGEN</string>
+    <string name="data_portability">GEGEVENS</string>
+    <string name="backup_json">Back-up exporteren (JSON)</string>
+    <string name="backup_json_sub">Bewaar een kopie van alles wat je bijhoudt</string>
+    <string name="restore_json">Herstellen vanuit back-up</string>
+    <string name="restore_json_sub">Importeer een eerder geëxporteerd bestand</string>
+    <string name="legal_and_support">OVER</string>
+    <string name="contact_support">Contact met ondersteuning</string>
+    <string name="contact_support_sub">Vragen, fouten en functieverzoeken</string>
+    <string name="rate_app">Beoordeel SubFlow</string>
+    <string name="rate_app_sub">Een beoordeling helpt echt</string>
+    <string name="share_app">Deel SubFlow</string>
+    <string name="clear_all_data">Alle gegevens wissen</string>
+    <string name="clear_all_data_sub">Verwijdert alle abonnementen op dit apparaat</string>
+    <string name="haptics">Trilfeedback</string>
+    <string name="haptics_sub">Subtiele trillingen bij interacties</string>
+    <string name="reminder_lead_title">Waarschuw me vóór verlenging</string>
+    <string name="reminder_lead_sub_free">Pro voegt 3 en 7 dagen toe</string>
+    <string name="test_notification">Testmelding versturen</string>
+    <string name="test_notification_sub">Controleer of meldingen aankomen</string>
+    <string name="test_notification_sent">Testmelding verstuurd.</string>
+    <string name="notifications_blocked">Meldingen voor SubFlow staan uit.</string>
+    <string name="open_settings">Instellingen openen</string>
+    <string name="undo">Ongedaan maken</string>
+    <string name="renewal_today">Vandaag verschuldigd</string>
+    <plurals name="renewal_days_left">
+        <item quantity="one">Nog %d dag</item>
+        <item quantity="other">Nog %d dagen</item>
+    </plurals>
+    <string name="renewal_days_short">%dd</string>
+    <string name="renewal_overdue">Verlopen</string>
+    <string name="cycle_short_weekly">/wk</string>
+    <string name="cycle_short_monthly">/mnd</string>
+    <string name="cycle_short_quarterly">/kw</string>
+    <string name="cycle_short_yearly">/jr</string>
+    <string name="app_version">Versie %s</string>
+    <string name="restore_success_count">%d abonnementen hersteld.</string>
+    <string name="restore_success_paused">%1$d abonnementen hersteld. %2$d zijn gepauzeerd, want de gratis versie houdt er %3$d actief.</string>
+    <string name="restore_failed">Dit lijkt geen SubFlow-back-up te zijn.</string>
+    <string name="reset_dialog_title">Alle gegevens wissen?</string>
+    <string name="reset_dialog_body">Alle abonnementen op dit apparaat worden definitief verwijderd. Je Pro-aankoop blijft behouden.</string>
+    <string name="reset_confirm">Alles wissen</string>
+    <string name="reset_done">Alle abonnementsgegevens gewist.</string>
+    <string name="sync_complete">Synchronisatie voltooid, %d items</string>
+    <string name="sync_offline">Offline. Je gegevens staan veilig op dit apparaat.</string>
+    <string name="sign_in_unavailable">Inloggen met Google is niet ingesteld in deze versie.</string>
+    <string name="sign_in_cancelled">Inloggen geannuleerd.</string>
+    <string name="sign_in_failed">Inloggen mislukt. Je kunt SubFlow zonder account blijven gebruiken.</string>
+    <string name="share_app_text">SubFlow houdt al mijn betaalde abonnementen op één plek bij en waarschuwt me vóór verlenging. %s</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_renewal">Verlengingsmeldingen</string>
+    <string name="notif_channel_renewal_desc">Herinneringen voordat een abonnement wordt verlengd</string>
+    <string name="notif_renewal_title_today">%s wordt vandaag verlengd</string>
+    <string name="notif_renewal_title">%1$s wordt over %2$d dagen verlengd</string>
+    <string name="notif_renewal_body">Op %2$s wordt %1$s in rekening gebracht. Zeg nu op als je het niet meer gebruikt.</string>
+    <string name="notif_trial_title_today">Je proefperiode voor %s eindigt vandaag</string>
+    <string name="notif_trial_title">Je proefperiode voor %1$s eindigt over %2$d dagen</string>
+    <string name="notif_trial_body_converts">Op %2$s wordt dit een betaald abonnement en wordt %1$s in rekening gebracht. Zeg vóór die datum op om dit te voorkomen.</string>
+    <string name="notif_trial_body_free">De proefperiode eindigt op %s. Er wordt niets in rekening gebracht.</string>
+    <string name="notif_test_title">Meldingen werken</string>
+    <string name="notif_test_body">SubFlow waarschuwt je vóór je volgende verlenging.</string>
+    <plurals name="active_subscriptions_count">
+        <item quantity="one">%d actief abonnement</item>
+        <item quantity="other">%d actieve abonnementen</item>
+    </plurals>
+    <plurals name="metric_services">
+        <item quantity="one">%d dienst</item>
+        <item quantity="other">%d diensten</item>
+    </plurals>
+    <string name="cd_advertisement">Advertentie</string>
+    <string name="cd_accent_colour">Accentkleur %s</string>
+    <string name="ad_privacy_options">Privacyopties voor advertenties</string>
+    <string name="restore_read_failed">Het bestand kon niet worden gelezen.</string>
+    <string name="section_danger">GEVARENZONE</string>
+    <string name="app_version_full">SubFlow %s</string>
+
+    <!-- Trials (BIN-15) -->
+    <string name="trial_badge">Proefperiode</string>
+    <string name="trial_toggle">Gratis proefperiode</string>
+    <string name="trial_toggle_sub">Je betaalt hier nog niet voor</string>
+    <string name="trial_end_date">Proefperiode eindigt</string>
+    <string name="trial_end_date_invalid">De proefperiode moet na de startdatum eindigen</string>
+    <string name="trial_converts">Wordt daarna betaald</string>
+    <string name="trial_converts_sub">Zet dit uit als het gewoon stopt</string>
+    <string name="field_price_after_trial">Prijs na de proefperiode</string>
+    <string name="trial_free_amount">Gratis</string>
+    <string name="trial_ends_today">Eindigt vandaag</string>
+    <string name="trial_ended">Proefperiode afgelopen</string>
+    <string name="trial_then_amount">daarna %s</string>
+    <string name="trial_no_charge">Geen kosten</string>
+    <string name="detail_trial_end">Proefperiode eindigt</string>
+    <string name="detail_trial_price">Prijs na de proefperiode</string>
+    <string name="trial_ended_prompt">Deze proefperiode is afgelopen. Wat is er gebeurd?</string>
+    <string name="trial_action_converted">Het is betaald geworden</string>
+    <string name="trial_action_cancelled">Ik heb opgezegd</string>
+    <string name="trial_action_extend">Proefperiode verlengen</string>
+    <string name="trial_reminders_unavailable">Meldingen staan uit, dus SubFlow kan je niet waarschuwen voordat deze proefperiode eindigt. Het aftellen blijft hier zichtbaar.</string>
+    <string name="trial_alert_summary">Waarschuwing %s dagen voor het einde</string>
+    <string name="trial_alert_off">Geen herinnering voor het einde</string>
+    <string name="trial_reminder_value">%s dagen van tevoren</string>
+    <string name="settings_trial_leads_title">Proefperiodeherinneringen</string>
+    <string name="settings_trial_leads_sub">Voordat een gratis proefperiode eindigt. Inbegrepen bij elke versie.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Proefperiode: nog %d dag</item>
+        <item quantity="other">Proefperiode: nog %d dagen</item>
+    </plurals>
+
+    <!-- What's new sheet (BIN-60); rewritten for each release -->
+    <string name="whats_new_title">Wat is er nieuw?</string>
+    <string name="whats_new_version">Versie %1$s</string>
+    <string name="whats_new_done">Begrepen</string>
+    <string name="whats_new_feedback">Feedback versturen</string>
+    <string name="whats_new_item_1">SubFlow spreekt nu Portugees, Koreaans en Italiaans.</string>
+    <string name="whats_new_item_2">Pro: stel een maandbudget in via Instellingen → Voorkeuren en zie hoeveel je overhoudt.</string>
+    <string name="whats_new_item_3">De verbinding met Google Play bij aankopen is betrouwbaarder.</string>
+
+    <!-- CSV import (BIN-65) -->
+    <string name="import_csv">CSV importeren</string>
+    <string name="import_csv_sub">Vanuit een rekenblad of een andere app</string>
+    <string name="import_title">Importeren uit CSV</string>
+    <string name="import_nothing_new">Niets nieuws om te importeren.</string>
+    <string name="import_paused_note">%1$d worden gepauzeerd geïmporteerd, want de gratis versie houdt er %2$d actief.</string>
+    <string name="import_line">Regel %1$d: %2$s</string>
+    <string name="import_problem_missing_name">geen naam</string>
+    <string name="import_problem_bad_amount">‘%s’ is geen prijs</string>
+    <string name="import_problem_bad_currency">‘%s’ is geen ondersteunde valuta</string>
+    <string name="import_problem_bad_cycle">‘%s’ is geen factuurperiode</string>
+    <string name="import_problem_bad_date">‘%s’ is geen datum</string>
+    <string name="import_missing_columns">De eerste rij moet kolomnamen bevatten. In dit bestand ontbreken: %s.</string>
+    <string name="import_template_hint">Bijvoorbeeld: %s</string>
+    <string name="import_empty">Geen abonnementen gevonden in dit bestand.</string>
+    <string name="import_done_paused">%1$d abonnementen geïmporteerd. %2$d zijn gepauzeerd, want de gratis versie houdt er %3$d actief.</string>
+    <plurals name="import_new">
+        <item quantity="one">%d nieuw abonnement</item>
+        <item quantity="other">%d nieuwe abonnementen</item>
+    </plurals>
+    <plurals name="import_duplicates">
+        <item quantity="one">%d staat al in SubFlow, overgeslagen</item>
+        <item quantity="other">%d staan al in SubFlow, overgeslagen</item>
+    </plurals>
+    <plurals name="import_invalid">
+        <item quantity="one">%d rij kon niet worden gelezen</item>
+        <item quantity="other">%d rijen konden niet worden gelezen</item>
+    </plurals>
+    <plurals name="import_confirm">
+        <item quantity="one">%d abonnement importeren</item>
+        <item quantity="other">%d abonnementen importeren</item>
+    </plurals>
+    <plurals name="import_done">
+        <item quantity="one">%d abonnement geïmporteerd.</item>
+        <item quantity="other">%d abonnementen geïmporteerd.</item>
+    </plurals>
+
+    <!-- Multi-select (BIN-66) -->
+    <string name="select_action">Selecteren</string>
+    <string name="select_all">Alles selecteren</string>
+    <string name="exit_selection">Selectie annuleren</string>
+    <string name="bulk_resumed_partial">%1$d hervat. %2$d blijven gepauzeerd, want de gratis versie houdt er %3$d actief.</string>
+    <string name="bulk_resume_full">De gratis versie houdt er %d actief, dus deze blijven gepauzeerd.</string>
+    <string name="bulk_resumed_converted">%1$d hervat. %2$d opgezegde proefabonnementen worden nu tegen de volledige prijs bijgehouden.</string>
+    <plurals name="selection_count">
+        <item quantity="one">%d geselecteerd</item>
+        <item quantity="other">%d geselecteerd</item>
+    </plurals>
+    <plurals name="bulk_paused">
+        <item quantity="one">%d abonnement gepauzeerd</item>
+        <item quantity="other">%d abonnementen gepauzeerd</item>
+    </plurals>
+    <plurals name="bulk_resumed">
+        <item quantity="one">%d abonnement hervat</item>
+        <item quantity="other">%d abonnementen hervat</item>
+    </plurals>
+    <plurals name="bulk_deleted">
+        <item quantity="one">%d abonnement verwijderd</item>
+        <item quantity="other">%d abonnementen verwijderd</item>
+    </plurals>
+
+    <!-- Multi-select edits (BIN-66) -->
+    <string name="change_category">Categorie wijzigen</string>
+    <string name="change_reminder">Herinnering wijzigen</string>
+    <string name="more_actions">Meer acties</string>
+    <plurals name="bulk_category_changed">
+        <item quantity="one">%1$d abonnement verplaatst naar %2$s</item>
+        <item quantity="other">%1$d abonnementen verplaatst naar %2$s</item>
+    </plurals>
+    <plurals name="bulk_reminder_changed">
+        <item quantity="one">Herinnering bijgewerkt voor %d abonnement</item>
+        <item quantity="other">Herinnering bijgewerkt voor %d abonnementen</item>
+    </plurals>
+
+    <!-- Monthly budget (BIN-68) -->
+    <string name="monthly_budget">Maandbudget</string>
+    <string name="monthly_budget_sub">Zie hoeveel je abonnementen daarvan gebruiken</string>
+    <string name="monthly_budget_off">Niet ingesteld</string>
+    <string name="monthly_budget_hint">Bedrag in %s</string>
+    <string name="budget_remove">Verwijderen</string>
+    <string name="budget_left">%1$s over van %2$s</string>
+    <string name="budget_over">%1$s boven je budget van %2$s</string>
+    <string name="feat_budget">Maandbudget</string>
+    <string name="feat_budget_sub">Een meter bij je totaal en een waarschuwing voordat een nieuw abonnement je budget overschrijdt</string>
+
+    <!-- Over-budget notices (BIN-68) -->
+    <string name="budget_after_add_over">Hiermee kom je %1$s boven je budget van %2$s</string>
+    <string name="budget_after_add_left">Hierna houd je %1$s van je budget van %2$s over</string>
+    <string name="budget_now_over">Nu %1$s boven je budget van %2$s.</string>
+
+    <!-- Paywall by entry point, dated trial, reminder preview (BIN-74) -->
+    <string name="paywall_headline_limit">Houd elk abonnement bij, niet alleen %d</string>
+    <string name="paywall_headline_alerts">Weet een week vooraf wat er wordt afgeschreven</string>
+    <string name="paywall_headline_budget">Blijf binnen je maandbudget</string>
+    <string name="paywall_headline_analytics">Zie waar je geld naartoe gaat</string>
+    <string name="feat_unlimited_used">Je houdt %1$d van %2$d bij in de gratis versie</string>
+    <string name="paywall_free_for_all">Gratis in elke versie: totalen in meerdere valuta, proefperiodes bijhouden, CSV-import en back-ups.</string>
+    <string name="trial_footnote_until">Gratis tot %1$s, daarna %2$s. Zeg vóór die datum op in Google Play en er wordt niets in rekening gebracht.</string>
+    <string name="reminder_pro_preview">Met Pro krijg je op %1$s een herinnering, %2$d dagen vóór deze afschrijving.</string>
+    <string name="reminder_pro_preview_undated">Met Pro krijg je %1$d dagen vóór elke afschrijving een herinnering.</string>
+
+
+    <!-- Final-day cancellation check -->
+</resources>

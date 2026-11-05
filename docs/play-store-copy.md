@@ -17,6 +17,8 @@ since the last upload" is `git log <last tag>..main`.
 
 ## 1.6.1 (versionCode 11): release notes
 
+Not in this upload: nl-NL. (Dutch is prepared in BIN-93 for a future release.)
+
 Changes since 1.6.0 (versionCode 10):
 
 | Change | Source |
@@ -593,7 +595,14 @@ text.
 it-IT) go into the Console with that upload, and every listing's language
 line names all ten languages from then on.
 
-All ten listings say the same thing. zh-TW was written first from the
+**Dutch is prepared, not yet uploaded (BIN-93).** Do not add the nl-NL
+listing to Play until a build containing Dutch is uploaded. In that release,
+add Dutch to every other listing's language line, translate the release notes
+and what's-new sheet into Dutch, and remove the newest release's exemption.
+The ten existing listings below intentionally retain their uploaded language
+claims until then; the Dutch draft describes the upcoming eleven-language build.
+
+All ten uploaded listings say the same thing. zh-TW was written first from the
 features in the code (see *What each claim rests on*), and the others
 translate it. Terms match what each language's app UI shows (German
 *Hauptwährung*, French *devise principale*, Japanese *基準通貨*, Simplified
@@ -668,6 +677,73 @@ The free plan tracks up to 5 subscriptions and shows a banner ad. Pro gives you:
 Choose monthly, annual or a one-time lifetime purchase, all billed through Google Play. Subscriptions can be cancelled at any time.
 
 SubFlow tracks and reminds; it doesn't cancel anything for you. To cancel, go to the service's account page. For well-known services, the app opens it for you.
+```
+
+### nl-NL Nederlands
+
+Draft for the first upload containing BIN-93, not for 1.6.1. Uses je, as in the app.
+
+**Title** (≤30)
+
+```
+SubFlow: Abonnementen
+```
+
+**Short description** (≤80)
+
+```
+Al je abonnementen op één plek, met een herinnering vóór elke afschrijving.
+```
+
+**Full description** (≤4000)
+
+```
+Netflix, Spotify, cloudopslag, de sportschool… wat kosten je abonnementen samen per maand? SubFlow houdt ze op één plek bij, rekent ze om naar een maandtotaal en herinnert je vóór de afschrijving. Zo kun je op tijd opzeggen wat je niet meer gebruikt.
+
+HOUD ELK ABONNEMENT BIJ
+• 34 populaire diensten met hun logo: kies er één en voeg die toe
+• Of maak je eigen dienst met een naam, kleur en pictogram
+• Wekelijkse, maandelijkse, kwartaal- en jaarabonnementen, omgerekend naar maand- en jaartotalen
+• Sorteer op verlengdatum, prijs of naam; filter op categorie en zoek
+• Veeg een kaart naar links om te verwijderen, naar rechts om te pauzeren
+• Houd een kaart ingedrukt om meerdere abonnementen tegelijk te pauzeren, hervatten, verwijderen of een andere categorie te geven
+• Pauzeer een abonnement waarvoor je niet meer betaalt: de gegevens blijven bewaard, maar het telt niet mee in je totalen en herinneringen
+• Een startschermwidget toont je maandtotaal en komende verlengingen
+
+EEN HERINNERING VÓÓR DE AFSCHRIJVING
+• Een herinnering 1 dag vóór elke verlenging (Pro voegt 3 en 7 dagen toe)
+• Heeft je telefoon een herinnering gemist terwijl hij inactief was? Open de app om die alsnog te ontvangen
+
+HOUD GRATIS PROEFPERIODES BIJ
+• Markeer een abonnement als gratis proefperiode, met einddatum en de prijs daarna
+• Ontvang een herinnering vóór het einde, in elke versie
+• Geef na afloop aan of het betaald is geworden, je hebt opgezegd of de proefperiode is verlengd
+
+MEERDERE VALUTA, ÉÉN TOTAAL
+• 40 valuta: noteer elk abonnement in de valuta waarin je betaalt
+• Alles wordt omgerekend naar je standaardvaluta met actuele wisselkoersen. Offline gebruikt de app de laatst opgehaalde koersen, of ingebouwde koersen als de app nog nooit online is geweest
+
+INZICHT IN JE UITGAVEN
+• Maandtotaal, jaartotaal en gemiddelde per dag
+• Pro: 6 maanden uitgavengeschiedenis, uitsplitsing per categorie, uitgavenoverzicht, betalingsprognose per maand en CSV-export
+
+JE GEGEVENS BLIJVEN OP JE TELEFOON
+• Geen account nodig: alles staat op je apparaat
+• Exporteer een JSON-back-up en herstel die wanneer je wilt
+• Importeer abonnementen uit een CSV-bestand of rekenblad, met een voorbeeld voordat iets wordt toegevoegd
+• Donkere modus (echt zwart) en trilfeedback
+• In het Nederlands, Engels, vereenvoudigd en traditioneel Chinees, Japans, Koreaans, Duits, Frans, Spaans, Italiaans en Portugees
+
+SUBFLOW PRO
+De gratis versie houdt maximaal 5 abonnementen bij en toont een advertentiebanner. Met Pro krijg je:
+• Onbeperkt abonnementen
+• Herinneringen 3 en 7 dagen vóór verlenging
+• Alle inzichten en CSV-export
+• Een maandbudget, met een meter bij je totaal en een waarschuwing voordat een abonnement je budget overschrijdt
+• Nooit meer advertenties
+Kies maandelijks, jaarlijks of eenmalig levenslang, betaald via Google Play. Abonnementen zijn altijd opzegbaar.
+
+SubFlow houdt bij en herinnert, maar zegt niets voor je op. Ga daarvoor naar je accountpagina bij de aanbieder. Voor bekende diensten opent de app die voor je.
 ```
 
 ### pt-BR Português (Brasil)
@@ -1277,7 +1353,7 @@ What each claim rests on:
 | 40 currencies, live rates, last-fetched cache, then a built-in fallback | `SupportedCurrencies`; `ExchangeRateRepository` (prefs cache); `fallbackRatesToUSD` |
 | Pro analytics | the four `ProGate`s in `AnalyticsScreen.kt` + gated CSV export |
 | No account, stored locally | release build has `BACKEND_ENABLED = false` |
-| 10 languages | `SupportedLanguages` (pt, ko, it added in 1.6.0) |
+| 10 uploaded languages; 11 in the next build | `SupportedLanguages` (pt, ko, it added in 1.6.0; nl prepared in BIN-93). Dutch listing stays draft until upload. |
 | Totals and daily average free | outside the `ProGate`s (`item(key = "metrics")`) |
 | Pause instead of delete; out of totals and reminders; every plan | `Subscription.isActive`, `SubscriptionRepository.setActive` (no `ProGate`); BIN-29 |
 | Home screen widget: monthly total and upcoming renewals; every plan | `widget/SubFlowWidget.kt`, `summariseForWidget` (not gated); BIN-30, BIN-32 |
