@@ -15,6 +15,87 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.6.2 (versionCode 12): release notes
+
+**Draft — not uploaded.** This aligns notes with the existing build version;
+it does not authorize an upload or change the app version. Device reminder
+acceptance and final store-listing/what's-new review remain release gates.
+The Dutch listing below remains a draft until an upload includes it.
+
+| Change | Source |
+|---|---|
+| Full Dutch interface, including language selection and reminders | BIN-93, PR #88 |
+| Optional final-day checks for auto-converting trials, configurable local time and exact-access enhancement | BIN-83, PR #88 |
+| Date-bound keep/undo decisions and confirmation before recording provider cancellation locally | BIN-83, PR #88 |
+
+Technical CI/build changes and Firebase debug configuration are not user-facing
+release-note claims. Existing uploaded notes below remain unchanged.
+
+```
+<en-US>
+• SubFlow now speaks Dutch.
+• Enable optional final-day checks for auto-renewing trials and choose the reminder time. Exact timing needs system access; delivery may be delayed.
+• Decide to keep a trial without ending its free period, or confirm that you cancelled with the provider. SubFlow updates your record; it does not cancel services.
+</en-US>
+<zh-CN>
+• 新增完整荷兰语支持。
+• 可开启自动转付费试用的最后一天取消检查，并选择提醒时间。精确定时需要系统授权，提醒仍可能延迟。
+• 可决定保留试用而不提前结束免费期，或确认已在服务商处取消。SubFlow 只更新本地记录，不代你取消服务。
+</zh-CN>
+<zh-TW>
+• 新增完整荷蘭文支援。
+• 可開啟自動轉付費試用的最後一天取消確認提醒，並選擇提醒時間。精確定時需要系統授權，提醒仍可能延遲。
+• 可決定保留試用而不提早結束免費期，或確認已向服務商取消。SubFlow 只更新本機紀錄，不會代你取消服務。
+</zh-TW>
+<zh-HK>
+• 新增完整荷蘭文支援。
+• 可開啟自動轉付費試用的最後一天取消確認提醒，並選擇提醒時間。精確定時需要系統授權，提醒仍可能延遲。
+• 可決定保留試用而不提早結束免費期，或確認已向服務商取消。SubFlow 只更新本機紀錄，不會代你取消服務。
+</zh-HK>
+<de-DE>
+• SubFlow spricht jetzt Niederländisch.
+• Aktiviere optionale Prüfungen am letzten Tag automatisch verlängerter Testphasen und wähle die Uhrzeit. Exaktes Timing braucht Systemzugriff; Erinnerungen können sich verzögern.
+• Behalte eine Testphase, ohne die Gratiszeit zu beenden, oder bestätige deine Kündigung beim Anbieter. SubFlow aktualisiert nur deinen Eintrag und kündigt keine Dienste.
+</de-DE>
+<fr-FR>
+• SubFlow est désormais disponible en néerlandais.
+• Activez un rappel le dernier jour des essais à renouvellement automatique et choisissez l’heure. La précision nécessite une autorisation système ; un retard reste possible.
+• Décidez de conserver un essai sans terminer sa période gratuite, ou confirmez votre résiliation auprès du fournisseur. SubFlow met à jour votre fiche, sans résilier de service.
+</fr-FR>
+<es-ES>
+• SubFlow ya está disponible en neerlandés.
+• Activa avisos opcionales el último día de las pruebas con renovación automática y elige la hora. La precisión requiere acceso del sistema; puede haber retrasos.
+• Decide mantener una prueba sin terminar su periodo gratuito o confirma que has cancelado con el proveedor. SubFlow solo actualiza tu registro, no cancela servicios.
+</es-ES>
+<it-IT>
+• SubFlow ora è disponibile in olandese.
+• Attiva un promemoria facoltativo l’ultimo giorno delle prove con rinnovo automatico e scegli l’orario. La precisione richiede l’accesso di sistema; sono possibili ritardi.
+• Decidi di mantenere una prova senza terminare il periodo gratuito o conferma la disdetta presso il fornitore. SubFlow aggiorna solo la tua scheda, non annulla servizi.
+</it-IT>
+<nl-NL>
+• SubFlow is nu volledig beschikbaar in het Nederlands.
+• Schakel een optionele controle in op de laatste dag van automatisch verlengde proefperiodes en kies de tijd. Exacte timing vereist systeemtoegang; meldingen kunnen vertraagd zijn.
+• Besluit een proefperiode te behouden zonder de gratis periode te beëindigen, of bevestig je opzegging bij de aanbieder. SubFlow werkt alleen je gegevens bij en zegt geen diensten op.
+</nl-NL>
+<pt-BR>
+• O SubFlow agora está disponível em holandês.
+• Ative um aviso opcional no último dia dos testes com renovação automática e escolha o horário. A precisão exige acesso do sistema; pode haver atrasos.
+• Decida manter um teste sem encerrar o período grátis ou confirme que cancelou com o provedor. O SubFlow só atualiza seu registro, não cancela serviços.
+</pt-BR>
+<ja-JP>
+• オランダ語に対応しました。
+• 自動更新される無料トライアルの最終日に確認通知を設定し、時刻を選べます。正確な時刻の設定にはシステムの許可が必要です。通知が遅れる場合もあります。
+• 無料期間を終了せずに継続を決めたり、提供元で解約したことを確認したりできます。SubFlow は記録のみを更新し、サービスの解約は行いません。
+</ja-JP>
+<ko-KR>
+• 이제 SubFlow를 네덜란드어로 사용할 수 있어요.
+• 자동 갱신되는 무료 체험의 마지막 날에 확인 알림을 켜고 시간을 정할 수 있어요. 정확한 시간 설정에는 시스템 권한이 필요하며 알림이 늦어질 수 있어요.
+• 무료 기간을 끝내지 않고 유지하기로 결정하거나 제공업체에서 해지했음을 확인할 수 있어요. SubFlow는 기록만 업데이트하며 서비스를 대신 해지하지 않아요.
+</ko-KR>
+```
+
+---
+
 ## 1.6.1 (versionCode 11): release notes
 
 Not in this upload: nl-NL. (Dutch is prepared in BIN-93 for a future release.)
