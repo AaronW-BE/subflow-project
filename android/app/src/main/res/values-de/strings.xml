@@ -525,4 +525,5 @@
     <string name="overview_normalized">Normalisierte laufende Kosten · alle aktiven Abos, keine tatsächlichen Zahlungen</string>
     <string name="overview_partial">Unvollständige Schätzung · nur umgerechneter Teil</string>
     <string name="overview_budget_unavailable">Budgetvergleich nicht verfügbar: Kosten oder Budget unvollständig umgerechnet.</string>
+    <string name="renewal_date_unavailable">Datum nicht verfügbar</string>
 </resources>

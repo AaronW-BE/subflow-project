@@ -510,4 +510,5 @@
     <string name="overview_normalized">有効な全購読の換算継続費用 · 実際の支払額ではありません</string>
     <string name="overview_partial">不完全な見積もり · 換算済みの部分のみ</string>
     <string name="overview_budget_unavailable">費用または予算の換算が不完全なため、予算比較はできません。</string>
+    <string name="renewal_date_unavailable">日付を確認できません</string>
 </resources>

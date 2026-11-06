@@ -120,6 +120,66 @@ class DashboardScreenTest {
         }
 
     @Test
+    fun `invalid active dates show unavailable in text and accessibility`() {
+        show(listOf(netflix.copy(nextBillDate = "not-a-date"), spotify.copy(nextBillDate = "")))
+        compose.onAllNodesWithText(str(R.string.renewal_date_unavailable), useUnmergedTree = true).fetchSemanticsNodes().let {
+            assertEquals(2, it.size)
+        }
+        for (i in 0..1) compose.onAllNodesWithText(str(R.string.renewal_date_unavailable), useUnmergedTree = true)[i].assertIsDisplayed()
+        for (name in listOf("Netflix", "Spotify")) {
+            compose.onNode(hasContentDescription(name, substring = true) and
+                hasContentDescription(str(R.string.renewal_date_unavailable), substring = true) and hasClickAction()).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun `valid dates retain countdown and huge year uses full date in text and accessibility`() {
+        val fixtures = listOf(
+            netflix.copy(nextBillDate = "2026-02-01"),
+            spotify.copy(nextBillDate = "2026-02-02"),
+            icloud.copy(nextBillDate = "2026-02-11"),
+            sub("past", "Past", 1.0).copy(nextBillDate = "2026-01-31"),
+            sub("huge", "Huge", 1.0).copy(nextBillDate = "+999999999-01-01")
+        )
+        show(fixtures)
+        val expected = listOf(
+            "Netflix" to str(R.string.renewal_today),
+            "Spotify" to plural(R.plurals.renewal_days_left, 1),
+            "iCloud+" to plural(R.plurals.renewal_days_left, 10),
+            "Past" to str(R.string.renewal_overdue),
+            "Huge" to "+999999999-01-01"
+        )
+        for ((name, text) in expected) {
+            compose.onAllNodesWithText(text, useUnmergedTree = true)[0].assertIsDisplayed()
+            compose.onNode(hasContentDescription(name, substring = true) and
+                hasContentDescription(text, substring = true) and hasClickAction()).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun `trial renewal words and paused invalid date keep their semantics`() {
+        show(listOf(
+            netflix.copy(isTrial = true, nextBillDate = "2026-01-31"),
+            spotify.copy(isTrial = true, nextBillDate = "2026-02-01"),
+            icloud.copy(isTrial = true, nextBillDate = "2026-02-02"),
+            sub("invalid", "Invalid trial", 0.0).copy(isTrial = true, nextBillDate = "bad"),
+            sub("paused", "Paused invalid", 1.0).copy(isActive = false, nextBillDate = "bad")
+        ))
+        compose.onNodeWithText("5" + 10.toChar() + str(R.string.overview_all)).performClick()
+        for ((name, text) in listOf(
+            "Netflix" to str(R.string.trial_ended),
+            "Spotify" to str(R.string.trial_ends_today),
+            "iCloud+" to plural(R.plurals.trial_days_left, 1),
+            "Invalid trial" to str(R.string.renewal_date_unavailable),
+            "Paused invalid" to str(R.string.paused)
+        )) {
+            compose.onAllNodesWithText(text, useUnmergedTree = true)[0].assertIsDisplayed()
+            compose.onNode(hasContentDescription(name, substring = true) and
+                hasContentDescription(text, substring = true) and hasClickAction()).assertIsDisplayed()
+        }
+    }
+
+    @Test
     fun `count navigation clears filters and reset returns collapsed ordinary home`() {
         show(listOf(netflix, spotify.copy(isActive = false)))
         compose.onNode(hasSetTextAction()).performTextInput("nothing matches")

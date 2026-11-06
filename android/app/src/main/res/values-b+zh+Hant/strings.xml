@@ -517,4 +517,5 @@
     <string name="overview_normalized">全部活躍訂閱的折算成本 · 非實際扣款</string>
     <string name="overview_partial">估算不完整 · 僅已換算部分</string>
     <string name="overview_budget_unavailable">成本或預算換算不完整，暫時無法比較預算。</string>
+    <string name="renewal_date_unavailable">日期無法使用</string>
 </resources>

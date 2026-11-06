@@ -1700,7 +1700,8 @@ private fun SubscriptionRow(
     onLongClick: () -> Unit = {}
 ) {
     val today = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.today
-    val daysLeft = runCatching { java.time.temporal.ChronoUnit.DAYS.between(today, LocalDate.parse(sub.nextBillDate)) }.getOrDefault(Long.MAX_VALUE)
+    val nextBillDate = runCatching { LocalDate.parse(sub.nextBillDate) }.getOrNull()
+    val daysLeft = nextBillDate?.let { java.time.temporal.ChronoUnit.DAYS.between(today, it) }
     val localizedCategory = localizedCategory(sub.category)
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
@@ -1711,6 +1712,9 @@ private fun SubscriptionRow(
     val isTrial = sub.isTrialPending
     val renewalText = when {
         !sub.isActive -> stringResource(R.string.paused)
+        daysLeft == null -> stringResource(R.string.renewal_date_unavailable)
+        // Android plurals take Int quantities; retain the full ISO date beyond that range.
+        daysLeft > Int.MAX_VALUE.toLong() -> nextBillDate.toString()
         isTrial && daysLeft < 0L -> stringResource(R.string.trial_ended)
         isTrial && daysLeft == 0L -> stringResource(R.string.trial_ends_today)
         isTrial -> pluralStringResource(
@@ -1739,7 +1743,7 @@ private fun SubscriptionRow(
     }
     // An ended trial is the most urgent thing this list can show: it is a
     // question the user still owes an answer to, and possibly a charge.
-    val urgent = sub.isActive && if (isTrial) daysLeft <= 3L else daysLeft in 0..3
+    val urgent = sub.isActive && daysLeft != null && if (isTrial) daysLeft <= 3L else daysLeft in 0..3
 
     SwipeableSubscriptionCard(
         modifier = Modifier.fillMaxWidth(),

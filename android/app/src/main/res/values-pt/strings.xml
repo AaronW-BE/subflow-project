@@ -542,4 +542,5 @@
     <string name="overview_normalized">Custo recorrente normalizado · todas as ativas, não pagamentos reais</string>
     <string name="overview_partial">Estimativa incompleta · apenas a parte convertida</string>
     <string name="overview_budget_unavailable">Comparação de orçamento indisponível: conversão incompleta.</string>
+    <string name="renewal_date_unavailable">Data indisponível</string>
 </resources>

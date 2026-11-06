@@ -535,4 +535,5 @@
     <string name="overview_normalized">Normalized recurring cost · all active subscriptions, not actual payments</string>
     <string name="overview_partial">Incomplete estimate · known converted portion only</string>
     <string name="overview_budget_unavailable">Budget comparison unavailable: cost or budget conversion is incomplete.</string>
+    <string name="renewal_date_unavailable">Date unavailable</string>
 </resources>

@@ -510,4 +510,5 @@
     <string name="overview_normalized">全部活跃订阅的折算成本 · 非实际扣款</string>
     <string name="overview_partial">估算不完整 · 仅已换算部分</string>
     <string name="overview_budget_unavailable">成本或预算换算不完整，暂无法比较预算。</string>
+    <string name="renewal_date_unavailable">日期不可用</string>
 </resources>
