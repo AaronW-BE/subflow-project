@@ -272,8 +272,8 @@ fun AnalyticsScreen(
                     if (!comparisonsComplete) {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             AnalyticsUnavailable()
-                            categoryEstimates.filterValues { it.isComplete }.forEach { (category, estimate) ->
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            categoryEstimates.forEach { (category, estimate) ->
+                                Row(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(localizedCategory(category))
                                     EstimateAmount(estimate, primaryCurrency)
                                 }

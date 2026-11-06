@@ -37,17 +37,45 @@ class AnalyticsScreenTest {
     }
     @Test fun partialCostsSuspendComparisonsButKeepCountsKnownCategoryAndConvertedPortion() {
         show(listOf(sub("Known"), sub("Unknown", "XXX")))
-        compose.onAllNodesWithText(str(R.string.overview_partial)).assertCountEquals(2)
+        compose.onAllNodesWithText(str(R.string.overview_partial)).assertCountEquals(3)
         compose.onNodeWithText("Category Known").assertIsDisplayed()
-        compose.onNodeWithText("Category Unknown").assertDoesNotExist()
+        compose.onNode(hasText("Category Unknown") and hasText(str(R.string.overview_unavailable)) and
+            hasText(str(R.string.overview_partial))).assertIsDisplayed()
         compose.onNodeWithText("Known", substring = false).assertDoesNotExist()
         compose.onNodeWithText(context.resources.getQuantityString(R.plurals.metric_services, 2, 2)).assertIsDisplayed()
         compose.onAllNodesWithText(str(R.string.analytics_coverage_unavailable)).assertCountEquals(5)
     }
+    @Test fun mixedCategoryKeepsKnownSubtotalWithoutPercentagesOrRanking() {
+        show(listOf(sub("Known").copy(category = "Mixed"), sub("Unknown", "XXX").copy(category = "Mixed")))
+        compose.onNodeWithText("Mixed").assertIsDisplayed()
+        val row = hasText("Mixed")
+        val amount = CurrencyFormatter.format(12.0, "USD", context.resources.configuration.locales[0])
+        compose.onNode(row and hasText(amount) and hasText(str(R.string.overview_partial))).assertIsDisplayed()
+        compose.onAllNodes(hasText("%", substring = true) and (row or hasAnyAncestor(row))).assertCountEquals(0)
+        compose.onAllNodesWithText("%", substring = true).assertCountEquals(0)
+        compose.onNodeWithText("Known", substring = false).assertDoesNotExist()
+        compose.onNodeWithText("Unknown", substring = false).assertDoesNotExist()
+        compose.onAllNodesWithText(str(R.string.analytics_coverage_unavailable)).assertCountEquals(5)
+    }
+    @Test fun unavailableCategoryAndCompleteFreeZeroRemainVisible() {
+        show(listOf(sub("Missing", "XXX").copy(category = "Unavailable category"),
+            sub("Free", "XXX").copy(category = "Free category", amount = 0.0)))
+        compose.onNodeWithText("Unavailable category").assertIsDisplayed()
+        val unavailable = hasText("Unavailable category")
+        compose.onNode(unavailable and hasText(str(R.string.overview_unavailable)) and
+            hasText(str(R.string.overview_partial))).assertIsDisplayed()
+        val zero = CurrencyFormatter.format(0.0, "USD", context.resources.configuration.locales[0])
+        compose.onNode(unavailable and hasText(zero)).assertDoesNotExist()
+        val free = hasText("Free category")
+        compose.onNode(free and hasText(zero)).assertIsDisplayed()
+        compose.onNode(free and hasText(str(R.string.overview_partial))).assertDoesNotExist()
+        compose.onAllNodesWithText("%", substring = true).assertCountEquals(0)
+        compose.onNodeWithText("Missing", substring = false).assertDoesNotExist()
+    }
     @Test fun rateOnlyUpdateRestoresRankingsAndEveryAffectedSeriesUsingExplicitHomeCurrency() {
         var snapshot by mutableStateOf(base)
         show(listOf(sub("Known"), sub("Unknown", "XXX")), snapshot = { snapshot })
-        compose.onAllNodesWithText(str(R.string.overview_partial)).assertCountEquals(2)
+        compose.onAllNodesWithText(str(R.string.overview_partial)).assertCountEquals(3)
         compose.runOnIdle { snapshot = base.copy(rates = RatesSnapshot(2, mapOf("USD" to 1.0, "XXX" to 2.0))) }
         compose.onAllNodesWithText(str(R.string.overview_partial)).assertCountEquals(0)
         compose.onAllNodesWithText(str(R.string.analytics_coverage_unavailable)).assertCountEquals(0)
@@ -56,7 +84,7 @@ class AnalyticsScreenTest {
     }
     @Test fun currentMissingDoesNotBlankCompleteForecastOrReconstructedHistory() {
         show(listOf(sub("Future", "XXX").copy(firstBillDate = "2027-09-01")))
-        compose.onAllNodesWithText(str(R.string.overview_unavailable)).assertCountEquals(3)
+        compose.onAllNodesWithText(str(R.string.overview_unavailable)).assertCountEquals(4)
         compose.onNodeWithText(str(R.string.billing_forecast_caption)).assertIsDisplayed()
         compose.onNodeWithText(str(R.string.forecast_average_line)).assertDoesNotExist()
         compose.onNodeWithText(str(R.string.history_caption)).assertIsDisplayed()
