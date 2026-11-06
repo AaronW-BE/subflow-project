@@ -1311,7 +1311,7 @@ private fun AccountCard(
  */
 @Composable
 private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
-    val quotedAt = CurrencyConverter.quotedAtEpochMillis
+    val quotedAt = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.rates.quotedAtEpochMillis ?: 0L
     val freshness = if (quotedAt > 0L) {
         stringResource(
             R.string.rates_updated_on,
