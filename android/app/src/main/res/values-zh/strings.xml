@@ -512,4 +512,5 @@
     <string name="overview_budget_unavailable">成本或预算换算不完整，暂无法比较预算。</string>
     <string name="renewal_date_unavailable">日期不可用</string>
     <string name="analytics_coverage_unavailable">金额无法全部安全换算或计算，暂不显示相关比较或趋势。</string>
+    <string name="budget_original_currency">汇率不可用。以原币种（%1$s）编辑，保存时保留此币种。</string>
 </resources>

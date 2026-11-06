@@ -544,4 +544,5 @@
     <string name="overview_budget_unavailable">Comparação de orçamento indisponível: conversão incompleta.</string>
     <string name="renewal_date_unavailable">Data indisponível</string>
     <string name="analytics_coverage_unavailable">Comparação ou série indisponível: nem todos os custos podem ser convertidos ou calculados com segurança.</string>
+    <string name="budget_original_currency">Câmbio indisponível. Edite na moeda original (%1$s); ela será mantida ao salvar.</string>
 </resources>

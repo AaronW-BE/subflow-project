@@ -543,4 +543,5 @@
     <string name="overview_budget_unavailable">Confronto budget non disponibile: conversione incompleta.</string>
     <string name="renewal_date_unavailable">Data non disponibile</string>
     <string name="analytics_coverage_unavailable">Confronto o serie non disponibile: non tutti i costi possono essere convertiti o calcolati in modo sicuro.</string>
+    <string name="budget_original_currency">Cambio non disponibile. Modifica nella valuta originale (%1$s), che verrà mantenuta al salvataggio.</string>
 </resources>

@@ -23,49 +23,46 @@ data class BudgetProgress(val spent: Double, val limit: Double) {
 
 object Budget {
 
-    /** What the running subscriptions cost a month, in [homeCurrency]. Paused and deleted ones cost nothing. */
-    fun monthlyTotal(subscriptions: List<Subscription>, homeCurrency: String): Double =
-        subscriptions
-            .filter { it.isActive && !it.isDeleted }
-            .sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, homeCurrency) }
+    fun monthlyTotal(subscriptions: List<Subscription>, snapshot: CalculationSnapshot): CostEstimate =
+        aggregateContributions(currentContributions(subscriptions, snapshot))
 
-    /**
-     * The budget's state after a change from [before] to [after] a month, when
-     * that change is worth a word: the total went up and is now over the
-     * budget. Null otherwise - a change that lowers the total, or keeps it
-     * under, says nothing, and neither does a free user, who has no budget.
-     *
-     * "Went up and is over" rather than "crossed the line": someone already
-     * over who adds another subscription is exactly who should hear by how
-     * much they now are.
-     */
+    /** Both sides must be covered, even when the requested change lowers costs. */
     fun newlyOver(
-        before: Double,
-        after: Double,
+        before: CostEstimate,
+        after: CostEstimate,
         budget: MonthlyBudget?,
-        homeCurrency: String,
+        snapshot: CalculationSnapshot,
         isPro: Boolean
     ): BudgetProgress? {
-        if (!isPro || budget == null || after <= before + 0.005) return null
-        return progress(after, budget, homeCurrency).takeIf { it.over }
+        if (!isPro || budget == null || !before.isComplete || !after.isComplete) return null
+        val delta = after.knownAmount - before.knownAmount
+        if (!delta.isFinite() || delta <= 0.005) return null
+        return progress(before, after, budget, snapshot)?.takeIf { it.over }
     }
 
-    /**
-     * [totalMonthly] - already in [homeCurrency] - against [budget].
-     *
-     * In the annual view both sides are a year's worth, so the meter reads
-     * the same in either view and only the figures scale.
-     */
     fun progress(
-        totalMonthly: Double,
+        before: CostEstimate,
+        after: CostEstimate,
         budget: MonthlyBudget,
-        homeCurrency: String,
+        snapshot: CalculationSnapshot,
         annual: Boolean = false
-    ): BudgetProgress {
-        val limitMonthly = CurrencyConverter.convert(budget.amount, budget.currency, homeCurrency)
+    ): BudgetProgress? {
+        if (!before.isComplete || !after.isComplete) return null
+        val limit = (convertAmount(budget.amount, budget.currency, snapshot.homeCurrency, snapshot.rates)
+            as? ConversionResult.Available)?.amount ?: return null
         val factor = if (annual) 12.0 else 1.0
-        return BudgetProgress(spent = totalMonthly * factor, limit = limitMonthly * factor)
+        val spent = after.knownAmount * factor
+        val scaledLimit = limit * factor
+        if (!spent.isFinite() || !scaledLimit.isFinite() || !(spent - scaledLimit).isFinite()) return null
+        return BudgetProgress(spent, scaledLimit)
     }
+
+    /** Apply accepted records to a captured baseline, never to a post-write collector value. */
+    fun replacing(before: List<Subscription>, accepted: List<Subscription>): List<Subscription> {
+        val ids = accepted.map { it.id }.toSet()
+        return before.filterNot { it.id in ids } + accepted
+    }
+
 }
 
 /**

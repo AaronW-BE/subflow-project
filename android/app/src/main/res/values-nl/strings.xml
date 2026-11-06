@@ -527,4 +527,5 @@
     <string name="overview_budget_unavailable">Budgetvergelijking niet beschikbaar: onvolledige omrekening.</string>
     <string name="renewal_date_unavailable">Datum niet beschikbaar</string>
     <string name="analytics_coverage_unavailable">Vergelijking of reeks niet beschikbaar: niet alle kosten kunnen veilig worden omgerekend of berekend.</string>
+    <string name="budget_original_currency">Wisselkoers niet beschikbaar. Bewerk in de oorspronkelijke valuta (%1$s); deze blijft bij opslaan behouden.</string>
 </resources>

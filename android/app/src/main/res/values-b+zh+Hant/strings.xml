@@ -519,4 +519,5 @@
     <string name="overview_budget_unavailable">成本或預算換算不完整，暫時無法比較預算。</string>
     <string name="renewal_date_unavailable">日期無法使用</string>
     <string name="analytics_coverage_unavailable">金額無法全部安全換算或計算，暫不顯示相關比較或趨勢。</string>
+    <string name="budget_original_currency">匯率無法使用。以原幣別（%1$s）編輯，儲存時保留此幣別。</string>
 </resources>

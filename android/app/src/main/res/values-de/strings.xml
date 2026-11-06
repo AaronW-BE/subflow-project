@@ -527,4 +527,5 @@
     <string name="overview_budget_unavailable">Budgetvergleich nicht verfügbar: Kosten oder Budget unvollständig umgerechnet.</string>
     <string name="renewal_date_unavailable">Datum nicht verfügbar</string>
     <string name="analytics_coverage_unavailable">Vergleich oder Verlauf nicht verfügbar: Nicht alle Kosten lassen sich sicher umrechnen oder berechnen.</string>
+    <string name="budget_original_currency">Wechselkurs nicht verfügbar. In der Originalwährung (%1$s) bearbeiten; beim Speichern bleibt diese erhalten.</string>
 </resources>

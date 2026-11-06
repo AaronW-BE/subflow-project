@@ -237,14 +237,9 @@ fun DashboardScreen(
     val estimate = overview.currentMonthlyEstimate
     val totalMonthly = estimate.knownAmount
     val totalYearly = totalMonthly * 12.0
-    val convertedBudget = monthlyBudget?.let {
-        convertAmount(it.amount, it.currency, primaryCurrency, calculationSnapshot.rates) as? ConversionResult.Available
-    }
-    val budgetUnavailable = isPro && monthlyBudget != null && (!estimate.isComplete || convertedBudget == null)
-    val budgetProgress = if (isPro && monthlyBudget != null && !budgetUnavailable) {
-        val factor = if (isAnnualView) 12.0 else 1.0
-        BudgetProgress(totalMonthly * factor, convertedBudget!!.amount * factor)
-    } else null
+    val budgetProgress = if (isPro && monthlyBudget != null)
+        Budget.progress(estimate, estimate, monthlyBudget, calculationSnapshot, isAnnualView) else null
+    val budgetUnavailable = isPro && monthlyBudget != null && budgetProgress == null
     fun accepts(sub: Subscription) = when (subset) {
         "Active" -> sub.isActive
         "Paused" -> !sub.isActive
@@ -315,21 +310,16 @@ fun DashboardScreen(
 
     /**
      * A sentence to add when a resume takes a Pro user's monthly total up and
-     * over their budget. [added] is what the resumed ones cost a month.
+     * over their budget, using only accepted persisted records.
      */
-    fun budgetNote(added: Double): String? {
-        if (budgetUnavailable || !added.isFinite()) return null
-        val over = Budget.newlyOver(totalMonthly, totalMonthly + added, monthlyBudget, primaryCurrency, isPro)
+    fun budgetNote(before: List<Subscription>, accepted: List<Subscription>, snapshot: org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot): String? {
+        val over = Budget.newlyOver(Budget.monthlyTotal(before, snapshot),
+            Budget.monthlyTotal(Budget.replacing(before, accepted), snapshot), monthlyBudget, snapshot, isPro)
             ?: return null
-        return context.getString(
-            R.string.budget_now_over,
+        return context.getString(R.string.budget_now_over,
             CurrencyFormatter.format(over.overBy, primaryCurrency, locale),
-            CurrencyFormatter.format(over.limit, primaryCurrency, locale)
-        )
+            CurrencyFormatter.format(over.limit, primaryCurrency, locale))
     }
-
-    fun monthlyInHome(sub: Subscription) =
-        (convertAmount(sub.monthlyAmount, sub.currency, primaryCurrency, calculationSnapshot.rates) as? ConversionResult.Available)?.amount ?: Double.NaN
 
     fun togglePaused(sub: Subscription) {
         val name = sub.name
@@ -340,6 +330,8 @@ fun DashboardScreen(
             // legal state, and resuming the sixth is where the free tier ends.
             // The paywall is the caller's to show, and there is nothing to
             // report or undo here.
+            val before = subscriptions.toList()
+            val snapshot = calculationSnapshot
             val change = onSetActive(sub.id, resuming) ?: return@launch
             val message = when {
                 // Resuming a cancelled trial starts a real charge. Saying only
@@ -356,7 +348,7 @@ fun DashboardScreen(
                 resuming -> context.getString(R.string.resumed_item, name)
                 else -> context.getString(R.string.paused_item, name)
             }.let { base ->
-                val note = if (resuming) budgetNote(monthlyInHome(change.updated)) else null
+                val note = if (resuming) budgetNote(before, listOf(change.updated), snapshot) else null
                 if (note == null) base else joinSentences(base, note, locale)
             }
             // Writes the whole record back rather than flipping the flag: a
@@ -396,6 +388,8 @@ fun DashboardScreen(
         selectedIds = emptySet()
         onSwipeHintSeen()
         scope.launch {
+            val before = subscriptions.toList()
+            val snapshot = calculationSnapshot
             val result = onSetActiveMany(targets, resume)
             val done = result.changes.size
             if (done == 0) {
@@ -429,7 +423,7 @@ fun DashboardScreen(
                 converted > 0 -> context.getString(R.string.bulk_resumed_converted, done, converted)
                 else -> context.resources.getQuantityString(R.plurals.bulk_resumed, done, done)
             }.let { base ->
-                val note = if (resume) budgetNote(result.changes.sumOf { monthlyInHome(it.updated) }) else null
+                val note = if (resume) budgetNote(before, result.changes.map { it.updated }, snapshot) else null
                 if (note == null) base else joinSentences(base, note, locale)
             }
             confirmWithUndo(message) {

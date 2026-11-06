@@ -297,13 +297,13 @@ fun SubFlowNavHost(
      * over their budget - by how much, while they are still thinking about
      * the subscription they just added.
      */
-    fun savedMessage(saved: Subscription, before: List<Subscription>): String {
+    fun savedMessage(saved: Subscription, before: List<Subscription>, snapshot: org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot): String {
         val base = context.getString(R.string.saved_subscription, saved.name)
         val over = Budget.newlyOver(
-            before = Budget.monthlyTotal(before, primaryCurrency),
-            after = Budget.monthlyTotal(before.filter { it.id != saved.id } + saved, primaryCurrency),
+            before = Budget.monthlyTotal(before, snapshot),
+            after = Budget.monthlyTotal(Budget.replacing(before, listOf(saved)), snapshot),
             budget = monthlyBudget,
-            homeCurrency = primaryCurrency,
+            snapshot = snapshot,
             isPro = isPro
         ) ?: return base
         return joinSentences(
@@ -759,14 +759,15 @@ fun SubFlowNavHost(
                     primaryCurrency = primaryCurrency,
                     isPro = isPro,
                     monthlyBudget = monthlyBudget,
-                    otherMonthlyTotal = Budget.monthlyTotal(subscriptions, primaryCurrency),
+                    budgetSubscriptions = subscriptions,
                     onSaveSubscription = { newSub ->
                         scope.launch {
-                            val before = subscriptions
+                            val before = subscriptions.toList()
+                            val snapshot = org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(primaryCurrency, today, rates)
                             val res = subscriptionRepository.saveSubscription(newSub, isPro)
                             if (res.isSuccess) {
                                 navController.popBackStack()
-                                showMessage(savedMessage(newSub, before))
+                                showMessage(subscriptionRepository.getById(newSub.id)?.let { savedMessage(it, before, snapshot) } ?: context.getString(R.string.saved_subscription, newSub.name))
                                 // A good moment to ask for a rating, if this
                                 // person has been here long enough to have
                                 // one (BIN-72). Usually it does nothing.
@@ -802,15 +803,25 @@ fun SubFlowNavHost(
                     },
                     onOpenUrl = ::openUrl,
                     onUpdate = { updated ->
-                        scope.launch { subscriptionRepository.saveSubscription(updated, isPro) }
+                        scope.launch {
+                            val before = subscriptions.toList()
+                            val snapshot = org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(primaryCurrency, today, rates)
+                            if (subscriptionRepository.saveSubscription(updated, isPro).isSuccess) {
+                                subscriptionRepository.getById(updated.id)?.let { showMessage(savedMessage(it, before, snapshot)) }
+                            }
+                        }
                     },
                     onSetActive = { active ->
                         val sub = subscriptions.find { it.id == subId }
                         scope.launch {
+                            val before = subscriptions.toList()
+                            val snapshot = org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(primaryCurrency, today, rates)
                             val res = subscriptionRepository.setActive(subId, active, isPro)
                             val change = res.getOrNull()
                             when {
-                                res.isSuccess -> showMessage(
+                                res.isSuccess -> {
+                                    val over = change?.let { Budget.newlyOver(Budget.monthlyTotal(before, snapshot), Budget.monthlyTotal(Budget.replacing(before, listOf(it.updated)), snapshot), monthlyBudget, snapshot, isPro) }
+                                    val base =
                                     // A resume that converted a cancelled
                                     // trial starts a real charge, so it says
                                     // so rather than only "resumed".
@@ -830,7 +841,8 @@ fun SubFlowNavHost(
                                             sub?.name.orEmpty()
                                         )
                                     }
-                                )
+                                    showMessage(if (over == null) base else joinSentences(base, context.getString(R.string.budget_now_over, CurrencyFormatter.format(over.overBy, primaryCurrency, locale), CurrencyFormatter.format(over.limit, primaryCurrency, locale)), locale))
+                                }
                                 // Five active plus a paused sixth is legal, so
                                 // resuming the sixth is where the free tier
                                 // ends - the same wall adding one runs into.
@@ -857,16 +869,16 @@ fun SubFlowNavHost(
                         isPro = isPro,
                         existingSubscription = sub,
                         monthlyBudget = monthlyBudget,
-                        otherMonthlyTotal = Budget.monthlyTotal(
-                            subscriptions.filter { it.id != sub.id },
-                            primaryCurrency
-                        ),
+                        budgetSubscriptions = subscriptions,
                         onSaveSubscription = { updatedSub ->
                             scope.launch {
-                                val before = subscriptions
-                                subscriptionRepository.saveSubscription(updatedSub, isPro)
-                                navController.popBackStack()
-                                showMessage(savedMessage(updatedSub, before))
+                                val before = subscriptions.toList()
+                                val snapshot = org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(primaryCurrency, today, rates)
+                                val result = subscriptionRepository.saveSubscription(updatedSub, isPro)
+                                if (result.isSuccess) {
+                                    navController.popBackStack()
+                                    showMessage(subscriptionRepository.getById(updatedSub.id)?.let { savedMessage(it, before, snapshot) } ?: context.getString(R.string.saved_subscription, updatedSub.name))
+                                }
                             }
                         },
                         onCancel = { navController.popBackStack() },

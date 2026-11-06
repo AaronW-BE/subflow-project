@@ -537,4 +537,5 @@
     <string name="overview_budget_unavailable">Budget comparison unavailable: cost or budget conversion is incomplete.</string>
     <string name="renewal_date_unavailable">Date unavailable</string>
     <string name="analytics_coverage_unavailable">Comparison or series unavailable: costs cannot all be converted or calculated safely.</string>
+    <string name="budget_original_currency">Exchange rate unavailable. Edit in the original currency (%1$s); saving keeps this currency.</string>
 </resources>

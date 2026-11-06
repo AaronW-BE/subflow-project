@@ -11,10 +11,14 @@ import org.junit.Test
 
 /** The monthly budget against what the subscriptions cost (BIN-68). */
 class BudgetTest {
+    private val snapshot = org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot("USD", java.time.LocalDate.of(2026, 2, 1), org.dpdns.alwaysup.subflow.domain.util.RatesSnapshot(1, mapOf("USD" to 1.0, "EUR" to 0.9)))
+    private fun estimate(amount: Double) = Budget.monthlyTotal(listOf(sub("fixture", amount)), snapshot)
+    private fun progress(amount: Double, budget: MonthlyBudget, annual: Boolean = false) = requireNotNull(Budget.progress(estimate(amount), estimate(amount), budget, snapshot, annual))
+
 
     @Test
     fun `under the limit, what is left`() {
-        val p = Budget.progress(69.98, MonthlyBudget(100.0, "USD"), "USD")
+        val p = progress(69.98, MonthlyBudget(100.0, "USD"))
         assertFalse(p.over)
         assertEquals(30.02, p.remaining, 1e-9)
         assertEquals(0.0, p.overBy, 0.0)
@@ -23,7 +27,7 @@ class BudgetTest {
 
     @Test
     fun `over the limit, by how much, with the meter full`() {
-        val p = Budget.progress(120.0, MonthlyBudget(100.0, "USD"), "USD")
+        val p = progress(120.0, MonthlyBudget(100.0, "USD"))
         assertTrue(p.over)
         assertEquals(20.0, p.overBy, 1e-9)
         assertEquals(0.0, p.remaining, 0.0)
@@ -32,13 +36,13 @@ class BudgetTest {
 
     @Test
     fun `exactly at the limit is not over`() {
-        assertFalse(Budget.progress(100.0, MonthlyBudget(100.0, "USD"), "USD").over)
+        assertFalse(progress(100.0, MonthlyBudget(100.0, "USD")).over)
     }
 
     @Test
     fun `the annual view is a year of each side, so the meter does not move`() {
-        val monthly = Budget.progress(50.0, MonthlyBudget(100.0, "USD"), "USD")
-        val annual = Budget.progress(50.0, MonthlyBudget(100.0, "USD"), "USD", annual = true)
+        val monthly = progress(50.0, MonthlyBudget(100.0, "USD"))
+        val annual = progress(50.0, MonthlyBudget(100.0, "USD"), annual = true)
         assertEquals(600.0, annual.spent, 1e-9)
         assertEquals(1200.0, annual.limit, 1e-9)
         assertEquals(monthly.fraction, annual.fraction, 0f)
@@ -48,8 +52,8 @@ class BudgetTest {
     fun `a budget set in another currency is converted, not reread`() {
         // 100 EUR set earlier, home currency now USD: the limit is 100 EUR in
         // dollars, not 100 dollars.
-        val p = Budget.progress(50.0, MonthlyBudget(100.0, "EUR"), "USD")
-        assertEquals(CurrencyConverter.convert(100.0, "EUR", "USD"), p.limit, 1e-9)
+        val p = progress(50.0, MonthlyBudget(100.0, "EUR"))
+        assertEquals(100.0 / 0.9, p.limit, 1e-9)
         assertTrue("EUR and USD differ in the rate table", p.limit != 100.0)
     }
 
@@ -70,28 +74,63 @@ class BudgetTest {
     @Test
     fun `the monthly total counts only running subscriptions`() {
         val subs = listOf(sub("a", 10.0), sub("b", 5.0, active = false), sub("c", 7.0, deleted = true))
-        assertEquals(10.0, Budget.monthlyTotal(subs, "USD"), 1e-9)
+        assertEquals(10.0, Budget.monthlyTotal(subs, snapshot).knownAmount, 1e-9)
     }
 
     @Test
     fun `a change that ends over the budget and raised the total is worth a word`() {
-        val over = Budget.newlyOver(90.0, 110.0, MonthlyBudget(100.0, "USD"), "USD", isPro = true)
+        val over = Budget.newlyOver(estimate(90.0), estimate(110.0), MonthlyBudget(100.0, "USD"), snapshot, isPro = true)
         assertEquals(10.0, over!!.overBy, 1e-9)
     }
 
     @Test
     fun `already over and adding more still says by how much`() {
-        val over = Budget.newlyOver(120.0, 130.0, MonthlyBudget(100.0, "USD"), "USD", isPro = true)
+        val over = Budget.newlyOver(estimate(120.0), estimate(130.0), MonthlyBudget(100.0, "USD"), snapshot, isPro = true)
         assertEquals(30.0, over!!.overBy, 1e-9)
     }
 
     @Test
     fun `staying under, lowering the total, no budget, or no Pro says nothing`() {
         val b = MonthlyBudget(100.0, "USD")
-        org.junit.Assert.assertNull(Budget.newlyOver(50.0, 90.0, b, "USD", isPro = true))
-        org.junit.Assert.assertNull(Budget.newlyOver(130.0, 120.0, b, "USD", isPro = true))
-        org.junit.Assert.assertNull(Budget.newlyOver(90.0, 110.0, null, "USD", isPro = true))
-        org.junit.Assert.assertNull(Budget.newlyOver(90.0, 110.0, b, "USD", isPro = false))
+        org.junit.Assert.assertNull(Budget.newlyOver(estimate(50.0), estimate(90.0), b, snapshot, isPro = true))
+        org.junit.Assert.assertNull(Budget.newlyOver(estimate(130.0), estimate(120.0), b, snapshot, isPro = true))
+        org.junit.Assert.assertNull(Budget.newlyOver(estimate(90.0), estimate(110.0), null, snapshot, isPro = true))
+        org.junit.Assert.assertNull(Budget.newlyOver(estimate(90.0), estimate(110.0), b, snapshot, isPro = false))
+    }
+
+    @Test
+    fun `every unavailable transition suspends conclusions including missing to known fixes`() {
+        val missing = Budget.monthlyTotal(listOf(sub("missing", 30.0).copy(currency = "XXX")), snapshot)
+        val known = estimate(120.0)
+        for (before in listOf(missing, known)) for (after in listOf(missing, known)) {
+            for (budget in listOf(MonthlyBudget(100.0, "USD"), MonthlyBudget(100.0, "XXX"))) {
+                val complete = before.isComplete && after.isComplete && budget.currency == "USD"
+                assertEquals(complete, Budget.progress(before, after, budget, snapshot) != null)
+                if (!complete) org.junit.Assert.assertNull(Budget.newlyOver(before, after, budget, snapshot, true))
+            }
+        }
+    }
+
+    @Test
+    fun `zero trials and irrelevant records do not need rates but paid conversion does`() {
+        val trial = sub("trial", 0.0).copy(currency = "XXX", isTrial = true, trialEndDate = "2020-01-01", postTrialAmount = 40.0)
+        val before = listOf(trial, sub("paused", 20.0, active = false).copy(currency = "XXX"), sub("deleted", 20.0, deleted = true).copy(currency = "XXX"))
+        val zero = Budget.monthlyTotal(before, snapshot)
+        assertTrue(zero.isComplete)
+        assertEquals(0.0, zero.knownAmount, 0.0)
+        val after = Budget.monthlyTotal(Budget.replacing(before, listOf(trial.copy(isTrial = false, amount = 40.0))), snapshot)
+        org.junit.Assert.assertNull(Budget.progress(zero, after, MonthlyBudget(100.0, "USD"), snapshot))
+    }
+
+    @Test
+    fun `invalid cross rates and annual overflow never create progress`() {
+        for (rate in listOf(0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY)) {
+            val invalid = snapshot.copy(rates = org.dpdns.alwaysup.subflow.domain.util.RatesSnapshot(2, mapOf("USD" to 1.0, "EUR" to rate)))
+            org.junit.Assert.assertNull(Budget.progress(estimate(10.0), estimate(10.0), MonthlyBudget(100.0, "EUR"), invalid))
+            assertEquals(100.0, requireNotNull(Budget.progress(estimate(10.0), estimate(10.0), MonthlyBudget(100.0, "USD"), invalid)).limit, 0.0)
+        }
+        org.junit.Assert.assertNull(Budget.progress(estimate(Double.MAX_VALUE), estimate(Double.MAX_VALUE), MonthlyBudget(100.0, "USD"), snapshot, true))
+        assertTrue(requireNotNull(Budget.progress(estimate(0.0), estimate(0.0), MonthlyBudget(0.0, "XXX"), snapshot)).spent == 0.0)
     }
 
     // ---------------------------------------------------- joining sentences

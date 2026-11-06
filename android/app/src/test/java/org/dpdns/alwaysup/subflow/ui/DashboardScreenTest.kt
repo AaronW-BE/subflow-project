@@ -84,6 +84,8 @@ class DashboardScreenTest {
     private fun show(
         subscriptions: List<Subscription> = listOf(netflix, spotify, icloud),
         budget: MonthlyBudget? = null,
+        acceptedSingle: ((Subscription, Boolean) -> ActiveChange?)? = null,
+        acceptedBulk: ((List<String>, Boolean) -> BulkActiveChange)? = null,
         snapshot: () -> CalculationSnapshot = { CalculationSnapshot("USD", LocalDate.of(2026, 2, 1), RatesSnapshot(1, mapOf("USD" to 1.0))) }
     ) =
         compose.setContent {
@@ -102,12 +104,12 @@ class DashboardScreenTest {
                     onSetActive = { id, active ->
                         setActive += id to active
                         val before = subscriptions.first { it.id == id }
-                        ActiveChange(before, before.copy(isActive = active))
+                        if (acceptedSingle != null) acceptedSingle(before, active) else ActiveChange(before, before.copy(isActive = active))
                     },
                     onRevertSubscription = { reverted += it },
                     onSetActiveMany = { ids, active ->
                         bulkActive += ids to active
-                        BulkActiveChange(
+                        acceptedBulk?.invoke(ids, active) ?: BulkActiveChange(
                             subscriptions.filter { it.id in ids }
                                 .map { ActiveChange(it, it.copy(isActive = active)) },
                             0
@@ -327,6 +329,57 @@ class DashboardScreenTest {
         clickUndo()
         // The whole record as it was, not the flag flipped back.
         assertEquals(listOf(spotify), reverted)
+    }
+
+    @Test
+    fun `accepted unknown resume keeps factual success and whole undo without budget claim`() {
+        val paused = netflix.copy(isActive = false)
+        show(listOf(paused), MonthlyBudget(1.0, "USD"), acceptedSingle = { old, _ ->
+            ActiveChange(old, old.copy(isActive = true, currency = "XXX"))
+        })
+        compose.onNodeWithText("1" + 10.toChar() + str(R.string.overview_paused)).performClick()
+        row("Netflix").customAction(str(R.string.resume_action))
+        compose.onNodeWithText(str(R.string.resumed_item, "Netflix")).assertIsDisplayed()
+        clickUndo()
+        assertEquals(listOf(paused), reverted)
+    }
+
+    @Test
+    fun `accepted paid trial conversion not requested zero determines resume overrun`() {
+        val paused = netflix.copy(isActive = false, isTrial = true, amount = 0.0, postTrialAmount = 15.49)
+        val paid = paused.copy(isActive = true, isTrial = false, amount = 15.49)
+        show(listOf(paused), MonthlyBudget(10.0, "USD"), acceptedSingle = { old, _ -> ActiveChange(old, paid) })
+        compose.onNodeWithText("1" + 10.toChar() + str(R.string.overview_paused)).performClick()
+        row("Netflix").customAction(str(R.string.resume_action))
+        compose.onNodeWithText(joinSentences(str(R.string.resumed_as_paid, "Netflix", usd(15.49)), str(R.string.budget_now_over, usd(5.49), usd(10.0)), java.util.Locale.getDefault())).assertIsDisplayed()
+        clickUndo()
+        assertEquals(listOf(paused), reverted)
+    }
+
+    @Test
+    fun `bulk budget counts only accepted subset with actual price and skipped message`() {
+        val first = netflix.copy(isActive = false)
+        val refused = spotify.copy(isActive = false, currency = "XXX")
+        show(listOf(first, refused), MonthlyBudget(10.0, "USD"), acceptedBulk = { _, _ ->
+            BulkActiveChange(listOf(ActiveChange(first, first.copy(isActive = true, amount = 12.0))), 1)
+        })
+        compose.onNodeWithText("2" + 10.toChar() + str(R.string.overview_paused)).performClick()
+        row("Netflix").performTouchInput { longClick() }
+        row("Spotify").performClick()
+        compose.onNodeWithContentDescription(str(R.string.resume_action)).performClick()
+        compose.onNodeWithText(joinSentences(str(R.string.bulk_resumed_partial, 1, 1, 5), str(R.string.budget_now_over, usd(2.0), usd(10.0)), java.util.Locale.getDefault())).assertIsDisplayed()
+        clickUndo()
+        assertEquals(listOf(first), reverted)
+    }
+
+    @Test
+    fun `quota refused resume produces neither success nor undo`() {
+        show(listOf(netflix.copy(isActive = false)), MonthlyBudget(1.0, "USD"), acceptedSingle = { _, _ -> null })
+        compose.onNodeWithText("1" + 10.toChar() + str(R.string.overview_paused)).performClick()
+        row("Netflix").customAction(str(R.string.resume_action))
+        compose.onNodeWithText(str(R.string.resumed_item, "Netflix")).assertDoesNotExist()
+        compose.onNodeWithText(str(R.string.undo)).assertDoesNotExist()
+        assertTrue(reverted.isEmpty())
     }
 
     // ------------------------------------------------------- multi-select
