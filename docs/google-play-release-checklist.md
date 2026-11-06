@@ -1731,6 +1731,8 @@ and a navigation-bar spacer.
 The app had 10 and the server 11 — CHF was being served and could not be
 selected. Both are now 40, generated from one table so they cannot drift.
 
+> Historical API note (BIN-94): the following describes the retired converter at the time of this verification, not the current API. Explicit conversion/coverage now belongs to [`subflow-subscription-calculations`](../android/app/src/main/java/org/dpdns/alwaysup/subflow/domain/util/SPEC.md); these past verification claims are preserved.
+
 This mattered more than it looks: `CurrencyConverter.convert()` returns the
 amount **unchanged** for a currency missing from its rate table, so a currency
 added to the picker without a matching rate would have silently counted ¥100 as
@@ -1845,6 +1847,8 @@ The server keeps its own refresher for the admin console, with the same
 validation and a SQLite-cached last-good quote.
 
 ### Rejecting bad data, on both sides
+
+> Historical API note (BIN-94): the retired `CurrencyConverter.convert()` behavior described below is not the current conversion contract. See [`subflow-subscription-calculations`](../android/app/src/main/java/org/dpdns/alwaysup/subflow/domain/util/SPEC.md) for explicit failures and coverage. The historical fetch/verification account is retained unchanged.
 
 A fetch is only allowed to replace the table if the base is USD, `USD == 1.0`,
 and every selectable currency is present. The completeness check matters because

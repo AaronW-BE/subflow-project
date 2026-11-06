@@ -31,7 +31,8 @@ class CurrentDateObserver internal constructor(
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate))
 
     private val app = context.applicationContext
-    private val mutableDate = MutableStateFlow(LocalDate.ofInstant(clock.instant(), zone()))
+    private fun currentDate(): LocalDate = clock.instant().atZone(zone()).toLocalDate()
+    private val mutableDate = MutableStateFlow(currentDate())
     val currentLocalDate = mutableDate.asStateFlow()
     private var job: Job? = null
     private var registered = false
@@ -40,11 +41,11 @@ class CurrentDateObserver internal constructor(
     }
     private fun restart() {
         job?.cancel()
-        mutableDate.value = LocalDate.ofInstant(clock.instant(), zone())
+        mutableDate.value = currentDate()
         job = scope.launch {
             while (isActive) {
                 delay(millisUntilMidnight(clock, zone()))
-                mutableDate.value = LocalDate.ofInstant(clock.instant(), zone())
+                mutableDate.value = currentDate()
             }
         }
     }

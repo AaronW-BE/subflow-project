@@ -15,6 +15,9 @@ import org.robolectric.Shadows.shadowOf
 import java.time.*
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [26, 35])
+@org.robolectric.annotation.GraphicsMode(org.robolectric.annotation.GraphicsMode.Mode.LEGACY)
+@org.robolectric.annotation.SQLiteMode(org.robolectric.annotation.SQLiteMode.Mode.LEGACY)
 class CurrentDateObserverTest {
     private class MovingClock(var now: Instant) : Clock() {
         override fun instant() = now
@@ -30,6 +33,17 @@ class CurrentDateObserverTest {
     }
     @Test fun resumeBroadcastTimezoneAndCancellation() {
         val app = RuntimeEnvironment.getApplication()
+        val receiverPermission = "${app.packageName}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        val info = app.packageManager.getPermissionInfo(receiverPermission, 0)
+        assertEquals(app.packageName, info.packageName)
+        assertEquals(android.content.pm.PermissionInfo.PROTECTION_SIGNATURE,
+            info.protectionLevel and android.content.pm.PermissionInfo.PROTECTION_MASK_BASE)
+        val requested = app.packageManager.getPackageInfo(app.packageName,
+            android.content.pm.PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty()
+        assertTrue(receiverPermission in requested)
+        if (android.os.Build.VERSION.SDK_INT < 33) {
+            shadowOf(app).grantPermissions(receiverPermission)
+        }
         val clock = MovingClock(Instant.parse("2026-03-08T23:30:00Z"))
         var zone: ZoneId = ZoneOffset.UTC
         val job = SupervisorJob()
