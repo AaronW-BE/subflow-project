@@ -495,4 +495,32 @@
     <string name="trial_footnote_until">Free until %1$s, then %2$s. Cancel in Google Play before then and you will not be charged.</string>
     <string name="reminder_pro_preview">With Pro you would be reminded on %1$s, %2$d days before this charge.</string>
     <string name="reminder_pro_preview_undated">With Pro you would be reminded %1$d days before each charge.</string>
+
+    <string name="notif_channel_trial_final">Trial cancellation checks</string>
+    <string name="notif_channel_trial_final_desc">Checks on the final day of auto-renewing trials</string>
+    <string name="notif_trial_final_title">%1$s: trial ends today</string>
+    <string name="notif_trial_final_body">Check your cancellation decision with the provider. You may already have been charged; this reminder does not cancel the service.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Final-day cancellation check</string>
+    <string name="trial_final_check_sub">Free for all plans. Checks undecided trials that become paid; respects each trial’s reminder switch. Advance reminders stay unchanged.</string>
+    <string name="trial_final_time">Reminder time · %1$s</string>
+    <string name="trial_final_exact">Precise timing (optional)</string>
+    <string name="trial_final_access_yes">Precise timing access: available</string>
+    <string name="trial_final_access_no">Precise timing access: not granted</string>
+    <string name="trial_final_precise">Precise timing selected; delivery still depends on system conditions.</string>
+    <string name="trial_final_ordinary">Ordinary reminder: the system may delay delivery.</string>
+    <string name="trial_final_notifications_blocked">Notifications are blocked for this app or the final-day channel.</string>
+    <string name="trial_final_settings_unavailable">System settings could not be opened. Ordinary reminders remain available.</string>
+    <string name="trial_final_caution">The end date is not the provider’s actual charge time. Keep advance reminders and cancel early with the provider.</string>
+    <string name="trial_decision_title">Keep this subscription?</string>
+    <string name="trial_kept">You decided to keep it</string>
+    <string name="trial_keep_explanation">Only the final-day check stops. The free trial and advance reminders stay unchanged. Changing the end date resets this decision.</string>
+    <string name="trial_keep">Keep this subscription</string>
+    <string name="trial_undo_keep">Undo keep decision</string>
+    <string name="trial_provider_cancelled">I cancelled with the provider</string>
+    <string name="trial_cancel_confirm_title">Confirm cancellation with the provider?</string>
+    <string name="trial_cancel_confirm_body">SubFlow only updates this local record and pauses it. It does not contact the provider or reverse any charges.</string>
+    <string name="trial_cancel_confirm">Confirm cancelled</string>
+    <string name="trial_cancel_back">Go back</string>
 </resources>

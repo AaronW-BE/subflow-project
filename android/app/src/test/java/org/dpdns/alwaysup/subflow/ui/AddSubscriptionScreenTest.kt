@@ -119,6 +119,26 @@ class AddSubscriptionScreenTest {
         assertEquals("2026-01-10", s.firstBillDate)
     }
 
+    @Test
+    fun `basic trial edit preserves keep decision and advance reminder`() {
+        val existing = Subscription(
+            id = "kept_trial", name = "Trial", amount = 0.0,
+            firstBillDate = "2099-06-01", nextBillDate = "2099-06-18",
+            isTrial = true, trialEndDate = "2099-06-18",
+            trialKeepEndDate = "2099-06-18", reminderDaysBefore = 3, postTrialAmount = 9.99
+        )
+        show(existing)
+        field(0).performTextClearance()
+        field(0).performTextInput("Renamed trial")
+        save()
+        val result = saved ?: throw AssertionError("nothing was saved")
+        assertEquals("Renamed trial", result.name)
+        assertEquals(existing.trialKeepEndDate, result.trialKeepEndDate)
+        assertTrue(result.isTrialPending)
+        assertEquals(0.0, result.amount, 0.0)
+        assertEquals(existing.reminderDaysBefore, result.reminderDaysBefore)
+    }
+
     // --------------------------------------------------------------- budget
 
     private fun usd(amount: Double) = CurrencyFormatter.format(amount, "USD", java.util.Locale.getDefault())

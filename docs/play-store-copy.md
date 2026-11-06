@@ -15,7 +15,90 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
+## 1.6.2 (versionCode 12): release notes
+
+**Draft — not uploaded.** This aligns notes with the existing build version;
+it does not authorize an upload or change the app version. Device reminder
+acceptance and final store-listing/what's-new review remain release gates.
+The Dutch listing below remains a draft until an upload includes it.
+
+| Change | Source |
+|---|---|
+| Full Dutch interface, including language selection and reminders | BIN-93, PR #88 |
+| Optional final-day checks for auto-converting trials, configurable local time and exact-access enhancement | BIN-83, PR #88 |
+| Date-bound keep/undo decisions and confirmation before recording provider cancellation locally | BIN-83, PR #88 |
+
+Technical CI/build changes and Firebase debug configuration are not user-facing
+release-note claims. Existing uploaded notes below remain unchanged.
+
+```
+<en-US>
+• SubFlow now speaks Dutch.
+• Enable optional final-day checks for auto-renewing trials and choose the reminder time. Exact timing needs system access; delivery may be delayed.
+• Decide to keep a trial without ending its free period, or confirm that you cancelled with the provider. SubFlow updates your record; it does not cancel services.
+</en-US>
+<zh-CN>
+• 新增完整荷兰语支持。
+• 可开启自动转付费试用的最后一天取消检查，并选择提醒时间。精确定时需要系统授权，提醒仍可能延迟。
+• 可决定保留试用而不提前结束免费期，或确认已在服务商处取消。SubFlow 只更新本地记录，不代你取消服务。
+</zh-CN>
+<zh-TW>
+• 新增完整荷蘭文支援。
+• 可開啟自動轉付費試用的最後一天取消確認提醒，並選擇提醒時間。精確定時需要系統授權，提醒仍可能延遲。
+• 可決定保留試用而不提早結束免費期，或確認已向服務商取消。SubFlow 只更新本機紀錄，不會代你取消服務。
+</zh-TW>
+<zh-HK>
+• 新增完整荷蘭文支援。
+• 可開啟自動轉付費試用的最後一天取消確認提醒，並選擇提醒時間。精確定時需要系統授權，提醒仍可能延遲。
+• 可決定保留試用而不提早結束免費期，或確認已向服務商取消。SubFlow 只更新本機紀錄，不會代你取消服務。
+</zh-HK>
+<de-DE>
+• SubFlow spricht jetzt Niederländisch.
+• Aktiviere optionale Prüfungen am letzten Tag automatisch verlängerter Testphasen und wähle die Uhrzeit. Exaktes Timing braucht Systemzugriff; Erinnerungen können sich verzögern.
+• Behalte eine Testphase, ohne die Gratiszeit zu beenden, oder bestätige deine Kündigung beim Anbieter. SubFlow aktualisiert nur deinen Eintrag und kündigt keine Dienste.
+</de-DE>
+<fr-FR>
+• SubFlow est désormais disponible en néerlandais.
+• Activez un rappel le dernier jour des essais à renouvellement automatique et choisissez l’heure. La précision nécessite une autorisation système ; un retard reste possible.
+• Décidez de conserver un essai sans terminer sa période gratuite, ou confirmez votre résiliation auprès du fournisseur. SubFlow met à jour votre fiche, sans résilier de service.
+</fr-FR>
+<es-ES>
+• SubFlow ya está disponible en neerlandés.
+• Activa avisos opcionales el último día de las pruebas con renovación automática y elige la hora. La precisión requiere acceso del sistema; puede haber retrasos.
+• Decide mantener una prueba sin terminar su periodo gratuito o confirma que has cancelado con el proveedor. SubFlow solo actualiza tu registro, no cancela servicios.
+</es-ES>
+<it-IT>
+• SubFlow ora è disponibile in olandese.
+• Attiva un promemoria facoltativo l’ultimo giorno delle prove con rinnovo automatico e scegli l’orario. La precisione richiede l’accesso di sistema; sono possibili ritardi.
+• Decidi di mantenere una prova senza terminare il periodo gratuito o conferma la disdetta presso il fornitore. SubFlow aggiorna solo la tua scheda, non annulla servizi.
+</it-IT>
+<nl-NL>
+• SubFlow is nu volledig beschikbaar in het Nederlands.
+• Schakel een optionele controle in op de laatste dag van automatisch verlengde proefperiodes en kies de tijd. Exacte timing vereist systeemtoegang; meldingen kunnen vertraagd zijn.
+• Besluit een proefperiode te behouden zonder de gratis periode te beëindigen, of bevestig je opzegging bij de aanbieder. SubFlow werkt alleen je gegevens bij en zegt geen diensten op.
+</nl-NL>
+<pt-BR>
+• O SubFlow agora está disponível em holandês.
+• Ative um aviso opcional no último dia dos testes com renovação automática e escolha o horário. A precisão exige acesso do sistema; pode haver atrasos.
+• Decida manter um teste sem encerrar o período grátis ou confirme que cancelou com o provedor. O SubFlow só atualiza seu registro, não cancela serviços.
+</pt-BR>
+<ja-JP>
+• オランダ語に対応しました。
+• 自動更新される無料トライアルの最終日に確認通知を設定し、時刻を選べます。正確な時刻の設定にはシステムの許可が必要です。通知が遅れる場合もあります。
+• 無料期間を終了せずに継続を決めたり、提供元で解約したことを確認したりできます。SubFlow は記録のみを更新し、サービスの解約は行いません。
+</ja-JP>
+<ko-KR>
+• 이제 SubFlow를 네덜란드어로 사용할 수 있어요.
+• 자동 갱신되는 무료 체험의 마지막 날에 확인 알림을 켜고 시간을 정할 수 있어요. 정확한 시간 설정에는 시스템 권한이 필요하며 알림이 늦어질 수 있어요.
+• 무료 기간을 끝내지 않고 유지하기로 결정하거나 제공업체에서 해지했음을 확인할 수 있어요. SubFlow는 기록만 업데이트하며 서비스를 대신 해지하지 않아요.
+</ko-KR>
+```
+
+---
+
 ## 1.6.1 (versionCode 11): release notes
+
+Not in this upload: nl-NL. (Dutch is prepared in BIN-93 for a future release.)
 
 Changes since 1.6.0 (versionCode 10):
 
@@ -593,7 +676,14 @@ text.
 it-IT) go into the Console with that upload, and every listing's language
 line names all ten languages from then on.
 
-All ten listings say the same thing. zh-TW was written first from the
+**Dutch is prepared, not yet uploaded (BIN-93).** Do not add the nl-NL
+listing to Play until a build containing Dutch is uploaded. In that release,
+add Dutch to every other listing's language line, translate the release notes
+and what's-new sheet into Dutch, and remove the newest release's exemption.
+The ten existing listings below intentionally retain their uploaded language
+claims until then; the Dutch draft describes the upcoming eleven-language build.
+
+All ten uploaded listings say the same thing. zh-TW was written first from the
 features in the code (see *What each claim rests on*), and the others
 translate it. Terms match what each language's app UI shows (German
 *Hauptwährung*, French *devise principale*, Japanese *基準通貨*, Simplified
@@ -668,6 +758,73 @@ The free plan tracks up to 5 subscriptions and shows a banner ad. Pro gives you:
 Choose monthly, annual or a one-time lifetime purchase, all billed through Google Play. Subscriptions can be cancelled at any time.
 
 SubFlow tracks and reminds; it doesn't cancel anything for you. To cancel, go to the service's account page. For well-known services, the app opens it for you.
+```
+
+### nl-NL Nederlands
+
+Draft for the first upload containing BIN-93, not for 1.6.1. Uses je, as in the app.
+
+**Title** (≤30)
+
+```
+SubFlow: Abonnementen
+```
+
+**Short description** (≤80)
+
+```
+Al je abonnementen op één plek, met een herinnering vóór elke afschrijving.
+```
+
+**Full description** (≤4000)
+
+```
+Netflix, Spotify, cloudopslag, de sportschool… wat kosten je abonnementen samen per maand? SubFlow houdt ze op één plek bij, rekent ze om naar een maandtotaal en herinnert je vóór de afschrijving. Zo kun je op tijd opzeggen wat je niet meer gebruikt.
+
+HOUD ELK ABONNEMENT BIJ
+• 34 populaire diensten met hun logo: kies er één en voeg die toe
+• Of maak je eigen dienst met een naam, kleur en pictogram
+• Wekelijkse, maandelijkse, kwartaal- en jaarabonnementen, omgerekend naar maand- en jaartotalen
+• Sorteer op verlengdatum, prijs of naam; filter op categorie en zoek
+• Veeg een kaart naar links om te verwijderen, naar rechts om te pauzeren
+• Houd een kaart ingedrukt om meerdere abonnementen tegelijk te pauzeren, hervatten, verwijderen of een andere categorie te geven
+• Pauzeer een abonnement waarvoor je niet meer betaalt: de gegevens blijven bewaard, maar het telt niet mee in je totalen en herinneringen
+• Een startschermwidget toont je maandtotaal en komende verlengingen
+
+EEN HERINNERING VÓÓR DE AFSCHRIJVING
+• Een herinnering 1 dag vóór elke verlenging (Pro voegt 3 en 7 dagen toe)
+• Heeft je telefoon een herinnering gemist terwijl hij inactief was? Open de app om die alsnog te ontvangen
+
+HOUD GRATIS PROEFPERIODES BIJ
+• Markeer een abonnement als gratis proefperiode, met einddatum en de prijs daarna
+• Ontvang een herinnering vóór het einde, in elke versie
+• Geef na afloop aan of het betaald is geworden, je hebt opgezegd of de proefperiode is verlengd
+
+MEERDERE VALUTA, ÉÉN TOTAAL
+• 40 valuta: noteer elk abonnement in de valuta waarin je betaalt
+• Alles wordt omgerekend naar je standaardvaluta met actuele wisselkoersen. Offline gebruikt de app de laatst opgehaalde koersen, of ingebouwde koersen als de app nog nooit online is geweest
+
+INZICHT IN JE UITGAVEN
+• Maandtotaal, jaartotaal en gemiddelde per dag
+• Pro: 6 maanden uitgavengeschiedenis, uitsplitsing per categorie, uitgavenoverzicht, betalingsprognose per maand en CSV-export
+
+JE GEGEVENS BLIJVEN OP JE TELEFOON
+• Geen account nodig: alles staat op je apparaat
+• Exporteer een JSON-back-up en herstel die wanneer je wilt
+• Importeer abonnementen uit een CSV-bestand of rekenblad, met een voorbeeld voordat iets wordt toegevoegd
+• Donkere modus (echt zwart) en trilfeedback
+• In het Nederlands, Engels, vereenvoudigd en traditioneel Chinees, Japans, Koreaans, Duits, Frans, Spaans, Italiaans en Portugees
+
+SUBFLOW PRO
+De gratis versie houdt maximaal 5 abonnementen bij en toont een advertentiebanner. Met Pro krijg je:
+• Onbeperkt abonnementen
+• Herinneringen 3 en 7 dagen vóór verlenging
+• Alle inzichten en CSV-export
+• Een maandbudget, met een meter bij je totaal en een waarschuwing voordat een abonnement je budget overschrijdt
+• Nooit meer advertenties
+Kies maandelijks, jaarlijks of eenmalig levenslang, betaald via Google Play. Abonnementen zijn altijd opzegbaar.
+
+SubFlow houdt bij en herinnert, maar zegt niets voor je op. Ga daarvoor naar je accountpagina bij de aanbieder. Voor bekende diensten opent de app die voor je.
 ```
 
 ### pt-BR Português (Brasil)
@@ -1277,7 +1434,7 @@ What each claim rests on:
 | 40 currencies, live rates, last-fetched cache, then a built-in fallback | `SupportedCurrencies`; `ExchangeRateRepository` (prefs cache); `fallbackRatesToUSD` |
 | Pro analytics | the four `ProGate`s in `AnalyticsScreen.kt` + gated CSV export |
 | No account, stored locally | release build has `BACKEND_ENABLED = false` |
-| 10 languages | `SupportedLanguages` (pt, ko, it added in 1.6.0) |
+| 10 uploaded languages; 11 in the next build | `SupportedLanguages` (pt, ko, it added in 1.6.0; nl prepared in BIN-93). Dutch listing stays draft until upload. |
 | Totals and daily average free | outside the `ProGate`s (`item(key = "metrics")`) |
 | Pause instead of delete; out of totals and reminders; every plan | `Subscription.isActive`, `SubscriptionRepository.setActive` (no `ProGate`); BIN-29 |
 | Home screen widget: monthly total and upcoming renewals; every plan | `widget/SubFlowWidget.kt`, `summariseForWidget` (not gated); BIN-30, BIN-32 |

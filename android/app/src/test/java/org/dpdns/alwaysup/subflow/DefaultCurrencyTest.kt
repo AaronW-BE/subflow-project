@@ -48,6 +48,22 @@ class DefaultCurrencyTest {
     }
 
     @Test
+    fun `Dutch language and home currency stay independent`() {
+        val dutch = org.dpdns.alwaysup.subflow.domain.util.localeForLanguageCode("nl")
+        assertEquals("EUR", DefaultCurrency.resolve(
+            stored = null, firstLaunch = true, systemRegions = listOf("NL"), legacy = dutch
+        ).code)
+        assertEquals("USD", DefaultCurrency.resolve(
+            stored = null, firstLaunch = true, systemRegions = listOf("US"), legacy = dutch
+        ).code)
+        val saved = DefaultCurrency.resolve(
+            stored = "CNY", firstLaunch = false, systemRegions = listOf("NL"), legacy = dutch
+        )
+        assertEquals("CNY", saved.code)
+        assertFalse(saved.save)
+    }
+
+    @Test
     fun `a Taiwanese phone starts in its own currency, not the mainland's`() {
         // The interface language for zh-TW maps to SIMPLIFIED_CHINESE, whose
         // region is CN; the old rule answered CNY.

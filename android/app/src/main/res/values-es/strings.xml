@@ -485,4 +485,32 @@
     <string name="trial_footnote_until">Gratis hasta el %1$s y después %2$s. Si cancelas en Google Play antes de esa fecha, no se te cobrará nada.</string>
     <string name="reminder_pro_preview">Con Pro te avisaríamos el %1$s, %2$d días antes de este cobro.</string>
     <string name="reminder_pro_preview_undated">Con Pro te avisaríamos %1$d días antes de cada cobro.</string>
+
+    <string name="notif_channel_trial_final">Revisar cancelación de prueba</string>
+    <string name="notif_channel_trial_final_desc">Avisos el último día de pruebas con renovación automática</string>
+    <string name="notif_trial_final_title">%1$s: la prueba termina hoy</string>
+    <string name="notif_trial_final_body">Revisa tu decisión de cancelar con el proveedor. Puede que ya se haya realizado el cobro; este aviso no cancela el servicio.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Comprobación del último día</string>
+    <string name="trial_final_check_sub">Gratis en todos los planes. Revisa pruebas sin decidir que pasan a ser de pago, respetando sus ajustes de recordatorio. Los avisos previos no cambian.</string>
+    <string name="trial_final_time">Hora del recordatorio · %1$s</string>
+    <string name="trial_final_exact">Horario preciso (opcional)</string>
+    <string name="trial_final_access_yes">Acceso al horario preciso: disponible</string>
+    <string name="trial_final_access_no">Acceso al horario preciso: no concedido</string>
+    <string name="trial_final_precise">Horario preciso seleccionado; la entrega sigue dependiendo del sistema.</string>
+    <string name="trial_final_ordinary">Recordatorio normal: el sistema puede retrasarlo.</string>
+    <string name="trial_final_notifications_blocked">Las notificaciones de la app o del canal del último día están desactivadas.</string>
+    <string name="trial_final_settings_unavailable">No se pudieron abrir los ajustes del sistema. Los recordatorios normales siguen disponibles.</string>
+    <string name="trial_final_caution">La fecha de fin no es la hora real del cobro. Mantén los avisos previos y cancela pronto con el proveedor.</string>
+    <string name="trial_decision_title">¿Conservar esta suscripción?</string>
+    <string name="trial_kept">Has decidido conservarla</string>
+    <string name="trial_keep_explanation">Solo se detiene la comprobación del último día. La prueba gratuita y los avisos previos no cambian. Cambiar la fecha de fin restablece esta decisión.</string>
+    <string name="trial_keep">Conservar esta suscripción</string>
+    <string name="trial_undo_keep">Deshacer decisión</string>
+    <string name="trial_provider_cancelled">He cancelado con el proveedor</string>
+    <string name="trial_cancel_confirm_title">¿Confirmas que has cancelado con el proveedor?</string>
+    <string name="trial_cancel_confirm_body">SubFlow solo actualiza este registro local y lo pausa. No contacta con el proveedor ni revierte cargos.</string>
+    <string name="trial_cancel_confirm">Confirmar cancelación</string>
+    <string name="trial_cancel_back">Volver</string>
 </resources>

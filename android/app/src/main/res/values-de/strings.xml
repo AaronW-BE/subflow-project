@@ -485,4 +485,32 @@
     <string name="trial_footnote_until">Kostenlos bis %1$s, danach %2$s. Kündigst du vorher in Google Play, wird nichts abgebucht.</string>
     <string name="reminder_pro_preview">Mit Pro würdest du am %1$s erinnert, %2$d Tage vor der Abbuchung.</string>
     <string name="reminder_pro_preview_undated">Mit Pro würdest du %1$d Tage vor jeder Abbuchung erinnert.</string>
+
+    <string name="notif_channel_trial_final">Testabo prüfen</string>
+    <string name="notif_channel_trial_final_desc">Prüfungen am letzten Tag automatisch verlängerter Testabos</string>
+    <string name="notif_trial_final_title">%1$s: Testabo endet heute</string>
+    <string name="notif_trial_final_body">Prüfe deine Kündigungsentscheidung beim Anbieter. Möglicherweise wurde bereits abgebucht; diese Erinnerung kündigt den Dienst nicht.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Kündigungscheck am letzten Tag</string>
+    <string name="trial_final_check_sub">Für alle kostenlos. Prüft unentschiedene, automatisch kostenpflichtige Tests und beachtet deren Erinnerungsschalter. Voraberinnerungen bleiben unverändert.</string>
+    <string name="trial_final_time">Erinnerungszeit · %1$s</string>
+    <string name="trial_final_exact">Genaue Zeit (optional)</string>
+    <string name="trial_final_access_yes">Zugriff für genaue Zeit: verfügbar</string>
+    <string name="trial_final_access_no">Zugriff für genaue Zeit: nicht gewährt</string>
+    <string name="trial_final_precise">Genaue Zeit gewählt; die Zustellung hängt weiterhin vom System ab.</string>
+    <string name="trial_final_ordinary">Normale Erinnerung: Das System kann sie verzögern.</string>
+    <string name="trial_final_notifications_blocked">App-Benachrichtigungen oder der Kanal für den letzten Tag sind deaktiviert.</string>
+    <string name="trial_final_settings_unavailable">Systemeinstellungen konnten nicht geöffnet werden. Normale Erinnerungen sind weiter möglich.</string>
+    <string name="trial_final_caution">Das Enddatum ist nicht der tatsächliche Abbuchungszeitpunkt. Behalte Voraberinnerungen bei und kündige frühzeitig beim Anbieter.</string>
+    <string name="trial_decision_title">Abo behalten?</string>
+    <string name="trial_kept">Du möchtest es behalten</string>
+    <string name="trial_keep_explanation">Nur der Check am letzten Tag entfällt. Gratistest und Voraberinnerungen bleiben bestehen. Ein neues Enddatum setzt die Entscheidung zurück.</string>
+    <string name="trial_keep">Abo behalten</string>
+    <string name="trial_undo_keep">Entscheidung zurücknehmen</string>
+    <string name="trial_provider_cancelled">Ich habe beim Anbieter gekündigt</string>
+    <string name="trial_cancel_confirm_title">Kündigung beim Anbieter bestätigen?</string>
+    <string name="trial_cancel_confirm_body">SubFlow aktualisiert nur diesen lokalen Eintrag und pausiert ihn. Der Anbieter wird nicht kontaktiert; Zahlungen werden nicht rückgängig gemacht.</string>
+    <string name="trial_cancel_confirm">Kündigung bestätigen</string>
+    <string name="trial_cancel_back">Zurück</string>
 </resources>

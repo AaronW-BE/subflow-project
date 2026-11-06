@@ -470,4 +470,32 @@
     <string name="trial_footnote_until">%1$s まで無料、その後 %2$s。それまでに Google Play で解約すれば請求されません。</string>
     <string name="reminder_pro_preview">Pro なら %1$s（請求の %2$d 日前）に通知します。</string>
     <string name="reminder_pro_preview_undated">Pro なら毎回の請求の %1$d 日前に通知します。</string>
+
+    <string name="notif_channel_trial_final">トライアル解約の確認</string>
+    <string name="notif_channel_trial_final_desc">自動更新トライアルの最終日の確認</string>
+    <string name="notif_trial_final_title">%1$s：トライアルは本日終了</string>
+    <string name="notif_trial_final_body">解約するかどうかをサービス提供元で確認してください。すでに請求されている可能性があります。この通知でサービスは解約されません。</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">最終日の解約確認</string>
+    <string name="trial_final_check_sub">全プランで無料です。有料に移行する未決定の試用を、各項目の通知設定に従って確認します。事前通知は変わりません。</string>
+    <string name="trial_final_time">通知時刻 · %1$s</string>
+    <string name="trial_final_exact">正確な時刻（任意）</string>
+    <string name="trial_final_access_yes">正確な時刻の権限：利用可能</string>
+    <string name="trial_final_access_no">正確な時刻の権限：未許可</string>
+    <string name="trial_final_precise">正確な時刻を選択中です。配信はシステムの状況に左右されます。</string>
+    <string name="trial_final_ordinary">通常の通知：システムにより遅れる場合があります。</string>
+    <string name="trial_final_notifications_blocked">アプリまたは最終日チャンネルの通知が無効です。</string>
+    <string name="trial_final_settings_unavailable">システム設定を開けませんでした。通常の通知は引き続き利用できます。</string>
+    <string name="trial_final_caution">終了日は提供元の実際の請求時刻ではありません。事前通知を維持し、早めに提供元で解約してください。</string>
+    <string name="trial_decision_title">この契約を継続しますか？</string>
+    <string name="trial_kept">継続を選択済み</string>
+    <string name="trial_keep_explanation">最終日の確認だけを停止します。無料試用と事前通知は変わりません。終了日を変更すると、この選択はリセットされます。</string>
+    <string name="trial_keep">この契約を継続する</string>
+    <string name="trial_undo_keep">継続の選択を取り消す</string>
+    <string name="trial_provider_cancelled">提供元で解約しました</string>
+    <string name="trial_cancel_confirm_title">提供元で解約済みですか？</string>
+    <string name="trial_cancel_confirm_body">SubFlow はこの端末の記録を更新し、一時停止するだけです。提供元への連絡や、発生済みの請求の取り消しは行いません。</string>
+    <string name="trial_cancel_confirm">解約済みと記録</string>
+    <string name="trial_cancel_back">戻る</string>
 </resources>

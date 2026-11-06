@@ -470,4 +470,32 @@
     <string name="trial_footnote_until">免费至 %1$s，之后按 %2$s 计费。在此之前到 Google Play 取消，就不会扣费。</string>
     <string name="reminder_pro_preview">升级 Pro 后，会在 %1$s 提醒你，即扣费前 %2$d 天。</string>
     <string name="reminder_pro_preview_undated">升级 Pro 后，会在每次扣费前 %1$d 天提醒你。</string>
+
+    <string name="notif_channel_trial_final">试用取消检查</string>
+    <string name="notif_channel_trial_final_desc">自动转付费试用最后一天的检查</string>
+    <string name="notif_trial_final_title">%1$s：试用今天结束</string>
+    <string name="notif_trial_final_body">请向服务商确认取消决定。你可能已被扣费；此提醒不会取消服务。</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">最后一天取消检查</string>
+    <string name="trial_final_check_sub">所有方案免费。检查尚未决定、将转付费的试用，尊重单条提醒开关。提前提醒不变。</string>
+    <string name="trial_final_time">提醒时间 · %1$s</string>
+    <string name="trial_final_exact">精确定时（可选）</string>
+    <string name="trial_final_access_yes">精确定时权限：可用</string>
+    <string name="trial_final_access_no">精确定时权限：未授权</string>
+    <string name="trial_final_precise">已选择精确定时；送达仍取决于系统状况。</string>
+    <string name="trial_final_ordinary">普通提醒：系统可能延迟送达。</string>
+    <string name="trial_final_notifications_blocked">应用通知或最后一天通知渠道已关闭。</string>
+    <string name="trial_final_settings_unavailable">无法打开系统设置，仍可使用普通提醒。</string>
+    <string name="trial_final_caution">结束日期并非服务商的实际扣费时刻。请保留提前提醒，尽早到服务商处取消。</string>
+    <string name="trial_decision_title">打算继续使用吗？</string>
+    <string name="trial_kept">已决定保留</string>
+    <string name="trial_keep_explanation">只停止最后一天检查，免费试用和提前提醒不变。修改结束日期后需重新决定。</string>
+    <string name="trial_keep">决定保留</string>
+    <string name="trial_undo_keep">撤销保留决定</string>
+    <string name="trial_provider_cancelled">我已在服务商处取消</string>
+    <string name="trial_cancel_confirm_title">确认已在服务商处取消？</string>
+    <string name="trial_cancel_confirm_body">SubFlow 只更新本地记录并暂停此条目，不会联系服务商，也不能撤销已有扣费。</string>
+    <string name="trial_cancel_confirm">确认已取消</string>
+    <string name="trial_cancel_back">返回检查</string>
 </resources>

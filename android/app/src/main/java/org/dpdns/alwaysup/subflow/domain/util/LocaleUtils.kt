@@ -23,6 +23,7 @@ fun localeForLanguageCode(code: String): Locale = when (
     "de" -> Locale.GERMAN
     "fr" -> Locale.FRENCH
     "it" -> Locale.ITALIAN
+    "nl" -> Locale.forLanguageTag("nl-NL")
     "es" -> Locale("es")
     // Brazil, for the dates and numbers too: the strings are Brazilian.
     "pt" -> Locale.forLanguageTag("pt-BR")

@@ -471,4 +471,32 @@
     <string name="trial_footnote_until">%1$s까지 무료, 이후 %2$s. 그 전에 Google Play에서 해지하면 결제되지 않아요.</string>
     <string name="reminder_pro_preview">Pro를 사용하면 결제 %2$d일 전인 %1$s에 알림을 받아요.</string>
     <string name="reminder_pro_preview_undated">Pro를 사용하면 매 결제 %1$d일 전에 알림을 받아요.</string>
+
+    <string name="notif_channel_trial_final">체험 해지 확인</string>
+    <string name="notif_channel_trial_final_desc">자동 갱신 체험 마지막 날 확인</string>
+    <string name="notif_trial_final_title">%1$s: 오늘 체험 종료</string>
+    <string name="notif_trial_final_body">제공업체에서 해지 결정을 확인하세요. 이미 요금이 청구되었을 수 있으며 이 알림은 서비스를 해지하지 않습니다.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">마지막 날 해지 확인</string>
+    <string name="trial_final_check_sub">모든 요금제에서 무료입니다. 유료로 전환되는 미결정 체험을 각 항목의 알림 설정에 따라 확인합니다. 사전 알림은 그대로입니다.</string>
+    <string name="trial_final_time">알림 시간 · %1$s</string>
+    <string name="trial_final_exact">정확한 시간 (선택 사항)</string>
+    <string name="trial_final_access_yes">정확한 시간 권한: 사용 가능</string>
+    <string name="trial_final_access_no">정확한 시간 권한: 허용되지 않음</string>
+    <string name="trial_final_precise">정확한 시간을 선택했습니다. 전달은 시스템 상태에 따라 달라집니다.</string>
+    <string name="trial_final_ordinary">일반 알림: 시스템에 의해 지연될 수 있습니다.</string>
+    <string name="trial_final_notifications_blocked">앱 또는 마지막 날 알림 채널의 알림이 꺼져 있습니다.</string>
+    <string name="trial_final_settings_unavailable">시스템 설정을 열 수 없습니다. 일반 알림은 계속 사용할 수 있습니다.</string>
+    <string name="trial_final_caution">종료일은 제공업체의 실제 청구 시간이 아닙니다. 사전 알림을 유지하고 제공업체에서 미리 해지하세요.</string>
+    <string name="trial_decision_title">이 구독을 유지할까요?</string>
+    <string name="trial_kept">유지하기로 결정했습니다</string>
+    <string name="trial_keep_explanation">마지막 날 확인만 중지됩니다. 무료 체험과 사전 알림은 그대로입니다. 종료일을 변경하면 이 결정이 초기화됩니다.</string>
+    <string name="trial_keep">이 구독 유지</string>
+    <string name="trial_undo_keep">유지 결정 취소</string>
+    <string name="trial_provider_cancelled">제공업체에서 해지했습니다</string>
+    <string name="trial_cancel_confirm_title">제공업체에서 해지하셨나요?</string>
+    <string name="trial_cancel_confirm_body">SubFlow는 이 로컬 기록을 수정하고 일시 중지할 뿐입니다. 제공업체에 연락하거나 이미 발생한 요금을 취소하지 않습니다.</string>
+    <string name="trial_cancel_confirm">해지 확인</string>
+    <string name="trial_cancel_back">돌아가기</string>
 </resources>

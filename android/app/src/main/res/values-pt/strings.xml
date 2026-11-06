@@ -502,4 +502,32 @@
     <string name="trial_footnote_until">Grátis até %1$s, depois %2$s. Cancele no Google Play antes dessa data e você não será cobrado.</string>
     <string name="reminder_pro_preview">Com o Pro, você receberia um lembrete em %1$s, %2$d dias antes desta cobrança.</string>
     <string name="reminder_pro_preview_undated">Com o Pro, você receberia um lembrete %1$d dias antes de cada cobrança.</string>
+
+    <string name="notif_channel_trial_final">Verificar cancelamento do teste</string>
+    <string name="notif_channel_trial_final_desc">Verificações no último dia de testes com renovação automática</string>
+    <string name="notif_trial_final_title">%1$s: o teste termina hoje</string>
+    <string name="notif_trial_final_body">Confira sua decisão de cancelar com o fornecedor. A cobrança pode já ter ocorrido; este lembrete não cancela o serviço.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Verificação no último dia</string>
+    <string name="trial_final_check_sub">Grátis para todos. Verifica testes sem decisão que se tornam pagos, respeitando seus lembretes. Os avisos antecipados não mudam.</string>
+    <string name="trial_final_time">Horário do lembrete · %1$s</string>
+    <string name="trial_final_exact">Horário preciso (opcional)</string>
+    <string name="trial_final_access_yes">Acesso ao horário preciso: disponível</string>
+    <string name="trial_final_access_no">Acesso ao horário preciso: não concedido</string>
+    <string name="trial_final_precise">Horário preciso selecionado; a entrega ainda depende do sistema.</string>
+    <string name="trial_final_ordinary">Lembrete comum: o sistema pode atrasar a entrega.</string>
+    <string name="trial_final_notifications_blocked">As notificações do app ou do canal do último dia estão desativadas.</string>
+    <string name="trial_final_settings_unavailable">Não foi possível abrir as configurações. Os lembretes comuns continuam disponíveis.</string>
+    <string name="trial_final_caution">A data final não é o horário real da cobrança. Mantenha os avisos antecipados e cancele antes com o provedor.</string>
+    <string name="trial_decision_title">Manter esta assinatura?</string>
+    <string name="trial_kept">Você decidiu manter</string>
+    <string name="trial_keep_explanation">Só a verificação do último dia é interrompida. O teste grátis e os avisos antecipados não mudam. Alterar a data final redefine esta decisão.</string>
+    <string name="trial_keep">Manter esta assinatura</string>
+    <string name="trial_undo_keep">Desfazer decisão</string>
+    <string name="trial_provider_cancelled">Já cancelei com o provedor</string>
+    <string name="trial_cancel_confirm_title">Confirmar o cancelamento com o provedor?</string>
+    <string name="trial_cancel_confirm_body">O SubFlow só atualiza este registro local e o pausa. Não entra em contato com o provedor nem reverte cobranças.</string>
+    <string name="trial_cancel_confirm">Confirmar cancelamento</string>
+    <string name="trial_cancel_back">Voltar</string>
 </resources>

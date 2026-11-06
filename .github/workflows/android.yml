@@ -51,6 +51,16 @@ jobs:
         with:
           build-root-directory: android
 
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Test CI Firebase configuration helper
+        run: python -m unittest discover -s tools -p 'test_prepare_ci_firebase.py' -v
+
+      - name: Prepare synthetic CI-only debug Firebase configuration
+        run: python tools/prepare_ci_firebase.py
+
       - name: Unit tests
         working-directory: android
         run: ./gradlew :app:testDebugUnitTest

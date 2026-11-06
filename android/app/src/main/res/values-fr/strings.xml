@@ -485,4 +485,32 @@
     <string name="trial_footnote_until">Gratuit jusqu’au %1$s, puis %2$s. Résiliez dans Google Play avant cette date et vous ne serez pas prélevé.</string>
     <string name="reminder_pro_preview">Avec Pro, vous seriez prévenu le %1$s, %2$d jours avant ce prélèvement.</string>
     <string name="reminder_pro_preview_undated">Avec Pro, vous seriez prévenu %1$d jours avant chaque prélèvement.</string>
+
+    <string name="notif_channel_trial_final">Vérification des essais</string>
+    <string name="notif_channel_trial_final_desc">Vérifications le dernier jour des essais à renouvellement automatique</string>
+    <string name="notif_trial_final_title">%1$s : essai terminé aujourd’hui</string>
+    <string name="notif_trial_final_body">Vérifiez votre décision de résiliation auprès du fournisseur. Vous avez peut-être déjà été débité ; ce rappel ne résilie pas le service.</string>
+
+    <!-- Final-day cancellation check -->
+    <string name="trial_final_check">Vérification du dernier jour</string>
+    <string name="trial_final_check_sub">Gratuite pour tous. Vérifie les essais sans décision devenant payants, selon leur réglage de rappel. Les rappels anticipés restent inchangés.</string>
+    <string name="trial_final_time">Heure du rappel · %1$s</string>
+    <string name="trial_final_exact">Horaire précis (facultatif)</string>
+    <string name="trial_final_access_yes">Accès aux horaires précis : disponible</string>
+    <string name="trial_final_access_no">Accès aux horaires précis : non accordé</string>
+    <string name="trial_final_precise">Horaire précis choisi ; la réception dépend toujours du système.</string>
+    <string name="trial_final_ordinary">Rappel ordinaire : le système peut le retarder.</string>
+    <string name="trial_final_notifications_blocked">Les notifications de l’application ou du canal du dernier jour sont désactivées.</string>
+    <string name="trial_final_settings_unavailable">Impossible d’ouvrir les réglages système. Les rappels ordinaires restent disponibles.</string>
+    <string name="trial_final_caution">La date de fin ne correspond pas forcément au prélèvement. Gardez les rappels anticipés et résiliez tôt auprès du fournisseur.</string>
+    <string name="trial_decision_title">Conserver cet abonnement ?</string>
+    <string name="trial_kept">Vous avez choisi de le conserver</string>
+    <string name="trial_keep_explanation">Seule la vérification du dernier jour est arrêtée. L’essai gratuit et les rappels anticipés restent inchangés. Modifier la date de fin réinitialise ce choix.</string>
+    <string name="trial_keep">Conserver cet abonnement</string>
+    <string name="trial_undo_keep">Annuler ce choix</string>
+    <string name="trial_provider_cancelled">J’ai résilié auprès du fournisseur</string>
+    <string name="trial_cancel_confirm_title">Confirmer la résiliation auprès du fournisseur ?</string>
+    <string name="trial_cancel_confirm_body">SubFlow met seulement à jour cette fiche locale et la met en pause. L’application ne contacte pas le fournisseur et n’annule aucun prélèvement.</string>
+    <string name="trial_cancel_confirm">Confirmer la résiliation</string>
+    <string name="trial_cancel_back">Revenir</string>
 </resources>

@@ -47,6 +47,7 @@ class RenewalNotificationWorker(
 
         createChannel(context)
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+            TrialFinalDayScheduler.reconcile(context)
             // Nothing to do, and retrying will not help until the user opts in.
             return Result.success()
         }
@@ -105,6 +106,7 @@ class RenewalNotificationWorker(
             sentPrefs = sentPrefs
         )
 
+        TrialFinalDayScheduler.reconcile(context)
         return Result.success()
     }
 

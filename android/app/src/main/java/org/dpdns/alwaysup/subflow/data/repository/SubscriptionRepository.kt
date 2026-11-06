@@ -322,6 +322,7 @@ class SubscriptionRepository(
         iconUrl = iconUrl ?: "",
         notes = notes ?: "",
         trialEndDate = trialEndDate ?: "",
+        trialKeepEndDate = trialKeepEndDate ?: "",
         postTrialCycle = postTrialCycle ?: BillingCycle.MONTHLY,
         trialOutcome = trialOutcome ?: TrialOutcome.PENDING
     )
@@ -504,10 +505,10 @@ class SubscriptionRepository(
             return LimitFit(fitted, paused)
         }
         /**
-         * 2 since trial fields were added. Restore ignores this number and
+         * 3 since date-bound trial keep intent was added. Restore ignores this number and
          * repairs whatever is missing, so a v1 file still imports.
          */
-        const val BACKUP_VERSION = 2
+        const val BACKUP_VERSION = 3
     }
 }
 
