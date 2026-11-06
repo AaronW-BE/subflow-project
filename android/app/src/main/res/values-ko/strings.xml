@@ -499,4 +499,16 @@
     <string name="trial_cancel_confirm_body">SubFlow는 이 로컬 기록을 수정하고 일시 중지할 뿐입니다. 제공업체에 연락하거나 이미 발생한 요금을 취소하지 않습니다.</string>
     <string name="trial_cancel_confirm">해지 확인</string>
     <string name="trial_cancel_back">돌아가기</string>
+    <string name="overview_all">전체</string>
+    <string name="overview_active">활성</string>
+    <string name="overview_paused">일시중지</string>
+    <string name="overview_pending">미처리 체험 %1$d개 포함</string>
+    <string name="overview_trial">미처리 체험</string>
+    <string name="overview_viewing">현재 보기: %1$s</string>
+    <string name="overview_reset">보기 초기화</string>
+    <string name="overview_price_unavailable">환율 없음 · 월 가격 비교 불가</string>
+    <string name="overview_unavailable">추정 불가</string>
+    <string name="overview_normalized">모든 활성 구독의 환산 정기 비용 · 실제 결제액 아님</string>
+    <string name="overview_partial">불완전한 추정 · 환산된 부분만 표시</string>
+    <string name="overview_budget_unavailable">비용 또는 예산 환산이 불완전하여 예산 비교가 불가능합니다.</string>
 </resources>

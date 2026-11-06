@@ -513,4 +513,16 @@
     <string name="trial_cancel_confirm_body">SubFlow werkt alleen dit lokale item bij en pauzeert het. De app neemt geen contact op met de aanbieder en draait geen afschrijvingen terug.</string>
     <string name="trial_cancel_confirm">Opzegging bevestigen</string>
     <string name="trial_cancel_back">Terug</string>
+    <string name="overview_all">Alle</string>
+    <string name="overview_active">Actief</string>
+    <string name="overview_paused">Gepauzeerd</string>
+    <string name="overview_pending">Waarvan %1$d openstaande proefabonnementen</string>
+    <string name="overview_trial">Openstaande proefabonnementen</string>
+    <string name="overview_viewing">Weergave: %1$s</string>
+    <string name="overview_reset">Weergave wissen</string>
+    <string name="overview_price_unavailable">Wisselkoers ontbreekt · maandprijs niet vergelijkbaar</string>
+    <string name="overview_unavailable">Schatting niet beschikbaar</string>
+    <string name="overview_normalized">Genormaliseerde terugkerende kosten · alle actieve, geen echte betalingen</string>
+    <string name="overview_partial">Onvolledige schatting · alleen omgerekend deel</string>
+    <string name="overview_budget_unavailable">Budgetvergelijking niet beschikbaar: onvolledige omrekening.</string>
 </resources>

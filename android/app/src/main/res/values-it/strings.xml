@@ -529,4 +529,16 @@
     <string name="trial_cancel_confirm_body">SubFlow aggiorna solo questa voce locale e la mette in pausa. Non contatta il fornitore e non annulla gli addebiti.</string>
     <string name="trial_cancel_confirm">Conferma disdetta</string>
     <string name="trial_cancel_back">Indietro</string>
+    <string name="overview_all">Tutti</string>
+    <string name="overview_active">Attivi</string>
+    <string name="overview_paused">In pausa</string>
+    <string name="overview_pending">Di cui %1$d prove in sospeso</string>
+    <string name="overview_trial">Prove in sospeso</string>
+    <string name="overview_viewing">Vista: %1$s</string>
+    <string name="overview_reset">Reimposta vista</string>
+    <string name="overview_price_unavailable">Cambio non disponibile · prezzo mensile non confrontabile</string>
+    <string name="overview_unavailable">Stima non disponibile</string>
+    <string name="overview_normalized">Costo ricorrente normalizzato · tutti gli attivi, non pagamenti reali</string>
+    <string name="overview_partial">Stima incompleta · solo parte convertita</string>
+    <string name="overview_budget_unavailable">Confronto budget non disponibile: conversione incompleta.</string>
 </resources>

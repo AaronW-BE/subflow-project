@@ -505,4 +505,16 @@
     <string name="trial_cancel_confirm_body">SubFlow 只更新本機紀錄並暫停此項目，不會聯絡服務商，也無法撤銷已收取的費用。</string>
     <string name="trial_cancel_confirm">確認已取消</string>
     <string name="trial_cancel_back">返回確認</string>
+    <string name="overview_all">全部</string>
+    <string name="overview_active">活躍</string>
+    <string name="overview_paused">暫停</string>
+    <string name="overview_pending">其中 %1$d 筆待處理試用</string>
+    <string name="overview_trial">待處理試用</string>
+    <string name="overview_viewing">目前檢視：%1$s</string>
+    <string name="overview_reset">清除檢視</string>
+    <string name="overview_price_unavailable">缺少匯率 · 無法比較月度價格</string>
+    <string name="overview_unavailable">暫時無法估算</string>
+    <string name="overview_normalized">全部活躍訂閱的折算成本 · 非實際扣款</string>
+    <string name="overview_partial">估算不完整 · 僅已換算部分</string>
+    <string name="overview_budget_unavailable">成本或預算換算不完整，暫時無法比較預算。</string>
 </resources>

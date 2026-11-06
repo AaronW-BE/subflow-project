@@ -523,4 +523,16 @@
     <string name="trial_cancel_confirm_body">SubFlow only updates this local record and pauses it. It does not contact the provider or reverse any charges.</string>
     <string name="trial_cancel_confirm">Confirm cancelled</string>
     <string name="trial_cancel_back">Go back</string>
+    <string name="overview_all">All</string>
+    <string name="overview_active">Active</string>
+    <string name="overview_paused">Paused</string>
+    <string name="overview_pending">Including %1$d pending trials</string>
+    <string name="overview_trial">Pending trials</string>
+    <string name="overview_viewing">Viewing: %1$s</string>
+    <string name="overview_reset">Clear view</string>
+    <string name="overview_price_unavailable">Unavailable exchange rates · monthly price not comparable</string>
+    <string name="overview_unavailable">Estimate unavailable</string>
+    <string name="overview_normalized">Normalized recurring cost · all active subscriptions, not actual payments</string>
+    <string name="overview_partial">Incomplete estimate · known converted portion only</string>
+    <string name="overview_budget_unavailable">Budget comparison unavailable: cost or budget conversion is incomplete.</string>
 </resources>

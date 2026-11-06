@@ -11,7 +11,14 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.runtime.CompositionLocalProvider
+import org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot
+import org.dpdns.alwaysup.subflow.domain.util.*
+import java.time.LocalDate
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
@@ -76,9 +83,11 @@ class DashboardScreenTest {
 
     private fun show(
         subscriptions: List<Subscription> = listOf(netflix, spotify, icloud),
-        budget: MonthlyBudget? = null
+        budget: MonthlyBudget? = null,
+        snapshot: () -> CalculationSnapshot = { CalculationSnapshot("USD", LocalDate.of(2026, 2, 1), RatesSnapshot(1, mapOf("USD" to 1.0))) }
     ) =
         compose.setContent {
+            CompositionLocalProvider(LocalCalculationSnapshot provides snapshot()) {
             SubFlowTheme {
                 DashboardScreen(
                     subscriptions = subscriptions,
@@ -107,7 +116,114 @@ class DashboardScreenTest {
                     onPaywallClick = {}
                 )
             }
+            }
         }
+
+    @Test
+    fun `count navigation clears filters and reset returns collapsed ordinary home`() {
+        show(listOf(netflix, spotify.copy(isActive = false)))
+        compose.onNode(hasSetTextAction()).performTextInput("nothing matches")
+        row("Netflix").assertDoesNotExist()
+        compose.onNodeWithText("1\n" + str(R.string.overview_paused)).performClick()
+        row("Spotify").assertIsDisplayed()
+        row("Netflix").assertDoesNotExist()
+        compose.onNode(hasSetTextAction()).performTextInput("missing")
+        row("Spotify").assertDoesNotExist()
+        compose.onNodeWithText(str(R.string.overview_reset)).performClick()
+        row("Netflix").assertIsDisplayed()
+        row("Spotify").assertDoesNotExist()
+        compose.onNodeWithText("2\n" + str(R.string.overview_all)).performClick()
+        row("Spotify").assertIsDisplayed()
+    }
+
+    @Test
+    fun `all and paused subsets expand initially and keep the paused toggle usable`() {
+        show(listOf(netflix, spotify.copy(isActive = false)))
+        compose.onNodeWithText("2\n" + str(R.string.overview_all)).performClick()
+        row("Spotify").assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.dashboard_paused_header, 1)).performClick()
+        row("Spotify").assertDoesNotExist()
+        compose.onNodeWithText(str(R.string.dashboard_paused_header, 1)).performClick()
+        row("Spotify").assertIsDisplayed()
+        compose.onNodeWithText("1\n" + str(R.string.overview_paused)).performClick()
+        row("Spotify").assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.dashboard_paused_header, 1)).performClick()
+        row("Spotify").assertDoesNotExist()
+        compose.onNodeWithText(str(R.string.overview_reset)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `paused only retains search and empty active subset has exit`() {
+        show(listOf(spotify.copy(isActive = false)))
+        compose.onNode(hasSetTextAction()).assertIsDisplayed()
+        compose.onNodeWithText("0\n" + str(R.string.overview_active)).performClick()
+        compose.onNode(hasSetTextAction()).performTextInput("missing")
+        compose.onNodeWithText(str(R.string.overview_reset)).assertIsDisplayed().performClick()
+        compose.onNodeWithText("1\n" + str(R.string.overview_paused)).performClick()
+        row("Spotify").assertIsDisplayed()
+    }
+
+    @Test
+    fun `positive missing rate is unknown not zero and suspends budget`() {
+        show(listOf(netflix.copy(currency = "ZZZ")), MonthlyBudget(100.0, "USD"))
+        compose.onNodeWithText(str(R.string.overview_unavailable)).assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.overview_partial)).assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.overview_budget_unavailable)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `rate only snapshot publication replaces unknown estimate without changing inventory`() {
+        val state = androidx.compose.runtime.mutableStateOf(CalculationSnapshot("USD", LocalDate.of(2026, 2, 1), RatesSnapshot(1, mapOf("USD" to 1.0))))
+        show(listOf(netflix.copy(currency = "EUR")), snapshot = { state.value })
+        compose.onNodeWithText(str(R.string.overview_unavailable)).assertIsDisplayed()
+        compose.runOnIdle { state.value = state.value.copy(rates = RatesSnapshot(2, mapOf("USD" to 1.0, "EUR" to 2.0))) }
+        compose.onNodeWithText(str(R.string.overview_unavailable)).assertDoesNotExist()
+        compose.onNodeWithText(str(R.string.overview_normalized)).assertIsDisplayed()
+        compose.onNodeWithText("1" + 10.toChar() + str(R.string.overview_all)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `pending subset includes kept expired trials but excludes paused trials and preserves totals through search`() {
+        val trial = netflix.copy(amount = 0.0, isTrial = true, trialEndDate = "2026-01-01", trialKeepEndDate = "2026-01-01")
+        show(listOf(trial, spotify.copy(isTrial = true, isActive = false), icloud))
+        compose.onNodeWithText(str(R.string.overview_pending, 1)).performClick()
+        row("Netflix").assertIsDisplayed()
+        row("Spotify").assertDoesNotExist()
+        row("iCloud+").assertDoesNotExist()
+        compose.onNode(hasSetTextAction()).performTextInput("missing")
+        row("Netflix").assertDoesNotExist()
+        compose.onNodeWithText("3" + 10.toChar() + str(R.string.overview_all)).assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.overview_reset)).performClick()
+        row("iCloud+").assertIsDisplayed()
+    }
+
+    @Test
+    fun `count clears category and later category narrows within paused subset`() {
+        show(listOf(netflix, spotify.copy(isActive = false, category = "Productivity")))
+        compose.onAllNodesWithText(str(R.string.filter_streaming))[0].performClick()
+        compose.onNodeWithText("1" + 10.toChar() + str(R.string.overview_paused)).performClick()
+        row("Spotify").assertIsDisplayed()
+        compose.onAllNodesWithText(str(R.string.filter_streaming))[0].performClick()
+        row("Spotify").assertDoesNotExist()
+        compose.onNodeWithText(str(R.string.overview_reset)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `known partial amount remains global through zero match search`() {
+        show(listOf(netflix.copy(amount = 5.0), spotify.copy(currency = "ZZZ")))
+        compose.onNodeWithText(str(R.string.overview_partial)).assertIsDisplayed()
+        compose.onAllNodesWithText(usd(5.0))[0].assertIsDisplayed()
+        compose.onNode(hasSetTextAction()).performTextInput("missing")
+        compose.onAllNodesWithText(usd(5.0))[0].assertIsDisplayed()
+        compose.onNodeWithText("2" + 10.toChar() + str(R.string.overview_active)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `complete free cost remains explicit zero`() {
+        show(listOf(netflix.copy(amount = 0.0, currency = "ZZZ")))
+        compose.onNodeWithText(str(R.string.overview_normalized)).assertIsDisplayed()
+        compose.onNodeWithText(str(R.string.overview_unavailable)).assertDoesNotExist()
+    }
 
     /** The card for [name]: the clickable node whose description starts with it. */
     private fun row(name: String): SemanticsNodeInteraction =

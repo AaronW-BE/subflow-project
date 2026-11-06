@@ -513,4 +513,16 @@
     <string name="trial_cancel_confirm_body">SubFlow met seulement à jour cette fiche locale et la met en pause. L’application ne contacte pas le fournisseur et n’annule aucun prélèvement.</string>
     <string name="trial_cancel_confirm">Confirmer la résiliation</string>
     <string name="trial_cancel_back">Revenir</string>
+    <string name="overview_all">Tous</string>
+    <string name="overview_active">Actifs</string>
+    <string name="overview_paused">En pause</string>
+    <string name="overview_pending">Dont %1$d essais en attente</string>
+    <string name="overview_trial">Essais en attente</string>
+    <string name="overview_viewing">Vue : %1$s</string>
+    <string name="overview_reset">Réinitialiser</string>
+    <string name="overview_price_unavailable">Taux indisponible · prix mensuel non comparable</string>
+    <string name="overview_unavailable">Estimation indisponible</string>
+    <string name="overview_normalized">Coût récurrent normalisé · tous les actifs, pas les paiements réels</string>
+    <string name="overview_partial">Estimation incomplète · partie convertie uniquement</string>
+    <string name="overview_budget_unavailable">Comparaison du budget indisponible : conversion incomplète.</string>
 </resources>

@@ -530,4 +530,16 @@
     <string name="trial_cancel_confirm_body">O SubFlow só atualiza este registro local e o pausa. Não entra em contato com o provedor nem reverte cobranças.</string>
     <string name="trial_cancel_confirm">Confirmar cancelamento</string>
     <string name="trial_cancel_back">Voltar</string>
+    <string name="overview_all">Todas</string>
+    <string name="overview_active">Ativas</string>
+    <string name="overview_paused">Pausadas</string>
+    <string name="overview_pending">Inclui %1$d avaliações pendentes</string>
+    <string name="overview_trial">Avaliações pendentes</string>
+    <string name="overview_viewing">Vista: %1$s</string>
+    <string name="overview_reset">Repor vista</string>
+    <string name="overview_price_unavailable">Câmbio indisponível · preço mensal não comparável</string>
+    <string name="overview_unavailable">Estimativa indisponível</string>
+    <string name="overview_normalized">Custo recorrente normalizado · todas as ativas, não pagamentos reais</string>
+    <string name="overview_partial">Estimativa incompleta · apenas a parte convertida</string>
+    <string name="overview_budget_unavailable">Comparação de orçamento indisponível: conversão incompleta.</string>
 </resources>

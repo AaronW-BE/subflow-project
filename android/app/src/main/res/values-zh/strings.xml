@@ -498,4 +498,16 @@
     <string name="trial_cancel_confirm_body">SubFlow 只更新本地记录并暂停此条目，不会联系服务商，也不能撤销已有扣费。</string>
     <string name="trial_cancel_confirm">确认已取消</string>
     <string name="trial_cancel_back">返回检查</string>
+    <string name="overview_all">全部</string>
+    <string name="overview_active">活跃</string>
+    <string name="overview_paused">暂停</string>
+    <string name="overview_pending">其中 %1$d 条待处理试用</string>
+    <string name="overview_trial">待处理试用</string>
+    <string name="overview_viewing">当前查看：%1$s</string>
+    <string name="overview_reset">清除视图</string>
+    <string name="overview_price_unavailable">缺少汇率 · 无法比较月度价格</string>
+    <string name="overview_unavailable">暂无法估算</string>
+    <string name="overview_normalized">全部活跃订阅的折算成本 · 非实际扣款</string>
+    <string name="overview_partial">估算不完整 · 仅已换算部分</string>
+    <string name="overview_budget_unavailable">成本或预算换算不完整，暂无法比较预算。</string>
 </resources>

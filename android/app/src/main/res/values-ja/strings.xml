@@ -498,4 +498,16 @@
     <string name="trial_cancel_confirm_body">SubFlow はこの端末の記録を更新し、一時停止するだけです。提供元への連絡や、発生済みの請求の取り消しは行いません。</string>
     <string name="trial_cancel_confirm">解約済みと記録</string>
     <string name="trial_cancel_back">戻る</string>
+    <string name="overview_all">すべて</string>
+    <string name="overview_active">有効</string>
+    <string name="overview_paused">一時停止</string>
+    <string name="overview_pending">うち未処理のトライアル %1$d 件</string>
+    <string name="overview_trial">未処理のトライアル</string>
+    <string name="overview_viewing">表示中：%1$s</string>
+    <string name="overview_reset">表示をリセット</string>
+    <string name="overview_price_unavailable">為替レートなし · 月額を比較できません</string>
+    <string name="overview_unavailable">見積もり不可</string>
+    <string name="overview_normalized">有効な全購読の換算継続費用 · 実際の支払額ではありません</string>
+    <string name="overview_partial">不完全な見積もり · 換算済みの部分のみ</string>
+    <string name="overview_budget_unavailable">費用または予算の換算が不完全なため、予算比較はできません。</string>
 </resources>
