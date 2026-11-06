@@ -92,6 +92,7 @@ fun AddSubscriptionScreen(
     /** What every other running subscription costs a month, in [primaryCurrency]. */
     otherMonthlyTotal: Double = 0.0
 ) {
+    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current
     val haptics = rememberHaptics()
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -173,14 +174,14 @@ fun AddSubscriptionScreen(
 
     // For a trial the next dated event is its ending, which is also what gets
     // stored, so the preview and the saved row agree.
-    val nextRenewal = remember(firstBillDate, cycle, isTrial, trialEndDate) {
+    val nextRenewal = remember(calculationSnapshot, firstBillDate, cycle, isTrial, trialEndDate) {
         if (isTrial) trialEndDate else DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
     }
     val previewAmount = amountText.parseAmount()
     // Where this subscription would leave the budget - said before saving,
     // while it is still a decision. Not for a trial, which costs nothing
     // yet, nor for a paused one being edited, which costs nothing either.
-    val budgetAfter = remember(
+    val budgetAfter = remember(calculationSnapshot,
         monthlyBudget, otherMonthlyTotal, previewAmount, cycle, currency, isTrial, isPro, primaryCurrency
     ) {
         val running = existingSubscription?.isActive ?: true
@@ -195,7 +196,7 @@ fun AddSubscriptionScreen(
     // preview. The exact date is not repeated here: it already has a line of
     // its own under the First Payment Date field, and spelling it out in full
     // is what pushed this line past the width it had and cost it the date.
-    val previewDaysLeft = remember(nextRenewal) {
+    val previewDaysLeft = remember(calculationSnapshot, nextRenewal) {
         DateCalculators.calculateDaysUntil(nextRenewal)
     }
     val previewRenewalText = when {

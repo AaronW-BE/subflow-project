@@ -25,14 +25,18 @@ import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
  */
 class ExchangeRateRepository(context: Context) {
 
+    private val appContext = context.applicationContext
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val api = ExchangeRateApi.create()
     private val backendApi = SubFlowApiService.create()
     private val gson = Gson()
 
+    val snapshots = CurrencyConverter.snapshots
+
     /** Loads the cache into the converter. Call before the first conversion. */
     fun primeFromCache() {
+        val revision = CurrencyConverter.captureSnapshot().revision
         val json = prefs.getString(KEY_RATES, null) ?: return
         val rates: Map<String, Double> = runCatching {
             gson.fromJson<Map<String, Double>>(
@@ -45,7 +49,8 @@ class ExchangeRateRepository(context: Context) {
                 rates = rates,
                 quotedAtEpochMillis = prefs.getLong(KEY_QUOTED_AT, 0L),
                 provider = ExchangeRateApi.PROVIDER_NAME,
-                providerUrl = ExchangeRateApi.PROVIDER_URL
+                providerUrl = ExchangeRateApi.PROVIDER_URL,
+                fromCache = true, expectedRevision = revision
             )
         }
     }
@@ -107,12 +112,15 @@ class ExchangeRateRepository(context: Context) {
                 .putLong(KEY_NEXT_UPDATE, body.timeNextUpdateUnix * 1000L)
                 .apply()
 
+            val before = CurrencyConverter.captureSnapshot().revision
             CurrencyConverter.updateFromUsdBase(
                 rates = rates,
                 quotedAtEpochMillis = quotedAt,
                 provider = ExchangeRateApi.PROVIDER_NAME,
                 providerUrl = ExchangeRateApi.PROVIDER_URL
             )
+            if (CurrencyConverter.captureSnapshot().revision != before)
+                org.dpdns.alwaysup.subflow.widget.refreshSubFlowWidget(appContext)
             true
         } catch (e: Exception) {
             // Offline, DNS failure, captive portal. Keep what we have.
@@ -153,12 +161,15 @@ class ExchangeRateRepository(context: Context) {
                         .putLong(KEY_NEXT_UPDATE, System.currentTimeMillis() + BACKEND_RECHECK_MS)
                         .apply()
 
+                    val before = CurrencyConverter.captureSnapshot().revision
                     CurrencyConverter.updateFromUsdBase(
                         rates = rates,
                         quotedAtEpochMillis = quotedAt,
                         provider = body.provider.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_NAME },
                         providerUrl = body.providerUrl.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_URL }
                     )
+                    if (CurrencyConverter.captureSnapshot().revision != before)
+                        org.dpdns.alwaysup.subflow.widget.refreshSubFlowWidget(appContext)
                     true
                 }
             }

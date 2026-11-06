@@ -196,6 +196,7 @@ fun DashboardScreen(
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     val keyboard = LocalSoftwareKeyboardController.current
+    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current
     val context = LocalContext.current
     val undoText = stringResource(R.string.undo)
     val configuration = LocalConfiguration.current
@@ -226,24 +227,24 @@ fun DashboardScreen(
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
     val pausedSubs = remember(subscriptions) { subscriptions.filter { !it.isActive && !it.isDeleted } }
-    val totalMonthly = remember(activeSubs, primaryCurrency) {
+    val totalMonthly = remember(calculationSnapshot, activeSubs, primaryCurrency) {
         activeSubs.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
     }
     val totalYearly = totalMonthly * 12.0
     // Pro only, like the setting: a budget set on Pro and kept after it
     // lapsed is not shown rather than shown as a feature they no longer have.
-    val budgetProgress = remember(monthlyBudget, totalMonthly, primaryCurrency, isAnnualView, isPro) {
+    val budgetProgress = remember(calculationSnapshot, monthlyBudget, totalMonthly, primaryCurrency, isAnnualView, isPro) {
         if (!isPro) null else monthlyBudget?.let {
             Budget.progress(totalMonthly, it, primaryCurrency, annual = isAnnualView)
         }
     }
 
-    val filteredSubs = remember(activeSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
+    val filteredSubs = remember(calculationSnapshot, activeSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
         activeSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
     }
     // The same search and category apply to the paused list, so one query
     // answers "where did my Netflix go" whichever state it is in.
-    val filteredPaused = remember(pausedSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
+    val filteredPaused = remember(calculationSnapshot, pausedSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
         pausedSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
     }
 
@@ -251,7 +252,7 @@ fun DashboardScreen(
     val nextRenewalDays = nextRenewalSub?.let { DateCalculators.calculateDaysUntil(it.nextBillDate) }
 
     val currentConfig = LocalConfiguration.current
-    val todayFormatted = remember(currentConfig) {
+    val todayFormatted = remember(calculationSnapshot, currentConfig) {
         val currentLocale = currentConfig.locales.get(0) ?: Locale.getDefault()
         // A fixed "EEEE, MMM d" pattern produces "星期五, 8月 28" in Chinese and
         // similar oddities elsewhere. An ICU skeleton lets each locale choose
@@ -260,7 +261,7 @@ fun DashboardScreen(
             val icuFormat = android.icu.text.DateFormat.getInstanceForSkeleton("MMMEd", currentLocale)
             icuFormat.format(java.util.Date())
         }.getOrElse {
-            LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, MMM d", currentLocale))
+            calculationSnapshot.today.format(DateTimeFormatter.ofPattern("EEE, MMM d", currentLocale))
         }.uppercase(currentLocale)
     }
 

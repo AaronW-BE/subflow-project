@@ -122,6 +122,16 @@ fun SubFlowNavHost(
     onPendingSubscriptionHandled: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val dateObserver = remember(context, lifecycleOwner) {
+        org.dpdns.alwaysup.subflow.data.time.CurrentDateObserver(context)
+    }
+    DisposableEffect(lifecycleOwner, dateObserver) {
+        lifecycleOwner.lifecycle.addObserver(dateObserver)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(dateObserver); dateObserver.close() }
+    }
+    val today by dateObserver.currentLocalDate.collectAsState()
+    val rates by org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter.snapshots.collectAsState()
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
     val activity = context as? Activity
@@ -176,7 +186,7 @@ fun SubFlowNavHost(
     // remembering to hook the next one too. The currency and the language are
     // keys as well: neither changes a subscription, but both change what the
     // widget says.
-    LaunchedEffect(subscriptionsOrNull, primaryCurrency, appLanguage) {
+    LaunchedEffect(subscriptionsOrNull, primaryCurrency, appLanguage, rates.revision, today) {
         if (subscriptionsOrNull != null) refreshSubFlowWidget(context)
     }
 
@@ -589,6 +599,11 @@ fun SubFlowNavHost(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
+        CompositionLocalProvider(
+            LocalCalculationSnapshot provides org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(
+                primaryCurrency, today, rates
+            )
+        ) {
         NavHost(
             navController = navController,
             startDestination = if (onboardingComplete) Screen.Dashboard.route else Screen.Onboarding.route,
@@ -889,6 +904,7 @@ fun SubFlowNavHost(
                     trackedCount = subscriptions.count { it.isActive && !it.isDeleted }
                 )
             }
+        }
         }
     }
 }

@@ -60,6 +60,7 @@ fun AnalyticsScreen(
     onPaywallClick: () -> Unit,
     onExportCsv: () -> Unit
 ) {
+    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
 
@@ -73,13 +74,13 @@ fun AnalyticsScreen(
     val periodFactor = if (timeView == TimeView.ANNUAL) 12.0 else 1.0
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
-    val totalMonthly = remember(activeSubs, primaryCurrency) {
+    val totalMonthly = remember(calculationSnapshot, activeSubs, primaryCurrency) {
         activeSubs.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
     }
     val totalYearly = totalMonthly * 12.0
     val dailyAverage = if (totalMonthly > 0) totalMonthly * 12.0 / 365.0 else 0.0
 
-    val categoryTotals = remember(activeSubs, primaryCurrency) {
+    val categoryTotals = remember(calculationSnapshot, activeSubs, primaryCurrency) {
         activeSubs.groupBy { it.category }
             .mapValues { (_, list) ->
                 list.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
@@ -88,7 +89,7 @@ fun AnalyticsScreen(
             .sortedByDescending { it.second }
     }
 
-    val topSubs = remember(activeSubs, primaryCurrency) {
+    val topSubs = remember(calculationSnapshot, activeSubs, primaryCurrency) {
         activeSubs.sortedByDescending {
             CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
         }.take(5)
@@ -100,11 +101,11 @@ fun AnalyticsScreen(
     } else 0
 
     // Real history, derived from when each subscription actually started.
-    val history = remember(activeSubs, primaryCurrency, locale) {
+    val history = remember(calculationSnapshot, activeSubs, primaryCurrency, locale) {
         buildSpendHistory(activeSubs, primaryCurrency, locale)
     }
 
-    val forecast = remember(activeSubs, primaryCurrency, locale) {
+    val forecast = remember(calculationSnapshot, activeSubs, primaryCurrency, locale) {
         buildBillingForecast(activeSubs, primaryCurrency, locale)
     }
     val peakMonth = remember(forecast) { forecast.maxByOrNull { it.amount } }
@@ -122,7 +123,7 @@ fun AnalyticsScreen(
     // ink - passed in rather than read inside, because the builder is a plain
     // function the tests can call.
     val otherColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-    val treemapItems = remember(activeSubs, primaryCurrency, otherLabel, otherColor, periodFactor) {
+    val treemapItems = remember(calculationSnapshot, activeSubs, primaryCurrency, otherLabel, otherColor, periodFactor) {
         buildTreemapItems(activeSubs, primaryCurrency, otherLabel, otherColor, factor = periodFactor)
     }
 

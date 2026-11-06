@@ -280,15 +280,23 @@ class SubFlowWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SubFlowWidget()
 }
 
+internal class WidgetRefreshStamp {
+    private var last = 0L
+    @Synchronized fun next(now: Long): Long {
+        last = maxOf(now, last + 1)
+        return last
+    }
+}
+private val refreshStamps = WidgetRefreshStamp()
+private val refreshRequests = kotlinx.coroutines.channels.Channel<Context>(kotlinx.coroutines.channels.Channel.CONFLATED)
 private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 /**
  * Redraws every placed widget.
  *
  * Called from the write path in the repository and from the currency setting,
- * because those are the things that change what it says. The day rolling over
- * is left to `updatePeriodMillis` in the provider XML: nothing in the app is
- * running at midnight to notice it.
+ * as well as foreground date and successful rate publication changes. In the
+ * background the existing six-hour provider period remains best effort.
  *
  * Each widget's state is stamped before it is updated. A plain `updateAll`
  * is not enough: if a session is still running from the previous redraw,
@@ -299,11 +307,10 @@ private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
  * result, and a save must not wait on a launcher. Safe when no widget is
  * placed: there are no ids to stamp then.
  */
-fun refreshSubFlowWidget(context: Context) {
-    val app = context.applicationContext
-    widgetScope.launch {
+private val refreshWorker = widgetScope.launch {
+    for (app in refreshRequests) {
         runCatching {
-            val stamp = System.currentTimeMillis()
+            val stamp = refreshStamps.next(System.currentTimeMillis())
             val widget = SubFlowWidget()
             GlanceAppWidgetManager(app).getGlanceIds(SubFlowWidget::class.java).forEach { id ->
                 updateAppWidgetState(app, id) { prefs -> prefs[RefreshStamp] = stamp }
@@ -311,4 +318,8 @@ fun refreshSubFlowWidget(context: Context) {
             }
         }
     }
+}
+
+fun refreshSubFlowWidget(context: Context) {
+    refreshRequests.trySend(context.applicationContext)
 }
