@@ -528,4 +528,6 @@
     <string name="renewal_date_unavailable">Datum niet beschikbaar</string>
     <string name="analytics_coverage_unavailable">Vergelijking of reeks niet beschikbaar: niet alle kosten kunnen veilig worden omgerekend of berekend.</string>
     <string name="budget_original_currency">Wisselkoers niet beschikbaar. Bewerk in de oorspronkelijke valuta (%1$s); deze blijft bij opslaan behouden.</string>
+    <string name="widget_normalized_cost">Omgerekende maandkosten</string>
+    <string name="widget_no_events">Geen aankomende gebeurtenissen</string>
 </resources>

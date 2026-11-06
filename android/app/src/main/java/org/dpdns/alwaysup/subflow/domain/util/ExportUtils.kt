@@ -34,25 +34,32 @@ object ExportUtils {
      * writes the JSON backup: JSON does not allow one, and the app's own
      * restore reads that file with Gson.
      */
-    fun buildCsv(subs: List<Subscription>, primaryCurrency: String): String {
+    fun buildCsv(subs: List<Subscription>, snapshot: CalculationSnapshot): String {
+        val primaryCurrency = snapshot.homeCurrency
         val sb = StringBuilder(UTF8_BOM)
         sb.append(
             "Name,Category,Amount,Currency,Cycle,MonthlyNormalized,MonthlyIn$primaryCurrency," +
-                "FirstBillDate,NextRenewalDate,ReminderDaysBefore,Notes\n"
+                "FirstBillDate,NextRenewalDate,ReminderDaysBefore,Notes,MonthlyConversionStatus\n"
         )
-        for (s in subs) {
-            val monthlyHome = CurrencyConverter.convert(s.monthlyAmount, s.currency, primaryCurrency)
+        for (s in subs.filterNot { it.isDeleted }) {
+            val monthlyHome = normalizeContribution(s.id, if (s.isTrialPending) 0.0 else s.amount, s.currency, snapshot, s.cycle).result
+            val monthlyOriginal = normalizeContribution(s.id, if (s.isTrialPending) 0.0 else s.amount, s.currency, snapshot.copy(homeCurrency = s.currency), s.cycle).result
+            fun cell(result: ConversionResult) = (result as? ConversionResult.Available)?.let { String.format(Locale.US, "%.2f", it.amount) }.orEmpty()
             sb.append(csv(s.name)).append(',')
                 .append(csv(s.category)).append(',')
                 .append(String.format(Locale.US, "%.2f", s.amount)).append(',')
                 .append(s.currency).append(',')
                 .append(s.cycle.key).append(',')
-                .append(String.format(Locale.US, "%.2f", s.monthlyAmount)).append(',')
-                .append(String.format(Locale.US, "%.2f", monthlyHome)).append(',')
+                .append(cell(monthlyOriginal)).append(',')
+                .append(cell(monthlyHome)).append(',')
                 .append(s.firstBillDate).append(',')
                 .append(s.nextBillDate).append(',')
                 .append(s.reminderDaysBefore).append(',')
-                .append(csv(s.notes)).append('\n')
+                .append(csv(s.notes)).append(',')
+                .append(when (monthlyHome) {
+                    is ConversionResult.Available -> "AVAILABLE"
+                    is ConversionResult.Unavailable -> monthlyHome.reason.name
+                }).append('\n')
         }
         return sb.toString()
     }

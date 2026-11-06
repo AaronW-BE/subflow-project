@@ -16,7 +16,7 @@ class ObservableRatesTest {
     @Test fun validConversionsMatchLegacy() {
         val snapshot = CurrencyConverter.captureSnapshot()
         for (from in snapshot.ratesPerUsd.keys) for (to in snapshot.ratesPerUsd.keys) {
-            val legacy = CurrencyConverter.convert(125.0, from, to)
+            val legacy = 125.0 / snapshot.ratesPerUsd.getValue(from) * snapshot.ratesPerUsd.getValue(to)
             val value = convertAmount(125.0, from, to, snapshot) as ConversionResult.Available
             assertEquals(legacy, value.amount, legacy * 1e-12)
         }

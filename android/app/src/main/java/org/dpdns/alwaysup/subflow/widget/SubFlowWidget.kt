@@ -153,7 +153,8 @@ private suspend fun loadWidgetSummary(context: Context): WidgetSummary {
         .getActiveSubscriptions()
         .map { it.toDomain() }
     val currency = PreferencesManager.readCurrencyStatic(context)
-    return summariseForWidget(subscriptions, currency)
+    return summariseForWidget(subscriptions, org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(
+        currency, java.time.LocalDate.now(), org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter.captureSnapshot()))
 }
 
 @Composable
@@ -167,17 +168,20 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
             .fillMaxSize()
             .background(WidgetSurface)
             .cornerRadius(16.dp)
-            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .clickable(actionStartActivity(Intent(context, MainActivity::class.java))),
         verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = localized.getString(R.string.total_monthly_spend),
+            text = if (summary.counts.total > 0 && summary.activeCount == 0)
+                "${localized.getString(R.string.overview_paused)} ${summary.counts.paused} · ${localized.getString(R.string.widget_normalized_cost)}"
+            else localized.getString(R.string.widget_normalized_cost),
+            maxLines = 1,
             style = TextStyle(color = WidgetInkDim, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         )
         Spacer(modifier = GlanceModifier.height(2.dp))
 
-        if (summary.activeCount == 0) {
+        if (summary.counts.total == 0) {
             Text(
                 text = localized.getString(R.string.empty_title),
                 style = TextStyle(color = WidgetInk, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -186,16 +190,36 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
         }
 
         Text(
-            text = CurrencyFormatter.format(summary.monthlyTotal, summary.currency, locale),
-            style = TextStyle(color = WidgetInk, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            text = summary.monthlyTotal?.let { CurrencyFormatter.format(it, summary.currency, locale) }
+                ?: localized.getString(R.string.overview_unavailable),
+            maxLines = 1,
+            style = TextStyle(color = WidgetInk, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         )
 
+        if (!summary.estimate.isComplete) Text(
+            text = localized.getString(R.string.overview_partial),
+            maxLines = 1,
+            style = TextStyle(color = WidgetInkDim, fontSize = 10.sp)
+        )
         if (!tall) return@Column
 
-        Spacer(modifier = GlanceModifier.height(6.dp))
+        Spacer(modifier = GlanceModifier.height(2.dp))
         // The list takes whatever height is left and scrolls past it, so a
         // widget dragged taller shows more rows rather than more blank space.
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+            item {
+                Text(
+                    text = "${localized.getString(R.string.overview_all)} ${summary.counts.total} · " +
+                        "${localized.getString(R.string.overview_active)} ${summary.counts.active} · " +
+                        "${localized.getString(R.string.overview_paused)} ${summary.counts.paused}" + " · " +
+                        localized.getString(R.string.overview_pending, summary.counts.pendingTrial),
+                    style = TextStyle(color = WidgetInkDim, fontSize = 10.sp)
+                )
+            }
+            if (summary.upcoming.isEmpty()) item {
+                Text(text = localized.getString(R.string.widget_no_events),
+                    style = TextStyle(color = WidgetInkDim, fontSize = 11.sp))
+            }
             items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
                 RenewalRow(renewal, localized)
             }
@@ -216,6 +240,7 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
         days == 0L -> localized.getString(
             if (renewal.isTrial) R.string.trial_ends_today else R.string.renewal_today
         )
+        days > Int.MAX_VALUE -> renewal.date
         else -> localized.resources.getQuantityString(
             if (renewal.isTrial) R.plurals.trial_days_left else R.plurals.renewal_days_left,
             days.toInt(),

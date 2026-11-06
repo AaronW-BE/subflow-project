@@ -110,7 +110,7 @@ class ExchangeRateRepository internal constructor(
             if (missing > 0) {
                 // A partial table is worse than a stale one: CurrencyConverter
                 // returns the amount unchanged for an unknown currency, so the
-                // missing ones would silently convert at 1:1.
+                // missing ones remain explicitly unavailable.
                 Log.w(TAG, "Rate refresh rejected: missing $missing selectable currencies")
                 return@withContext haveCache
             }

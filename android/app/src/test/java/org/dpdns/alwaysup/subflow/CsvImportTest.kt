@@ -9,6 +9,7 @@ import org.dpdns.alwaysup.subflow.domain.util.ExportUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.junit.Test
 import java.time.LocalDate
 
@@ -70,7 +71,7 @@ class CsvImportTest {
             sub("iCloud+", 2.99, currency = "EUR").copy(category = "Cloud"),
             sub("Notion", 96.0, BillingCycle.ANNUALLY).copy(category = "Productivity")
         )
-        val back = parsed(ExportUtils.buildCsv(original, "USD"))
+        val back = parsed(ExportUtils.buildCsv(original, CalculationSnapshot("USD", java.time.LocalDate.now(), CurrencyConverter.captureSnapshot())))
 
         assertEquals(original.map { it.name }, back.map { it.name })
         assertEquals(original.map { it.amount }, back.map { it.amount })

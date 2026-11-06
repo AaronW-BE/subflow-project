@@ -1311,7 +1311,8 @@ private fun AccountCard(
  */
 @Composable
 private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
-    val quotedAt = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.rates.quotedAtEpochMillis ?: 0L
+    val rates = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.rates
+    val quotedAt = rates.quotedAtEpochMillis ?: 0L
     val freshness = if (quotedAt > 0L) {
         stringResource(
             R.string.rates_updated_on,
@@ -1329,13 +1330,13 @@ private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
     // string wraps like ordinary text while still colouring the credit as the
     // link, and the credit stays whole - the terms fix its wording, so it is
     // never formatted into a sentence.
-    val credit = stringResource(R.string.rates_attribution)
+    val credit = rates.providerName.orEmpty()
     val label = buildAnnotatedString {
         withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append(credit) }
         withStyle(
             SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
         ) {
-            append("\u00A0\u00B7 ")
+            if (credit.isNotBlank()) append("\u00A0\u00B7 ")
             append(freshness)
         }
     }
@@ -1348,7 +1349,7 @@ private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onOpenUrl(RATE_PROVIDER_URL) }
+                .clickable(enabled = !rates.providerUrl.isNullOrBlank()) { rates.providerUrl?.let(onOpenUrl) }
                 .padding(horizontal = 20.dp, vertical = 12.dp)
         )
     }

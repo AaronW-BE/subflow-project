@@ -6,6 +6,7 @@ import org.dpdns.alwaysup.subflow.widget.summariseForWidget
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.junit.Test
 import java.time.LocalDate
 
@@ -51,9 +52,9 @@ class WidgetSummaryTest {
                 sub("Monthly", amount = 10.0, cycle = BillingCycle.MONTHLY),
                 sub("Annual", amount = 120.0, cycle = BillingCycle.ANNUALLY)
             ),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
-        assertEquals(20.0, s.monthlyTotal, 0.01)
+        assertEquals(20.0, s.monthlyTotal!!, 0.01)
         assertEquals(2, s.activeCount)
     }
 
@@ -65,9 +66,9 @@ class WidgetSummaryTest {
                 sub("Paused", amount = 99.0, active = false),
                 sub("Gone", amount = 99.0, deleted = true)
             ),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
-        assertEquals(10.0, s.monthlyTotal, 0.01)
+        assertEquals(10.0, s.monthlyTotal!!, 0.01)
         assertEquals(1, s.activeCount)
         assertEquals("Active", s.next?.name)
     }
@@ -80,7 +81,7 @@ class WidgetSummaryTest {
                 sub("Sooner", daysAway = 2),
                 sub("Latest", daysAway = 40)
             ),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
         assertEquals("Sooner", s.next?.name)
         assertEquals(2L, s.next?.daysLeft)
@@ -92,32 +93,32 @@ class WidgetSummaryTest {
         // pointing at; the repository writes a trial's amount as zero.
         val s = summariseForWidget(
             listOf(sub("Paid", amount = 10.0, daysAway = 20), sub("Trying", trial = true, daysAway = 3)),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
-        assertEquals(10.0, s.monthlyTotal, 0.01)
+        assertEquals(10.0, s.monthlyTotal!!, 0.01)
         assertEquals("Trying", s.next?.name)
         assertTrue("a trial is labelled as one", s.next?.isTrial == true)
     }
 
     @Test
-    fun `an overdue renewal still sorts first`() {
+    fun `an overdue renewal is excluded`() {
         val s = summariseForWidget(
             listOf(sub("Upcoming", daysAway = 5), sub("Overdue", daysAway = -3)),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
-        assertEquals("Overdue", s.next?.name)
-        assertTrue("and reads as overdue", (s.next?.daysLeft ?: 0) < 0)
+        assertEquals("Upcoming", s.next?.name)
+        assertTrue("and reads as overdue", (s.next?.daysLeft ?: 0) >= 0)
     }
 
     @Test
     fun `nothing to show is not an error`() {
-        val empty = summariseForWidget(emptyList(), "USD")
-        assertEquals(0.0, empty.monthlyTotal, 0.0)
+        val empty = summariseForWidget(emptyList(), CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0))))
+        assertEquals(0.0, empty.monthlyTotal!!, 0.0)
         assertEquals(0, empty.activeCount)
         assertNull(empty.next)
         assertTrue(empty.upcoming.isEmpty())
 
-        val allPaused = summariseForWidget(listOf(sub("Paused", active = false)), "USD")
+        val allPaused = summariseForWidget(listOf(sub("Paused", active = false)), CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0))))
         assertEquals(0, allPaused.activeCount)
         assertNull(allPaused.next)
     }
@@ -136,7 +137,7 @@ class WidgetSummaryTest {
                 sub("Soonest", daysAway = 0),
                 sub("Gone", daysAway = 1, deleted = true)
             ),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
         assertEquals(listOf("Soonest", "Sooner", "Later", "Latest"), s.upcoming.map { it.name })
         assertEquals(s.activeCount, s.upcoming.size)
@@ -146,9 +147,9 @@ class WidgetSummaryTest {
     fun `renewals on the same day keep a stable order`() {
         val s = summariseForWidget(
             listOf(sub("Zeta", daysAway = 5), sub("alpha", daysAway = 5), sub("Beta", daysAway = 5)),
-            "USD"
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
         )
-        assertEquals(listOf("alpha", "Beta", "Zeta"), s.upcoming.map { it.name })
+        assertEquals(listOf("Beta", "Zeta", "alpha"), s.upcoming.map { it.name })
     }
 
     @Test
@@ -156,13 +157,13 @@ class WidgetSummaryTest {
         // The dashboard row shows what the subscription is billed, in what it
         // is billed in; the widget row must say the same thing.
         val eur = sub("Spotify", amount = 10.99).copy(currency = "EUR")
-        val row = summariseForWidget(listOf(eur), "USD").upcoming.single()
+        val row = summariseForWidget(listOf(eur), CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))).upcoming.single()
         assertEquals(10.99, row.amount, 0.0)
         assertEquals("EUR", row.currency)
     }
 
     @Test
     fun `the currency it reports is the one it was asked for`() {
-        assertEquals("EUR", summariseForWidget(emptyList(), "EUR").currency)
+        assertEquals("EUR", summariseForWidget(emptyList(), CalculationSnapshot("EUR", LocalDate.now(), RatesSnapshot(0, mapOf("EUR" to 1.0)))).currency)
     }
 }

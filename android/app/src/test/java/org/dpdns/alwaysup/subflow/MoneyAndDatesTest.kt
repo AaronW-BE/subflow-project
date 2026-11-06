@@ -7,6 +7,7 @@ import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.junit.Test
 import java.time.LocalDate
 import java.util.Locale
@@ -133,14 +134,14 @@ class MoneyAndDatesTest {
 
     @Test
     fun `conversion is symmetric through the rate table`() {
-        val eur = CurrencyConverter.convert(100.0, "USD", "EUR")
-        val backToUsd = CurrencyConverter.convert(eur, "EUR", "USD")
+        val eur = (convertAmount(100.0, "USD", "EUR", CurrencyConverter.captureSnapshot()) as ConversionResult.Available).amount
+        val backToUsd = (convertAmount(eur, "EUR", "USD", CurrencyConverter.captureSnapshot()) as ConversionResult.Available).amount
         assertEquals(100.0, backToUsd, 0.0001)
     }
 
     @Test
-    fun `an unknown currency is passed through unconverted`() {
-        assertEquals(42.0, CurrencyConverter.convert(42.0, "XYZ", "USD"), 0.0001)
+    fun `an unknown currency is explicitly unavailable`() {
+        assertTrue(convertAmount(42.0, "XYZ", "USD", CurrencyConverter.captureSnapshot()) is ConversionResult.Unavailable)
     }
 
     @Test
@@ -148,7 +149,7 @@ class MoneyAndDatesTest {
         // /rates returns units-per-USD, so 1 USD = 2 TESTCOIN means 10 TESTCOIN
         // is worth 5 USD.
         CurrencyConverter.updateFromUsdBase(mapOf("EUR" to 2.0))
-        assertEquals(5.0, CurrencyConverter.convert(10.0, "EUR", "USD"), 0.0001)
+        assertEquals(5.0, (convertAmount(10.0, "EUR", "USD", CurrencyConverter.captureSnapshot()) as ConversionResult.Available).amount, 0.0001)
         // Restore something sane for any test that runs afterwards.
         CurrencyConverter.updateFromUsdBase(mapOf("EUR" to 0.92))
     }

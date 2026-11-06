@@ -538,4 +538,6 @@
     <string name="renewal_date_unavailable">Date unavailable</string>
     <string name="analytics_coverage_unavailable">Comparison or series unavailable: costs cannot all be converted or calculated safely.</string>
     <string name="budget_original_currency">Exchange rate unavailable. Edit in the original currency (%1$s); saving keeps this currency.</string>
+    <string name="widget_normalized_cost">Monthly normalized cost</string>
+    <string name="widget_no_events">No upcoming events</string>
 </resources>

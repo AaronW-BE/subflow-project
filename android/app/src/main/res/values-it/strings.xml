@@ -544,4 +544,6 @@
     <string name="renewal_date_unavailable">Data non disponibile</string>
     <string name="analytics_coverage_unavailable">Confronto o serie non disponibile: non tutti i costi possono essere convertiti o calcolati in modo sicuro.</string>
     <string name="budget_original_currency">Cambio non disponibile. Modifica nella valuta originale (%1$s), che verrà mantenuta al salvataggio.</string>
+    <string name="widget_normalized_cost">Costo mensile normalizzato</string>
+    <string name="widget_no_events">Nessun evento in programma</string>
 </resources>

@@ -126,8 +126,8 @@ object CurrencyConverter {
     //      this table is a floor rather than a source of truth.
     //
     // Every one of these is replaced by the live feed the moment /rates
-    // answers. A currency missing from the table converts at 1:1 (see
-    // convert()), so the table must stay complete even where it is imprecise.
+    // answers. Missing currencies are explicitly unavailable; retain this
+    // licensed offline coverage even where it is imprecise.
     private val fallbackRatesToUSD = mapOf(
         "USD" to 1.0,
         "EUR" to 1.159,
@@ -206,17 +206,7 @@ object CurrencyConverter {
             quotedAtEpochMillis, provider, providerUrl)
     }
 
-    fun convert(amount: Double, fromCurrency: String, toCurrency: String): Double {
-        if (fromCurrency.equals(toCurrency, ignoreCase = true)) return amount
-        val table = captureSnapshot().ratesPerUsd.mapValues { (code, rate) ->
-            if (rate == 1.0 / (fallbackRatesToUSD[code] ?: Double.NaN)) fallbackRatesToUSD.getValue(code)
-            else 1.0 / rate
-        }
-        val fromRate = table[fromCurrency.uppercase()] ?: return amount
-        val toRate = table[toCurrency.uppercase()] ?: return amount
-        if (toRate == 0.0) return amount
-        return amount * fromRate / toRate
-    }
+
 }
 
 object DateCalculators {

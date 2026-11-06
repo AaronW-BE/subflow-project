@@ -513,4 +513,6 @@
     <string name="renewal_date_unavailable">日付を確認できません</string>
     <string name="analytics_coverage_unavailable">すべての費用を安全に換算・計算できないため、関連する比較や推移は表示できません。</string>
     <string name="budget_original_currency">為替レートを利用できません。元の通貨（%1$s）で編集し、その通貨のまま保存します。</string>
+    <string name="widget_normalized_cost">月額換算コスト</string>
+    <string name="widget_no_events">今後の予定はありません</string>
 </resources>

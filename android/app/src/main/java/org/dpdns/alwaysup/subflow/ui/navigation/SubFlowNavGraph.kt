@@ -721,11 +721,15 @@ fun SubFlowNavHost(
                     primaryCurrency = primaryCurrency,
                     onPaywallClick = { openPaywall(PaywallReason.ANALYTICS) },
                     onExportCsv = {
-                        val active = subscriptions.filter { it.isActive && !it.isDeleted }
+                        val saved = subscriptions.filterNot { it.isDeleted }
+                        val exportSnapshot = org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(
+                            primaryCurrency, java.time.LocalDate.now(),
+                            org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter.captureSnapshot()
+                        )
                         val intent = ExportUtils.shareIntent(
                             context = context,
-                            fileName = ExportUtils.timestampedName("subflow-report", "csv"),
-                            content = ExportUtils.buildCsv(active, primaryCurrency),
+                            fileName = "subflow-report-${exportSnapshot.today}.csv",
+                            content = ExportUtils.buildCsv(saved, exportSnapshot),
                             mimeType = "text/csv",
                             subject = "SubFlow report"
                         )
