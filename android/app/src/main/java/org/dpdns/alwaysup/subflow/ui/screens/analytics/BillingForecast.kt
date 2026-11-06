@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -55,20 +55,20 @@ data class ForecastMonth(
  */
 internal fun buildBillingForecast(
     subs: List<Subscription>,
-    primaryCurrency: String,
-    locale: Locale,
-    today: LocalDate = LocalDate.now(),
-    months: Int = 6
-): List<ForecastMonth> {
+    snapshot: CalculationSnapshot,
+    locale: Locale
+): List<ForecastMonth>? {
+    val today = snapshot.today
+    val months = 6
     val monthFormatter = DateTimeFormatter.ofPattern("MMM", locale)
     val windowStart = today.withDayOfMonth(1)
     val lastMonth = windowStart.plusMonths((months - 1).toLong())
     val windowEnd = lastMonth.withDayOfMonth(lastMonth.lengthOfMonth())
 
-    val totals = DoubleArray(months)
+    val contributions = List(months) { mutableListOf<CostContribution>() }
     val counts = IntArray(months)
 
-    subs.forEach { sub ->
+    subs.filter { it.isActive && !it.isDeleted }.forEach { sub ->
         // A running trial bills nothing today and everything about it that
         // belongs in a forecast is in the future: what it will charge, on which
         // cycle, starting the day the trial ends. That first charge after a free
@@ -81,18 +81,19 @@ internal fun buildBillingForecast(
 
         // The charge, not the monthly equivalent: this chart exists to undo
         // that division.
-        val charge = CurrencyConverter.convert(
+        val charge = normalizeContribution(
+            sub.id,
             if (pendingTrial) sub.postTrialAmount else sub.amount,
             sub.currency,
-            primaryCurrency
+            snapshot
         )
         val cycle = if (pendingTrial) sub.postTrialCycle else sub.cycle
         var date = if (pendingTrial) {
-            DateCalculators.parseOrNull(sub.trialEndDate) ?: return@forEach
+            DateCalculators.parseOrNull(sub.trialEndDate) ?: return null
         } else {
             DateCalculators.parseOrNull(sub.firstBillDate)
                 ?: DateCalculators.parseOrNull(sub.nextBillDate)
-                ?: return@forEach
+                ?: return null
         }
 
         // Stepping one cycle at a time rather than jumping: plusMonths(1) twice
@@ -100,9 +101,10 @@ internal fun buildBillingForecast(
         // the app takes the first road.
         var skips = 0
         while (date.isBefore(windowStart) && skips < MAX_STEPS) {
-            date = DateCalculators.advance(date, cycle)
+            date = runCatching { DateCalculators.advance(date, cycle) }.getOrNull() ?: return null
             skips++
         }
+        if (date.isBefore(windowStart)) return null
         // A budget of its own. Sharing one with the skip above meant a first
         // bill far enough in the past could spend the whole allowance getting
         // to the window and then record nothing - a subscription silently
@@ -112,19 +114,21 @@ internal fun buildBillingForecast(
         while (!date.isAfter(windowEnd) && guard < MAX_STEPS) {
             val index = monthIndex(windowStart, date)
             if (index in 0 until months) {
-                totals[index] += charge
+                contributions[index] += charge
                 counts[index] += 1
             }
-            date = DateCalculators.advance(date, cycle)
+            date = runCatching { DateCalculators.advance(date, cycle) }.getOrNull() ?: return null
             guard++
         }
     }
 
     return (0 until months).map { i ->
+        val estimate = aggregateContributions(contributions[i])
+        if (!estimate.isComplete) return null
         val month = windowStart.plusMonths(i.toLong())
         ForecastMonth(
             label = month.format(monthFormatter),
-            amount = totals[i],
+            amount = estimate.knownAmount,
             charges = counts[i],
             isCurrentMonth = i == 0
         )
@@ -151,7 +155,7 @@ private fun monthIndex(windowStart: LocalDate, date: LocalDate): Int =
 @Composable
 internal fun BillingForecastChart(
     forecast: List<ForecastMonth>,
-    monthlyAverage: Double,
+    monthlyAverage: Double?,
     modifier: Modifier = Modifier
 ) {
     if (forecast.isEmpty()) return
@@ -160,7 +164,7 @@ internal fun BillingForecastChart(
     // The average can exceed every bar - six months with no annual renewal in
     // them - and a reference line drawn off the top of the chart is worse than
     // no line, so the scale takes both into account.
-    val ceiling = maxOf(peak, monthlyAverage).coerceAtLeast(0.0001)
+    val ceiling = maxOf(peak, monthlyAverage ?: 0.0).coerceAtLeast(0.0001)
 
     val reveal by animateFloatAsState(
         targetValue = 1f,
@@ -197,7 +201,7 @@ internal fun BillingForecastChart(
                 )
             }
 
-            if (monthlyAverage > 0.0) {
+            if (monthlyAverage != null && monthlyAverage > 0.0) {
                 val y = size.height - usable * (monthlyAverage / ceiling).toFloat().coerceIn(0f, 1f)
                 drawLine(
                     color = averageColor.copy(alpha = 0.5f),

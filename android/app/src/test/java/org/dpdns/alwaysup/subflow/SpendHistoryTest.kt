@@ -5,6 +5,8 @@ import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.ui.screens.analytics.buildSpendHistory
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot
+import org.dpdns.alwaysup.subflow.domain.util.RatesSnapshot
 import java.time.LocalDate
 import java.util.Locale
 
@@ -15,6 +17,8 @@ import java.util.Locale
 class SpendHistoryTest {
 
     private val today = LocalDate.of(2026, 8, 28)
+
+    private val snapshot get() = CalculationSnapshot("USD", today, RatesSnapshot(1, mapOf("USD" to 1.0)))
 
     private fun sub(
         id: String,
@@ -34,7 +38,7 @@ class SpendHistoryTest {
 
     @Test
     fun `history has one point per month for the last six months`() {
-        val points = buildSpendHistory(emptyList(), "USD", Locale.US, today)
+        val points = requireNotNull(buildSpendHistory(emptyList(), snapshot, Locale.US))
         assertEquals(6, points.size)
         assertEquals("Aug", points.last().label)
         assertEquals("Mar", points.first().label)
@@ -43,7 +47,7 @@ class SpendHistoryTest {
     @Test
     fun `a subscription only counts from the month it started`() {
         val subs = listOf(sub("old", 10.0, "2020-01-01"), sub("new", 5.0, "2026-07-04"))
-        val points = buildSpendHistory(subs, "USD", Locale.US, today)
+        val points = requireNotNull(buildSpendHistory(subs, snapshot, Locale.US))
 
         // March through June: only the old one.
         assertEquals(10.0, points[0].amount, 0.0001)
@@ -57,7 +61,7 @@ class SpendHistoryTest {
     fun `a subscription starting later this month still counts for this month`() {
         // Started on the 30th, which is after "today" but inside August: the
         // month bucket is keyed on the end of the month, not on today.
-        val points = buildSpendHistory(listOf(sub("s", 9.0, "2026-08-30")), "USD", Locale.US, today)
+        val points = requireNotNull(buildSpendHistory(listOf(sub("s", 9.0, "2026-08-30")), snapshot, Locale.US))
         assertEquals(0.0, points[4].amount, 0.0001)
         assertEquals(9.0, points[5].amount, 0.0001)
     }
@@ -65,7 +69,7 @@ class SpendHistoryTest {
     @Test
     fun `non-monthly cycles are normalised into the monthly total`() {
         val subs = listOf(sub("annual", 120.0, "2020-01-01", BillingCycle.ANNUALLY))
-        val points = buildSpendHistory(subs, "USD", Locale.US, today)
+        val points = requireNotNull(buildSpendHistory(subs, snapshot, Locale.US))
         assertEquals(10.0, points.last().amount, 0.0001)
     }
 }

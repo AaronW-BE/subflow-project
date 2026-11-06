@@ -39,13 +39,10 @@ import androidx.compose.ui.unit.sp
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
-import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.dpdns.alwaysup.subflow.ui.components.*
 import org.dpdns.alwaysup.subflow.ui.screens.dashboard.localizedCategory
 import org.dpdns.alwaysup.subflow.ui.theme.*
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -60,7 +57,7 @@ fun AnalyticsScreen(
     onPaywallClick: () -> Unit,
     onExportCsv: () -> Unit
 ) {
-    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current
+    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.copy(homeCurrency = primaryCurrency)
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
 
@@ -74,45 +71,31 @@ fun AnalyticsScreen(
     val periodFactor = if (timeView == TimeView.ANNUAL) 12.0 else 1.0
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
-    val totalMonthly = remember(calculationSnapshot, activeSubs, primaryCurrency) {
-        activeSubs.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
+    val costs = remember(calculationSnapshot, activeSubs, periodFactor) {
+        calculateAnalyticsCosts(activeSubs, calculationSnapshot, periodFactor)
     }
-    val totalYearly = totalMonthly * 12.0
-    val dailyAverage = if (totalMonthly > 0) totalMonthly * 12.0 / 365.0 else 0.0
-
-    val categoryTotals = remember(calculationSnapshot, activeSubs, primaryCurrency) {
-        activeSubs.groupBy { it.category }
-            .mapValues { (_, list) ->
-                list.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
-            }
-            .toList()
-            .sortedByDescending { it.second }
+    val monthlyEstimate = costs.monthly
+    val periodEstimate = costs.period
+    val dailyEstimate = costs.daily
+    val totalMonthly = monthlyEstimate.knownAmount
+    val comparisonsComplete = periodEstimate.isComplete
+    val categoryEstimates = costs.categories
+    val categoryTotals = if (comparisonsComplete) categoryEstimates.map { (category, estimate) ->
+        category to estimate.knownAmount
+    }.sortedByDescending { it.second } else emptyList()
+    val topSubs = costs.ranked.orEmpty().take(5).map { it.first }
+    val topExpensePct = costs.topSharePercent
+    val history = remember(calculationSnapshot, activeSubs, locale, periodFactor) {
+        buildSpendHistory(activeSubs, calculationSnapshot, locale, factor = periodFactor)
     }
-
-    val topSubs = remember(calculationSnapshot, activeSubs, primaryCurrency) {
-        activeSubs.sortedByDescending {
-            CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
-        }.take(5)
+    val forecast = remember(calculationSnapshot, activeSubs, locale) {
+        buildBillingForecast(activeSubs, calculationSnapshot, locale)
     }
-
-    val topExpensePct = if (totalMonthly > 0 && topSubs.isNotEmpty()) {
-        (CurrencyConverter.convert(topSubs.first().monthlyAmount, topSubs.first().currency, primaryCurrency) /
-            totalMonthly * 100.0).toInt()
-    } else 0
-
-    // Real history, derived from when each subscription actually started.
-    val history = remember(calculationSnapshot, activeSubs, primaryCurrency, locale) {
-        buildSpendHistory(activeSubs, primaryCurrency, locale)
-    }
-
-    val forecast = remember(calculationSnapshot, activeSubs, primaryCurrency, locale) {
-        buildBillingForecast(activeSubs, primaryCurrency, locale)
-    }
-    val peakMonth = remember(forecast) { forecast.maxByOrNull { it.amount } }
+    val peakMonth = remember(forecast) { forecast?.maxByOrNull { it.amount } }
     // "Even" means no month stands out enough to be worth naming. A tenth is
     // roughly the point where a bar looks taller rather than measures taller.
     val forecastIsEven = remember(forecast) {
-        val amounts = forecast.map { it.amount }
+        val amounts = forecast.orEmpty().map { it.amount }
         val high = amounts.maxOrNull() ?: 0.0
         val low = amounts.minOrNull() ?: 0.0
         high <= 0.0 || (high - low) / high < 0.10
@@ -124,7 +107,7 @@ fun AnalyticsScreen(
     // function the tests can call.
     val otherColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
     val treemapItems = remember(calculationSnapshot, activeSubs, primaryCurrency, otherLabel, otherColor, periodFactor) {
-        buildTreemapItems(activeSubs, primaryCurrency, otherLabel, otherColor, factor = periodFactor)
+        buildTreemapItems(activeSubs, calculationSnapshot, otherLabel, otherColor, factor = periodFactor)
     }
 
     LazyColumn(
@@ -157,7 +140,6 @@ fun AnalyticsScreen(
                     )
                 }
             }
-            return@LazyColumn
         }
 
         item(key = "segment") {
@@ -189,22 +171,18 @@ fun AnalyticsScreen(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                TabularCurrencyText(
-                    amount = if (timeView == TimeView.MONTHLY) totalMonthly else totalYearly,
-                    currencyCode = primaryCurrency,
-                    style = HeroAmountStyle
-                )
+                EstimateAmount(periodEstimate, primaryCurrency, hero = true)
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 ProGate(isPro = isPro, onUnlock = onPaywallClick) {
                     Column {
-                        SpendTrendChart(
+                        if (history == null) AnalyticsUnavailable() else SpendTrendChart(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(124.dp),
-                            points = history,
-                            annualise = timeView == TimeView.ANNUAL,
+                            points = history.orEmpty(),
+                            annualise = false,
                             currencyCode = primaryCurrency
                         )
 
@@ -214,7 +192,7 @@ fun AnalyticsScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            history.forEach { point ->
+                            history.orEmpty().forEach { point ->
                                 Text(
                                     text = point.label,
                                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
@@ -240,14 +218,7 @@ fun AnalyticsScreen(
                     modifier = Modifier.weight(1f),
                     label = stringResource(R.string.metric_daily_avg)
                 ) {
-                    TabularCurrencyText(
-                        amount = dailyAverage,
-                        currencyCode = primaryCurrency,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
-                        )
-                    )
+                    EstimateAmount(dailyEstimate, primaryCurrency)
                 }
                 // The name goes in the label slot, where "Top item" used to
                 // sit. A tile this narrow cannot carry a heading, a name and a
@@ -261,12 +232,12 @@ fun AnalyticsScreen(
                         ?: stringResource(R.string.metric_top_share),
                     // Read out, the two halves are far enough apart to arrive
                     // as unrelated facts, and a bare "57%" is of nothing.
-                    contentDescription = topSubs.firstOrNull()?.let {
-                        stringResource(R.string.metric_top_share_spoken, it.name, topExpensePct)
+                    contentDescription = topSubs.firstOrNull()?.takeIf { topExpensePct != null }?.let {
+                        stringResource(R.string.metric_top_share_spoken, it.name, topExpensePct!!)
                     }
                 ) {
                     Text(
-                        text = stringResource(R.string.metric_share_percent, topExpensePct),
+                        text = if (topExpensePct != null) stringResource(R.string.metric_share_percent, topExpensePct) else stringResource(R.string.overview_unavailable),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
@@ -298,11 +269,21 @@ fun AnalyticsScreen(
         item(key = "categories") {
             AppleCard(modifier = Modifier.fillMaxWidth()) {
                 ProGate(isPro = isPro, onUnlock = onPaywallClick, showPrompt = false) {
-                    CategoryBreakdown(
+                    if (!comparisonsComplete) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            AnalyticsUnavailable()
+                            categoryEstimates.filterValues { it.isComplete }.forEach { (category, estimate) ->
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(localizedCategory(category))
+                                    EstimateAmount(estimate, primaryCurrency)
+                                }
+                            }
+                        }
+                    } else CategoryBreakdown(
                         categoryTotals = categoryTotals,
-                        totalMonthly = totalMonthly,
+                        totalMonthly = periodEstimate.knownAmount,
                         primaryCurrency = primaryCurrency,
-                        factor = periodFactor
+                        factor = 1.0
                     )
                 }
             }
@@ -316,8 +297,8 @@ fun AnalyticsScreen(
             AppleCard(modifier = Modifier.fillMaxWidth()) {
                 ProGate(isPro = isPro, onUnlock = onPaywallClick, showPrompt = false) {
                     Column {
-                        SpendTreemap(
-                            items = treemapItems,
+                        if (treemapItems == null) AnalyticsUnavailable() else SpendTreemap(
+                            items = treemapItems.orEmpty(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 // The layout can only be as square as the box
@@ -358,32 +339,36 @@ fun AnalyticsScreen(
             AppleCard(modifier = Modifier.fillMaxWidth()) {
                 ProGate(isPro = isPro, onUnlock = onPaywallClick, showPrompt = false) {
                     Column {
-                        BillingForecastChart(
-                            forecast = forecast,
-                            monthlyAverage = totalMonthly,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = if (forecastIsEven || peakMonth == null) {
-                                stringResource(
-                                    R.string.forecast_even,
-                                    CurrencyFormatter.format(totalMonthly, primaryCurrency, locale)
-                                )
-                            } else {
-                                stringResource(
-                                    R.string.forecast_peak,
-                                    peakMonth.label,
-                                    CurrencyFormatter.format(peakMonth.amount, primaryCurrency, locale)
-                                )
-                            },
-                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        ChartCaption(text = stringResource(R.string.forecast_average_line))
-                        Spacer(modifier = Modifier.height(2.dp))
-                        ChartCaption(text = stringResource(R.string.billing_forecast_caption))
+                        if (forecast == null) AnalyticsUnavailable() else {
+                            BillingForecastChart(
+                                forecast = forecast.orEmpty(),
+                                monthlyAverage = monthlyEstimate.displayAmount?.takeIf { monthlyEstimate.isComplete },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = if (forecastIsEven || peakMonth == null) {
+                                    stringResource(
+                                        R.string.forecast_even,
+                                        CurrencyFormatter.format(forecast.orEmpty().foldIndexed(0.0) { index, mean, month ->
+                                            mean + (month.amount - mean) / (index + 1)
+                                        }, primaryCurrency, locale)
+                                    )
+                                } else {
+                                    stringResource(
+                                        R.string.forecast_peak,
+                                        peakMonth.label,
+                                        CurrencyFormatter.format(peakMonth.amount, primaryCurrency, locale)
+                                    )
+                                },
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            if (monthlyEstimate.isComplete) ChartCaption(text = stringResource(R.string.forecast_average_line))
+                            Spacer(modifier = Modifier.height(2.dp))
+                            ChartCaption(text = stringResource(R.string.billing_forecast_caption))
+                        }
                     }
                 }
             }
@@ -393,12 +378,15 @@ fun AnalyticsScreen(
             SectionHeader(text = stringResource(R.string.top_expenses).uppercase())
         }
 
+        if (!comparisonsComplete) item(key = "ranking_unavailable") { AnalyticsUnavailable() }
+
         itemsIndexed(topSubs, key = { _, sub -> sub.id }) { idx, sub ->
             TopCommitmentRow(
                 rank = idx + 1,
                 sub = sub,
                 primaryCurrency = primaryCurrency,
-                period = timeView
+                period = timeView,
+                convertedAmount = costs.ranked!!.first { it.first.id == sub.id }.second
             )
         }
 
@@ -678,7 +666,8 @@ private fun TopCommitmentRow(
     rank: Int,
     sub: Subscription,
     primaryCurrency: String,
-    period: TimeView = TimeView.MONTHLY
+    period: TimeView = TimeView.MONTHLY,
+    convertedAmount: Double
 ) {
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
@@ -724,8 +713,7 @@ private fun TopCommitmentRow(
 
             Column(horizontalAlignment = Alignment.End) {
                 TabularCurrencyText(
-                    amount = CurrencyConverter.convert(sub.monthlyAmount, sub.currency, primaryCurrency) *
-                        (if (period == TimeView.ANNUAL) 12.0 else 1.0),
+                    amount = convertedAmount,
                     currencyCode = primaryCurrency,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
@@ -863,15 +851,19 @@ private fun SpendTrendChart(
  */
 internal fun buildTreemapItems(
     subs: List<Subscription>,
-    primaryCurrency: String,
+    snapshot: CalculationSnapshot,
     otherLabel: String,
     otherColor: Color,
     maxTiles: Int = 8,
     /** 12 for yearly labels. Scales every tile alike, so areas are unchanged. */
     factor: Double = 1.0
-): List<TreemapItem> {
-    val ranked = subs
-        .map { it to CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) * factor }
+): List<TreemapItem>? {
+    val primaryCurrency = snapshot.homeCurrency
+    val contributions = currentContributions(subs, snapshot)
+    if (!scaleEstimate(aggregateContributions(contributions), factor).isComplete) return null
+    val amounts = contributions.associate { it.subscriptionId to (it.result as ConversionResult.Available).amount }
+    val ranked = subs.filter { it.isActive && !it.isDeleted }
+        .map { it to amounts.getValue(it.id) * factor }
         .filter { it.second > 0.0 }
         .sortedByDescending { it.second }
 
@@ -917,24 +909,37 @@ internal fun buildTreemapItems(
  */
 internal fun buildSpendHistory(
     subs: List<Subscription>,
-    primaryCurrency: String,
+    snapshot: CalculationSnapshot,
     locale: Locale,
-    today: LocalDate = LocalDate.now()
-): List<MonthlySpendPoint> {
+    factor: Double = 1.0
+): List<MonthlySpendPoint>? {
     val monthFormatter = DateTimeFormatter.ofPattern("MMM", locale)
     return (5 downTo 0).map { monthsAgo ->
-        val month = today.minusMonths(monthsAgo.toLong())
+        val month = snapshot.today.minusMonths(monthsAgo.toLong())
         val endOfMonth = month.withDayOfMonth(month.lengthOfMonth())
-        val total = subs
-            .filter { sub ->
-                val start = DateCalculators.parseOrNull(sub.firstBillDate)
-                start == null || !start.isAfter(endOfMonth)
-            }
-            .sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
-        MonthlySpendPoint(
-            label = month.format(monthFormatter),
-            amount = total
-        )
+        val included = subs.filter { sub ->
+            val start = DateCalculators.parseOrNull(sub.firstBillDate)
+            start == null || !start.isAfter(endOfMonth)
+        }
+        val estimate = scaleEstimate(aggregateContributions(currentContributions(included, snapshot)), factor)
+        if (!estimate.isComplete) return null
+        MonthlySpendPoint(month.format(monthFormatter), estimate.knownAmount)
+    }
+}
+
+@Composable
+private fun AnalyticsUnavailable() {
+    Text(stringResource(R.string.analytics_coverage_unavailable), style = MaterialTheme.typography.bodySmall)
+}
+
+@Composable
+private fun EstimateAmount(estimate: CostEstimate, currency: String, hero: Boolean = false) {
+    Column {
+        val amount = estimate.displayAmount
+        if (amount == null) Text(stringResource(R.string.overview_unavailable))
+        else TabularCurrencyText(amount = amount, currencyCode = currency,
+            style = if (hero) HeroAmountStyle else MaterialTheme.typography.titleMedium)
+        if (!estimate.isComplete) Text(stringResource(R.string.overview_partial), style = MaterialTheme.typography.labelSmall)
     }
 }
 
@@ -958,9 +963,13 @@ private fun cycleSuffix(cycle: BillingCycle): String = stringResource(
  * input gives all zeros, not a division by zero.
  */
 internal fun wholePercentages(values: List<Double>): List<Int> {
-    val total = values.sum()
-    if (values.isEmpty() || total <= 0.0) return values.map { 0 }
-    val exact = values.map { it / total * 100.0 }
+    if (values.isEmpty()) return emptyList()
+    require(values.all { it.isFinite() && it >= 0.0 })
+    val largest = values.maxOrNull() ?: 0.0
+    if (largest == 0.0) return values.map { 0 }
+    val normalized = values.map { it / largest }
+    val total = normalized.sum()
+    val exact = normalized.map { it / total * 100.0 }
     val floors = exact.map { kotlin.math.floor(it).toInt() }
     val missing = 100 - floors.sum()
     val bump = exact.indices

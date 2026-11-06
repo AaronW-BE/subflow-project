@@ -189,11 +189,11 @@
     <string name="spend_map_other">Alles Übrige</string>
     <string name="spend_map_summary">Ausgabenkarte: %1$s aus %2$d Abos, größtes ist %3$s</string>
     <string name="billing_forecast">Rechnungsprognose</string>
-    <string name="billing_forecast_caption">Was in jedem Monat wirklich abgebucht wird. Ein Jahresabo wird an einem Tag komplett fällig, statt über zwölf Monate verteilt.</string>
+    <string name="billing_forecast_caption">Sechs volle Kalendermonate ab diesem Monat, einschließlich vergangener Tage. Geplante Kosten, keine bestätigten Zahlungen.</string>
     <string name="forecast_peak">%1$s ist der teuerste Monat mit %2$s</string>
     <string name="forecast_even">Die nächsten sechs Monate sind gleichmäßig, etwa %1$s pro Monat</string>
     <string name="forecast_average_line">Gestrichelt: Monatsdurchschnitt</string>
-    <string name="history_caption">Letzte 6 Monate deiner heutigen Abos, ab ihrem jeweiligen Startdatum</string>
+    <string name="history_caption">Letzte 6 Monate aus aktuellen Einträgen und Startdaten rekonstruiert, kein Zahlungsverlauf.</string>
     <string name="analytics_empty">Füge ein Abo hinzu, um deine Auswertung zu sehen.</string>
     <string name="pro_locked_analytics">Die Diagramme und Auswertungen gehören zu Pro.</string>
     <string name="unlock_with_pro">Mit Pro freischalten</string>
@@ -526,4 +526,5 @@
     <string name="overview_partial">Unvollständige Schätzung · nur umgerechneter Teil</string>
     <string name="overview_budget_unavailable">Budgetvergleich nicht verfügbar: Kosten oder Budget unvollständig umgerechnet.</string>
     <string name="renewal_date_unavailable">Datum nicht verfügbar</string>
+    <string name="analytics_coverage_unavailable">Vergleich oder Verlauf nicht verfügbar: Nicht alle Kosten lassen sich sicher umrechnen oder berechnen.</string>
 </resources>

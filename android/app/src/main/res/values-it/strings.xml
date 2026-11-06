@@ -190,11 +190,11 @@
     <string name="spend_map_other">Tutto il resto</string>
     <string name="spend_map_summary">Mappa della spesa: %1$s su %2$d abbonamenti, il più grande è %3$s</string>
     <string name="billing_forecast">Previsione degli addebiti</string>
-    <string name="billing_forecast_caption">Quanto viene addebitato davvero ogni mese. Un piano annuale arriva tutto in un giorno, invece di essere distribuito su dodici mesi.</string>
+    <string name="billing_forecast_caption">Sei mesi di calendario completi da questo mese, incluse le date trascorse. Addebiti previsti, non pagamenti confermati.</string>
     <string name="forecast_peak">%1$s è il mese più pesante, con %2$s</string>
     <string name="forecast_even">I prossimi sei mesi sono simili, circa %1$s ciascuno</string>
     <string name="forecast_average_line">Linea tratteggiata: media mensile</string>
-    <string name="history_caption">Ultimi 6 mesi di ciò che paghi oggi, da quando è iniziato ciascuno</string>
+    <string name="history_caption">Ultimi 6 mesi ricostruiti dai dati attuali e dalle date di inizio, non una cronologia dei pagamenti.</string>
     <string name="analytics_empty">Aggiungi un abbonamento per vedere il dettaglio della spesa.</string>
     <string name="pro_locked_analytics">Grafici e dettagli fanno parte di Pro.</string>
     <string name="unlock_with_pro">Sblocca con Pro</string>
@@ -542,4 +542,5 @@
     <string name="overview_partial">Stima incompleta · solo parte convertita</string>
     <string name="overview_budget_unavailable">Confronto budget non disponibile: conversione incompleta.</string>
     <string name="renewal_date_unavailable">Data non disponibile</string>
+    <string name="analytics_coverage_unavailable">Confronto o serie non disponibile: non tutti i costi possono essere convertiti o calcolati in modo sicuro.</string>
 </resources>

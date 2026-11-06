@@ -189,11 +189,11 @@
     <string name="spend_map_other">Tout le reste</string>
     <string name="spend_map_summary">Carte des dépenses : %1$s pour %2$d abonnements, le plus gros est %3$s</string>
     <string name="billing_forecast">Prévision de facturation</string>
-    <string name="billing_forecast_caption">Ce qui est réellement prélevé chaque mois. Un abonnement annuel tombe en une fois, un seul jour, au lieu d’être réparti sur douze mois.</string>
+    <string name="billing_forecast_caption">Six mois calendaires complets à partir de ce mois, dates passées incluses. Frais prévus, pas des paiements confirmés.</string>
     <string name="forecast_peak">%1$s est le mois le plus lourd, avec %2$s</string>
     <string name="forecast_even">Les six prochains mois sont réguliers, environ %1$s par mois</string>
     <string name="forecast_average_line">Pointillés : moyenne mensuelle</string>
-    <string name="history_caption">6 derniers mois de ce que vous payez aujourd’hui, depuis le début de chaque abonnement</string>
+    <string name="history_caption">Les 6 derniers mois reconstitués à partir des fiches actuelles et des dates de début, pas un historique des paiements.</string>
     <string name="analytics_empty">Ajoutez un abonnement pour voir la répartition de vos dépenses.</string>
     <string name="pro_locked_analytics">Les graphiques et les analyses détaillées font partie de Pro.</string>
     <string name="unlock_with_pro">Débloquer avec Pro</string>
@@ -526,4 +526,5 @@
     <string name="overview_partial">Estimation incomplète · partie convertie uniquement</string>
     <string name="overview_budget_unavailable">Comparaison du budget indisponible : conversion incomplète.</string>
     <string name="renewal_date_unavailable">Date indisponible</string>
+    <string name="analytics_coverage_unavailable">Comparaison ou série indisponible : tous les coûts ne peuvent pas être convertis ou calculés de manière fiable.</string>
 </resources>

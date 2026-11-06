@@ -191,11 +191,11 @@
     <string name="spend_map_other">Todo o resto</string>
     <string name="spend_map_summary">Mapa de gastos: %1$s em %2$d assinaturas, a maior é %3$s</string>
     <string name="billing_forecast">Previsão de cobranças</string>
-    <string name="billing_forecast_caption">O que é cobrado de fato em cada mês. Um plano anual cai inteiro, em um dia, em vez de se espalhar por doze meses.</string>
+    <string name="billing_forecast_caption">Seis meses completos de calendário a partir deste mês, incluindo datas passadas. Cobranças previstas, não pagamentos confirmados.</string>
     <string name="forecast_peak">%1$s é o mês mais pesado, com %2$s</string>
     <string name="forecast_even">Os próximos seis meses são parecidos, cerca de %1$s cada</string>
     <string name="forecast_average_line">Linha tracejada: média mensal</string>
-    <string name="history_caption">Últimos 6 meses do que você paga hoje, desde quando cada uma começou</string>
+    <string name="history_caption">Últimos 6 meses reconstruídos a partir dos registos atuais e datas de início, não um histórico de pagamentos.</string>
     <string name="analytics_empty">Adicione uma assinatura para ver seus gastos detalhados.</string>
     <string name="pro_locked_analytics">Os gráficos e detalhamentos fazem parte do Pro.</string>
     <string name="unlock_with_pro">Liberar com o Pro</string>
@@ -543,4 +543,5 @@
     <string name="overview_partial">Estimativa incompleta · apenas a parte convertida</string>
     <string name="overview_budget_unavailable">Comparação de orçamento indisponível: conversão incompleta.</string>
     <string name="renewal_date_unavailable">Data indisponível</string>
+    <string name="analytics_coverage_unavailable">Comparação ou série indisponível: nem todos os custos podem ser convertidos ou calculados com segurança.</string>
 </resources>
