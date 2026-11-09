@@ -47,3 +47,13 @@ Use only a confirmed disposable emulator/profile with synthetic data and no acco
 - [ ] **Refresh:** with only disposable fixtures, mutate records/home currency/language, background/resume, and change emulator date/timezone to check visible consistency and distinct reloads. If no safe local rate-publication hook exists, leave live-rate runtime refresh blocked; automated publication tests are not provider/device evidence. Observe launcher/system periodic behavior without promising midnight delivery; OEM/Doze/force-stop acceptance remains separate and unverified unless actually exercised on an isolated target.
 
 Automated final results are recorded above. Unchecked runtime items remain unverified and are not release acceptance.
+
+## Physical-device continuation — in progress
+
+The user subsequently connected a PJX110 running API 36 and explicitly authorized disposable testing in the existing Debug package, without retaining its subscription data. The production package remains outside the test scope. The device was unlocked by the user; foreground ownership is checked before input. No device clock, purchase, provider cancellation or security setting was changed.
+
+- Installed the current `org.dpdns.alwaysup.subflow.debug` APK. OEM security denied shell `pm clear`; it was not bypassed. Used Debug Settings → Data → Erase all data and its confirmation instead; the app reported success, and the actual home showed zero total/active/paused/pending counts and `$0.00`.
+- Restored a synthetic six-record JSON fixture through the real Android document picker and the app's restore flow: USD monthly 12, EUR monthly 10, positive ZZZ missing-FX cost, free USD, an expired kept unresolved trial, and a paused USD record. All fixture reminders are disabled. The app reported **Restored 6 subscriptions**; fixture date is the device's observed 2026-11-09.
+- Only the dedicated QA JSON was selected in the system picker; no unrelated documents were opened. Local evidence (layout dumps, fixture and empty-home screenshot) is under the ignored `.thinkrail/context/device-bin94/` directory.
+
+This establishes the disposable Debug environment only. The functional, Pro/dialog, CSV and widget runtime checks below are not yet claimed completed. Earlier simulator failures remain historical evidence, not the status of this now-connected phone.
