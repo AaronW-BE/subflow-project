@@ -63,7 +63,6 @@ import org.dpdns.alwaysup.subflow.ui.components.AppleRowSeparator
 import org.dpdns.alwaysup.subflow.ui.components.CircleIconButton
 import org.dpdns.alwaysup.subflow.ui.components.ProBadge
 import org.dpdns.alwaysup.subflow.ui.components.SectionHeader
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
@@ -719,41 +718,57 @@ private fun PreferencesSection(
  * the number. An existing budget in another currency is shown converted.
  */
 @Composable
-private fun BudgetDialog(
+internal fun BudgetDialog(
     current: MonthlyBudget?,
     homeCurrency: String,
     onSave: (MonthlyBudget?) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val initial = current?.let { CurrencyConverter.convert(it.amount, it.currency, homeCurrency) }
-    var text by remember {
-        mutableStateOf(initial?.let { String.format(Locale.US, "%.2f", it).removeSuffix(".00") }.orEmpty())
+    onDismiss: () -> Unit,
+    frame: @Composable (@Composable () -> Unit, @Composable () -> Unit, @Composable () -> Unit, @Composable () -> Unit) -> Unit = { title, text, confirm, dismiss ->
+        AlertDialog(onDismissRequest = onDismiss, shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface, title = title, text = text,
+            confirmButton = confirm, dismissButton = dismiss)
     }
+) {
+    val snapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current
+    // Capture currency and value together once, never key editable state to live FX/home changes.
+    val draft = remember {
+        val converted = current?.let {
+            org.dpdns.alwaysup.subflow.domain.util.convertAmount(it.amount, it.currency, homeCurrency, snapshot.rates)
+                as? org.dpdns.alwaysup.subflow.domain.util.ConversionResult.Available
+        }
+        Triple(if (current != null && converted == null) current.currency else homeCurrency,
+            converted?.amount ?: current?.amount, current != null && converted == null)
+    }
+    val editCurrency = draft.first
+    val digits = runCatching { java.util.Currency.getInstance(editCurrency).defaultFractionDigits }.getOrDefault(2).coerceAtLeast(0)
+    var text by remember { mutableStateOf(draft.second?.let {
+        java.math.BigDecimal.valueOf(it).setScale(digits, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+    }.orEmpty()) }
     val amount = text.trim().replace(',', '.').toDoubleOrNull()
-    val valid = amount != null && amount > 0.0
+    val valid = amount != null && amount.isFinite() && amount > 0.0 &&
+        text.trim().replace(',', '.').substringAfter('.', "").length <= digits
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(20.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text(stringResource(R.string.monthly_budget), fontWeight = FontWeight.Bold) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                singleLine = true,
-                label = { Text(stringResource(R.string.monthly_budget_hint, homeCurrency)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = text.isNotBlank() && !valid
-            )
+    frame(
+        { Text(stringResource(R.string.monthly_budget), fontWeight = FontWeight.Bold) },
+        {
+            Column {
+                if (draft.third) Text(stringResource(R.string.budget_original_currency, editCurrency))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.monthly_budget_hint, editCurrency)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    isError = text.isNotBlank() && !valid
+                )
+            }
         },
-        confirmButton = {
-            TextButton(
-                enabled = valid,
-                onClick = { onSave(MonthlyBudget(amount!!, homeCurrency)) }
-            ) { Text(stringResource(R.string.save)) }
+        {
+            TextButton(enabled = valid, onClick = { onSave(MonthlyBudget(amount!!, editCurrency)) }) {
+                Text(stringResource(R.string.save))
+            }
         },
-        dismissButton = {
+        {
             Row {
                 if (current != null) {
                     TextButton(onClick = { onSave(null) }) {
@@ -1296,7 +1311,8 @@ private fun AccountCard(
  */
 @Composable
 private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
-    val quotedAt = CurrencyConverter.quotedAtEpochMillis
+    val rates = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.rates
+    val quotedAt = rates.quotedAtEpochMillis ?: 0L
     val freshness = if (quotedAt > 0L) {
         stringResource(
             R.string.rates_updated_on,
@@ -1314,13 +1330,13 @@ private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
     // string wraps like ordinary text while still colouring the credit as the
     // link, and the credit stays whole - the terms fix its wording, so it is
     // never formatted into a sentence.
-    val credit = stringResource(R.string.rates_attribution)
+    val credit = rates.providerName.orEmpty()
     val label = buildAnnotatedString {
         withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary)) { append(credit) }
         withStyle(
             SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
         ) {
-            append("\u00A0\u00B7 ")
+            if (credit.isNotBlank()) append("\u00A0\u00B7 ")
             append(freshness)
         }
     }
@@ -1333,7 +1349,7 @@ private fun RateAttributionFootnote(onOpenUrl: (String) -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onOpenUrl(RATE_PROVIDER_URL) }
+                .clickable(enabled = !rates.providerUrl.isNullOrBlank()) { rates.providerUrl?.let(onOpenUrl) }
                 .padding(horizontal = 20.dp, vertical = 12.dp)
         )
     }

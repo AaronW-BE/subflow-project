@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:name="android.app.Application" android:label="SubFlow QA CSV receiver">
+        <activity
+            android:name="org.dpdns.alwaysup.subflow.Bin94CsvReceiverActivity"
+            android:exported="true"
+            android:label="SubFlow QA CSV receiver"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/csv" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -1,6 +1,6 @@
 # SubFlow UI/UX Specification & Stitch Screen Reference
 
-This document catalogs the design system and screen models generated via StitchMCP for SubFlow, establishing the exact visual contract implemented in the native Compose client and Web Admin Console.
+This document catalogs StitchMCP design references for SubFlow, with current Android behavior noted below. Generated examples are not runtime acceptance evidence or an exact inventory of the shipped UI. Subscription valuation/reporting contracts are owned by [`subflow-subscription-calculations`](../android/app/src/main/java/org/dpdns/alwaysup/subflow/domain/util/SPEC.md).
 
 ## Stitch Project Details
 - **Project ID**: `12757208620384969978`
@@ -13,7 +13,8 @@ This document catalogs the design system and screen models generated via StitchM
 - **Screen ID**: `665d2174e81a49d8b9f569e9d63deaeb`
 - **Core Components**:
   - `TopAppBar`: Collapsible Large Title ("Subscriptions"), user profile avatar, and '+' add button.
-  - `HeroCard`: Total monthly spend `$142.50` in bold tabular digits, amber badge ("2 days" to next renewal), and annual projection (`$1,710/yr`).
+  - `HeroCard`: Global normalized monthly/annual commitment, next valid today/future event, and explicit partial/unavailable coverage; not actual monthly payments. Amounts and inventory remain global while the list is filtered.
+  - Compact All / Active / Paused / pending-trial count entries select a temporary subset and clear search/category. Subsequent filtering stays within the subset; a visible reset exits it. All includes paused records; ordinary home retains collapsed paused grouping. Paused-only and zero-match views retain search/exit controls. Unconvertible price-sort entries stay last with an explanation in either direction.
   - `FilterChipBar`: Horizontal category scroll ("All", "Streaming", "Work", "Utilities").
   - `SubscriptionGroupedList`: Grouped cards with 44dp squircle brand icons (Netflix, Spotify, ChatGPT Plus, iCloud) with cycle and renewal countdown.
   - `BottomNavBar`: Apple-style frosted blur navigation with active tab in Apple Indigo (`#5856D6`).
@@ -53,16 +54,19 @@ This document catalogs the design system and screen models generated via StitchM
 - **Screen ID**: `cb3b52559e3345dca13cc69f87480b37`
 - **Core Components**:
   - `TimeSelector`: Segmented control ("Monthly" vs "Annual").
-  - `HeroMetricCard`: Average monthly spend, projected annual spend with month-over-month delta (+4.2%).
+  - `HeroMetricCard`: Normalized selected-period cost, daily/per-active averages and full active count; known partial/unavailable coverage is explicit, rather than a fabricated month-over-month delta. Compact metric values must allow unavailable status text to wrap instead of clipping away its qualifier; numeric percentages can remain single-line.
   - `SpendCurveChart`: 6-month historical trajectory curve with active point tooltip.
   - `CategoryDonut`: Expense distribution ring chart with color legend.
   - `TopRankings`: Ranked expenditure list (#1 ChatGPT, #2 Netflix, #3 Spotify).
   - `ExportBanner`: Pro-tier CSV export, shared via FileProvider as a real file rather than pasted text.
 
-> The 6-month `SpendCurveChart` is computed from each subscription's own first
-> bill date, not from placeholder factors, and the y-axis is anchored at zero so
-> the shape reflects real proportions. Free users see the chart and the category
-> breakdown blurred behind an unlock prompt.
+> History reconstructs normalized costs from current records, not a payment ledger. The billing forecast covers six full calendar months including elapsed current-month dates. Coverage is evaluated independently for each comparison/series and the current reference line; affected comparisons pause while category amounts and independently complete content remain visible. Existing Pro gates remain. See the owning calculation spec for inclusion, conversion and coverage rules.
+
+### 4b. Budget, CSV and home-screen widget
+- Budget previews, meter and accepted-save/resume feedback suspend monetary conclusions when coverage is unknown, without blocking factual success. Settings explicitly labels original-currency editing when needed and preserves an open draft across rate/home-currency changes; semantics belong to the calculation spec.
+- Analytics exports CSV with original source data, blank unavailable home amounts and appended `MonthlyConversionStatus`; JSON backups are unchanged. The exact export contract lives in the calculation spec.
+- Responsive widget sizes are 180×60 and 180×110 dp (tall behavior from 100 dp height). Small prioritizes monthly estimate/coverage; tall adds scrolling inventory and valid events/no-events. Numeric values retain 20sp; unavailable explanatory text uses compact 12sp. A usable partial amount carries a short localized converted-only caption that fits the minimum content width, rather than ellipsizing the full-screen coverage sentence. Unavailable amounts do not claim a displayed known portion. Empty inventory alone uses onboarding. Body opens home; event rows open detail. Rendering, launcher accessibility and clicks require device acceptance, not just compilation or a design mockup. Refresh is best effort, not guaranteed at background midnight.
+- Acceptance evidence and remaining runtime checks: [subscriptions overview matrix](testing/subscriptions-overview.md).
 
 ### 5. Web Admin Console (Desktop Dashboard)
 - **Screen ID**: `dd99d54b1eb44219aea413bbee43c257`

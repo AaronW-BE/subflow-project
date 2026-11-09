@@ -189,11 +189,11 @@
     <string name="spend_map_other">Alles Übrige</string>
     <string name="spend_map_summary">Ausgabenkarte: %1$s aus %2$d Abos, größtes ist %3$s</string>
     <string name="billing_forecast">Rechnungsprognose</string>
-    <string name="billing_forecast_caption">Was in jedem Monat wirklich abgebucht wird. Ein Jahresabo wird an einem Tag komplett fällig, statt über zwölf Monate verteilt.</string>
+    <string name="billing_forecast_caption">Sechs volle Kalendermonate ab diesem Monat, einschließlich vergangener Tage. Geplante Kosten, keine bestätigten Zahlungen.</string>
     <string name="forecast_peak">%1$s ist der teuerste Monat mit %2$s</string>
     <string name="forecast_even">Die nächsten sechs Monate sind gleichmäßig, etwa %1$s pro Monat</string>
     <string name="forecast_average_line">Gestrichelt: Monatsdurchschnitt</string>
-    <string name="history_caption">Letzte 6 Monate deiner heutigen Abos, ab ihrem jeweiligen Startdatum</string>
+    <string name="history_caption">Letzte 6 Monate aus aktuellen Einträgen und Startdaten rekonstruiert, kein Zahlungsverlauf.</string>
     <string name="analytics_empty">Füge ein Abo hinzu, um deine Auswertung zu sehen.</string>
     <string name="pro_locked_analytics">Die Diagramme und Auswertungen gehören zu Pro.</string>
     <string name="unlock_with_pro">Mit Pro freischalten</string>
@@ -513,4 +513,22 @@
     <string name="trial_cancel_confirm_body">SubFlow aktualisiert nur diesen lokalen Eintrag und pausiert ihn. Der Anbieter wird nicht kontaktiert; Zahlungen werden nicht rückgängig gemacht.</string>
     <string name="trial_cancel_confirm">Kündigung bestätigen</string>
     <string name="trial_cancel_back">Zurück</string>
+    <string name="overview_all">Alle</string>
+    <string name="overview_active">Aktiv</string>
+    <string name="overview_paused">Pausiert</string>
+    <string name="overview_pending">Davon %1$d offene Testabos</string>
+    <string name="overview_trial">Offene Testabos</string>
+    <string name="overview_viewing">Ansicht: %1$s</string>
+    <string name="overview_reset">Ansicht zurücksetzen</string>
+    <string name="overview_price_unavailable">Wechselkurs fehlt · Monatspreis nicht vergleichbar</string>
+    <string name="overview_unavailable">Schätzung nicht verfügbar</string>
+    <string name="overview_normalized">Normalisierte laufende Kosten · alle aktiven Abos, keine tatsächlichen Zahlungen</string>
+    <string name="overview_partial">Unvollständige Schätzung · nur umgerechneter Teil</string>
+    <string name="overview_budget_unavailable">Budgetvergleich nicht verfügbar: Kosten oder Budget unvollständig umgerechnet.</string>
+    <string name="renewal_date_unavailable">Datum nicht verfügbar</string>
+    <string name="analytics_coverage_unavailable">Vergleich oder Verlauf nicht verfügbar: Nicht alle Kosten lassen sich sicher umrechnen oder berechnen.</string>
+    <string name="budget_original_currency">Wechselkurs nicht verfügbar. In der Originalwährung (%1$s) bearbeiten; beim Speichern bleibt diese erhalten.</string>
+    <string name="widget_normalized_cost">Monatliche umgerechnete Kosten</string>
+    <string name="widget_partial_coverage">Teilbetrag · nur umgerechnet</string>
+    <string name="widget_no_events">Keine anstehenden Ereignisse</string>
 </resources>

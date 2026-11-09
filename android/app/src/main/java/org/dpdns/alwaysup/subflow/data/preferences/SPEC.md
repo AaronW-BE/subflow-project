@@ -4,6 +4,7 @@ type: module-design
 status: draft
 title: Language and currency preference boundaries
 tags: [localization, preferences]
+references: [subflow-subscription-calculations]
 ---
 
 ## Responsibility
@@ -11,6 +12,8 @@ tags: [localization, preferences]
 Language preferences choose the interface and notification language independently of the home currency. An explicit language choice survives restarts; following the system selects the first supported language in device preference order, falling back to English when none matches.
 
 Dutch uses Netherlands wording and informal je/jij. Both Netherlands and Belgian Dutch match the shared Dutch translation; the explicit Dutch locale uses nl-NL date and number conventions. This does not force EUR: first-install currency selection uses device regions, while an existing saved currency always wins.
+
+Currency valuation, coverage and budget-editor currency/draft semantics are owned by `subflow-subscription-calculations`; changing a preference must not reinterpret an existing budget or replace an open editor draft. This module owns preference selection/persistence, not conversion formulas or budget conclusions.
 
 ## Boundary
 

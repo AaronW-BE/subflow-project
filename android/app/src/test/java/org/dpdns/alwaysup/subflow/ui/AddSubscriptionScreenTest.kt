@@ -49,7 +49,8 @@ class AddSubscriptionScreenTest {
         existing: Subscription? = null,
         isPro: Boolean = false,
         budget: MonthlyBudget? = null,
-        others: Double = 0.0
+        others: Double = 0.0,
+        otherCurrency: String = "USD"
     ) = compose.setContent {
         SubFlowTheme {
             AddSubscriptionScreen(
@@ -58,7 +59,7 @@ class AddSubscriptionScreenTest {
                 isPro = isPro,
                 existingSubscription = existing,
                 monthlyBudget = budget,
-                otherMonthlyTotal = others,
+                budgetSubscriptions = listOf(org.dpdns.alwaysup.subflow.domain.model.Subscription(id = "other", name = "Other", amount = others, currency = otherCurrency, firstBillDate = "2026-01-01", nextBillDate = "2026-03-01")),
                 onSaveSubscription = { saved = it },
                 onCancel = {},
                 onUpgradeClick = { upgradeTaps++ }
@@ -168,6 +169,42 @@ class AddSubscriptionScreenTest {
         compose.onNodeWithText(
             context.getString(R.string.budget_after_add_over, usd(5.49), usd(100.0))
         ).assertDoesNotExist()
+    }
+
+    @Test
+    fun `missing existing coverage shows unavailable and still saves`() {
+        show(isPro = true, budget = MonthlyBudget(100.0, "USD"), others = 10.0, otherCurrency = "XXX")
+        field(0).performTextInput("New")
+        field(1).performTextInput("15.49")
+        compose.onNodeWithText(context.getString(R.string.overview_budget_unavailable)).assertExists()
+        compose.onNodeWithText(context.getString(R.string.budget_after_add_left, usd(74.51), usd(100.0))).assertDoesNotExist()
+        save()
+        assertEquals(15.49, requireNotNull(saved).amount, 0.0)
+    }
+
+    @Test
+    fun `repairing missing edited cost cannot claim a complete transition`() {
+        val existing = Subscription(id = "edit", name = "Unknown", amount = 10.0, currency = "XXX", firstBillDate = "2026-01-01", nextBillDate = "2026-03-01")
+        compose.setContent { SubFlowTheme { AddSubscriptionScreen(presets = emptyList(), primaryCurrency = "USD", isPro = true,
+            existingSubscription = existing, monthlyBudget = MonthlyBudget(100.0, "USD"), budgetSubscriptions = listOf(existing),
+            onSaveSubscription = { saved = it }, onCancel = {}) } }
+        field(1).performTextClearance()
+        field(1).performTextInput("0")
+        compose.onNodeWithText(context.getString(R.string.overview_budget_unavailable)).assertExists()
+    }
+
+    @Test
+    fun `editing paused subscription preserves paused state and current zero budget contribution`() {
+        val paused = Subscription(id = "paused", name = "Paused", amount = 10.0, currency = "XXX", firstBillDate = "2026-01-01", nextBillDate = "2026-03-01", isActive = false)
+        compose.setContent { SubFlowTheme { AddSubscriptionScreen(presets = emptyList(), primaryCurrency = "USD", isPro = true,
+            existingSubscription = paused, monthlyBudget = MonthlyBudget(100.0, "USD"), budgetSubscriptions = listOf(paused),
+            onSaveSubscription = { saved = it }, onCancel = {}) } }
+        field(1).performTextClearance()
+        field(1).performTextInput("20")
+        compose.onNodeWithText(context.getString(R.string.budget_after_add_left, usd(100.0), usd(100.0))).assertExists()
+        save()
+        assertTrue(!requireNotNull(saved).isActive)
+        assertEquals(20.0, requireNotNull(saved).amount, 0.0)
     }
 
     // ------------------------------------------------ locked reminder chips

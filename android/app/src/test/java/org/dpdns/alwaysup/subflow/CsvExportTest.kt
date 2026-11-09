@@ -6,6 +6,7 @@ import org.dpdns.alwaysup.subflow.domain.util.ExportUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.junit.Test
 import java.util.Locale
 
@@ -36,7 +37,7 @@ class CsvExportTest {
     )
 
     private fun csv(vararg subs: Subscription, home: String = "USD") =
-        ExportUtils.buildCsv(subs.toList(), home)
+        ExportUtils.buildCsv(subs.toList(), CalculationSnapshot(home, java.time.LocalDate.now(), CurrencyConverter.captureSnapshot()))
 
     /** Data rows only: the BOM and the header line stripped off. */
     private fun rows(text: String) =

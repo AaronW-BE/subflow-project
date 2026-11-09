@@ -189,11 +189,11 @@
     <string name="spend_map_other">Todo lo demás</string>
     <string name="spend_map_summary">Mapa de gastos: %1$s en %2$d suscripciones, la mayor es %3$s</string>
     <string name="billing_forecast">Previsión de facturación</string>
-    <string name="billing_forecast_caption">Lo que se cobra realmente cada mes. Un plan anual se cobra entero, en un solo día, en vez de repartirse en doce meses.</string>
+    <string name="billing_forecast_caption">Seis meses naturales completos desde este mes, incluidas las fechas pasadas. Cargos previstos, no pagos confirmados.</string>
     <string name="forecast_peak">%1$s es el mes más caro, con %2$s</string>
     <string name="forecast_even">Los próximos seis meses son parejos, unos %1$s al mes</string>
     <string name="forecast_average_line">Línea discontinua: media mensual</string>
-    <string name="history_caption">Últimos 6 meses de lo que pagas hoy, desde el inicio de cada suscripción</string>
+    <string name="history_caption">Últimos 6 meses reconstruidos a partir de los registros actuales y sus fechas de inicio, no un historial de pagos.</string>
     <string name="analytics_empty">Añade una suscripción para ver el desglose de tu gasto.</string>
     <string name="pro_locked_analytics">Los gráficos y los desgloses forman parte de Pro.</string>
     <string name="unlock_with_pro">Desbloquear con Pro</string>
@@ -513,4 +513,22 @@
     <string name="trial_cancel_confirm_body">SubFlow solo actualiza este registro local y lo pausa. No contacta con el proveedor ni revierte cargos.</string>
     <string name="trial_cancel_confirm">Confirmar cancelación</string>
     <string name="trial_cancel_back">Volver</string>
+    <string name="overview_all">Todas</string>
+    <string name="overview_active">Activas</string>
+    <string name="overview_paused">Pausadas</string>
+    <string name="overview_pending">Incluye %1$d pruebas pendientes</string>
+    <string name="overview_trial">Pruebas pendientes</string>
+    <string name="overview_viewing">Vista: %1$s</string>
+    <string name="overview_reset">Restablecer vista</string>
+    <string name="overview_price_unavailable">Sin tipo de cambio · precio mensual no comparable</string>
+    <string name="overview_unavailable">Estimación no disponible</string>
+    <string name="overview_normalized">Coste recurrente normalizado · todas las activas, no pagos reales</string>
+    <string name="overview_partial">Estimación incompleta · solo la parte convertida</string>
+    <string name="overview_budget_unavailable">Comparación de presupuesto no disponible: conversión incompleta.</string>
+    <string name="renewal_date_unavailable">Fecha no disponible</string>
+    <string name="analytics_coverage_unavailable">Comparación o serie no disponible: no se pueden convertir o calcular todos los costes de forma segura.</string>
+    <string name="budget_original_currency">Tipo de cambio no disponible. Edita en la moneda original (%1$s); se conservará al guardar.</string>
+    <string name="widget_normalized_cost">Coste mensual normalizado</string>
+    <string name="widget_partial_coverage">Parcial · solo parte convertida</string>
+    <string name="widget_no_events">No hay próximos eventos</string>
 </resources>

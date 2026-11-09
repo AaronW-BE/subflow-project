@@ -24,7 +24,8 @@ class TrialKeepPersistenceTest {
     private fun trial() = Subscription(
         id = "trial", name = "Trial", amount = 0.0,
         firstBillDate = "2026-09-01", nextBillDate = "2026-09-12",
-        isTrial = true, trialEndDate = "2026-09-12", postTrialAmount = 19.99
+        isTrial = true, trialEndDate = "2026-09-12", postTrialAmount = 19.99,
+        updatedAt = 123L
     )
 
     @Test fun keepOnlyChangesDecisionAndLeavesFreeTrialAndRemindersAlone() {

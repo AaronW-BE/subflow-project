@@ -7,6 +7,8 @@ import org.dpdns.alwaysup.subflow.ui.screens.analytics.buildTreemapItems
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot
+import org.dpdns.alwaysup.subflow.domain.util.RatesSnapshot
 
 /**
  * squarify's packing is only as good as the descending order it is handed, and
@@ -15,6 +17,7 @@ import org.junit.Test
  */
 class TreemapItemsTest {
 
+    private val snapshot = CalculationSnapshot("USD", java.time.LocalDate.of(2026, 9, 8), RatesSnapshot(1, mapOf("USD" to 1.0)))
     private val other = "Everything else"
     private val otherColor = Color.Gray
 
@@ -31,10 +34,10 @@ class TreemapItemsTest {
 
     @Test
     fun `a short list is one tile per subscription, biggest first`() {
-        val items = buildTreemapItems(
+        val items = requireNotNull(buildTreemapItems(
             listOf(sub("a", 3.0), sub("b", 9.0), sub("c", 6.0)),
-            "USD", other, otherColor
-        )
+            snapshot, other, otherColor
+        ))
         assertEquals(listOf("b", "c", "a"), items.map { it.label })
         assertTrue(items.none { it.label == other })
     }
@@ -42,7 +45,7 @@ class TreemapItemsTest {
     @Test
     fun `a long tail is pooled into one tile`() {
         val subs = (1..20).map { sub("s$it", it.toDouble()) }
-        val items = buildTreemapItems(subs, "USD", other, otherColor)
+        val items = requireNotNull(buildTreemapItems(subs, snapshot, other, otherColor))
         assertEquals(8, items.size)
         val pooled = items.single { it.label == other }
         // Everything below the top seven: 1 through 13.
@@ -55,7 +58,7 @@ class TreemapItemsTest {
         // Seven at 100 and a tail worth 200. Appended blind, the list handed to
         // squarify would not descend and the layout would be measurably worse.
         val subs = (1..7).map { sub("big$it", 100.0) } + (1..20).map { sub("small$it", 10.0) }
-        val items = buildTreemapItems(subs, "USD", other, otherColor)
+        val items = requireNotNull(buildTreemapItems(subs, snapshot, other, otherColor))
 
         assertEquals(200.0, items.single { it.label == other }.value, 0.0001)
         assertEquals(0, items.indexOfFirst { it.label == other })
@@ -67,17 +70,17 @@ class TreemapItemsTest {
 
     @Test
     fun `subscriptions that cost nothing get no tile`() {
-        val items = buildTreemapItems(
-            listOf(sub("free", 0.0), sub("paid", 5.0)), "USD", other, otherColor
-        )
+        val items = requireNotNull(buildTreemapItems(
+            listOf(sub("free", 0.0), sub("paid", 5.0)), snapshot, other, otherColor
+        ))
         assertEquals(listOf("paid"), items.map { it.label })
     }
 
     @Test
     fun `an unparseable brand colour falls back rather than throwing`() {
-        val items = buildTreemapItems(
-            listOf(sub("broken", 5.0, colour = "not-a-colour")), "USD", other, otherColor
-        )
+        val items = requireNotNull(buildTreemapItems(
+            listOf(sub("broken", 5.0, colour = "not-a-colour")), snapshot, other, otherColor
+        ))
         assertEquals(1, items.size)
     }
 
@@ -86,8 +89,8 @@ class TreemapItemsTest {
         // Analytics' Monthly/Annual toggle passes 12 here. The labels must say
         // yearly money; the areas, which are shares, must not move at all.
         val subs = listOf(sub("a", 3.0), sub("b", 9.0), sub("c", 6.0))
-        val monthly = buildTreemapItems(subs, "USD", other, otherColor)
-        val yearly = buildTreemapItems(subs, "USD", other, otherColor, factor = 12.0)
+        val monthly = requireNotNull(buildTreemapItems(subs, snapshot, other, otherColor))
+        val yearly = requireNotNull(buildTreemapItems(subs, snapshot, other, otherColor, factor = 12.0))
 
         assertEquals(monthly.map { it.label }, yearly.map { it.label })
         monthly.zip(yearly).forEach { (m, y) ->

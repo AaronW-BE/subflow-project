@@ -61,7 +61,6 @@ import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.model.TrialOutcome
 import org.dpdns.alwaysup.subflow.domain.util.Budget
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
 import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore
@@ -90,8 +89,9 @@ fun AddSubscriptionScreen(
     /** The Pro budget, if one is set (BIN-68). */
     monthlyBudget: MonthlyBudget? = null,
     /** What every other running subscription costs a month, in [primaryCurrency]. */
-    otherMonthlyTotal: Double = 0.0
+    budgetSubscriptions: List<Subscription> = emptyList()
 ) {
+    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.copy(homeCurrency = primaryCurrency)
     val haptics = rememberHaptics()
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -173,29 +173,27 @@ fun AddSubscriptionScreen(
 
     // For a trial the next dated event is its ending, which is also what gets
     // stored, so the preview and the saved row agree.
-    val nextRenewal = remember(firstBillDate, cycle, isTrial, trialEndDate) {
+    val nextRenewal = remember(calculationSnapshot, firstBillDate, cycle, isTrial, trialEndDate) {
         if (isTrial) trialEndDate else DateCalculators.computeNextRenewalDate(firstBillDate, cycle)
     }
     val previewAmount = amountText.parseAmount()
     // Where this subscription would leave the budget - said before saving,
     // while it is still a decision. Not for a trial, which costs nothing
     // yet, nor for a paused one being edited, which costs nothing either.
-    val budgetAfter = remember(
-        monthlyBudget, otherMonthlyTotal, previewAmount, cycle, currency, isTrial, isPro, primaryCurrency
-    ) {
-        val running = existingSubscription?.isActive ?: true
-        if (!isPro || monthlyBudget == null || !running || isTrial || previewAmount <= 0.0) {
-            null
-        } else {
-            val thisOne = CurrencyConverter.convert(cycle.toMonthly(previewAmount), currency, primaryCurrency)
-            Budget.progress(otherMonthlyTotal + thisOne, monthlyBudget, primaryCurrency)
-        }
-    }
+    val budgetBefore = Budget.monthlyTotal(budgetSubscriptions, calculationSnapshot)
+    val candidate = (existingSubscription ?: Subscription(id = subscriptionId, name = name, amount = 0.0, firstBillDate = firstBillDate, nextBillDate = nextRenewal)).copy(
+        id = subscriptionId, amount = if (isTrial) 0.0 else previewAmount,
+        currency = currency, cycle = cycle, isTrial = isTrial, trialOutcome = TrialOutcome.PENDING,
+        trialEndDate = if (isTrial) trialEndDate else ""
+    )
+    val budgetAfter = if (isPro && monthlyBudget != null) Budget.progress(
+        budgetBefore, Budget.monthlyTotal(Budget.replacing(budgetSubscriptions, listOf(candidate)), calculationSnapshot),
+        monthlyBudget, calculationSnapshot) else null
     // The same renewal wording the saved row will use, so the preview is a
     // preview. The exact date is not repeated here: it already has a line of
     // its own under the First Payment Date field, and spelling it out in full
     // is what pushed this line past the width it had and cost it the date.
-    val previewDaysLeft = remember(nextRenewal) {
+    val previewDaysLeft = remember(calculationSnapshot, nextRenewal) {
         DateCalculators.calculateDaysUntil(nextRenewal)
     }
     val previewRenewalText = when {
@@ -388,6 +386,7 @@ fun AddSubscriptionScreen(
                                 colorHex = selectedColorHex,
                                 iconUrl = iconUrl,
                                 notes = notes.trim(),
+                                isActive = existingSubscription?.isActive ?: true,
                                 isTrial = isTrial,
                                 trialEndDate = if (isTrial) trialEndDate else "",
                                 trialConverts = trialConverts,
@@ -513,6 +512,9 @@ fun AddSubscriptionScreen(
                                     }
                             )
                         }
+                    }
+                    if (isPro && monthlyBudget != null && budgetAfter == null) {
+                        Text(stringResource(R.string.overview_budget_unavailable))
                     }
                     budgetAfter?.let { after ->
                         val limit = CurrencyFormatter.format(after.limit, primaryCurrency, locale)

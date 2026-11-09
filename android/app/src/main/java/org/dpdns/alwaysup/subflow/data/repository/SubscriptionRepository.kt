@@ -86,7 +86,7 @@ class SubscriptionRepository(
             return Result.failure(QuotaReachedException())
         }
         val updated = resolveActiveChange(existing, active)
-        return saveSubscription(updated, isPro).map { ActiveChange(existing, updated) }
+        return saveSubscription(updated, isPro).map { ActiveChange(existing, requireNotNull(getById(id))) }
     }
 
     /**
@@ -118,8 +118,13 @@ class SubscriptionRepository(
      * amount, the cycle, the first-bill date and the trial flags, and none of
      * them come back on their own.
      */
-    suspend fun revertTo(subscription: Subscription, isPro: Boolean): Result<Unit> =
-        saveSubscription(subscription, isPro)
+    suspend fun revertTo(subscription: Subscription, isPro: Boolean): Result<Unit> {
+        // Existing-record undo restores the accepted change's entire baseline,
+        // including trial fields and dates; write normalization is not an inverse.
+        if (dao.getById(subscription.id) == null) return saveSubscription(subscription, isPro)
+        dao.insertOrUpdate(SubscriptionEntity.fromDomain(subscription))
+        return Result.success(Unit)
+    }
 
     suspend fun deleteSubscription(id: String) = dao.markDeleted(id)
 

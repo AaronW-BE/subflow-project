@@ -1,5 +1,7 @@
 package org.dpdns.alwaysup.subflow.domain.util
 
+import kotlinx.coroutines.flow.asStateFlow
+
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -108,8 +110,7 @@ object CurrencyFormatter {
 }
 
 object CurrencyConverter {
-    // Offline table, used until /rates answers - and in the shipped release
-    // build, which has BACKEND_ENABLED = false, it is the only table there is.
+    // Licensed offline table, retained for currencies absent from a usable feed.
     //
     // Deliberately NOT a snapshot of the live provider. ExchangeRate-API's
     // terms permit caching for "customer end-use only" and state the licence
@@ -125,8 +126,8 @@ object CurrencyConverter {
     //      this table is a floor rather than a source of truth.
     //
     // Every one of these is replaced by the live feed the moment /rates
-    // answers. A currency missing from the table converts at 1:1 (see
-    // convert()), so the table must stay complete even where it is imprecise.
+    // answers. Missing currencies are explicitly unavailable; retain this
+    // licensed offline coverage even where it is imprecise.
     private val fallbackRatesToUSD = mapOf(
         "USD" to 1.0,
         "EUR" to 1.159,
@@ -170,64 +171,42 @@ object CurrencyConverter {
         "BDT" to 0.00833333
     )
 
-    @Volatile
-    private var ratesToUSD: Map<String, Double> = fallbackRatesToUSD
+    private val publication = kotlinx.coroutines.flow.MutableStateFlow(
+        RatesSnapshot(0L, fallbackRatesToUSD.mapValues { 1.0 / it.value })
+    )
+    val snapshots: kotlinx.coroutines.flow.StateFlow<RatesSnapshot> =
+        publication.asStateFlow()
 
-    /**
-     * When the rates in use were quoted by the provider.
-     *
-     * This is the provider's own timestamp, not when the device fetched them.
-     * Stamping it with System.currentTimeMillis() would report a table cached
-     * for a week as if it were seconds old - the same mistake the server was
-     * making with its own clock.
-     *
-     * Zero means the built-in snapshot is in use and nothing has been fetched.
-     */
-    @Volatile
-    var quotedAtEpochMillis: Long = 0L
-        private set
+    fun captureSnapshot(): RatesSnapshot = publication.value
+    val quotedAtEpochMillis: Long get() = captureSnapshot().quotedAtEpochMillis ?: 0L
+    val providerName: String get() = captureSnapshot().providerName.orEmpty()
+    val providerUrl: String get() = captureSnapshot().providerUrl.orEmpty()
 
-    /** Attribution for the rates currently in use, if they came from a feed. */
-    @Volatile
-    var providerName: String = ""
-        private set
-
-    @Volatile
-    var providerUrl: String = ""
-        private set
-
-    /**
-     * Replaces the built-in table with server rates. Values are expressed as
-     * units-per-USD (the shape the /rates endpoint returns), so they are
-     * inverted here into the USD-value-per-unit form used for conversion.
-     */
+    @Synchronized
     fun updateFromUsdBase(
         rates: Map<String, Double>,
         quotedAtEpochMillis: Long = 0L,
         provider: String = "",
-        providerUrl: String = ""
+        providerUrl: String = "",
+        fromCache: Boolean = false,
+        expectedRevision: Long? = null
     ) {
-        if (rates.isEmpty()) return
-        val converted = buildMap {
-            put("USD", 1.0)
-            rates.forEach { (code, perUsd) ->
-                if (perUsd > 0.0) put(code.uppercase(), 1.0 / perUsd)
-            }
-        }
-        ratesToUSD = fallbackRatesToUSD + converted
-        this.quotedAtEpochMillis = quotedAtEpochMillis
-        this.providerName = provider
-        this.providerUrl = providerUrl
+        val previous = publication.value
+        if (fromCache && expectedRevision != null && previous.revision != expectedRevision) return
+        if (fromCache && previous.revision > 0 &&
+            quotedAtEpochMillis < (previous.quotedAtEpochMillis ?: 0L)) return
+        val valid = rates.filterValues {
+            it.isFinite() && it > 0.0 && (1.0 / it).isFinite() && 1.0 / it > 0.0
+        }.mapKeys { currencyKey(it.key) }
+        if (valid.isEmpty()) return
+        val merged = fallbackRatesToUSD.mapValues { 1.0 / it.value } + valid + ("USD" to 1.0)
+        if (previous.ratesPerUsd == merged && previous.quotedAtEpochMillis == quotedAtEpochMillis &&
+            previous.providerName.orEmpty() == provider && previous.providerUrl.orEmpty() == providerUrl) return
+        publication.value = RatesSnapshot(previous.revision + 1, merged,
+            quotedAtEpochMillis, provider, providerUrl)
     }
 
-    fun convert(amount: Double, fromCurrency: String, toCurrency: String): Double {
-        if (fromCurrency.equals(toCurrency, ignoreCase = true)) return amount
-        val table = ratesToUSD
-        val fromRate = table[fromCurrency.uppercase()] ?: return amount
-        val toRate = table[toCurrency.uppercase()] ?: return amount
-        if (toRate == 0.0) return amount
-        return amount * fromRate / toRate
-    }
+
 }
 
 object DateCalculators {

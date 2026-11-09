@@ -23,17 +23,34 @@ import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
  * Every failure is silent and non-destructive. Whatever was loaded stays
  * loaded, because a wrong total is worse than a slightly old one.
  */
-class ExchangeRateRepository(context: Context) {
+class ExchangeRateRepository internal constructor(
+    context: Context,
+    private val api: ExchangeRateApi,
+    private val backendApi: SubFlowApiService,
+    private val backendEnabled: Boolean,
+    private val refreshWidget: (Context) -> Unit
+) {
+    constructor(context: Context) : this(context, ExchangeRateApi.create(),
+        SubFlowApiService.create(), BuildConfig.BACKEND_ENABLED,
+        { org.dpdns.alwaysup.subflow.widget.refreshSubFlowWidget(it) })
 
+    private val appContext = context.applicationContext
     private val prefs = context.applicationContext
         .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    private val api = ExchangeRateApi.create()
-    private val backendApi = SubFlowApiService.create()
     private val gson = Gson()
+
+    val snapshots = CurrencyConverter.snapshots
 
     /** Loads the cache into the converter. Call before the first conversion. */
     fun primeFromCache() {
-        val json = prefs.getString(KEY_RATES, null) ?: return
+        val previous = CurrencyConverter.captureSnapshot()
+        val revision = previous.revision
+        val cached = prefs.all
+        val json = cached[KEY_RATES] as? String ?: return
+        val provider = cached[KEY_PROVIDER_NAME] as? String ?: ""
+        val providerUrl = cached[KEY_PROVIDER_URL] as? String ?: ""
+        if (KEY_PROVIDER_NAME !in cached && KEY_PROVIDER_URL !in cached &&
+            (!previous.providerName.isNullOrBlank() || !previous.providerUrl.isNullOrBlank())) return
         val rates: Map<String, Double> = runCatching {
             gson.fromJson<Map<String, Double>>(
                 json, object : TypeToken<Map<String, Double>>() {}.type
@@ -43,9 +60,10 @@ class ExchangeRateRepository(context: Context) {
         if (rates.isNotEmpty()) {
             CurrencyConverter.updateFromUsdBase(
                 rates = rates,
-                quotedAtEpochMillis = prefs.getLong(KEY_QUOTED_AT, 0L),
-                provider = ExchangeRateApi.PROVIDER_NAME,
-                providerUrl = ExchangeRateApi.PROVIDER_URL
+                quotedAtEpochMillis = cached[KEY_QUOTED_AT] as? Long ?: 0L,
+                provider = provider,
+                providerUrl = providerUrl,
+                fromCache = true, expectedRevision = revision
             )
         }
     }
@@ -92,7 +110,7 @@ class ExchangeRateRepository(context: Context) {
             if (missing > 0) {
                 // A partial table is worse than a stale one: CurrencyConverter
                 // returns the amount unchanged for an unknown currency, so the
-                // missing ones would silently convert at 1:1.
+                // missing ones remain explicitly unavailable.
                 Log.w(TAG, "Rate refresh rejected: missing $missing selectable currencies")
                 return@withContext haveCache
             }
@@ -104,15 +122,20 @@ class ExchangeRateRepository(context: Context) {
             prefs.edit()
                 .putString(KEY_RATES, gson.toJson(rates))
                 .putLong(KEY_QUOTED_AT, quotedAt)
+                .putString(KEY_PROVIDER_NAME, ExchangeRateApi.PROVIDER_NAME)
+                .putString(KEY_PROVIDER_URL, ExchangeRateApi.PROVIDER_URL)
                 .putLong(KEY_NEXT_UPDATE, body.timeNextUpdateUnix * 1000L)
                 .apply()
 
+            val before = CurrencyConverter.captureSnapshot().revision
             CurrencyConverter.updateFromUsdBase(
                 rates = rates,
                 quotedAtEpochMillis = quotedAt,
                 provider = ExchangeRateApi.PROVIDER_NAME,
                 providerUrl = ExchangeRateApi.PROVIDER_URL
             )
+            if (CurrencyConverter.captureSnapshot().revision != before)
+                refreshWidget(appContext)
             true
         } catch (e: Exception) {
             // Offline, DNS failure, captive portal. Keep what we have.
@@ -130,7 +153,7 @@ class ExchangeRateRepository(context: Context) {
      * cannot displace good rates already in hand.
      */
     private suspend fun fetchFromBackend(): Boolean {
-        if (!BuildConfig.BACKEND_ENABLED) return false
+        if (!backendEnabled) return false
         return try {
             val res = backendApi.getRates()
             val body = res.body()
@@ -145,20 +168,27 @@ class ExchangeRateRepository(context: Context) {
                 SupportedCurrencies.any { rates[it.code] == null } -> false
                 else -> {
                     val quotedAt = body.updatedAt?.let(::parseIsoInstant) ?: 0L
+                    val provider = body.provider.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_NAME }
+                    val providerUrl = body.providerUrl.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_URL }
                     prefs.edit()
                         .putString(KEY_RATES, gson.toJson(rates))
                         .putLong(KEY_QUOTED_AT, quotedAt)
+                        .putString(KEY_PROVIDER_NAME, provider)
+                        .putString(KEY_PROVIDER_URL, providerUrl)
                         // The backend refreshes on the provider's schedule, so
                         // check back daily rather than trying to mirror it.
                         .putLong(KEY_NEXT_UPDATE, System.currentTimeMillis() + BACKEND_RECHECK_MS)
                         .apply()
 
+                    val before = CurrencyConverter.captureSnapshot().revision
                     CurrencyConverter.updateFromUsdBase(
                         rates = rates,
                         quotedAtEpochMillis = quotedAt,
-                        provider = body.provider.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_NAME },
-                        providerUrl = body.providerUrl.orEmpty().ifBlank { ExchangeRateApi.PROVIDER_URL }
+                        provider = provider,
+                        providerUrl = providerUrl
                     )
+                    if (CurrencyConverter.captureSnapshot().revision != before)
+                        refreshWidget(appContext)
                     true
                 }
             }
@@ -177,6 +207,8 @@ class ExchangeRateRepository(context: Context) {
         const val TAG = "SubFlowRates"
         const val PREFS_NAME = "subflow_exchange_rates"
         const val KEY_RATES = "rates_json"
+        const val KEY_PROVIDER_NAME = "provider_name"
+        const val KEY_PROVIDER_URL = "provider_url"
         const val KEY_QUOTED_AT = "quoted_at_millis"
         const val KEY_NEXT_UPDATE = "next_update_millis"
         const val BACKEND_RECHECK_MS = 24L * 60 * 60 * 1000

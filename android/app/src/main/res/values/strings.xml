@@ -193,11 +193,11 @@
     <string name="spend_map_other">Everything else</string>
     <string name="spend_map_summary">Spend map: %1$s of %2$d subscriptions, largest is %3$s</string>
     <string name="billing_forecast">Billing forecast</string>
-    <string name="billing_forecast_caption">What each month is actually charged. An annual plan lands whole, on one day, instead of being spread over twelve months.</string>
+    <string name="billing_forecast_caption">Six full calendar months from this month, including elapsed dates. Scheduled charges, not confirmed payments.</string>
     <string name="forecast_peak">%1$s is the heaviest month at %2$s</string>
     <string name="forecast_even">The next six months are even, around %1$s each</string>
     <string name="forecast_average_line">Dashed line: monthly average</string>
-    <string name="history_caption">Last 6 months of what you pay for today, from when each one started</string>
+    <string name="history_caption">Last 6 months reconstructed from current records and start dates, not payment history.</string>
     <string name="analytics_empty">Add a subscription to see your spending breakdown.</string>
     <string name="pro_locked_analytics">The charts and breakdowns are part of Pro.</string>
     <string name="unlock_with_pro">Unlock with Pro</string>
@@ -523,4 +523,22 @@
     <string name="trial_cancel_confirm_body">SubFlow only updates this local record and pauses it. It does not contact the provider or reverse any charges.</string>
     <string name="trial_cancel_confirm">Confirm cancelled</string>
     <string name="trial_cancel_back">Go back</string>
+    <string name="overview_all">All</string>
+    <string name="overview_active">Active</string>
+    <string name="overview_paused">Paused</string>
+    <string name="overview_pending">Including %1$d pending trials</string>
+    <string name="overview_trial">Pending trials</string>
+    <string name="overview_viewing">Viewing: %1$s</string>
+    <string name="overview_reset">Clear view</string>
+    <string name="overview_price_unavailable">Unavailable exchange rates · monthly price not comparable</string>
+    <string name="overview_unavailable">Estimate unavailable</string>
+    <string name="overview_normalized">Normalized recurring cost · all active subscriptions, not actual payments</string>
+    <string name="overview_partial">Incomplete estimate · known converted portion only</string>
+    <string name="overview_budget_unavailable">Budget comparison unavailable: cost or budget conversion is incomplete.</string>
+    <string name="renewal_date_unavailable">Date unavailable</string>
+    <string name="analytics_coverage_unavailable">Comparison or series unavailable: costs cannot all be converted or calculated safely.</string>
+    <string name="budget_original_currency">Exchange rate unavailable. Edit in the original currency (%1$s); saving keeps this currency.</string>
+    <string name="widget_normalized_cost">Monthly normalized cost</string>
+    <string name="widget_partial_coverage">Partial · converted only</string>
+    <string name="widget_no_events">No upcoming events</string>
 </resources>

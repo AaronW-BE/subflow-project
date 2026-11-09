@@ -100,7 +100,7 @@ import org.dpdns.alwaysup.subflow.data.repository.ActiveChange
 import org.dpdns.alwaysup.subflow.data.repository.SubscriptionRepository
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
-import org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter
+import org.dpdns.alwaysup.subflow.domain.util.*
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
 import org.dpdns.alwaysup.subflow.domain.util.DateCalculators
 import org.dpdns.alwaysup.subflow.ui.components.*
@@ -130,7 +130,8 @@ fun List<Subscription>.filterAndSort(
     category: String,
     query: String,
     order: DashboardSortOrder,
-    primaryCurrency: String
+    primaryCurrency: String,
+    snapshot: CalculationSnapshot = CalculationSnapshot(primaryCurrency, LocalDate.now(), CurrencyConverter.captureSnapshot())
 ): List<Subscription> = this
     .filter { sub ->
         val matchCat = category == "All" ||
@@ -142,16 +143,20 @@ fun List<Subscription>.filterAndSort(
             sub.name.contains(q, ignoreCase = true) ||
             sub.category.contains(q, ignoreCase = true) ||
             sub.notes.contains(q, ignoreCase = true)
-        matchCat && matchQuery
+        !sub.isDeleted && matchCat && matchQuery
     }
     .let { list ->
         when (order) {
             DashboardSortOrder.RENEWAL_DATE -> list.sortedBy { DateCalculators.calculateDaysUntil(it.nextBillDate) }
-            DashboardSortOrder.PRICE_HIGH -> list.sortedByDescending {
-                CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
-            }
-            DashboardSortOrder.PRICE_LOW -> list.sortedBy {
-                CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency)
+            DashboardSortOrder.PRICE_HIGH, DashboardSortOrder.PRICE_LOW -> list.sortedWith { a, b ->
+                val left = convertAmount(a.monthlyAmount, a.currency, primaryCurrency, snapshot.rates)
+                val right = convertAmount(b.monthlyAmount, b.currency, primaryCurrency, snapshot.rates)
+                when {
+                    left !is ConversionResult.Available -> if (right is ConversionResult.Available) 1 else 0
+                    right !is ConversionResult.Available -> -1
+                    order == DashboardSortOrder.PRICE_HIGH -> right.amount.compareTo(left.amount)
+                    else -> left.amount.compareTo(right.amount)
+                }
             }
             DashboardSortOrder.NAME_ASC -> list.sortedBy { it.name.lowercase() }
         }
@@ -196,6 +201,7 @@ fun DashboardScreen(
     val listState = rememberLazyListState()
     val density = LocalDensity.current
     val keyboard = LocalSoftwareKeyboardController.current
+    val calculationSnapshot = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.copy(homeCurrency = primaryCurrency)
     val context = LocalContext.current
     val undoText = stringResource(R.string.undo)
     val configuration = LocalConfiguration.current
@@ -209,6 +215,7 @@ fun DashboardScreen(
     var showSortSheet by remember { mutableStateOf(false) }
     // Collapsed by default: paused subscriptions are the ones the user has
     // said they are not thinking about.
+    var subset by rememberSaveable { mutableStateOf("Normal") }
     var pausedExpanded by rememberSaveable { mutableStateOf(false) }
 
     // Multi-select (BIN-66). Empty means it is off; a long press on a row
@@ -226,41 +233,39 @@ fun DashboardScreen(
 
     val activeSubs = remember(subscriptions) { subscriptions.filter { it.isActive && !it.isDeleted } }
     val pausedSubs = remember(subscriptions) { subscriptions.filter { !it.isActive && !it.isDeleted } }
-    val totalMonthly = remember(activeSubs, primaryCurrency) {
-        activeSubs.sumOf { CurrencyConverter.convert(it.monthlyAmount, it.currency, primaryCurrency) }
-    }
+    val overview = remember(subscriptions, calculationSnapshot) { calculateOverview(subscriptions, calculationSnapshot) }
+    val estimate = overview.currentMonthlyEstimate
+    val totalMonthly = estimate.knownAmount
     val totalYearly = totalMonthly * 12.0
-    // Pro only, like the setting: a budget set on Pro and kept after it
-    // lapsed is not shown rather than shown as a feature they no longer have.
-    val budgetProgress = remember(monthlyBudget, totalMonthly, primaryCurrency, isAnnualView, isPro) {
-        if (!isPro) null else monthlyBudget?.let {
-            Budget.progress(totalMonthly, it, primaryCurrency, annual = isAnnualView)
-        }
+    val budgetProgress = if (isPro && monthlyBudget != null)
+        Budget.progress(estimate, estimate, monthlyBudget, calculationSnapshot, isAnnualView) else null
+    val budgetUnavailable = isPro && monthlyBudget != null && budgetProgress == null
+    fun accepts(sub: Subscription) = when (subset) {
+        "Active" -> sub.isActive
+        "Paused" -> !sub.isActive
+        "Trial" -> sub.isActive && sub.isTrialPending
+        else -> true
     }
-
-    val filteredSubs = remember(activeSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
-        activeSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
-    }
-    // The same search and category apply to the paused list, so one query
-    // answers "where did my Netflix go" whichever state it is in.
-    val filteredPaused = remember(pausedSubs, selectedCategory, searchQuery, sortOrder, primaryCurrency) {
-        pausedSubs.filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency)
-    }
-
-    val nextRenewalSub = activeSubs.minByOrNull { DateCalculators.calculateDaysUntil(it.nextBillDate) }
-    val nextRenewalDays = nextRenewalSub?.let { DateCalculators.calculateDaysUntil(it.nextBillDate) }
+    val filteredSubs = activeSubs.filter { accepts(it) }
+        .filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency, calculationSnapshot)
+    val filteredPaused = pausedSubs.filter { accepts(it) }
+        .filterAndSort(selectedCategory, searchQuery, sortOrder, primaryCurrency, calculationSnapshot)
+    val showPaused = pausedExpanded
+    val nextEvent = overview.upcomingEvents.firstOrNull()
+    val nextRenewalSub = nextEvent?.let { event -> activeSubs.find { it.id == event.subscriptionId } }
+    val nextRenewalDays = nextEvent?.let { java.time.temporal.ChronoUnit.DAYS.between(calculationSnapshot.today, it.date) }
 
     val currentConfig = LocalConfiguration.current
-    val todayFormatted = remember(currentConfig) {
+    val todayFormatted = remember(calculationSnapshot, currentConfig) {
         val currentLocale = currentConfig.locales.get(0) ?: Locale.getDefault()
         // A fixed "EEEE, MMM d" pattern produces "星期五, 8月 28" in Chinese and
         // similar oddities elsewhere. An ICU skeleton lets each locale choose
         // its own field order and separators.
         runCatching {
             val icuFormat = android.icu.text.DateFormat.getInstanceForSkeleton("MMMEd", currentLocale)
-            icuFormat.format(java.util.Date())
+            icuFormat.format(java.util.Date.from(calculationSnapshot.today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()))
         }.getOrElse {
-            LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, MMM d", currentLocale))
+            calculationSnapshot.today.format(DateTimeFormatter.ofPattern("EEE, MMM d", currentLocale))
         }.uppercase(currentLocale)
     }
 
@@ -305,20 +310,16 @@ fun DashboardScreen(
 
     /**
      * A sentence to add when a resume takes a Pro user's monthly total up and
-     * over their budget. [added] is what the resumed ones cost a month.
+     * over their budget, using only accepted persisted records.
      */
-    fun budgetNote(added: Double): String? {
-        val over = Budget.newlyOver(totalMonthly, totalMonthly + added, monthlyBudget, primaryCurrency, isPro)
+    fun budgetNote(before: List<Subscription>, accepted: List<Subscription>, snapshot: org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot): String? {
+        val over = Budget.newlyOver(Budget.monthlyTotal(before, snapshot),
+            Budget.monthlyTotal(Budget.replacing(before, accepted), snapshot), monthlyBudget, snapshot, isPro)
             ?: return null
-        return context.getString(
-            R.string.budget_now_over,
+        return context.getString(R.string.budget_now_over,
             CurrencyFormatter.format(over.overBy, primaryCurrency, locale),
-            CurrencyFormatter.format(over.limit, primaryCurrency, locale)
-        )
+            CurrencyFormatter.format(over.limit, primaryCurrency, locale))
     }
-
-    fun monthlyInHome(sub: Subscription) =
-        CurrencyConverter.convert(sub.monthlyAmount, sub.currency, primaryCurrency)
 
     fun togglePaused(sub: Subscription) {
         val name = sub.name
@@ -329,6 +330,8 @@ fun DashboardScreen(
             // legal state, and resuming the sixth is where the free tier ends.
             // The paywall is the caller's to show, and there is nothing to
             // report or undo here.
+            val before = subscriptions.toList()
+            val snapshot = calculationSnapshot
             val change = onSetActive(sub.id, resuming) ?: return@launch
             val message = when {
                 // Resuming a cancelled trial starts a real charge. Saying only
@@ -345,7 +348,7 @@ fun DashboardScreen(
                 resuming -> context.getString(R.string.resumed_item, name)
                 else -> context.getString(R.string.paused_item, name)
             }.let { base ->
-                val note = if (resuming) budgetNote(monthlyInHome(change.updated)) else null
+                val note = if (resuming) budgetNote(before, listOf(change.updated), snapshot) else null
                 if (note == null) base else joinSentences(base, note, locale)
             }
             // Writes the whole record back rather than flipping the flag: a
@@ -385,6 +388,8 @@ fun DashboardScreen(
         selectedIds = emptySet()
         onSwipeHintSeen()
         scope.launch {
+            val before = subscriptions.toList()
+            val snapshot = calculationSnapshot
             val result = onSetActiveMany(targets, resume)
             val done = result.changes.size
             if (done == 0) {
@@ -418,7 +423,7 @@ fun DashboardScreen(
                 converted > 0 -> context.getString(R.string.bulk_resumed_converted, done, converted)
                 else -> context.resources.getQuantityString(R.plurals.bulk_resumed, done, done)
             }.let { base ->
-                val note = if (resume) budgetNote(result.changes.sumOf { monthlyInHome(it.updated) }) else null
+                val note = if (resume) budgetNote(before, result.changes.map { it.updated }, snapshot) else null
                 if (note == null) base else joinSentences(base, note, locale)
             }
             confirmWithUndo(message) {
@@ -544,7 +549,10 @@ fun DashboardScreen(
                         nextRenewalSub = nextRenewalSub,
                         nextRenewalDays = nextRenewalDays,
                         isLoading = isLoading,
-                        budget = budgetProgress
+                        budget = budgetProgress,
+                        estimate = estimate,
+                        budgetUnavailable = budgetUnavailable,
+                        rates = calculationSnapshot.rates
                     )
                 }
 
@@ -560,7 +568,37 @@ fun DashboardScreen(
                     }
                 }
 
-                if (activeSubs.isNotEmpty() || searchQuery.isNotBlank()) {
+                item(key = "inventory") {
+                    Column {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            listOf(Triple("All", R.string.overview_all, overview.counts.total),
+                                Triple("Active", R.string.overview_active, overview.counts.active),
+                                Triple("Paused", R.string.overview_paused, overview.counts.paused)).forEach { (key, label, count) ->
+                                TextButton(modifier = Modifier.weight(1f), onClick = { subset = key; searchQuery = ""; selectedCategory = "All"; pausedExpanded = key == "All" || key == "Paused" }) {
+                                    Text("$count\n${stringResource(label)}", textAlign = TextAlign.Center)
+                                }
+                            }
+                        }
+                        TextButton(onClick = { subset = "Trial"; searchQuery = ""; selectedCategory = "All"; pausedExpanded = false }) {
+                            Text(stringResource(R.string.overview_pending, overview.counts.pendingTrial))
+                        }
+                        if (subset != "Normal") {
+                            val label = when (subset) {
+                                "Active" -> R.string.overview_active
+                                "Paused" -> R.string.overview_paused
+                                "Trial" -> R.string.overview_trial
+                                else -> R.string.overview_all
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(R.string.overview_viewing, stringResource(label)), Modifier.weight(1f))
+                                TextButton(onClick = { subset = "Normal"; searchQuery = ""; selectedCategory = "All"; pausedExpanded = false }) {
+                                    Text(stringResource(R.string.overview_reset))
+                                }
+                            }
+                        }
+                    }
+                }
+                if (overview.counts.total > 0 || subset != "Normal" || searchQuery.isNotBlank()) {
                     item(key = "search") {
                         SearchAndSortRow(
                             searchQuery = searchQuery,
@@ -604,9 +642,17 @@ fun DashboardScreen(
                                 // of why it is being shown.
                                 categoryLabel = selectedCategory
                                     .takeIf { it != "All" }
-                                    ?.let { localizedCategory(it) },
+                                    ?.let { localizedCategory(it) }
+                                    ?: if (subset != "Normal") stringResource(when (subset) {
+                                        "Active" -> R.string.overview_active
+                                        "Paused" -> R.string.overview_paused
+                                        "Trial" -> R.string.overview_trial
+                                        else -> R.string.overview_all
+                                    }) else null,
                                 onAddClick = onAddClick,
                                 onClearFilters = {
+                                    subset = "Normal"
+                                    pausedExpanded = false
                                     searchQuery = ""
                                     selectedCategory = "All"
                                 }
@@ -616,6 +662,10 @@ fun DashboardScreen(
 
                     else -> {
                         items(filteredSubs, key = { it.id }) { sub ->
+                            if (sortOrder in listOf(DashboardSortOrder.PRICE_HIGH, DashboardSortOrder.PRICE_LOW) &&
+                                sub.id == filteredSubs.firstOrNull { convertAmount(it.monthlyAmount, it.currency, primaryCurrency, calculationSnapshot.rates) is ConversionResult.Unavailable }?.id) {
+                                Text(stringResource(R.string.overview_price_unavailable), Modifier.padding(16.dp), style = MaterialTheme.typography.bodySmall)
+                            }
                             SubscriptionRow(
                                 sub = sub,
                                 onClick = {
@@ -635,7 +685,7 @@ fun DashboardScreen(
                     item(key = "paused_header") {
                         PausedSectionHeader(
                             count = filteredPaused.size,
-                            expanded = pausedExpanded,
+                            expanded = showPaused,
                             onToggle = {
                                 haptics.tick()
                                 pausedExpanded = !pausedExpanded
@@ -643,8 +693,12 @@ fun DashboardScreen(
                         )
                     }
 
-                    if (pausedExpanded) {
+                    if (showPaused) {
                         items(filteredPaused, key = { it.id }) { sub ->
+                            if (sortOrder in listOf(DashboardSortOrder.PRICE_HIGH, DashboardSortOrder.PRICE_LOW) &&
+                                sub.id == filteredPaused.firstOrNull { convertAmount(it.monthlyAmount, it.currency, primaryCurrency, calculationSnapshot.rates) is ConversionResult.Unavailable }?.id) {
+                                Text(stringResource(R.string.overview_price_unavailable), Modifier.padding(16.dp), style = MaterialTheme.typography.bodySmall)
+                            }
                             SubscriptionRow(
                                 sub = sub,
                                 onClick = {
@@ -738,7 +792,7 @@ fun DashboardScreen(
                     onClose = { selectedIds = emptySet() },
                     onSelectAll = {
                         haptics.tick()
-                        val visible = filteredSubs + if (pausedExpanded) filteredPaused else emptyList()
+                        val visible = filteredSubs + if (showPaused) filteredPaused else emptyList()
                         selectedIds = selectedIds + visible.map { it.id }
                     },
                     onToggleActive = ::bulkSetActive,
@@ -1018,7 +1072,10 @@ private fun HeroSpendCard(
     nextRenewalSub: Subscription?,
     nextRenewalDays: Long?,
     isLoading: Boolean,
-    budget: BudgetProgress? = null
+    budget: BudgetProgress? = null,
+    estimate: CostEstimate,
+    budgetUnavailable: Boolean,
+    rates: RatesSnapshot
 ) {
     AppleCard(
         modifier = Modifier.fillMaxWidth(),
@@ -1075,6 +1132,8 @@ private fun HeroSpendCard(
 
             if (isLoading) {
                 ShimmerBox(modifier = Modifier.width(180.dp).height(40.dp), cornerRadius = 10.dp)
+            } else if (estimate.displayAmount == null) {
+                Text(stringResource(R.string.overview_unavailable), style = MaterialTheme.typography.titleLarge)
             } else {
                 AnimatedContent(
                     targetState = if (isAnnualView) totalYearly else totalMonthly,
@@ -1089,6 +1148,19 @@ private fun HeroSpendCard(
                 }
             }
 
+            Text(stringResource(if (estimate.isComplete) R.string.overview_normalized else R.string.overview_partial),
+                style = MaterialTheme.typography.bodySmall)
+            val freshness = rates.quotedAtEpochMillis?.let {
+                stringResource(R.string.rates_updated_on, android.text.format.DateUtils.formatDateTime(
+                    LocalContext.current, it, android.text.format.DateUtils.FORMAT_SHOW_DATE or android.text.format.DateUtils.FORMAT_ABBREV_MONTH))
+            } ?: stringResource(R.string.rates_offline_snapshot)
+            val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+            Text(listOfNotNull(rates.providerName?.takeIf { it.isNotBlank() }, freshness).joinToString(" · "),
+                modifier = if (rates.providerUrl.isNullOrBlank()) Modifier else Modifier.clickable {
+                    runCatching { uriHandler.openUri(rates.providerUrl) }
+                }.heightIn(min = 48.dp).wrapContentHeight(),
+                style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (budgetUnavailable) Text(stringResource(R.string.overview_budget_unavailable), style = MaterialTheme.typography.bodySmall)
             if (budget != null && !isLoading) {
                 Spacer(modifier = Modifier.height(12.dp))
                 BudgetMeter(progress = budget, currencyCode = primaryCurrency)
@@ -1621,7 +1693,9 @@ private fun SubscriptionRow(
     selected: Boolean = false,
     onLongClick: () -> Unit = {}
 ) {
-    val daysLeft = DateCalculators.calculateDaysUntil(sub.nextBillDate)
+    val today = org.dpdns.alwaysup.subflow.ui.navigation.LocalCalculationSnapshot.current.today
+    val nextBillDate = runCatching { LocalDate.parse(sub.nextBillDate) }.getOrNull()
+    val daysLeft = nextBillDate?.let { java.time.temporal.ChronoUnit.DAYS.between(today, it) }
     val localizedCategory = localizedCategory(sub.category)
     val configuration = LocalConfiguration.current
     val locale = remember(configuration) { configuration.locales.get(0) ?: Locale.getDefault() }
@@ -1632,6 +1706,9 @@ private fun SubscriptionRow(
     val isTrial = sub.isTrialPending
     val renewalText = when {
         !sub.isActive -> stringResource(R.string.paused)
+        daysLeft == null -> stringResource(R.string.renewal_date_unavailable)
+        // Android plurals take Int quantities; retain the full ISO date beyond that range.
+        daysLeft > Int.MAX_VALUE.toLong() -> nextBillDate.toString()
         isTrial && daysLeft < 0L -> stringResource(R.string.trial_ended)
         isTrial && daysLeft == 0L -> stringResource(R.string.trial_ends_today)
         isTrial -> pluralStringResource(
@@ -1660,7 +1737,7 @@ private fun SubscriptionRow(
     }
     // An ended trial is the most urgent thing this list can show: it is a
     // question the user still owes an answer to, and possibly a charge.
-    val urgent = sub.isActive && if (isTrial) daysLeft <= 3L else daysLeft in 0..3
+    val urgent = sub.isActive && daysLeft != null && if (isTrial) daysLeft <= 3L else daysLeft in 0..3
 
     SwipeableSubscriptionCard(
         modifier = Modifier.fillMaxWidth(),

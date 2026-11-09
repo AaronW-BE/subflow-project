@@ -189,11 +189,11 @@
     <string name="spend_map_other">Tout le reste</string>
     <string name="spend_map_summary">Carte des dépenses : %1$s pour %2$d abonnements, le plus gros est %3$s</string>
     <string name="billing_forecast">Prévision de facturation</string>
-    <string name="billing_forecast_caption">Ce qui est réellement prélevé chaque mois. Un abonnement annuel tombe en une fois, un seul jour, au lieu d’être réparti sur douze mois.</string>
+    <string name="billing_forecast_caption">Six mois calendaires complets à partir de ce mois, dates passées incluses. Frais prévus, pas des paiements confirmés.</string>
     <string name="forecast_peak">%1$s est le mois le plus lourd, avec %2$s</string>
     <string name="forecast_even">Les six prochains mois sont réguliers, environ %1$s par mois</string>
     <string name="forecast_average_line">Pointillés : moyenne mensuelle</string>
-    <string name="history_caption">6 derniers mois de ce que vous payez aujourd’hui, depuis le début de chaque abonnement</string>
+    <string name="history_caption">Les 6 derniers mois reconstitués à partir des fiches actuelles et des dates de début, pas un historique des paiements.</string>
     <string name="analytics_empty">Ajoutez un abonnement pour voir la répartition de vos dépenses.</string>
     <string name="pro_locked_analytics">Les graphiques et les analyses détaillées font partie de Pro.</string>
     <string name="unlock_with_pro">Débloquer avec Pro</string>
@@ -513,4 +513,22 @@
     <string name="trial_cancel_confirm_body">SubFlow met seulement à jour cette fiche locale et la met en pause. L’application ne contacte pas le fournisseur et n’annule aucun prélèvement.</string>
     <string name="trial_cancel_confirm">Confirmer la résiliation</string>
     <string name="trial_cancel_back">Revenir</string>
+    <string name="overview_all">Tous</string>
+    <string name="overview_active">Actifs</string>
+    <string name="overview_paused">En pause</string>
+    <string name="overview_pending">Dont %1$d essais en attente</string>
+    <string name="overview_trial">Essais en attente</string>
+    <string name="overview_viewing">Vue : %1$s</string>
+    <string name="overview_reset">Réinitialiser</string>
+    <string name="overview_price_unavailable">Taux indisponible · prix mensuel non comparable</string>
+    <string name="overview_unavailable">Estimation indisponible</string>
+    <string name="overview_normalized">Coût récurrent normalisé · tous les actifs, pas les paiements réels</string>
+    <string name="overview_partial">Estimation incomplète · partie convertie uniquement</string>
+    <string name="overview_budget_unavailable">Comparaison du budget indisponible : conversion incomplète.</string>
+    <string name="renewal_date_unavailable">Date indisponible</string>
+    <string name="analytics_coverage_unavailable">Comparaison ou série indisponible : tous les coûts ne peuvent pas être convertis ou calculés de manière fiable.</string>
+    <string name="budget_original_currency">Taux de change indisponible. Modifiez dans la devise d’origine (%1$s), conservée à l’enregistrement.</string>
+    <string name="widget_normalized_cost">Coût mensuel normalisé</string>
+    <string name="widget_partial_coverage">Partiel · part convertie seule</string>
+    <string name="widget_no_events">Aucun événement à venir</string>
 </resources>

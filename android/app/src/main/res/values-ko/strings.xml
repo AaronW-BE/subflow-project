@@ -190,11 +190,11 @@
     <string name="spend_map_other">나머지</string>
     <string name="spend_map_summary">지출 지도: 구독 %2$d개, %1$s, 가장 큰 항목은 %3$s</string>
     <string name="billing_forecast">결제 예측</string>
-    <string name="billing_forecast_caption">각 달에 실제로 결제되는 금액이에요. 연간 요금제는 열두 달로 나뉘지 않고 하루에 한꺼번에 결제돼요.</string>
+    <string name="billing_forecast_caption">이번 달부터 6개의 전체 달력 월을 포함하며 이미 지난 날짜도 포함합니다. 예정 청구이며 확인된 결제가 아닙니다.</string>
     <string name="forecast_peak">%1$s이 가장 많이 나가는 달이에요 (%2$s)</string>
     <string name="forecast_even">앞으로 6개월은 매달 약 %1$s로 비슷해요</string>
     <string name="forecast_average_line">점선: 월 평균</string>
-    <string name="history_caption">지금 내고 있는 구독의 최근 6개월, 각 구독을 시작한 때부터</string>
+    <string name="history_caption">현재 기록과 시작일로 재구성한 최근 6개월 비용이며 결제 내역이 아닙니다.</string>
     <string name="analytics_empty">구독을 추가하면 지출 분석을 볼 수 있어요.</string>
     <string name="pro_locked_analytics">차트와 상세 분석은 Pro 기능이에요.</string>
     <string name="unlock_with_pro">Pro로 열기</string>
@@ -499,4 +499,22 @@
     <string name="trial_cancel_confirm_body">SubFlow는 이 로컬 기록을 수정하고 일시 중지할 뿐입니다. 제공업체에 연락하거나 이미 발생한 요금을 취소하지 않습니다.</string>
     <string name="trial_cancel_confirm">해지 확인</string>
     <string name="trial_cancel_back">돌아가기</string>
+    <string name="overview_all">전체</string>
+    <string name="overview_active">활성</string>
+    <string name="overview_paused">일시중지</string>
+    <string name="overview_pending">미처리 체험 %1$d개 포함</string>
+    <string name="overview_trial">미처리 체험</string>
+    <string name="overview_viewing">현재 보기: %1$s</string>
+    <string name="overview_reset">보기 초기화</string>
+    <string name="overview_price_unavailable">환율 없음 · 월 가격 비교 불가</string>
+    <string name="overview_unavailable">추정 불가</string>
+    <string name="overview_normalized">모든 활성 구독의 환산 정기 비용 · 실제 결제액 아님</string>
+    <string name="overview_partial">불완전한 추정 · 환산된 부분만 표시</string>
+    <string name="overview_budget_unavailable">비용 또는 예산 환산이 불완전하여 예산 비교가 불가능합니다.</string>
+    <string name="renewal_date_unavailable">날짜를 확인할 수 없음</string>
+    <string name="analytics_coverage_unavailable">모든 비용을 안전하게 환산하거나 계산할 수 없어 관련 비교 또는 추이를 표시할 수 없습니다.</string>
+    <string name="budget_original_currency">환율을 사용할 수 없습니다. 원래 통화(%1$s)로 수정하며 저장 시 통화가 유지됩니다.</string>
+    <string name="widget_normalized_cost">월 환산 비용</string>
+    <string name="widget_partial_coverage">부분 추정 · 환산된 부분만</string>
+    <string name="widget_no_events">예정된 이벤트 없음</string>
 </resources>

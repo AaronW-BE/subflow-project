@@ -153,13 +153,14 @@ private suspend fun loadWidgetSummary(context: Context): WidgetSummary {
         .getActiveSubscriptions()
         .map { it.toDomain() }
     val currency = PreferencesManager.readCurrencyStatic(context)
-    return summariseForWidget(subscriptions, currency)
+    return summariseForWidget(subscriptions, org.dpdns.alwaysup.subflow.domain.util.CalculationSnapshot(
+        currency, java.time.LocalDate.now(), org.dpdns.alwaysup.subflow.domain.util.CurrencyConverter.captureSnapshot()))
 }
 
 @Composable
 private fun WidgetBody(summary: WidgetSummary, localized: Context) {
     val context = LocalContext.current
-    val locale = localized.resources.configuration.locales[0]
+    val presentation = widgetPresentation(summary, localized)
     val tall = LocalSize.current.height >= ListThreshold
 
     Column(
@@ -167,17 +168,20 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
             .fillMaxSize()
             .background(WidgetSurface)
             .cornerRadius(16.dp)
-            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .clickable(actionStartActivity(Intent(context, MainActivity::class.java))),
         verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = localized.getString(R.string.total_monthly_spend),
+            text = if (summary.counts.total > 0 && summary.activeCount == 0)
+                "${localized.getString(R.string.overview_paused)} ${summary.counts.paused} · ${localized.getString(R.string.widget_normalized_cost)}"
+            else localized.getString(R.string.widget_normalized_cost),
+            maxLines = 1,
             style = TextStyle(color = WidgetInkDim, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         )
         Spacer(modifier = GlanceModifier.height(2.dp))
 
-        if (summary.activeCount == 0) {
+        if (summary.counts.total == 0) {
             Text(
                 text = localized.getString(R.string.empty_title),
                 style = TextStyle(color = WidgetInk, fontSize = 16.sp, fontWeight = FontWeight.Bold)
@@ -186,16 +190,37 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
         }
 
         Text(
-            text = CurrencyFormatter.format(summary.monthlyTotal, summary.currency, locale),
-            style = TextStyle(color = WidgetInk, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            text = presentation.value,
+            maxLines = 1,
+            style = TextStyle(color = WidgetInk, fontSize = presentation.valueFontSizeSp.sp, fontWeight = FontWeight.Bold)
         )
 
+        presentation.coverage?.let { coverage ->
+            Text(
+                text = coverage,
+                maxLines = 1,
+                style = TextStyle(color = WidgetInkDim, fontSize = WidgetCoverageFontSizeSp.sp)
+            )
+        }
         if (!tall) return@Column
 
-        Spacer(modifier = GlanceModifier.height(6.dp))
+        Spacer(modifier = GlanceModifier.height(2.dp))
         // The list takes whatever height is left and scrolls past it, so a
         // widget dragged taller shows more rows rather than more blank space.
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
+            item {
+                Text(
+                    text = "${localized.getString(R.string.overview_all)} ${summary.counts.total} · " +
+                        "${localized.getString(R.string.overview_active)} ${summary.counts.active} · " +
+                        "${localized.getString(R.string.overview_paused)} ${summary.counts.paused}" + " · " +
+                        localized.getString(R.string.overview_pending, summary.counts.pendingTrial),
+                    style = TextStyle(color = WidgetInkDim, fontSize = 10.sp)
+                )
+            }
+            if (summary.upcoming.isEmpty()) item {
+                Text(text = localized.getString(R.string.widget_no_events),
+                    style = TextStyle(color = WidgetInkDim, fontSize = 11.sp))
+            }
             items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
                 RenewalRow(renewal, localized)
             }
@@ -216,6 +241,7 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
         days == 0L -> localized.getString(
             if (renewal.isTrial) R.string.trial_ends_today else R.string.renewal_today
         )
+        days > Int.MAX_VALUE -> renewal.date
         else -> localized.resources.getQuantityString(
             if (renewal.isTrial) R.plurals.trial_days_left else R.plurals.renewal_days_left,
             days.toInt(),
@@ -280,15 +306,23 @@ class SubFlowWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = SubFlowWidget()
 }
 
+internal class WidgetRefreshStamp {
+    private var last = 0L
+    @Synchronized fun next(now: Long): Long {
+        last = maxOf(now, last + 1)
+        return last
+    }
+}
+private val refreshStamps = WidgetRefreshStamp()
+private val refreshRequests = kotlinx.coroutines.channels.Channel<Context>(kotlinx.coroutines.channels.Channel.CONFLATED)
 private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 /**
  * Redraws every placed widget.
  *
  * Called from the write path in the repository and from the currency setting,
- * because those are the things that change what it says. The day rolling over
- * is left to `updatePeriodMillis` in the provider XML: nothing in the app is
- * running at midnight to notice it.
+ * as well as foreground date and successful rate publication changes. In the
+ * background the existing six-hour provider period remains best effort.
  *
  * Each widget's state is stamped before it is updated. A plain `updateAll`
  * is not enough: if a session is still running from the previous redraw,
@@ -299,11 +333,10 @@ private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
  * result, and a save must not wait on a launcher. Safe when no widget is
  * placed: there are no ids to stamp then.
  */
-fun refreshSubFlowWidget(context: Context) {
-    val app = context.applicationContext
-    widgetScope.launch {
+private val refreshWorker = widgetScope.launch {
+    for (app in refreshRequests) {
         runCatching {
-            val stamp = System.currentTimeMillis()
+            val stamp = refreshStamps.next(System.currentTimeMillis())
             val widget = SubFlowWidget()
             GlanceAppWidgetManager(app).getGlanceIds(SubFlowWidget::class.java).forEach { id ->
                 updateAppWidgetState(app, id) { prefs -> prefs[RefreshStamp] = stamp }
@@ -311,4 +344,8 @@ fun refreshSubFlowWidget(context: Context) {
             }
         }
     }
+}
+
+fun refreshSubFlowWidget(context: Context) {
+    refreshRequests.trySend(context.applicationContext)
 }

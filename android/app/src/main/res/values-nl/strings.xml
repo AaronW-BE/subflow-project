@@ -189,11 +189,11 @@
     <string name="spend_map_other">Al het overige</string>
     <string name="spend_map_summary">Uitgavenoverzicht: %1$s voor %2$d abonnementen, het grootste is %3$s</string>
     <string name="billing_forecast">Betalingsprognose</string>
-    <string name="billing_forecast_caption">Wat er elke maand echt wordt afgeschreven. Een jaarabonnement telt volledig mee op één dag, niet verspreid over twaalf maanden.</string>
+    <string name="billing_forecast_caption">Zes volledige kalendermaanden vanaf deze maand, inclusief verstreken dagen. Geplande kosten, geen bevestigde betalingen.</string>
     <string name="forecast_peak">%1$s is de duurste maand met %2$s</string>
     <string name="forecast_even">De komende zes maanden zijn gelijk, rond %1$s per maand</string>
     <string name="forecast_average_line">Stippellijn: maandgemiddelde</string>
-    <string name="history_caption">De afgelopen 6 maanden van je huidige abonnementen, vanaf hun startdatum</string>
+    <string name="history_caption">Laatste 6 maanden gereconstrueerd uit huidige gegevens en startdatums, geen betaalgeschiedenis.</string>
     <string name="analytics_empty">Voeg een abonnement toe om je uitgavenverdeling te zien.</string>
     <string name="pro_locked_analytics">De grafieken en uitsplitsingen horen bij Pro.</string>
     <string name="unlock_with_pro">Ontgrendel met Pro</string>
@@ -513,4 +513,22 @@
     <string name="trial_cancel_confirm_body">SubFlow werkt alleen dit lokale item bij en pauzeert het. De app neemt geen contact op met de aanbieder en draait geen afschrijvingen terug.</string>
     <string name="trial_cancel_confirm">Opzegging bevestigen</string>
     <string name="trial_cancel_back">Terug</string>
+    <string name="overview_all">Alle</string>
+    <string name="overview_active">Actief</string>
+    <string name="overview_paused">Gepauzeerd</string>
+    <string name="overview_pending">Waarvan %1$d openstaande proefabonnementen</string>
+    <string name="overview_trial">Openstaande proefabonnementen</string>
+    <string name="overview_viewing">Weergave: %1$s</string>
+    <string name="overview_reset">Weergave wissen</string>
+    <string name="overview_price_unavailable">Wisselkoers ontbreekt · maandprijs niet vergelijkbaar</string>
+    <string name="overview_unavailable">Schatting niet beschikbaar</string>
+    <string name="overview_normalized">Genormaliseerde terugkerende kosten · alle actieve, geen echte betalingen</string>
+    <string name="overview_partial">Onvolledige schatting · alleen omgerekend deel</string>
+    <string name="overview_budget_unavailable">Budgetvergelijking niet beschikbaar: onvolledige omrekening.</string>
+    <string name="renewal_date_unavailable">Datum niet beschikbaar</string>
+    <string name="analytics_coverage_unavailable">Vergelijking of reeks niet beschikbaar: niet alle kosten kunnen veilig worden omgerekend of berekend.</string>
+    <string name="budget_original_currency">Wisselkoers niet beschikbaar. Bewerk in de oorspronkelijke valuta (%1$s); deze blijft bij opslaan behouden.</string>
+    <string name="widget_normalized_cost">Omgerekende maandkosten</string>
+    <string name="widget_partial_coverage">Deels · alleen omgerekend deel</string>
+    <string name="widget_no_events">Geen aankomende gebeurtenissen</string>
 </resources>

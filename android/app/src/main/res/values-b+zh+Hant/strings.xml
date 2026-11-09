@@ -196,11 +196,11 @@
     <string name="spend_map_other">其餘訂閱</string>
     <string name="spend_map_summary">支出面積圖：%2$d 筆訂閱共 %1$s，最大的一項是 %3$s</string>
     <string name="billing_forecast">帳單預測</string>
-    <string name="billing_forecast_caption">每個月實際會扣多少錢。年繳會在某一天整筆扣款，而不是平均分攤到 12 個月。</string>
+    <string name="billing_forecast_caption">從本月起的六個完整曆月，包含已過日期。預計費用，不代表已付款。</string>
     <string name="forecast_peak">%1$s 是支出最多的月份，共 %2$s</string>
     <string name="forecast_even">未來六個月相當平均，每月約 %1$s</string>
     <string name="forecast_average_line">虛線：每月平均支出</string>
-    <string name="history_caption">近 6 個月，依目前在付的訂閱、按各自開始時間推算</string>
+    <string name="history_caption">依目前記錄和開始日期重建近6個月成本，並非付款紀錄。</string>
     <string name="analytics_empty">新增訂閱後即可查看支出分析。</string>
     <string name="pro_locked_analytics">圖表與明細分析是 Pro 功能。</string>
     <string name="unlock_with_pro">升級解鎖</string>
@@ -505,4 +505,22 @@
     <string name="trial_cancel_confirm_body">SubFlow 只更新本機紀錄並暫停此項目，不會聯絡服務商，也無法撤銷已收取的費用。</string>
     <string name="trial_cancel_confirm">確認已取消</string>
     <string name="trial_cancel_back">返回確認</string>
+    <string name="overview_all">全部</string>
+    <string name="overview_active">活躍</string>
+    <string name="overview_paused">暫停</string>
+    <string name="overview_pending">其中 %1$d 筆待處理試用</string>
+    <string name="overview_trial">待處理試用</string>
+    <string name="overview_viewing">目前檢視：%1$s</string>
+    <string name="overview_reset">清除檢視</string>
+    <string name="overview_price_unavailable">缺少匯率 · 無法比較月度價格</string>
+    <string name="overview_unavailable">暫時無法估算</string>
+    <string name="overview_normalized">全部活躍訂閱的折算成本 · 非實際扣款</string>
+    <string name="overview_partial">估算不完整 · 僅已換算部分</string>
+    <string name="overview_budget_unavailable">成本或預算換算不完整，暫時無法比較預算。</string>
+    <string name="renewal_date_unavailable">日期無法使用</string>
+    <string name="analytics_coverage_unavailable">金額無法全部安全換算或計算，暫不顯示相關比較或趨勢。</string>
+    <string name="budget_original_currency">匯率無法使用。以原幣別（%1$s）編輯，儲存時保留此幣別。</string>
+    <string name="widget_normalized_cost">每月折算成本</string>
+    <string name="widget_partial_coverage">部分估算 · 僅已換算部分</string>
+    <string name="widget_no_events">暫無即將發生的事件</string>
 </resources>
