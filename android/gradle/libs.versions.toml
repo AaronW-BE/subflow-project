@@ -25,6 +25,10 @@ ump = "4.0.0"
 playReview = "2.0.2"
 junit = "4.13.2"
 robolectric = "4.17"
+androidxTestRunner = "1.6.2"
+androidxTestExtJunit = "1.2.1"
+espresso = "3.6.1"
+uiautomator = "2.3.0"
 google-service = "4.4.4"
 
 [libraries]
@@ -74,6 +78,10 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "playReview" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
+androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
+androidx-test-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
+androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -240,10 +240,10 @@ fun AnalyticsScreen(
                         text = if (topExpensePct != null) stringResource(R.string.metric_share_percent, topExpensePct) else stringResource(R.string.overview_unavailable),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
+                            fontSize = if (topExpensePct == null) 12.sp else 16.sp,
                             color = MaterialTheme.colorScheme.primary
                         ),
-                        maxLines = 1
+                        maxLines = if (topExpensePct == null) Int.MAX_VALUE else 1
                     )
                 }
                 MetricTile(

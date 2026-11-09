@@ -2,6 +2,8 @@ package org.dpdns.alwaysup.subflow.ui
 
 import android.content.Context
 import androidx.compose.runtime.*
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.core.app.ApplicationProvider
@@ -16,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
@@ -44,6 +47,33 @@ class AnalyticsScreenTest {
         compose.onNodeWithText("Known", substring = false).assertDoesNotExist()
         compose.onNodeWithText(context.resources.getQuantityString(R.plurals.metric_services, 2, 2)).assertIsDisplayed()
         compose.onAllNodesWithText(str(R.string.analytics_coverage_unavailable)).assertCountEquals(5)
+    }
+    @Test
+    @Config(qualifiers = "w360dp-h4000dp")
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun unavailableTopMetricWrapsWithoutClippingOnNarrowScreen() {
+        show(listOf(sub("Known"), sub("Unknown", "XXX")), pro = false)
+        val unavailableText = str(R.string.overview_unavailable)
+        val topMetric = hasParent(hasAnyChild(hasText(str(R.string.metric_top_share))))
+        val node = compose.onNode(hasText(unavailableText) and topMetric, useUnmergedTree = true)
+            .assertIsDisplayed()
+            .fetchSemanticsNode()
+        val layouts = mutableListOf<TextLayoutResult>()
+        compose.runOnIdle {
+            check(node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts))
+        }
+        org.junit.Assert.assertEquals(1, layouts.size)
+        val layout = layouts.single()
+        org.junit.Assert.assertEquals(unavailableText, layout.layoutInput.text.text)
+        org.junit.Assert.assertFalse("Unavailable top metric must not overflow visually", layout.hasVisualOverflow)
+        org.junit.Assert.assertFalse("Unavailable top metric must not clip lines", layout.didOverflowHeight)
+        for (line in 0 until layout.lineCount - 1) {
+            val end = layout.getLineEnd(line, visibleEnd = true)
+            val next = layout.getLineStart(line + 1)
+            val splitsWord = end == next && end > 0 && next < unavailableText.length &&
+                unavailableText[end - 1].isLetter() && unavailableText[next].isLetter()
+            org.junit.Assert.assertFalse("Unavailable status must wrap between words", splitsWord)
+        }
     }
     @Test fun mixedCategoryKeepsKnownSubtotalWithoutPercentagesOrRanking() {
         show(listOf(sub("Known").copy(category = "Mixed"), sub("Unknown", "XXX").copy(category = "Mixed")))

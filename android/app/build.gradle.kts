@@ -283,6 +283,14 @@ dependencies {
 
     testImplementation(libs.junit)
 
+    // Device acceptance: real MainActivity window + constructor-wired NavHost.
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.intents)
+    androidTestImplementation(libs.androidx.test.uiautomator)
+
     // Compose UI tests on the JVM: Robolectric stands in for the device, so
     // they run with the unit tests in CI, in seconds, with no emulator.
     testImplementation(libs.robolectric)

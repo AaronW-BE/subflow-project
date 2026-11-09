@@ -54,7 +54,7 @@ This document catalogs StitchMCP design references for SubFlow, with current And
 - **Screen ID**: `cb3b52559e3345dca13cc69f87480b37`
 - **Core Components**:
   - `TimeSelector`: Segmented control ("Monthly" vs "Annual").
-  - `HeroMetricCard`: Normalized selected-period cost, daily/per-active averages and full active count; known partial/unavailable coverage is explicit, rather than a fabricated month-over-month delta.
+  - `HeroMetricCard`: Normalized selected-period cost, daily/per-active averages and full active count; known partial/unavailable coverage is explicit, rather than a fabricated month-over-month delta. Compact metric values must allow unavailable status text to wrap instead of clipping away its qualifier; numeric percentages can remain single-line.
   - `SpendCurveChart`: 6-month historical trajectory curve with active point tooltip.
   - `CategoryDonut`: Expense distribution ring chart with color legend.
   - `TopRankings`: Ranked expenditure list (#1 ChatGPT, #2 Netflix, #3 Spotify).
