@@ -160,7 +160,7 @@ private suspend fun loadWidgetSummary(context: Context): WidgetSummary {
 @Composable
 private fun WidgetBody(summary: WidgetSummary, localized: Context) {
     val context = LocalContext.current
-    val locale = localized.resources.configuration.locales[0]
+    val presentation = widgetPresentation(summary, localized)
     val tall = LocalSize.current.height >= ListThreshold
 
     Column(
@@ -190,17 +190,18 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
         }
 
         Text(
-            text = summary.monthlyTotal?.let { CurrencyFormatter.format(it, summary.currency, locale) }
-                ?: localized.getString(R.string.overview_unavailable),
+            text = presentation.value,
             maxLines = 1,
-            style = TextStyle(color = WidgetInk, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            style = TextStyle(color = WidgetInk, fontSize = presentation.valueFontSizeSp.sp, fontWeight = FontWeight.Bold)
         )
 
-        if (!summary.estimate.isComplete) Text(
-            text = localized.getString(R.string.overview_partial),
-            maxLines = 1,
-            style = TextStyle(color = WidgetInkDim, fontSize = 10.sp)
-        )
+        presentation.coverage?.let { coverage ->
+            Text(
+                text = coverage,
+                maxLines = 1,
+                style = TextStyle(color = WidgetInkDim, fontSize = WidgetCoverageFontSizeSp.sp)
+            )
+        }
         if (!tall) return@Column
 
         Spacer(modifier = GlanceModifier.height(2.dp))

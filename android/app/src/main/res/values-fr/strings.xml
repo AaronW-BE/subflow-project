@@ -529,5 +529,6 @@
     <string name="analytics_coverage_unavailable">Comparaison ou série indisponible : tous les coûts ne peuvent pas être convertis ou calculés de manière fiable.</string>
     <string name="budget_original_currency">Taux de change indisponible. Modifiez dans la devise d’origine (%1$s), conservée à l’enregistrement.</string>
     <string name="widget_normalized_cost">Coût mensuel normalisé</string>
+    <string name="widget_partial_coverage">Partiel · part convertie seule</string>
     <string name="widget_no_events">Aucun événement à venir</string>
 </resources>

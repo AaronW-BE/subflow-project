@@ -529,5 +529,6 @@
     <string name="analytics_coverage_unavailable">Vergleich oder Verlauf nicht verfügbar: Nicht alle Kosten lassen sich sicher umrechnen oder berechnen.</string>
     <string name="budget_original_currency">Wechselkurs nicht verfügbar. In der Originalwährung (%1$s) bearbeiten; beim Speichern bleibt diese erhalten.</string>
     <string name="widget_normalized_cost">Monatliche umgerechnete Kosten</string>
+    <string name="widget_partial_coverage">Teilbetrag · nur umgerechnet</string>
     <string name="widget_no_events">Keine anstehenden Ereignisse</string>
 </resources>

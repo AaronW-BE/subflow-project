@@ -515,5 +515,6 @@
     <string name="analytics_coverage_unavailable">모든 비용을 안전하게 환산하거나 계산할 수 없어 관련 비교 또는 추이를 표시할 수 없습니다.</string>
     <string name="budget_original_currency">환율을 사용할 수 없습니다. 원래 통화(%1$s)로 수정하며 저장 시 통화가 유지됩니다.</string>
     <string name="widget_normalized_cost">월 환산 비용</string>
+    <string name="widget_partial_coverage">부분 추정 · 환산된 부분만</string>
     <string name="widget_no_events">예정된 이벤트 없음</string>
 </resources>

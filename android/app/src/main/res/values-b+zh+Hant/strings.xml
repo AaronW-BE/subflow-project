@@ -521,5 +521,6 @@
     <string name="analytics_coverage_unavailable">金額無法全部安全換算或計算，暫不顯示相關比較或趨勢。</string>
     <string name="budget_original_currency">匯率無法使用。以原幣別（%1$s）編輯，儲存時保留此幣別。</string>
     <string name="widget_normalized_cost">每月折算成本</string>
+    <string name="widget_partial_coverage">部分估算 · 僅已換算部分</string>
     <string name="widget_no_events">暫無即將發生的事件</string>
 </resources>
