@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.activity.compose.setContent
 import androidx.compose.ui.test.*
@@ -69,6 +68,10 @@ class Bin94NavHostAcceptanceTest {
         assertEquals(BuildConfig.APPLICATION_ID, context.packageName)
         assertTrue("Physical device must already be awake", (context.getSystemService(Context.POWER_SERVICE) as android.os.PowerManager).isInteractive)
         assertFalse("User must unlock the device before acceptance", (context.getSystemService(Context.KEYGUARD_SERVICE) as android.app.KeyguardManager).isKeyguardLocked)
+        clearPngEvidence(File(context.cacheDir, "bin94-${testName.methodName}.png"))
+        if (testName.methodName == "nativeCsvChooserGrantsCrossUidReceiverAndVerifiesSavedBytes") {
+            clearPngEvidence(File(context.cacheDir, "bin94-csv-receiver.png"))
+        }
         preferences = PreferencesManager(context)
         preferences.restartOnboarding() // original composition must not gather consent/request permissions
         preferences.setCurrency("USD")
@@ -270,8 +273,10 @@ class Bin94NavHostAcceptanceTest {
             instrumentation.getUiAutomation(android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
                 .waitForIdle(1_000, 10_000)
             device.dumpWindowHierarchy(File(context.cacheDir, "bin94-csv-receiver.xml"))
-            assertTrue("Receiver screenshot could not be saved",
-                device.takeScreenshot(File(context.cacheDir, "bin94-csv-receiver.png")))
+            writeFreshPngEvidence(File(context.cacheDir, "bin94-csv-receiver.png"), capture = {
+                instrumentation.getUiAutomation(android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
+                    .takeScreenshot()
+            })
         } finally {
             if (device.currentPackageName == receiverPackage) device.pressBack()
         }
@@ -428,14 +433,10 @@ class Bin94NavHostAcceptanceTest {
     @After fun disposeFixture() {
         try {
             if (scenario != null) {
-                val bitmap = InstrumentationRegistry.getInstrumentation()
-                    .getUiAutomation(android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES).takeScreenshot()
-                bitmap?.let {
-                    File(context.cacheDir, "bin94-${testName.methodName}.png").outputStream().use { stream ->
-                        it.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                    }
-                    it.recycle()
-                }
+                writeFreshPngEvidence(File(context.cacheDir, "bin94-${testName.methodName}.png"), capture = {
+                    InstrumentationRegistry.getInstrumentation()
+                        .getUiAutomation(android.app.UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES).takeScreenshot()
+                })
             }
         } finally {
             if (intentsStarted) Intents.release()
