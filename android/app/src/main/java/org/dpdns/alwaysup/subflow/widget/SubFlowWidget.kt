@@ -307,7 +307,7 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
                 modifier = GlanceModifier
                     .width(28.dp)
                     .height(28.dp)
-                    .background(WidgetInk)
+                    .background(ColorProvider(R.color.widget_logo_plate))
                     .cornerRadius(6.dp)
             )
         }

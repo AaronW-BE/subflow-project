@@ -11,4 +11,5 @@
     <color name="widget_ink">#1C1C1E</color>
     <color name="widget_ink_dim">#6C6C70</color>
     <color name="widget_accent">#5856D6</color>
+    <color name="widget_logo_plate">#1C1C1E</color>
 </resources>
