@@ -39,6 +39,9 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.appwidget.ImageProvider as imageProvider
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -208,25 +211,22 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
         // The list takes whatever height is left and scrolls past it, so a
         // widget dragged taller shows more rows rather than more blank space.
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
-            item {
-                Text(
-                    text = "${localized.getString(R.string.overview_all)} ${summary.counts.total} · " +
-                        "${localized.getString(R.string.overview_active)} ${summary.counts.active} · " +
-                        "${localized.getString(R.string.overview_paused)} ${summary.counts.paused}" + " · " +
-                        localized.getString(R.string.overview_pending, summary.counts.pendingTrial),
-                    style = TextStyle(color = WidgetInkDim, fontSize = 10.sp)
-                )
-            }
             if (summary.upcoming.isEmpty()) item {
                 Text(text = localized.getString(R.string.widget_no_events),
                     style = TextStyle(color = WidgetInkDim, fontSize = 11.sp))
             }
-            items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
+            items(summary.upcoming.take(2), itemId = { it.id.hashCode().toLong() }) { renewal ->
                 RenewalRow(renewal, localized)
             }
         }
     }
 }
+
+/** Only app-private file logos are eligible; catalogue HTTP/content URLs never reach Glance. */
+private fun storedLogoProvider(iconUrl: String?): ImageProvider? =
+    if (org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore.isStoredLogo(iconUrl)) {
+        runCatching { imageProvider(Uri.parse(iconUrl)) }.getOrNull()
+    } else null
 
 @Composable
 private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
@@ -273,6 +273,10 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        storedLogoProvider(renewal.iconUrl)?.let { provider ->
+            Image(provider, contentDescription = null, modifier = GlanceModifier.width(28.dp).height(28.dp))
+            Spacer(modifier = GlanceModifier.width(8.dp))
+        }
         Column(modifier = GlanceModifier.defaultWeight()) {
             Text(
                 text = renewal.name,

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import org.dpdns.alwaysup.subflow.R
 import org.dpdns.alwaysup.subflow.domain.model.BillingCycle
+import org.dpdns.alwaysup.subflow.domain.model.PresetService
 import org.dpdns.alwaysup.subflow.domain.model.Subscription
 import org.dpdns.alwaysup.subflow.domain.util.MonthlyBudget
 import org.dpdns.alwaysup.subflow.domain.util.CurrencyFormatter
@@ -72,6 +73,32 @@ class AddSubscriptionScreenTest {
     private fun save() {
         compose.onNodeWithText(context.getString(R.string.save)).performClick()
         compose.waitForIdle()
+    }
+
+    @Test
+    fun `built-in service is visible when picker opens`() {
+        val preset = PresetService(
+            id = "netflix",
+            name = "Netflix",
+            category = "Streaming",
+            brandColor = "#E50914",
+            iconUrl = "https://netflix.com/logo.png",
+            defaultAmountUSD = 15.49
+        )
+        compose.setContent {
+            SubFlowTheme {
+                AddSubscriptionScreen(
+                    presets = listOf(preset),
+                    primaryCurrency = "USD",
+                    onSaveSubscription = { saved = it },
+                    onCancel = {}
+                )
+            }
+        }
+        compose.onNodeWithText(context.getString(R.string.choose_service)).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Netflix").assertExists()
+        compose.onNodeWithText(context.getString(R.string.custom_service)).assertExists()
     }
 
     @Test

@@ -154,17 +154,23 @@ class SubscriptionRepository(
     }
 
     suspend fun fetchPresets(): List<PresetService> = if (!BuildConfig.BACKEND_ENABLED) {
-        defaultLocalPresets().map { it.copy(category = normaliseCategory(it.category)) }
+        defaultLocalPresets()
     } else try {
         val res = api.getPresets()
         val remote = res.body()?.presets?.map { it.toDomain() }.orEmpty()
         // Merge so a thin server catalogue never shrinks the local one.
         val merged = (remote + defaultLocalPresets()).distinctBy { it.id }
-        (if (merged.isEmpty()) defaultLocalPresets() else merged)
-            .map { it.copy(category = normaliseCategory(it.category)) }
+        if (merged.isEmpty()) defaultLocalPresets() else merged
     } catch (e: Exception) {
         defaultLocalPresets()
     }
+
+    /**
+     * The bundled catalogue, available synchronously for initial UI state.
+     * This is a fresh read-only list and is also the fallback used by fetchPresets.
+     */
+    fun defaultLocalPresets(): List<PresetService> =
+        defaultLocalPresetEntries().map { it.copy(category = normaliseCategory(it.category)) }
 
     /**
      * "Entertainment" is the legacy label the server catalogue still uses for
@@ -336,7 +342,7 @@ class SubscriptionRepository(
      * Bundled catalogue. Prices are typical US list prices used only as a
      * starting value in the form; the user edits them to what they actually pay.
      */
-    private fun defaultLocalPresets(): List<PresetService> = listOf(
+    private fun defaultLocalPresetEntries(): List<PresetService> = listOf(
         preset("netflix", "Netflix", "Streaming", "#E50914", 15.49, "https://netflix.com"),
         preset("spotify", "Spotify", "Streaming", "#1DB954", 11.99, "https://spotify.com"),
         preset("youtube", "YouTube Premium", "Streaming", "#FF0000", 13.99, "https://youtube.com"),
