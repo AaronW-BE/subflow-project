@@ -287,11 +287,31 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val logo = storedLogoBitmap(renewal.iconUrl)?.let(::BitmapImageProvider)
-            ?: BrandLogos.colourMarkFor(null, renewal.name)?.let { androidx.glance.ImageProvider(it) }
-            ?: BrandLogos.forName(renewal.name)?.let { androidx.glance.ImageProvider(it) }
-        logo?.let { provider ->
-            Image(provider, contentDescription = null, modifier = GlanceModifier.width(28.dp).height(28.dp))
+        val customLogo = storedLogoBitmap(renewal.iconUrl)?.let(::BitmapImageProvider)
+        val colourLogo = BrandLogos.colourMarkFor(null, renewal.name)?.let { androidx.glance.ImageProvider(it) }
+        val monochromeLogo = BrandLogos.forName(renewal.name)?.let { androidx.glance.ImageProvider(it) }
+        when {
+            customLogo != null -> Image(
+                customLogo,
+                contentDescription = null,
+                modifier = GlanceModifier.width(28.dp).height(28.dp)
+            )
+            colourLogo != null -> Image(
+                colourLogo,
+                contentDescription = null,
+                modifier = GlanceModifier.width(28.dp).height(28.dp)
+            )
+            monochromeLogo != null -> Image(
+                monochromeLogo,
+                contentDescription = null,
+                modifier = GlanceModifier
+                    .width(28.dp)
+                    .height(28.dp)
+                    .background(WidgetInk)
+                    .cornerRadius(6.dp)
+            )
+        }
+        if (customLogo != null || colourLogo != null || monochromeLogo != null) {
             Spacer(modifier = GlanceModifier.width(8.dp))
         }
         Column(modifier = GlanceModifier.defaultWeight()) {
