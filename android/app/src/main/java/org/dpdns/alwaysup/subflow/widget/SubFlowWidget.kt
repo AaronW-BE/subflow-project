@@ -55,6 +55,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.dpdns.alwaysup.subflow.MainActivity
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.ui.components.BrandLogos
 import org.dpdns.alwaysup.subflow.data.local.SubFlowDatabase
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.repository.ExchangeRateRepository
@@ -286,8 +287,11 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        storedLogoBitmap(renewal.iconUrl)?.let { bitmap ->
-            Image(BitmapImageProvider(bitmap), contentDescription = null, modifier = GlanceModifier.width(28.dp).height(28.dp))
+        val logo = storedLogoBitmap(renewal.iconUrl)?.let(::BitmapImageProvider)
+            ?: BrandLogos.colourMarkFor(null, renewal.name)?.let { androidx.glance.ImageProvider(it) }
+            ?: BrandLogos.forName(renewal.name)?.let { androidx.glance.ImageProvider(it) }
+        logo?.let { provider ->
+            Image(provider, contentDescription = null, modifier = GlanceModifier.width(28.dp).height(28.dp))
             Spacer(modifier = GlanceModifier.width(8.dp))
         }
         Column(modifier = GlanceModifier.defaultWeight()) {
