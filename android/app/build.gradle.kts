@@ -80,10 +80,10 @@ android {
         // 1.6.1 (11) is a patch: Play billing now really connects (isReady
         // was trusted and the handshake never ran), and a failed
         // acknowledgement retries on its own.
-        // 1.7.0 (12) carries the Dutch release, trial-final-day controls,
+        // 1.7.0 (13) carries the Dutch release, trial-final-day controls,
         // adaptive widgets with per-service full-colour branding, and the
         // cold-start service catalogue fix.
-        versionCode = 12
+        versionCode = 13
         versionName = "1.7.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

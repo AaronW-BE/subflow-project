@@ -15,7 +15,7 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
-## 1.7.0 (versionCode 12): release notes
+## 1.7.0 (versionCode 13): release notes
 
 **Draft — not uploaded.** This release includes the Dutch interface and trial-final-day controls, plus the adaptive widget and service catalogue fixes. It does not authorize an upload until the signed AAB and final checks pass.
 
