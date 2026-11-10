@@ -20,6 +20,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.dpdns.alwaysup.subflow.BuildConfig
 
+/** Keeps legacy catalogue categories aligned with the in-app filter vocabulary. */
+internal fun normalizePresetCategory(category: String): String =
+    if (category.equals("Entertainment", ignoreCase = true)) "Streaming" else category
+
+internal fun normalizePresetCategories(presets: List<PresetService>): List<PresetService> =
+    presets.map { preset -> preset.copy(category = normalizePresetCategory(preset.category)) }
+
 /** Raised by [SubscriptionRepository.saveSubscription] when the free tier is full. */
 class QuotaReachedException : Exception("Free tier quota reached")
 
@@ -160,7 +167,7 @@ class SubscriptionRepository(
         val remote = res.body()?.presets?.map { it.toDomain() }.orEmpty()
         // Merge so a thin server catalogue never shrinks the local one.
         val merged = (remote + defaultLocalPresets()).distinctBy { it.id }
-        if (merged.isEmpty()) defaultLocalPresets() else merged
+        normalizePresetCategories(if (merged.isEmpty()) defaultLocalPresets() else merged)
     } catch (e: Exception) {
         defaultLocalPresets()
     }
@@ -170,17 +177,7 @@ class SubscriptionRepository(
      * This is a fresh read-only list and is also the fallback used by fetchPresets.
      */
     fun defaultLocalPresets(): List<PresetService> =
-        defaultLocalPresetEntries().map { it.copy(category = normaliseCategory(it.category)) }
-
-    /**
-     * "Entertainment" is the legacy label the server catalogue still uses for
-     * what the app now calls "Streaming". Normalising on load keeps the
-     * category picker and the dashboard filter in agreement.
-     */
-    private fun normaliseCategory(category: String): String = when (category.lowercase()) {
-        "entertainment" -> "Streaming"
-        else -> category
-    }
+        normalizePresetCategories(defaultLocalPresetEntries())
 
     /**
      * Refreshes exchange rates, in every build type.

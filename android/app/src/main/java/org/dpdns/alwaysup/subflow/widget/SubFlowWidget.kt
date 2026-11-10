@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.Image
+import androidx.glance.BitmapImageProvider
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.ImageProvider as imageProvider
 import androidx.glance.text.FontWeight
@@ -222,11 +225,21 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
     }
 }
 
-/** Only app-private file logos are eligible; catalogue HTTP/content URLs never reach Glance. */
-private fun storedLogoProvider(iconUrl: String?): ImageProvider? =
-    if (org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore.isStoredLogo(iconUrl)) {
-        runCatching { imageProvider(Uri.parse(iconUrl)) }.getOrNull()
-    } else null
+
+
+/** Decode only validated private logos so launcher receives bitmap pixels, not a private URI. */
+private fun storedLogoBitmap(iconUrl: String?): Bitmap? {
+    if (!org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore.isStoredLogo(iconUrl)) return null
+    val path = runCatching { Uri.parse(iconUrl).path }.getOrNull() ?: return null
+    return runCatching {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        val sample = generateSequence(1) { it * 2 }
+            .first { maxOf(bounds.outWidth / it, bounds.outHeight / it) <= 64 }
+        BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })
+    }.getOrNull()
+}
 
 @Composable
 private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
@@ -273,8 +286,8 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        storedLogoProvider(renewal.iconUrl)?.let { provider ->
-            Image(provider, contentDescription = null, modifier = GlanceModifier.width(28.dp).height(28.dp))
+        storedLogoBitmap(renewal.iconUrl)?.let { bitmap ->
+            Image(BitmapImageProvider(bitmap), contentDescription = null, modifier = GlanceModifier.width(28.dp).height(28.dp))
             Spacer(modifier = GlanceModifier.width(8.dp))
         }
         Column(modifier = GlanceModifier.defaultWeight()) {
