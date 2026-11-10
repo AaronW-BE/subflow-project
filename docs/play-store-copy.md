@@ -15,82 +15,81 @@ since the last upload" is `git log <last tag>..main`.
 
 ---
 
-## 1.6.2 (versionCode 12): release notes
+## 1.7.0 (versionCode 12): release notes
 
-**Draft — not uploaded.** This aligns notes with the existing build version;
-it does not authorize an upload or change the app version. Device reminder
-acceptance and final store-listing/what's-new review remain release gates.
-The Dutch listing below remains a draft until an upload includes it.
+**Draft — not uploaded.** This release includes the Dutch interface and trial-final-day controls, plus the adaptive widget and service catalogue fixes. It does not authorize an upload until the signed AAB and final checks pass.
 
 | Change | Source |
 |---|---|
 | Full Dutch interface, including language selection and reminders | BIN-93, PR #88 |
 | Optional final-day checks for auto-converting trials, configurable local time and exact-access enhancement | BIN-83, PR #88 |
 | Date-bound keep/undo decisions and confirmation before recording provider cancellation locally | BIN-83, PR #88 |
+| Adaptive widgets show more renewals with safe, correctly sized service branding | BIN-94, local widget fixes |
+| Built-in services remain available immediately when adding a subscription | BIN-94, local service-picker fix |
 
 Technical CI/build changes and Firebase debug configuration are not user-facing
 release-note claims. Existing uploaded notes below remain unchanged.
 
 ```
 <en-US>
-• SubFlow now speaks Dutch.
-• Enable optional final-day checks for auto-renewing trials and choose the reminder time. Exact timing needs system access; delivery may be delayed.
-• Decide to keep a trial without ending its free period, or confirm that you cancelled with the provider. SubFlow updates your record; it does not cancel services.
+• SubFlow now speaks Dutch and adds optional final-day checks for auto-renewing trials. Exact timing needs system access and reminders may be delayed.
+• Widgets show more upcoming renewals with correctly sized service branding and keep amounts and coverage clear.
+• Built-in services are available immediately when you add a subscription, even before catalogue updates finish.
 </en-US>
 <zh-CN>
-• 新增完整荷兰语支持。
-• 可开启自动转付费试用的最后一天取消检查，并选择提醒时间。精确定时需要系统授权，提醒仍可能延迟。
-• 可决定保留试用而不提前结束免费期，或确认已在服务商处取消。SubFlow 只更新本地记录，不代你取消服务。
+• 新增完整荷兰语支持，并可开启自动转付费试用的最后一天检查。精确定时需要系统授权，提醒仍可能延迟。
+• Widget 会显示更多即将扣款的订阅，并正确显示服务 Logo、金额和完整性状态。
+• 添加订阅时内置服务会立即显示，不必等待目录更新完成。
 </zh-CN>
 <zh-TW>
-• 新增完整荷蘭文支援。
-• 可開啟自動轉付費試用的最後一天取消確認提醒，並選擇提醒時間。精確定時需要系統授權，提醒仍可能延遲。
-• 可決定保留試用而不提早結束免費期，或確認已向服務商取消。SubFlow 只更新本機紀錄，不會代你取消服務。
+• 新增完整荷蘭文支援，並可開啟自動轉付費試用的最後一天檢查。精確定時需要系統授權，提醒仍可能延遲。
+• Widget 會顯示更多即將扣款的訂閱，並正確顯示服務 Logo、金額與完整性狀態。
+• 新增訂閱時內建服務會立即顯示，不必等待目錄更新完成。
 </zh-TW>
 <zh-HK>
-• 新增完整荷蘭文支援。
-• 可開啟自動轉付費試用的最後一天取消確認提醒，並選擇提醒時間。精確定時需要系統授權，提醒仍可能延遲。
-• 可決定保留試用而不提早結束免費期，或確認已向服務商取消。SubFlow 只更新本機紀錄，不會代你取消服務。
+• 新增完整荷蘭文支援，並可開啟自動轉付費試用的最後一天檢查。精確定時需要系統授權，提醒仍可能延遲。
+• Widget 會顯示更多即將扣款的訂閱，並正確顯示服務 Logo、金額與完整性狀態。
+• 新增訂閱時內建服務會立即顯示，不必等待目錄更新完成。
 </zh-HK>
 <de-DE>
-• SubFlow spricht jetzt Niederländisch.
-• Aktiviere optionale Prüfungen am letzten Tag automatisch verlängerter Testphasen und wähle die Uhrzeit. Exaktes Timing braucht Systemzugriff; Erinnerungen können sich verzögern.
-• Behalte eine Testphase, ohne die Gratiszeit zu beenden, oder bestätige deine Kündigung beim Anbieter. SubFlow aktualisiert nur deinen Eintrag und kündigt keine Dienste.
+• SubFlow ist jetzt auf Niederländisch verfügbar und bietet optionale Prüfungen am letzten Tag automatisch verlängerter Testphasen. Exaktes Timing braucht Systemzugriff; Erinnerungen können sich verzögern.
+• Widgets zeigen mehr bevorstehende Verlängerungen mit passenden Logos sowie klaren Beträgen und Statusangaben.
+• Integrierte Dienste sind beim Hinzufügen sofort verfügbar, auch bevor der Katalog aktualisiert ist.
 </de-DE>
 <fr-FR>
-• SubFlow est désormais disponible en néerlandais.
-• Activez un rappel le dernier jour des essais à renouvellement automatique et choisissez l’heure. La précision nécessite une autorisation système ; un retard reste possible.
-• Décidez de conserver un essai sans terminer sa période gratuite, ou confirmez votre résiliation auprès du fournisseur. SubFlow met à jour votre fiche, sans résilier de service.
+• SubFlow est désormais disponible en néerlandais et propose des vérifications facultatives le dernier jour des essais à renouvellement automatique. La précision nécessite une autorisation système et un retard reste possible.
+• Les widgets affichent plus de renouvellements à venir avec des logos adaptés, les montants et l’état de couverture.
+• Les services intégrés sont disponibles dès l’ajout, avant même la fin de la mise à jour du catalogue.
 </fr-FR>
 <es-ES>
-• SubFlow ya está disponible en neerlandés.
-• Activa avisos opcionales el último día de las pruebas con renovación automática y elige la hora. La precisión requiere acceso del sistema; puede haber retrasos.
-• Decide mantener una prueba sin terminar su periodo gratuito o confirma que has cancelado con el proveedor. SubFlow solo actualiza tu registro, no cancela servicios.
+• SubFlow ya está disponible en neerlandés y ofrece comprobaciones opcionales el último día de las pruebas con renovación automática. La precisión requiere acceso del sistema y puede haber retrasos.
+• Los widgets muestran más renovaciones próximas con logos adecuados, importes y estado de cobertura claros.
+• Los servicios integrados aparecen al añadir una suscripción, incluso antes de terminar la actualización del catálogo.
 </es-ES>
 <it-IT>
-• SubFlow ora è disponibile in olandese.
-• Attiva un promemoria facoltativo l’ultimo giorno delle prove con rinnovo automatico e scegli l’orario. La precisione richiede l’accesso di sistema; sono possibili ritardi.
-• Decidi di mantenere una prova senza terminare il periodo gratuito o conferma la disdetta presso il fornitore. SubFlow aggiorna solo la tua scheda, non annulla servizi.
+• SubFlow è ora disponibile in olandese e offre controlli facoltativi l’ultimo giorno delle prove con rinnovo automatico. La precisione richiede l’accesso di sistema e sono possibili ritardi.
+• I widget mostrano più rinnovi imminenti con loghi corretti, importi e stato della copertura chiari.
+• I servizi integrati sono disponibili subito quando aggiungi un abbonamento, anche prima della fine dell’aggiornamento del catalogo.
 </it-IT>
 <nl-NL>
-• SubFlow is nu volledig beschikbaar in het Nederlands.
-• Schakel een optionele controle in op de laatste dag van automatisch verlengde proefperiodes en kies de tijd. Exacte timing vereist systeemtoegang; meldingen kunnen vertraagd zijn.
-• Besluit een proefperiode te behouden zonder de gratis periode te beëindigen, of bevestig je opzegging bij de aanbieder. SubFlow werkt alleen je gegevens bij en zegt geen diensten op.
+• SubFlow is nu beschikbaar in het Nederlands en biedt optionele controles op de laatste dag van automatisch verlengde proefperiodes. Exacte timing vereist systeemtoegang; meldingen kunnen vertraagd zijn.
+• Widgets tonen meer aanstaande verlengingen met passende logo’s, duidelijke bedragen en een heldere dekkingsstatus.
+• Ingebouwde diensten zijn direct beschikbaar bij het toevoegen, ook voordat de catalogus is bijgewerkt.
 </nl-NL>
 <pt-BR>
-• O SubFlow agora está disponível em holandês.
-• Ative um aviso opcional no último dia dos testes com renovação automática e escolha o horário. A precisão exige acesso do sistema; pode haver atrasos.
-• Decida manter um teste sem encerrar o período grátis ou confirme que cancelou com o provedor. O SubFlow só atualiza seu registro, não cancela serviços.
+• O SubFlow agora está disponível em holandês e oferece verificações opcionais no último dia de testes com renovação automática. A precisão exige acesso do sistema e pode haver atrasos.
+• Os widgets mostram mais renovações próximas com logotipos corretos, valores e status de cobertura claros.
+• Os serviços integrados ficam disponíveis ao adicionar uma assinatura, mesmo antes do fim da atualização do catálogo.
 </pt-BR>
 <ja-JP>
-• オランダ語に対応しました。
-• 自動更新される無料トライアルの最終日に確認通知を設定し、時刻を選べます。正確な時刻の設定にはシステムの許可が必要です。通知が遅れる場合もあります。
-• 無料期間を終了せずに継続を決めたり、提供元で解約したことを確認したりできます。SubFlow は記録のみを更新し、サービスの解約は行いません。
+• SubFlow がオランダ語に対応し、自動更新される無料トライアルの最終日に任意の確認を設定できるようになりました。正確な時刻にはシステムの許可が必要で、遅れる場合があります。
+• ウィジェットに、適切なサービスロゴと金額・対象範囲を保ったまま、より多くの更新予定を表示できます。
+• 購読の追加時に内蔵サービスがすぐ表示され、カタログ更新の完了を待つ必要がありません。
 </ja-JP>
 <ko-KR>
-• 이제 SubFlow를 네덜란드어로 사용할 수 있어요.
-• 자동 갱신되는 무료 체험의 마지막 날에 확인 알림을 켜고 시간을 정할 수 있어요. 정확한 시간 설정에는 시스템 권한이 필요하며 알림이 늦어질 수 있어요.
-• 무료 기간을 끝내지 않고 유지하기로 결정하거나 제공업체에서 해지했음을 확인할 수 있어요. SubFlow는 기록만 업데이트하며 서비스를 대신 해지하지 않아요.
+• SubFlow가 네덜란드어를 지원하고 자동 갱신 무료 체험의 마지막 날에 선택적으로 확인할 수 있어요. 정확한 시간에는 시스템 권한이 필요하며 알림이 늦어질 수 있어요.
+• 위젯에서 서비스 로고와 금액, 적용 범위를 유지하면서 예정된 갱신을 더 많이 볼 수 있어요.
+• 구독을 추가할 때 카탈로그 업데이트가 끝나기 전에도 기본 서비스가 바로 보여요.
 </ko-KR>
 ```
 

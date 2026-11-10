@@ -30,7 +30,8 @@ class WidgetSummaryTest {
         daysAway: Long = 10,
         active: Boolean = true,
         deleted: Boolean = false,
-        trial: Boolean = false
+        trial: Boolean = false,
+        iconUrl: String = ""
     ) = Subscription(
         id = name.lowercase(),
         name = name,
@@ -43,6 +44,7 @@ class WidgetSummaryTest {
         isDeleted = deleted,
         isTrial = trial,
         trialEndDate = if (trial) LocalDate.now().plusDays(daysAway).toString() else "",
+        iconUrl = iconUrl
     )
 
     @Test
@@ -56,6 +58,19 @@ class WidgetSummaryTest {
         )
         assertEquals(20.0, s.monthlyTotal!!, 0.01)
         assertEquals(2, s.activeCount)
+    }
+
+    @Test
+    fun `each upcoming renewal carries its own logo metadata`() {
+        val s = summariseForWidget(
+            listOf(
+                sub("Soon", daysAway = 2, iconUrl = "file:///data/user/0/org.dpdns.alwaysup.subflow/files/subscription_logos/soon.png"),
+                sub("Later", daysAway = 20, iconUrl = "https://example.com/logo.png")
+            ),
+            CalculationSnapshot("USD", LocalDate.now(), RatesSnapshot(0, mapOf("USD" to 1.0)))
+        )
+        assertEquals("file:///data/user/0/org.dpdns.alwaysup.subflow/files/subscription_logos/soon.png", s.next?.iconUrl)
+        assertEquals("https://example.com/logo.png", s.upcoming[1].iconUrl)
     }
 
     @Test

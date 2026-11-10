@@ -20,6 +20,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.dpdns.alwaysup.subflow.BuildConfig
 
+/** Keeps legacy catalogue categories aligned with the in-app filter vocabulary. */
+internal fun normalizePresetCategory(category: String): String =
+    if (category.equals("Entertainment", ignoreCase = true)) "Streaming" else category
+
+internal fun normalizePresetCategories(presets: List<PresetService>): List<PresetService> =
+    presets.map { preset -> preset.copy(category = normalizePresetCategory(preset.category)) }
+
 /** Raised by [SubscriptionRepository.saveSubscription] when the free tier is full. */
 class QuotaReachedException : Exception("Free tier quota reached")
 
@@ -154,27 +161,23 @@ class SubscriptionRepository(
     }
 
     suspend fun fetchPresets(): List<PresetService> = if (!BuildConfig.BACKEND_ENABLED) {
-        defaultLocalPresets().map { it.copy(category = normaliseCategory(it.category)) }
+        defaultLocalPresets()
     } else try {
         val res = api.getPresets()
         val remote = res.body()?.presets?.map { it.toDomain() }.orEmpty()
         // Merge so a thin server catalogue never shrinks the local one.
         val merged = (remote + defaultLocalPresets()).distinctBy { it.id }
-        (if (merged.isEmpty()) defaultLocalPresets() else merged)
-            .map { it.copy(category = normaliseCategory(it.category)) }
+        normalizePresetCategories(if (merged.isEmpty()) defaultLocalPresets() else merged)
     } catch (e: Exception) {
         defaultLocalPresets()
     }
 
     /**
-     * "Entertainment" is the legacy label the server catalogue still uses for
-     * what the app now calls "Streaming". Normalising on load keeps the
-     * category picker and the dashboard filter in agreement.
+     * The bundled catalogue, available synchronously for initial UI state.
+     * This is a fresh read-only list and is also the fallback used by fetchPresets.
      */
-    private fun normaliseCategory(category: String): String = when (category.lowercase()) {
-        "entertainment" -> "Streaming"
-        else -> category
-    }
+    fun defaultLocalPresets(): List<PresetService> =
+        normalizePresetCategories(defaultLocalPresetEntries())
 
     /**
      * Refreshes exchange rates, in every build type.
@@ -336,7 +339,7 @@ class SubscriptionRepository(
      * Bundled catalogue. Prices are typical US list prices used only as a
      * starting value in the form; the user edits them to what they actually pay.
      */
-    private fun defaultLocalPresets(): List<PresetService> = listOf(
+    private fun defaultLocalPresetEntries(): List<PresetService> = listOf(
         preset("netflix", "Netflix", "Streaming", "#E50914", 15.49, "https://netflix.com"),
         preset("spotify", "Spotify", "Streaming", "#1DB954", 11.99, "https://spotify.com"),
         preset("youtube", "YouTube Premium", "Streaming", "#FF0000", 13.99, "https://youtube.com"),

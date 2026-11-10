@@ -158,7 +158,11 @@ fun SubFlowNavHost(
     val billingConnection by billingManager.connectionState.collectAsState()
     val catalogueLoaded by billingManager.catalogueLoaded.collectAsState()
 
-    var presets by remember { mutableStateOf<List<PresetService>>(emptyList()) }
+    // Seed from the bundled catalogue so the add screen never exposes an empty
+    // picker while the optional remote catalogue request is in flight.
+    var presets by remember {
+        mutableStateOf(subscriptionRepository.defaultLocalPresets())
+    }
 
     // Why the paywall is open, so it can lead with that feature (BIN-74).
     // Kept here rather than in the route: the route is compared by name in

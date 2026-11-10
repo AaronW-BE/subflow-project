@@ -45,7 +45,7 @@ This document catalogs StitchMCP design references for SubFlow, with current And
 - **Screen ID**: `f2e1fb9bcd5f4dc186841268672aa2a7`
 - **Core Components**:
   - `TopBar`: "Cancel", bold title "New Subscription", "Save" (Indigo).
-  - `SearchBar`: Filter presets across 100+ services.
+  - `SearchBar`: Filter presets across 100+ services; the bundled local directory is present on the first composition, before any asynchronous catalogue refresh.
   - `PresetGrid`: 3-column squircle grid of popular services (Netflix, Spotify, ChatGPT Plus, YouTube Premium, iCloud, Disney+, Amazon Prime, Copilot, Adobe CC, Notion, Dropbox, Gym).
   - `CustomOption`: Card to create custom subscription with custom color and icon.
   - `FormFields`: Grouped iOS table with Service Name, Category picker, Price & Currency, Segmented Cycle Pill (Weekly / Monthly / Yearly), First Bill Date, and Reminder Alert toggle.
@@ -65,7 +65,7 @@ This document catalogs StitchMCP design references for SubFlow, with current And
 ### 4b. Budget, CSV and home-screen widget
 - Budget previews, meter and accepted-save/resume feedback suspend monetary conclusions when coverage is unknown, without blocking factual success. Settings explicitly labels original-currency editing when needed and preserves an open draft across rate/home-currency changes; semantics belong to the calculation spec.
 - Analytics exports CSV with original source data, blank unavailable home amounts and appended `MonthlyConversionStatus`; JSON backups are unchanged. The exact export contract lives in the calculation spec.
-- Responsive widget sizes are 180×60 and 180×110 dp (tall behavior from 100 dp height). Small prioritizes monthly estimate/coverage; tall adds scrolling inventory and valid events/no-events. Numeric values retain 20sp; unavailable explanatory text uses compact 12sp. A usable partial amount carries a short localized converted-only caption that fits the minimum content width, rather than ellipsizing the full-screen coverage sentence. Unavailable amounts do not claim a displayed known portion. Empty inventory alone uses onboarding. Body opens home; event rows open detail. Rendering, launcher accessibility and clicks require device acceptance, not just compilation or a design mockup. Refresh is best effort, not guaranteed at background midnight.
+- Responsive widget sizes are 180×60 and 180×110 dp (tall behavior from 100 dp height). Small prioritizes a concise monthly estimate and coverage; tall uses the remaining allocated height for as many valid upcoming events as fit and lets additional rows scroll. Each displayed event may show its app-private local service logo; remote catalogue/content URLs are never loaded. Numeric values retain 20sp; unavailable explanatory text uses compact 12sp. A usable partial amount carries a short localized converted-only caption that fits the minimum content width, rather than ellipsizing the full-screen coverage sentence. Unavailable amounts do not claim a displayed known portion. Empty inventory alone uses onboarding. Body opens home; event rows open detail. Rendering, launcher accessibility and clicks require device acceptance, not just compilation or a design mockup. Refresh is best effort, not guaranteed at background midnight.
 - Acceptance evidence and remaining runtime checks: [subscriptions overview matrix](testing/subscriptions-overview.md).
 
 ### 5. Web Admin Console (Desktop Dashboard)

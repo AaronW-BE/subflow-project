@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +41,10 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.Image
+import androidx.glance.BitmapImageProvider
+import androidx.glance.ImageProvider
+import androidx.glance.appwidget.ImageProvider as imageProvider
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -49,6 +55,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.dpdns.alwaysup.subflow.MainActivity
 import org.dpdns.alwaysup.subflow.R
+import org.dpdns.alwaysup.subflow.ui.components.BrandLogos
 import org.dpdns.alwaysup.subflow.data.local.SubFlowDatabase
 import org.dpdns.alwaysup.subflow.data.preferences.PreferencesManager
 import org.dpdns.alwaysup.subflow.data.repository.ExchangeRateRepository
@@ -208,19 +215,13 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
         // The list takes whatever height is left and scrolls past it, so a
         // widget dragged taller shows more rows rather than more blank space.
         LazyColumn(modifier = GlanceModifier.fillMaxWidth().defaultWeight()) {
-            item {
-                Text(
-                    text = "${localized.getString(R.string.overview_all)} ${summary.counts.total} · " +
-                        "${localized.getString(R.string.overview_active)} ${summary.counts.active} · " +
-                        "${localized.getString(R.string.overview_paused)} ${summary.counts.paused}" + " · " +
-                        localized.getString(R.string.overview_pending, summary.counts.pendingTrial),
-                    style = TextStyle(color = WidgetInkDim, fontSize = 10.sp)
-                )
-            }
             if (summary.upcoming.isEmpty()) item {
                 Text(text = localized.getString(R.string.widget_no_events),
                     style = TextStyle(color = WidgetInkDim, fontSize = 11.sp))
             }
+            // The remaining height determines how many rows are visible; the
+            // launcher can scroll the rest instead of imposing an arbitrary
+            // two-row cap on taller widget allocations.
             items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
                 RenewalRow(renewal, localized)
             }
@@ -228,7 +229,24 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
     }
 }
 
+
+
+/** Decode only validated private logos so launcher receives bitmap pixels, not a private URI. */
+private fun storedLogoBitmap(iconUrl: String?): Bitmap? {
+    if (!org.dpdns.alwaysup.subflow.domain.util.CustomLogoStore.isStoredLogo(iconUrl)) return null
+    val path = runCatching { Uri.parse(iconUrl).path }.getOrNull() ?: return null
+    return runCatching {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        val sample = generateSequence(1) { it * 2 }
+            .first { maxOf(bounds.outWidth / it, bounds.outHeight / it) <= 64 }
+        BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })
+    }.getOrNull()
+}
+
 @Composable
+@SuppressLint("RestrictedApi")
 private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
     // Plain context for the tap intent; the app-language one for every word.
     val context = LocalContext.current
@@ -273,6 +291,47 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val customLogo = storedLogoBitmap(renewal.iconUrl)?.let(::BitmapImageProvider)
+        val colourLogo = BrandLogos.colourMarkFor(null, renewal.name)?.let { androidx.glance.ImageProvider(it) }
+        val monochromeLogo = BrandLogos.forName(renewal.name)?.let { androidx.glance.ImageProvider(it) }
+        when {
+            customLogo != null -> Image(
+                customLogo,
+                contentDescription = null,
+                modifier = GlanceModifier
+                    .width(28.dp)
+                    .height(28.dp)
+                    .padding(3.dp)
+            )
+            colourLogo != null -> Image(
+                colourLogo,
+                contentDescription = null,
+                modifier = GlanceModifier
+                    .width(28.dp)
+                    .height(28.dp)
+                    .padding(3.dp)
+            )
+            monochromeLogo != null -> {
+                val brandColour = BrandLogos.brandColourFor(renewal.name)
+                    ?.let { runCatching { android.graphics.Color.parseColor(it) }.getOrNull() }
+                Image(
+                    monochromeLogo,
+                    contentDescription = null,
+                    modifier = GlanceModifier
+                        .width(28.dp)
+                        .height(28.dp)
+                        .background(
+                            brandColour?.let { ColorProvider(androidx.compose.ui.graphics.Color(it)) }
+                                ?: ColorProvider(R.color.widget_logo_plate)
+                        )
+                        .cornerRadius(6.dp)
+                        .padding(3.dp)
+                )
+            }
+        }
+        if (customLogo != null || colourLogo != null || monochromeLogo != null) {
+            Spacer(modifier = GlanceModifier.width(8.dp))
+        }
         Column(modifier = GlanceModifier.defaultWeight()) {
             Text(
                 text = renewal.name,

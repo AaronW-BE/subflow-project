@@ -17,15 +17,16 @@ data class WidgetSummary(
 
 data class UpcomingRenewal(
     val id: String, val name: String, val daysLeft: Long, val isTrial: Boolean,
-    val amount: Double, val currency: String, val date: String
+    val amount: Double, val currency: String, val date: String, val iconUrl: String?
 )
 
 /** Pure, global inventory and current commitment, using the homepage contract. */
 fun summariseForWidget(subscriptions: List<Subscription>, snapshot: CalculationSnapshot): WidgetSummary {
     val overview = calculateOverview(subscriptions, snapshot)
+    val icons = subscriptions.associateBy { it.id }
     return WidgetSummary(overview.currentMonthlyEstimate, snapshot.homeCurrency, overview.counts,
         overview.upcomingEvents.map {
             UpcomingRenewal(it.subscriptionId, it.name, ChronoUnit.DAYS.between(snapshot.today, it.date),
-                it.isPendingTrial, it.amount, it.currency, it.date.toString())
+                it.isPendingTrial, it.amount, it.currency, it.date.toString(), icons[it.subscriptionId]?.iconUrl)
         })
 }

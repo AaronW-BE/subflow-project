@@ -387,9 +387,9 @@
     <string name="whats_new_version">Versão %1$s</string>
     <string name="whats_new_done">Entendi</string>
     <string name="whats_new_feedback">Enviar feedback</string>
-    <string name="whats_new_item_1">Agora o SubFlow está em português, coreano e italiano.</string>
-    <string name="whats_new_item_2">Pro: defina um orçamento mensal em Configurações → Preferências e veja quanto resta.</string>
-    <string name="whats_new_item_3">As compras se conectam ao Google Play com mais confiabilidade.</string>
+    <string name="whats_new_item_1">O SubFlow oferece holandês e verificações opcionais no fim do teste.</string>
+    <string name="whats_new_item_2">Os widgets mostram mais renovações com cores e valores claros.</string>
+    <string name="whats_new_item_3">Os serviços integrados aparecem ao adicionar uma assinatura.</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">Importar CSV</string>
