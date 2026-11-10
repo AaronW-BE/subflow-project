@@ -381,9 +381,9 @@
     <string name="whats_new_version">Versie %1$s</string>
     <string name="whats_new_done">Begrepen</string>
     <string name="whats_new_feedback">Feedback versturen</string>
-    <string name="whats_new_item_1">SubFlow spreekt nu Portugees, Koreaans en Italiaans.</string>
-    <string name="whats_new_item_2">Pro: stel een maandbudget in via Instellingen → Voorkeuren en zie hoeveel je overhoudt.</string>
-    <string name="whats_new_item_3">De verbinding met Google Play bij aankopen is betrouwbaarder.</string>
+    <string name="whats_new_item_1">SubFlow biedt Nederlands en optionele controles op de laatste proefdag.</string>
+    <string name="whats_new_item_2">Widgets tonen meer verlengingen met servicekleuren en duidelijke bedragen.</string>
+    <string name="whats_new_item_3">Ingebouwde diensten verschijnen meteen bij het toevoegen.</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">CSV importeren</string>

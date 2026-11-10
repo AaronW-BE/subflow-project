@@ -217,6 +217,26 @@ object BrandLogos {
             ?.value
     }
 
+    private val brandColoursByName: Map<String, String> = mapOf(
+        "netflix" to "#E50914", "spotify" to "#1DB954", "youtubepremium" to "#FF0000",
+        "chatgptplus" to "#10A37F", "claudepro" to "#D97757", "githubcopilot" to "#24292F",
+        "appletvplus" to "#1C1C1E", "primevideo" to "#00A8E1", "hulu" to "#1CE783",
+        "crunchyroll" to "#F47521", "applemusic" to "#FA243C", "adobecreativecloud" to "#DA1D26",
+        "microsoft365" to "#D83B01", "slack" to "#4A154B", "icloudplus" to "#007AFF",
+        "dropbox" to "#0061FF", "backblaze" to "#E21E29", "amazonprime" to "#FF9900",
+        "nordvpn" to "#4687FF", "1password" to "#1A8CFF", "playstationplus" to "#0070D1",
+        "xboxgamepass" to "#107C10", "nintendoswitchonline" to "#E60012",
+        "gymmembership" to "#E11D48", "headspace" to "#F47D31", "strava" to "#FC4C02",
+        "duolingosuper" to "#58CC02", "thenewyorktimes" to "#1C1C1E", "medium" to "#000000"
+    )
+
+    /** Brand tile colour for a monochrome mark, or null when no safe match exists. */
+    fun brandColourFor(name: String?): String? {
+        val key = normalise(name ?: return null)
+        return brandColoursByName[key]
+            ?: brandColoursByName.entries.firstOrNull { key.startsWith(it.key) }?.value
+    }
+
     /** The mark for a preset id, or null when there is none. */
     @DrawableRes
     fun forPresetId(presetId: String?): Int? =

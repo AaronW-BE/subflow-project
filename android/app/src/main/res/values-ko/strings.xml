@@ -378,9 +378,9 @@
     <string name="whats_new_version">버전 %1$s</string>
     <string name="whats_new_done">확인</string>
     <string name="whats_new_feedback">의견 보내기</string>
-    <string name="whats_new_item_1">이제 포르투갈어, 한국어, 이탈리아어를 지원해요.</string>
-    <string name="whats_new_item_2">Pro: 설정 → 환경설정에서 월 예산을 정하고 남은 금액을 확인하세요.</string>
-    <string name="whats_new_item_3">구매 시 Google Play 연결이 더 안정적이에요.</string>
+    <string name="whats_new_item_1">네덜란드어와 무료 체험 마지막 날 확인을 지원해요.</string>
+    <string name="whats_new_item_2">위젯에서 서비스 색상과 금액을 유지하며 갱신을 더 많이 보여줘요.</string>
+    <string name="whats_new_item_3">구독을 추가하면 기본 서비스가 바로 보여요.</string>
 
     <!-- CSV import (BIN-65) -->
     <string name="import_csv">CSV 가져오기</string>

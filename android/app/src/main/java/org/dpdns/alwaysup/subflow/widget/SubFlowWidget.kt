@@ -219,7 +219,10 @@ private fun WidgetBody(summary: WidgetSummary, localized: Context) {
                 Text(text = localized.getString(R.string.widget_no_events),
                     style = TextStyle(color = WidgetInkDim, fontSize = 11.sp))
             }
-            items(summary.upcoming.take(2), itemId = { it.id.hashCode().toLong() }) { renewal ->
+            // The remaining height determines how many rows are visible; the
+            // launcher can scroll the rest instead of imposing an arbitrary
+            // two-row cap on taller widget allocations.
+            items(summary.upcoming, itemId = { it.id.hashCode().toLong() }) { renewal ->
                 RenewalRow(renewal, localized)
             }
         }
@@ -294,22 +297,36 @@ private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
             customLogo != null -> Image(
                 customLogo,
                 contentDescription = null,
-                modifier = GlanceModifier.width(28.dp).height(28.dp)
+                modifier = GlanceModifier
+                    .width(28.dp)
+                    .height(28.dp)
+                    .padding(3.dp)
             )
             colourLogo != null -> Image(
                 colourLogo,
                 contentDescription = null,
-                modifier = GlanceModifier.width(28.dp).height(28.dp)
-            )
-            monochromeLogo != null -> Image(
-                monochromeLogo,
-                contentDescription = null,
                 modifier = GlanceModifier
                     .width(28.dp)
                     .height(28.dp)
-                    .background(ColorProvider(R.color.widget_logo_plate))
-                    .cornerRadius(6.dp)
+                    .padding(3.dp)
             )
+            monochromeLogo != null -> {
+                val brandColour = BrandLogos.brandColourFor(renewal.name)
+                    ?.let { runCatching { android.graphics.Color.parseColor(it) }.getOrNull() }
+                Image(
+                    monochromeLogo,
+                    contentDescription = null,
+                    modifier = GlanceModifier
+                        .width(28.dp)
+                        .height(28.dp)
+                        .background(
+                            brandColour?.let { ColorProvider(androidx.compose.ui.graphics.Color(it)) }
+                                ?: ColorProvider(R.color.widget_logo_plate)
+                        )
+                        .cornerRadius(6.dp)
+                        .padding(3.dp)
+                )
+            }
         }
         if (customLogo != null || colourLogo != null || monochromeLogo != null) {
             Spacer(modifier = GlanceModifier.width(8.dp))
