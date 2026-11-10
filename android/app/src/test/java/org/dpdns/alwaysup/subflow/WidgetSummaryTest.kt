@@ -61,7 +61,7 @@ class WidgetSummaryTest {
     }
 
     @Test
-    fun `the first upcoming renewal carries its local logo metadata`() {
+    fun `each upcoming renewal carries its own logo metadata`() {
         val s = summariseForWidget(
             listOf(
                 sub("Soon", daysAway = 2, iconUrl = "file:///data/user/0/org.dpdns.alwaysup.subflow/files/subscription_logos/soon.png"),
