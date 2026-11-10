@@ -246,6 +246,7 @@ private fun storedLogoBitmap(iconUrl: String?): Bitmap? {
 }
 
 @Composable
+@SuppressLint("RestrictedApi")
 private fun RenewalRow(renewal: UpcomingRenewal, localized: Context) {
     // Plain context for the tap intent; the app-language one for every word.
     val context = LocalContext.current
